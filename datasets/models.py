@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 
 from django.db import models
+from django.db.models import Count
 from django.contrib.postgres.fields import JSONField
 
 
@@ -24,6 +25,30 @@ class Dataset(models.Model):
 
     def __str__(self):
         return 'Dataset {0}'.format(self.name)
+
+    @property
+    def annotations(self):
+        return Annotation.objects.filter(sound_dataset__dataset=self)
+
+    @property
+    def num_sounds(self):
+        return self.sounds.all().count()
+
+    @property
+    def num_annotations(self):
+        return self.annotations.count()
+
+    @property
+    def avg_annotations_per_sound(self):
+        return self.num_annotations * 1.0 / self.num_sounds
+
+    @property
+    def num_validated_annotations(self):
+        return len([item for item in self.annotations.annotate(num_votes=Count('votes')) if item.num_votes > 0])
+
+    @property
+    def percentage_validated_annotations(self):
+        return self.num_validated_annotations * 100.0 / self.num_annotations
 
 
 class SoundDataset(models.Model):
