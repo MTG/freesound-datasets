@@ -1,4 +1,4 @@
-from django.conf.urls import url
+from django.conf.urls import url, include
 from django.conf import settings
 from django.contrib import admin
 from freesound_datasets.views import index, crash_me
@@ -9,6 +9,7 @@ urlpatterns = [
     url(r'^$', index, name='index'),
     url(r'^crash/$', crash_me, name='crash_me'),
     url(r'^admin/', admin.site.urls),
+    url(r'^datasets/', include('datasets.urls')),
 ]
 
 if settings.DEBUG:
