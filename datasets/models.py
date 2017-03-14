@@ -3,10 +3,29 @@ from __future__ import unicode_literals
 from django.db import models
 from django.db.models import Count
 from django.contrib.postgres.fields import JSONField
+from urllib.parse import quote
 
 
 class Taxonomy(models.Model):
     data = JSONField()
+
+    def preprocess_taxonomy(self):
+        # This should only be done once, now it is implemented as a sort oh hack, called after url patterns...
+        processed_data = list()
+        for node in self.data:
+            new_node = {key: value for key, value in node.items()}
+            children = self.get_children(node['id'])
+            parents = self.get_parents(node['id'])
+            new_node.update({
+                'url_id': quote(node['id'], safe=''),
+                'children': children,
+                'num_children': len(children),
+                'parents': parents,
+                'num_parents': len(parents),
+            })
+            processed_data.append(new_node)
+        self.data = processed_data
+        self.save()
 
     def get_root_node(self):
         parent = self.data[0]['id']
@@ -19,12 +38,19 @@ class Taxonomy(models.Model):
     def get_one_parent(self, ontology_id):
         for e in self.data:
             if ontology_id in e['child_ids']:
-                return e['id']
+                return e
+
+    def get_parents(self, ontology_id):
+        parents = []
+        for e in self.data:
+            if ontology_id in e['child_ids']:
+                parents.append(self.get_element_at_id(e['id']))
+        return parents
 
     def get_children(self, ontology_id):
         for e in self.data:
             if e['id'] == ontology_id:
-                return e['child_ids']
+                return [self.get_element_at_id(child_id) for child_id in e['child_ids']]
         return None
 
     def get_element_at_id(self, ontology_id):
@@ -32,6 +58,11 @@ class Taxonomy(models.Model):
             if e['id'] == ontology_id:
                 return e
         return None
+
+    def get_all_nodes(self):
+        names_ids_list = [(e['id'], e['name']) for e in self.data]  # Quote id as it contains slashes
+        sorted_names_ids_list = sorted(names_ids_list, key=lambda x: x[1])  # Sort by name
+        return [self.get_element_at_id(node_id) for node_id, _ in sorted_names_ids_list]
 
 
 class Sound(models.Model):

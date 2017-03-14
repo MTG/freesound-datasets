@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block title %}Download{% endblock title %}
+
+{% block content %}
+    <h1 class="ui header">{{ node.name }}</h1>
+    <p>
+        {{ node.description }}
+        <br>
+        Parents:
+        {% for parent in node.parents %}
+            <a href="{% url 'explore-node' dataset.short_name parent.url_id %}" class="ui teal label">{{ parent.name }}</a>
+        {% empty %}
+            -
+        {% endfor %}
+        <br>
+        Children:
+        {% for children in node.children %}
+            <a href="{% url 'explore-node' dataset.short_name children.url_id %}" class="ui label">{{ children.name }}</a>
+        {% empty %}
+            -
+        {% endfor %}
+    </p>
+
+{% endblock %}

@@ -30,7 +30,27 @@
             </tbody>
         </table>
     </p>
-    <p>
-        <a href="{% url 'download' dataset.short_name %}" class="blue ui button right floated">Download <i class="right chevron icon"></i></a>
-    </p>
+    <a href="{% url 'download' dataset.short_name %}" class="blue ui button right floated">Download <i class="right chevron icon"></i></a>
+    <br>
+    <h2>Contents</h2>
+    <table class="ui table">
+        <thead>
+            <tr>
+                <th>Label</th>
+                <th>N parents</th>
+                <th>N children</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for node in dataset.taxonomy.get_all_nodes %}
+            <tr>
+                <td>{{ node.name }}</td>
+                <td>{{ node.num_parents }}</td>
+                <td>{{ node.num_children }}</td>
+                <td class="right aligned"><a href="{% url 'explore-node' dataset.short_name node.url_id %}" class="blue ui button">Explore <i class="right chevron icon"></i></a></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
 {% endblock %}
