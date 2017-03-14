@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block title %}Index{% endblock title %}
+
+{% block content %}
+  <h1 class="ui header">{{ dataset.name }}</h1>
+  <p>
+    {{ dataset.description }}
+  </p>
+{% endblock %}

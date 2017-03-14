@@ -1,5 +1,9 @@
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.conf import settings
+from django.http import HttpResponseRedirect
+from django.core.urlresolvers import reverse
+from datasets.models import Dataset
 
 
 @login_required
@@ -7,5 +11,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 def crash_me(request):
     raise Exception('Everything is under control')
 
+
 def index(request):
-    return render(request, 'index.html')
+    default_dataset = get_object_or_404(Dataset, name=settings.DEFAULT_DATASET_NAME)
+    return HttpResponseRedirect(reverse('dataset', args=[default_dataset.short_name]))

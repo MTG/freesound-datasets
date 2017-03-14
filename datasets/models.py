@@ -17,6 +17,7 @@ class Sound(models.Model):
 class Dataset(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=200)
+    short_name = models.CharField(max_length=50)
     description = models.TextField(blank=True)
     taxonomy = JSONField(default={})
     sounds = models.ManyToManyField(Sound, related_name='datasets', through='datasets.SoundDataset')
