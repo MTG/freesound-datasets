@@ -1,0 +1,22 @@
+version: '2'
+volumes:
+  dbvolume:
+services:
+  db:
+    image: postgres:9.4
+    env_file:
+      - .env
+    volumes:
+      - dbvolume:/var/lib/postgresql/data/
+  web:
+    build: .
+    ports:
+      - 8000:8000
+    env_file:
+      - .env
+    volumes:
+      - .:/code
+      - /static/
+    command: bash -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    depends_on:
+      - db
