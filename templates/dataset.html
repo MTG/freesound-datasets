@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load staticfiles %}
+{% load humanize %}
 {% block title %}Index{% endblock title %}
 
 {% block content %}
@@ -24,7 +25,7 @@
                     <td>{{ dataset.num_sounds }}</td>
                     <td>{{ dataset.num_annotations }}</td>
                     <td>{{ dataset.avg_annotations_per_sound }}</td>
-                    <td>{{ dataset.percentage_validated_annotations }}%</td>
+                    <td>{{ dataset.percentage_validated_annotations|floatformat:2 }}%</td>
                 </tr>
             </tbody>
         </table>

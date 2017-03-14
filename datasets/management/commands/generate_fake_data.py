@@ -11,6 +11,7 @@ class Command(BaseCommand):
         # Create a fake dataset
         dataset, _ = Dataset.objects.get_or_create(
             name='A fake dataset',
+            short_name='fsd',
             description='A textual description for the fake dataset',
         )
 

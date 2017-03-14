@@ -5,6 +5,35 @@ from django.db.models import Count
 from django.contrib.postgres.fields import JSONField
 
 
+class Taxonomy(models.Model):
+    data = JSONField()
+
+    def get_root_node(self):
+        parent = self.data[0]['id']
+        child = None
+        while parent:
+            child = parent
+            parent = self.get_one_parent(parent)
+        return child
+
+    def get_one_parent(self, ontology_id):
+        for e in self.data:
+            if ontology_id in e['child_ids']:
+                return e['id']
+
+    def get_children(self, ontology_id):
+        for e in self.data:
+            if e['id'] == ontology_id:
+                return e['child_ids']
+        return None
+
+    def get_element_at_id(self, ontology_id):
+        for e in self.data:
+            if e['id'] == ontology_id:
+                return e
+        return None
+
+
 class Sound(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=200)
@@ -20,7 +49,7 @@ class Dataset(models.Model):
     name = models.CharField(max_length=200)
     short_name = models.CharField(max_length=50)
     description = models.TextField(blank=True)
-    taxonomy = JSONField(default={})
+    taxonomy = models.ForeignKey(Taxonomy, null=True, blank=True, on_delete=models.SET_NULL)
     sounds = models.ManyToManyField(Sound, related_name='datasets', through='datasets.SoundDataset')
 
     def __str__(self):
