@@ -16,7 +16,7 @@ class Command(BaseCommand):
         )
 
         # Create sounds and add them to dataset
-        for i in range(0, 10):
+        for i in range(0, 100):
             sound, _ = Sound.objects.get_or_create(
                 name='Fake sound #{0}'.format(i),
                 freesound_id=1234 + i,
@@ -27,8 +27,14 @@ class Command(BaseCommand):
             )
 
         # Create annotations
-        possible_fake_annotations = ['label1', 'label2', 'label3', 'label4']
-        for i in range(0, 20):
+        possible_fake_annotations = ['/m/0z9c', '/m/07q2z82', '/m/0mkg', '/t/dd00093', '/m/042v_gx']
+        try:
+            taxonomy = dataset.taxonomy
+            possible_fake_annotations = [node['id'] for node in dataset.taxonomy.get_all_nodes()]
+        except:
+            pass
+
+        for i in range(0, 500):
             sound_dataset = random.choice(list(SoundDataset.objects.all()))
             annotation, _ = Annotation.objects.get_or_create(
                 sound_dataset=sound_dataset,
@@ -39,7 +45,7 @@ class Command(BaseCommand):
 
         # Add votes for annotations
         possible_vote_options = [-1, 1]
-        for i in range(0, 20):
+        for i in range(0, 1000):
             annotation = random.choice(list(Annotation.objects.all()))
             vote, _ = Vote.objects.get_or_create(
                 annotation=annotation,
