@@ -13,3 +13,7 @@ def upload_taxonomy(request):
         form = JsonForm()
     return render(request, 'dataset/new_taxonomy.html', {'form': form,})
 
+
+def dataset(request, short_name):
+    dataset = get_object_or_404(models.Dataset, short_name=short_name)
+    return render(request, 'dataset.html', {'dataset': dataset})

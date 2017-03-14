@@ -3,6 +3,7 @@ from django.conf import settings
 from django.contrib import admin
 from freesound_datasets.views import index, crash_me
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+from datasets.views import dataset
 
 
 urlpatterns = [
@@ -10,6 +11,7 @@ urlpatterns = [
     url(r'^crash/$', crash_me, name='crash_me'),
     url(r'^admin/', admin.site.urls),
     url(r'^datasets/', include('datasets.urls')),
+    url(r'^(?P<short_name>[^\/]+)/', dataset, name='dataset'),
 ]
 
 if settings.DEBUG:
