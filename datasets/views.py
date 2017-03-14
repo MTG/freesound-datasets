@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404
-from datasets.models import Dataset
+from datasets.models import Dataset, Taxonomy
 from datasets.forms import JsonForm
 from urllib.parse import unquote
 
@@ -9,7 +9,7 @@ def upload_taxonomy(request):
         form = JsonForm(request.POST, request.FILES)
         if form.is_valid():
             data = form.cleaned_data['json_file']
-            taxonomy = models.Taxonomy.objects.create(data=data)
+            taxonomy = Taxonomy.objects.create(data=data)
     else:
         form = JsonForm()
     return render(request, 'dataset/new_taxonomy.html', {'form': form,})
