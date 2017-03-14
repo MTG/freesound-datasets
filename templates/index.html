@@ -3,5 +3,29 @@
 {% block title %}Index{% endblock title %}
 
 {% block content %}
-    <h1>Index</h1>
+  <h1 class="ui header">Semantic UI Fixed Template</h1>
+  <p>
+    The goal of Freesound Datasets is to have a website to host and create datasets based on
+    Freesound content. The website should allow collaborative creation of public datasets and
+    should provide a way for researchers to explore the dataset and to download it. By “exploring
+    the dataset” we mean something like Google AudioSet’s site: https://research.google.com/audioset/.
+    Although the project should be generic enough to support several datasets, the most important
+    dataset will be called FreesoundDataset, and will be basically a classification of Freesound
+    content into the “ontology” that Google use in AudioSet (https://github.com/audioset/ontology,
+    also see paper: https://static.googleusercontent.com/media/research.google.com/en//pubs/archive/45857.pdf).
+    Therefore, the priority now should be to make the site work for the FreesoundDataset case.
+    As a suggestion, Freesound Datasets could be accessed at datasets.freesound.org.
+  </p>
+  <p>
+  <a class="ui tag label">Tag1</a>
+  <a class="ui tag label">Tag2</a>
+  <a class="ui tag label">Tag3</a>
+  <div class="ui right labeled left icon input">
+    <i class="tags icon"></i>
+    <input placeholder="Enter tags" type="text">
+    <a class="ui tag label">
+      Add Tag
+    </a>
+  </div>
+  </p>
 {% endblock %}
