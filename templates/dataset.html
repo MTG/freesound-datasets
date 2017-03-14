@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 {% load humanize %}
+{% load dataset_templatetags %}
 {% block title %}Index{% endblock title %}
 
 {% block content %}
@@ -39,6 +40,7 @@
                 <th>Label</th>
                 <th>N parents</th>
                 <th>N children</th>
+                <th>N sounds</th>
                 <th></th>
             </tr>
         </thead>
@@ -46,8 +48,10 @@
         {% for node in dataset.taxonomy.get_all_nodes %}
             <tr>
                 <td>{{ node.name }}</td>
-                <td>{{ node.num_parents }}</td>
-                <td>{{ node.num_children }}</td>
+                {% taxonomy_node_stats dataset node.id as node_stats %}
+                <td>{{ node_stats.num_parents }}</td>
+                <td>{{ node_stats.num_children }}</td>
+                <td>{{ node_stats.num_sounds }}</td>
                 <td class="right aligned"><a href="{% url 'explore-node' dataset.short_name node.url_id %}" class="blue ui button">Explore <i class="right chevron icon"></i></a></td>
             </tr>
         {% endfor %}

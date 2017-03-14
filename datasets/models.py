@@ -19,9 +19,7 @@ class Taxonomy(models.Model):
             new_node.update({
                 'url_id': quote(node['id'], safe=''),
                 'children': children,
-                'num_children': len(children),
                 'parents': parents,
-                'num_parents': len(parents),
             })
             processed_data.append(new_node)
         self.data = processed_data
@@ -109,6 +107,13 @@ class Dataset(models.Model):
     @property
     def percentage_validated_annotations(self):
         return self.num_validated_annotations * 100.0 / self.num_annotations
+
+    def sounds_per_taxonomy_node(self, node_id):
+        # TODO: implement this properly
+        return 123  # self.annotations.filter(value=node_id).values_list('sound_dataset__sound', flat=True)
+
+    def num_sounds_per_taxonomy_node(self, node_id):
+        return self.sounds_per_taxonomy_node(node_id=node_id).count()
 
 
 class SoundDataset(models.Model):
