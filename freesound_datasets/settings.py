@@ -16,9 +16,9 @@ import dj_database_url
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# APP ID/SECTRET to geenrate access token for script
-APP_CLIENT_ID = ""
-APP_CLIENT_SECRET = ""
+# APP ID/SECTRET to generate access token for script
+APP_ENV_CLIENT_ID = "APP_CLIENT_ID"
+APP_ENV_CLIENT_SECRET = "APP_CLIENT_SECRET"
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
@@ -49,9 +49,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
+    'django.contrib.sites',
     'django_extensions',
     'datasets',
 ]
+
+SITE_ID = 1
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

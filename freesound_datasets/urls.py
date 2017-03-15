@@ -10,6 +10,7 @@ urlpatterns = [
     url(r'^crash/$', crash_me, name='crash_me'),
     url(r'^admin/', admin.site.urls),
     url(r'^get-access-token/$', get_access_token, name='get_access_token'),
+    url(r'^download-script/(?P<short_name>[^\/]+)/$', download_script, name='download-script'),
     url(r'^(?P<short_name>[^\/]+)/$', dataset, name='dataset'),
     url(r'^(?P<short_name>[^\/]+)/download/$', download, name='download'),
     url(r'^(?P<short_name>[^\/]+)/taxonomy_table/$', dataset_taxonomy_table, name='taxonomy-table'),

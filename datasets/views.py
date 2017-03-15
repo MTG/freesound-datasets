@@ -1,26 +1,41 @@
+import os
 from urllib.request import urlopen
+from urllib.error import HTTPError
 from urllib.parse import urlencode, unquote
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render, get_object_or_404
 from datasets.models import Dataset
 from django.conf import settings
-
+from datasets import utils
 
 def get_access_token(request):
-    code = request.GET.get('code')
+    code = request.GET.get('code', None)
+    if not code:
+        return HttpResponseBadRequest()
+
     data = {
             'code': code,
-            'client_id': settings.APP_CLIENT_ID,
-            'client_secret': settings.APP_CLIENT_SECRET,
+            'client_id': os.environ[settings.APP_ENV_CLIENT_ID],
+            'client_secret': os.environ[settings.APP_ENV_CLIENT_SECRET],
             'grant_type': 'authorization_code'
     }
-    access_token_url = "https://test.freesound.org/apiv2/oauth2/access_token/"
+    access_token_url = "https://www.freesound.org/apiv2/oauth2/access_token/"
     data = urlencode(data).encode('ascii')
 
-    with urlopen(access_token_url, data) as response:
-        response = response.read().decode()
-    return HttpResponse(response)
+    try:
+        with urlopen(access_token_url, data) as response:
+            response = response.read().decode()
+        return HttpResponse(response)
+    except HTTPError:
+        return HttpResponseBadRequest()
 
+def download_script(request, short_name):
+    dataset = get_object_or_404(Dataset, short_name=short_name)
+    response = HttpResponse(content_type='text/plain')
+    response['Content-Disposition'] = 'attachment; filename="fs_download_script.py"'
+    script = utils.generate_download_script(dataset)
+    response.write(script)
+    return response
 
 def dataset(request, short_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
