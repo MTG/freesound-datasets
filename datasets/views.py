@@ -68,7 +68,8 @@ def dataset_taxonomy_table(request, short_name):
 
 def download(request, short_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
-    return render(request, 'download.html', {'dataset': dataset})
+    script = utils.generate_download_script(dataset)
+    return render(request, 'download.html', {'dataset': dataset, 'script': script})
 
 
 def taxonomy_node(request, short_name, node_id):
