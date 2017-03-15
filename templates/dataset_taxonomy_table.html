@@ -11,9 +11,9 @@
     </thead>
     <tbody>
     {% for node in dataset.taxonomy.get_all_nodes %}
-        <tr>
+        {% taxonomy_node_stats dataset node.id as node_stats %}
+        <tr {% if node_stats.is_blacklisted %}class="negative"{% elif node_stats.is_abstract %}class="warning"{% else %}{% endif %}>
             <td>{{ node.name }}</td>
-            {% taxonomy_node_stats dataset node.id as node_stats %}
             <td>{{ node_stats.num_parents }}</td>
             <td>{{ node_stats.num_children }}</td>
             <td>{{ node_stats.num_sounds }}</td>
