@@ -128,4 +128,4 @@ STATIC_ROOT = '/static/'
 BASE_URL = os.getenv('DJANGO_BASE_URL', 'http://example.com')
 
 # Default dataset name
-DEFAULT_DATASET_NAME = os.getenv('DEFAULT_DATASET_NAME', 'A fake dataset')
+DEFAULT_DATASET_NAME = os.getenv('DEFAULT_DATASET_NAME', 'FreesoundDataset')

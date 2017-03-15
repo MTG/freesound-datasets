@@ -3,10 +3,28 @@ from __future__ import unicode_literals
 from django.db import models
 from django.db.models import Count
 from django.contrib.postgres.fields import JSONField
+from urllib.parse import quote
+import markdown
 
 
 class Taxonomy(models.Model):
     data = JSONField()
+
+    def preprocess_taxonomy(self):
+        # This should only be done once, now it is implemented as a sort oh hack, called after url patterns...
+        processed_data = list()
+        for node in self.data:
+            new_node = {key: value for key, value in node.items()}
+            children = self.get_children(node['id'])
+            parents = self.get_parents(node['id'])
+            new_node.update({
+                'url_id': quote(node['id'], safe=''),
+                'children': children,
+                'parents': parents,
+            })
+            processed_data.append(new_node)
+        self.data = processed_data
+        self.save()
 
     def get_root_node(self):
         parent = self.data[0]['id']
@@ -19,12 +37,19 @@ class Taxonomy(models.Model):
     def get_one_parent(self, ontology_id):
         for e in self.data:
             if ontology_id in e['child_ids']:
-                return e['id']
+                return e
+
+    def get_parents(self, ontology_id):
+        parents = []
+        for e in self.data:
+            if ontology_id in e['child_ids']:
+                parents.append(self.get_element_at_id(e['id']))
+        return parents
 
     def get_children(self, ontology_id):
         for e in self.data:
             if e['id'] == ontology_id:
-                return e['child_ids']
+                return [self.get_element_at_id(child_id) for child_id in e['child_ids']]
         return None
 
     def get_element_at_id(self, ontology_id):
@@ -32,6 +57,17 @@ class Taxonomy(models.Model):
             if e['id'] == ontology_id:
                 return e
         return None
+
+    def get_all_nodes(self):
+        names_ids_list = [(e['id'], e['name']) for e in self.data]  # Quote id as it contains slashes
+        sorted_names_ids_list = sorted(names_ids_list, key=lambda x: x[1])  # Sort by name
+        return [self.get_element_at_id(node_id) for node_id, _ in sorted_names_ids_list]
+
+    def get_all_node_ids(self):
+        return [e['id'] for e in self.data]
+
+    def get_num_nodes(self):
+        return len(self.data)
 
 
 class Sound(models.Model):
@@ -56,6 +92,10 @@ class Dataset(models.Model):
         return 'Dataset {0}'.format(self.name)
 
     @property
+    def description_html(self):
+        return markdown.markdown(self.description)
+
+    @property
     def annotations(self):
         return Annotation.objects.filter(sound_dataset__dataset=self)
 
@@ -69,6 +109,8 @@ class Dataset(models.Model):
 
     @property
     def avg_annotations_per_sound(self):
+        if self.num_sounds == 0:
+            return 0  # Avoid potential division by 0 error
         return self.num_annotations * 1.0 / self.num_sounds
 
     @property
@@ -77,7 +119,21 @@ class Dataset(models.Model):
 
     @property
     def percentage_validated_annotations(self):
+        if self.num_annotations == 0:
+            return 0  # Avoid potential division by 0 error
         return self.num_validated_annotations * 100.0 / self.num_annotations
+
+    def sounds_per_taxonomy_node(self, node_id):
+        return Sound.objects.filter(datasets=self, sounddataset__annotations__value=node_id)
+
+    def num_sounds_per_taxonomy_node(self, node_id):
+        return self.sounds_per_taxonomy_node(node_id=node_id).count()
+
+    def annotations_per_taxonomy_node(self, node_id):
+        return self.annotations.filter(value=node_id)
+
+    def num_annotations_per_taxonomy_node(self, node_id):
+        return self.annotations_per_taxonomy_node(node_id=node_id).count()
 
 
 class SoundDataset(models.Model):
@@ -96,7 +152,7 @@ class Annotation(models.Model):
     type = models.CharField(max_length=2, choices=TYPE_CHOICES, default='UK')
     # TODO: add created_by property (user, can be null)
     algorithm = models.CharField(max_length=200, blank=True, null=True)
-    value = models.CharField(max_length=200)
+    value = models.CharField(max_length=200, db_index=True)
     start_time = models.DecimalField(max_digits=6, decimal_places=3, blank=True, null=True)
     end_time = models.DecimalField(max_digits=6, decimal_places=3, blank=True, null=True)
 
