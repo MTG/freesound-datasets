@@ -4,7 +4,9 @@
 {% block title %}{{ node.name }}{% endblock title %}
 
 {% block content %}
-    <h1 class="ui header">{{ node.name }}</h1>
+    <div class="ui breadcrumb">
+        <h1 class="ui header"><a href="{% url 'dataset' dataset.short_name %}">{{ dataset.name }}</a> <i class="right arrow icon divider"></i> {{ node.name }}</h1>
+    </div>
     <p>
         {{ node.description }}
     </p>
@@ -15,7 +17,7 @@
                 <td>
                     {% for node in node.parents %}
                         {% taxonomy_node_stats dataset node.id as node_stats %}
-                        <a href="{% url 'explore-node' dataset.short_name node_stats.url_id %}" class="ui teal label">{{ node.name }}</a>
+                        <a href="{% url 'taxonomy-node' dataset.short_name node_stats.url_id %}" class="ui label">{{ node.name }}</a>
                     {% empty %}
                         -
                     {% endfor %}
@@ -26,19 +28,16 @@
                 <td>
                     {% for node in node.children %}
                         {% taxonomy_node_stats dataset node.id as node_stats %}
-                        <a href="{% url 'explore-node' dataset.short_name node_stats.url_id %}" class="ui label">{{ node.name }}</a>
+                        <a href="{% url 'taxonomy-node' dataset.short_name node_stats.url_id %}" class="ui label">{{ node.name }}</a>
                     {% empty %}
                         -
                     {% endfor %}
                 </td>
             </tr>
-            <tr>
-                <td>URI</td>
-                <td>
-                    {% if node.citation_uri %}<a href="{{ node.citation_uri }}" target="_blank">{{ node.citation_uri }}</a>{% else %}-{% endif %}
-                </td>
-            </tr>
+            <tr><td>URI</td><td>{% if node.citation_uri %}<a href="{{ node.citation_uri }}" target="_blank">{{ node.citation_uri }}</a>{% else %}-{% endif %}</td></tr>
             {% taxonomy_node_stats dataset node.id as node_stats %}
+            <tr><td>Num sounds</td><td>{{ node_stats.num_sounds }}</td></tr>
+            <tr><td>Num annotations</td><td>{{ node_stats.num_annotations }}</td></tr>
             {% if node_stats.is_abstract or node_stats.is_blacklisted %}
                 <tr {% if node_stats.is_blacklisted %}class="negative"{% elif node_stats.is_abstract %}class="warning"{% else %}{% endif %}>
                     <td colspan="2">This node is labeled as <b>{% if node_stats.is_blacklisted %}blacklisted{% elif node_stats.is_abstract %}abstract{% endif %}</b> in the original ontology</td>
@@ -46,6 +45,25 @@
             {% endif %}
         </tbody>
     </table>
+    <br>
+    <h2>Example sounds with this label</h2>
+    <table id="node_sounds" class="ui unstackable table" width="100%">
+    <thead>
+        <tr>
+            <th>Sound</th>
+            <th>Freesound URL</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% sounds_per_taxonomy_node dataset node.id 10 as sounds %}
+        {% for sound in sounds %}
+            <tr>
+                <td>{{ sound.freesound_id | fs_embed | safe }}</td>
+                <td><a href="http://freesound.org/s/{{ sound.freesound_id }}" target="_blank">http://freesound.org/s/{{ sound.freesound_id }}</a></td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
 
 
 {% endblock %}

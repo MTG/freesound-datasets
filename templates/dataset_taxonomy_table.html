@@ -6,18 +6,20 @@
             <th>N parents</th>
             <th>N children</th>
             <th>N sounds</th>
+            <th>N annotations</th>
             <th></th>
         </tr>
     </thead>
     <tbody>
     {% for node in dataset.taxonomy.get_all_nodes %}
-        {% taxonomy_node_stats dataset node.id as node_stats %}
+        {% taxonomy_node_stats dataset node.id node_n_annotations_n_sounds as node_stats %}
         <tr {% if node_stats.is_blacklisted %}class="negative"{% elif node_stats.is_abstract %}class="warning"{% else %}{% endif %}>
             <td>{{ node.name }}</td>
             <td>{{ node_stats.num_parents }}</td>
             <td>{{ node_stats.num_children }}</td>
             <td>{{ node_stats.num_sounds }}</td>
-            <td class="right aligned"><a href="{% url 'explore-node' dataset.short_name node.url_id %}" class="blue ui button">Explore <i class="right chevron icon"></i></a></td>
+            <td>{{ node_stats.num_annotations }}</td>
+            <td class="right aligned"><a href="{% url 'taxonomy-node' dataset.short_name node.url_id %}" class="blue ui button">Explore <i class="right chevron icon"></i></a></td>
         </tr>
     {% endfor %}
     </tbody>

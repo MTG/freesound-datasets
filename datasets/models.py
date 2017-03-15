@@ -63,6 +63,9 @@ class Taxonomy(models.Model):
         sorted_names_ids_list = sorted(names_ids_list, key=lambda x: x[1])  # Sort by name
         return [self.get_element_at_id(node_id) for node_id, _ in sorted_names_ids_list]
 
+    def get_all_node_ids(self):
+        return [e['id'] for e in self.data]
+
     def get_num_nodes(self):
         return len(self.data)
 
@@ -121,11 +124,16 @@ class Dataset(models.Model):
         return self.num_validated_annotations * 100.0 / self.num_annotations
 
     def sounds_per_taxonomy_node(self, node_id):
-        # TODO: implement this properly
-        return self.annotations.filter(value=node_id)#.values_list('sound_dataset__sound', flat=True)
+        return Sound.objects.filter(datasets=self, sounddataset__annotations__value=node_id)
 
     def num_sounds_per_taxonomy_node(self, node_id):
         return self.sounds_per_taxonomy_node(node_id=node_id).count()
+
+    def annotations_per_taxonomy_node(self, node_id):
+        return self.annotations.filter(value=node_id)
+
+    def num_annotations_per_taxonomy_node(self, node_id):
+        return self.annotations_per_taxonomy_node(node_id=node_id).count()
 
 
 class SoundDataset(models.Model):
@@ -144,7 +152,7 @@ class Annotation(models.Model):
     type = models.CharField(max_length=2, choices=TYPE_CHOICES, default='UK')
     # TODO: add created_by property (user, can be null)
     algorithm = models.CharField(max_length=200, blank=True, null=True)
-    value = models.CharField(max_length=200)
+    value = models.CharField(max_length=200, db_index=True)
     start_time = models.DecimalField(max_digits=6, decimal_places=3, blank=True, null=True)
     end_time = models.DecimalField(max_digits=6, decimal_places=3, blank=True, null=True)
 
