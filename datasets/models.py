@@ -4,6 +4,7 @@ from django.db import models
 from django.db.models import Count
 from django.contrib.postgres.fields import JSONField
 from urllib.parse import quote
+import markdown
 
 
 class Taxonomy(models.Model):
@@ -62,6 +63,9 @@ class Taxonomy(models.Model):
         sorted_names_ids_list = sorted(names_ids_list, key=lambda x: x[1])  # Sort by name
         return [self.get_element_at_id(node_id) for node_id, _ in sorted_names_ids_list]
 
+    def get_num_nodes(self):
+        return len(self.data)
+
 
 class Sound(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
@@ -85,6 +89,10 @@ class Dataset(models.Model):
         return 'Dataset {0}'.format(self.name)
 
     @property
+    def description_html(self):
+        return markdown.markdown(self.description)
+
+    @property
     def annotations(self):
         return Annotation.objects.filter(sound_dataset__dataset=self)
 
@@ -98,6 +106,8 @@ class Dataset(models.Model):
 
     @property
     def avg_annotations_per_sound(self):
+        if self.num_sounds == 0:
+            return 0  # Avoid potential division by 0 error
         return self.num_annotations * 1.0 / self.num_sounds
 
     @property
@@ -106,6 +116,8 @@ class Dataset(models.Model):
 
     @property
     def percentage_validated_annotations(self):
+        if self.num_annotations == 0:
+            return 0  # Avoid potential division by 0 error
         return self.num_validated_annotations * 100.0 / self.num_annotations
 
     def sounds_per_taxonomy_node(self, node_id):

@@ -1,33 +1,29 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 {% load humanize %}
-{% load dataset_templatetags %}
 {% block title %}Index{% endblock title %}
 
 {% block content %}
     <script type="text/javascript">
         $(document).ready(function() {
             $( "#dataset_taxonomy_table_placeholder" ).load( "{% url 'taxonomy-table' dataset.short_name %}", function() {
-                alert( "Load was performed." );
-            });
-
-
-            $('#dataset_contents').DataTable({
-                'paging': true,
-                'info': true,
+                $('#dataset_contents').DataTable({
+                    'paging': true,
+                    'info': true,
+                });
             });
         });
     </script>
 
     <h1 class="ui header">{{ dataset.name }}</h1>
-    <p>
-        {{ dataset.description }}
-    </p>
+    {{ dataset.description_html|safe }}
+
     <p>
         <table class="ui definition table">
             <thead>
                 <tr>
                     <th></th>
+                    <th>Num labels</th>
                     <th>Num sounds</th>
                     <th>Num annotations</th>
                     <th>Avg annotations per sound</th>
@@ -37,6 +33,7 @@
             <tbody>
                 <tr>
                     <td>{{ dataset.name }}</td>
+                    <td>{{ dataset.taxonomy.get_num_nodes }}</td>
                     <td>{{ dataset.num_sounds }}</td>
                     <td>{{ dataset.num_annotations }}</td>
                     <td>{{ dataset.avg_annotations_per_sound }}</td>
@@ -48,5 +45,7 @@
     <a href="{% url 'download' dataset.short_name %}" class="blue ui button right floated">Download <i class="right chevron icon"></i></a>
     <br>
     <h2>Taxonomy labels</h2>
-    <div id="dataset_taxonomy_table_placeholder"></div>
+    <div id="dataset_taxonomy_table_placeholder">
+        <div class="ui active centered inline text loader">Loading data...</div>
+    </div>
 {% endblock %}

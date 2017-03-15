@@ -3,3 +3,4 @@ django-extensions==1.7.4
 psycopg2==2.6.2
 dj-database-url==0.4.1
 uwsgi==2.0.14
+markdown==2.6.8
