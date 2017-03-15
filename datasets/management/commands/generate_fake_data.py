@@ -18,9 +18,10 @@ class Command(BaseCommand):
                             'Did you load the initial.json fixture?')
 
         # Create sounds and add them to dataset
-        for count, fsid in enumerate(random.sample(VALID_FS_IDS, 100)):
+        num_current_sounds = Sound.objects.all().count()
+        for count, fsid in enumerate(VALID_FS_IDS):
             sound, _ = Sound.objects.get_or_create(
-                name='Freesound sound #{0}'.format(count),
+                name='Freesound sound #{0}'.format(count + num_current_sounds),
                 freesound_id=fsid,
             )
             SoundDataset.objects.get_or_create(
@@ -30,9 +31,9 @@ class Command(BaseCommand):
 
         # Create annotations
         possible_fake_annotation_values = [node['id'] for node in dataset.taxonomy.get_all_nodes()]
-        for i in range(0, 500):
+        for i in range(0, 1000):
             sound_dataset = random.choice(list(SoundDataset.objects.all()))
-            annotation, _ = Annotation.objects.get_or_create(
+            Annotation.objects.create(
                 sound_dataset=sound_dataset,
                 type='AU',
                 algorithm='Fake algorithm name',
@@ -41,9 +42,9 @@ class Command(BaseCommand):
 
         # Add votes for annotations
         possible_vote_options = [-1, 1]
-        for i in range(0, 1000):
+        for i in range(0, 3000):
             annotation = random.choice(list(Annotation.objects.all()))
-            vote, _ = Vote.objects.get_or_create(
+            Vote.objects.create(
                 annotation=annotation,
                 vote=random.choice(possible_vote_options)
             )
