@@ -1,0 +1,23 @@
+<table id="dataset_contents" class="ui table" width="100%">
+    <thead>
+        <tr>
+            <th>Label</th>
+            <th>N parents</th>
+            <th>N children</th>
+            <th>N sounds</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for node in dataset.taxonomy.get_all_nodes %}
+        <tr>
+            <td>{{ node.name }}</td>
+            {% taxonomy_node_stats dataset node.id as node_stats %}
+            <td>{{ node_stats.num_parents }}</td>
+            <td>{{ node_stats.num_children }}</td>
+            <td>{{ node_stats.num_sounds }}</td>
+            <td class="right aligned"><a href="{% url 'explore-node' dataset.short_name node.url_id %}" class="blue ui button">Explore <i class="right chevron icon"></i></a></td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>

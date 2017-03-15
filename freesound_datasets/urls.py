@@ -14,6 +14,7 @@ urlpatterns = [
     url(r'new-taxonomy/$', upload_taxonomy, name='upload-taxonomy'),
     url(r'^(?P<short_name>[^\/]+)/$', dataset, name='dataset'),
     url(r'^(?P<short_name>[^\/]+)/download/$', download, name='download'),
+    url(r'^(?P<short_name>[^\/]+)/taxonomy_table/$', download, name='taxonomy-table'),
     url(r'^(?P<short_name>[^\/]+)/explore/(?P<node_id>[^\/]+)/$', explore_node, name='explore-node'),
 ]
 

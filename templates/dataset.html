@@ -5,6 +5,20 @@
 {% block title %}Index{% endblock title %}
 
 {% block content %}
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $( "#dataset_taxonomy_table_placeholder" ).load( "{% url 'taxonomy-table' dataset.short_name %}", function() {
+                alert( "Load was performed." );
+            });
+
+
+            $('#dataset_contents').DataTable({
+                'paging': true,
+                'info': true,
+            });
+        });
+    </script>
+
     <h1 class="ui header">{{ dataset.name }}</h1>
     <p>
         {{ dataset.description }}
@@ -33,28 +47,6 @@
     </p>
     <a href="{% url 'download' dataset.short_name %}" class="blue ui button right floated">Download <i class="right chevron icon"></i></a>
     <br>
-    <h2>Contents</h2>
-    <table class="ui table">
-        <thead>
-            <tr>
-                <th>Label</th>
-                <th>N parents</th>
-                <th>N children</th>
-                <th>N sounds</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for node in dataset.taxonomy.get_all_nodes %}
-            <tr>
-                <td>{{ node.name }}</td>
-                {% taxonomy_node_stats dataset node.id as node_stats %}
-                <td>{{ node_stats.num_parents }}</td>
-                <td>{{ node_stats.num_children }}</td>
-                <td>{{ node_stats.num_sounds }}</td>
-                <td class="right aligned"><a href="{% url 'explore-node' dataset.short_name node.url_id %}" class="blue ui button">Explore <i class="right chevron icon"></i></a></td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+    <h2>Taxonomy labels</h2>
+    <div id="dataset_taxonomy_table_placeholder"></div>
 {% endblock %}

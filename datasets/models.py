@@ -110,7 +110,7 @@ class Dataset(models.Model):
 
     def sounds_per_taxonomy_node(self, node_id):
         # TODO: implement this properly
-        return 123  # self.annotations.filter(value=node_id).values_list('sound_dataset__sound', flat=True)
+        return self.annotations.filter(value=node_id)#.values_list('sound_dataset__sound', flat=True)
 
     def num_sounds_per_taxonomy_node(self, node_id):
         return self.sounds_per_taxonomy_node(node_id=node_id).count()
