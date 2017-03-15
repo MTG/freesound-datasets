@@ -1,4 +1,5 @@
 from django import template
+from urllib.parse import quote
 
 
 register = template.Library()
@@ -13,4 +14,5 @@ def taxonomy_node_stats(dataset, node_id):
         'num_children': len(node['children']),
         'is_abstract': 'abstract' in node['restrictions'],
         'is_blacklisted': 'blacklist' in node['restrictions'],
+        'url_id': quote(node['id'], safe=''),
     }
