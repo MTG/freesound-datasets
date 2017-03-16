@@ -1,7 +1,6 @@
 import os
 from urllib.parse import urljoin
 from django.conf import settings
-from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 
 def generate_download_script(dataset):
@@ -13,8 +12,7 @@ import cgi
 import os
 import time
 """
-    domain = "http://%s" % Site.objects.get_current().domain
-    access_token_url = urljoin(domain, reverse('get_access_token'))
+    access_token_url = urljoin(settings.BASE_URL, reverse('get_access_token'))
     output += "get_code_url = 'https://www.freesound.org/apiv2/oauth2/authorize/?response_type=code&client_id=%s'"\
             % (os.environ[settings.APP_ENV_CLIENT_ID])
 
