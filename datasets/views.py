@@ -8,6 +8,7 @@ from datasets.models import Dataset
 from django.conf import settings
 from datasets import utils
 
+
 def get_access_token(request):
     code = request.GET.get('code', None)
     if not code:
@@ -15,8 +16,8 @@ def get_access_token(request):
 
     data = {
             'code': code,
-            'client_id': os.environ[settings.APP_ENV_CLIENT_ID],
-            'client_secret': os.environ[settings.APP_ENV_CLIENT_SECRET],
+            'client_id': settings.FS_CLIENT_ID,
+            'client_secret': settings.FS_CLIENT_SECRET,
             'grant_type': 'authorization_code'
     }
     access_token_url = "https://www.freesound.org/apiv2/oauth2/access_token/"

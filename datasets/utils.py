@@ -14,7 +14,7 @@ import time
 """
     access_token_url = urljoin(settings.BASE_URL, reverse('get_access_token'))
     output += "get_code_url = 'https://www.freesound.org/apiv2/oauth2/authorize/?response_type=code&client_id=%s'"\
-            % (os.environ[settings.APP_ENV_CLIENT_ID])
+            % settings.FS_CLIENT_ID
 
     output += """
 verbose = False

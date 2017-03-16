@@ -16,9 +16,11 @@ import dj_database_url
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# APP ID/SECTRET to generate access token for script
-APP_ENV_CLIENT_ID = "APP_CLIENT_ID"
-APP_ENV_CLIENT_SECRET = "APP_CLIENT_SECRET"
+# FREESOUND ID/SECTRET to generate access token for script
+try:
+    from freesound_datasets.local_settings import FS_CLIENT_ID, FS_CLIENT_SECRET
+except ImportError:
+    raise Exception('Your local_settings.py file should include FS_CLIENT_ID and FS_CLIENT_SECRET')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
