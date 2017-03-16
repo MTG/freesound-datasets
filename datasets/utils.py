@@ -12,6 +12,10 @@ import os
 import time
 """
     access_token_url = urljoin(settings.BASE_URL, reverse('get_access_token'))
+    dataset_url = urljoin(settings.BASE_URL, reverse('dataset-sounds',
+        kwargs={"short_name": dataset.short_name}))
+
+    output += "dataset_url = '%s'\n" % dataset_url
     output += "get_code_url = 'https://www.freesound.org/apiv2/oauth2/authorize/?response_type=code&client_id=%s'"\
             % settings.FS_CLIENT_ID
 
@@ -62,19 +66,17 @@ while expired:
 
         if verbose:
             print("\\nGot access_token successfully  %s" % access_token["access_token"])
+
+        rsp = urllib2.urlopen(dataset_url)
+        progress["sound_ids"] = json.load(rsp)['sounds']
+
         expired = False
     except urllib2.HTTPError:
             print("\\nFailed getting access_token, retrying...")
 
 """
-    sounds = []
-    for s in dataset.sounds.all():
-        sounds.append("'%d': 'https://www.freesound.org/apiv2/sounds/%d/'," %
-                (s.freesound_id, s.freesound_id))
 
-    output += "sound_ids = [" + ','.join(["'%i'" % s.id for s in dataset.sounds.all()]) + "]\n"
-
-    output += "sounds_dict = {sid: 'https://www.freesound.org/apiv2/sounds/%s/' % sid for sid in sound_ids}\n"
+    output += "sounds_dict = {sid: 'https://www.freesound.org/apiv2/sounds/%s/' % sid for sid in progress['sound_ids']}\n"
 
     output +="""
 
@@ -88,19 +90,19 @@ for i in sounds_dict.keys():
         continue
     response = 'y'
     if verbose:
-        print("Downloading sound: sounds_dict[i]")
+        print("Downloading sound: %s" % sounds_dict[i])
         print("Do you want to download this sound? (enter: yes(y) to download or no(n) to skip)")
         reponse = raw_input()
     if response in ('y', 'yes'):
         print("Downloading... [%d/%d]" % (len(progress["downloaded"])+1, len(sounds_dict.keys())))
 
         req = urllib2.Request(sounds_dict[i]+"download/", headers=headers)
-        with open(i, 'wb') as output:
+        with open(str(i), 'wb') as output:
             res = urllib2.urlopen(req)
             output.write(res.read())
         f_name = download_path + '/' + cgi.parse_header(res.headers['content-disposition'])[1]['filename']
 
-        os.rename(i, f_name)
+        os.rename(str(i), f_name)
 
         req = urllib2.Request(sounds_dict[i], headers=headers)
         with open(os.path.splitext(f_name)[0]+'.json', 'wb') as output:
