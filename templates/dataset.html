@@ -35,7 +35,7 @@
                     <td>{{ dataset.taxonomy.get_num_nodes }}</td>
                     <td>{{ dataset.num_sounds }}</td>
                     <td>{{ dataset.num_annotations }}</td>
-                    <td>{{ dataset.avg_annotations_per_sound }}</td>
+                    <td>{{ dataset.avg_annotations_per_sound|floatformat:2 }}</td>
                     <td>{{ dataset.percentage_validated_annotations|floatformat:2 }}%</td>
                 </tr>
             </tbody>
