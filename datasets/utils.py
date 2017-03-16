@@ -4,8 +4,7 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 
 def generate_download_script(dataset):
-    output = """
-import urllib2
+    output = """import urllib2
 import json
 import sys
 import cgi
@@ -73,7 +72,9 @@ while expired:
         sounds.append("'%d': 'https://www.freesound.org/apiv2/sounds/%d/'," %
                 (s.freesound_id, s.freesound_id))
 
-    output += "sounds_dict = {"+ '\n'.join(sounds) + "}\n"
+    output += "sound_ids = [" + ','.join(["'%i'" % s.id for s in dataset.sounds.all()]) + "]\n"
+
+    output += "sounds_dict = {sid: 'https://www.freesound.org/apiv2/sounds/%s/' % sid for sid in sound_ids}\n"
 
     output +="""
 

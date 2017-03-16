@@ -7,6 +7,9 @@ from django.shortcuts import render, get_object_or_404
 from datasets.models import Dataset
 from django.conf import settings
 from datasets import utils
+from pygments import highlight
+from pygments.lexers import PythonLexer
+from pygments.formatters import HtmlFormatter
 
 
 def get_access_token(request):
@@ -30,6 +33,7 @@ def get_access_token(request):
     except HTTPError:
         return HttpResponseBadRequest()
 
+
 def download_script(request, short_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
     response = HttpResponse(content_type='text/plain')
@@ -37,6 +41,7 @@ def download_script(request, short_name):
     script = utils.generate_download_script(dataset)
     response.write(script)
     return response
+
 
 def dataset(request, short_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
@@ -70,7 +75,11 @@ def dataset_taxonomy_table(request, short_name):
 def download(request, short_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
     script = utils.generate_download_script(dataset)
-    return render(request, 'download.html', {'dataset': dataset, 'script': script})
+    formatted_script = highlight(script, PythonLexer(), HtmlFormatter())
+    highlighting_styles = HtmlFormatter().get_style_defs('.highlight')
+    return render(request, 'download.html', {'dataset': dataset,
+                                             'formatted_script': formatted_script,
+                                             'highlighting_styles': highlighting_styles})
 
 
 def contribute(request, short_name):
