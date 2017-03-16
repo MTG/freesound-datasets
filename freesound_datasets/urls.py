@@ -13,6 +13,7 @@ urlpatterns = [
     url(r'^download-script/(?P<short_name>[^\/]+)/$', download_script, name='download-script'),
     url(r'^(?P<short_name>[^\/]+)/$', dataset, name='dataset'),
     url(r'^(?P<short_name>[^\/]+)/download/$', download, name='download'),
+    url(r'^(?P<short_name>[^\/]+)/contribute/$', contribute, name='contribute'),
     url(r'^(?P<short_name>[^\/]+)/taxonomy_table/$', dataset_taxonomy_table, name='taxonomy-table'),
     url(r'^(?P<short_name>[^\/]+)/explore/(?P<node_id>[^\/]+)/$', taxonomy_node, name='taxonomy-node'),
 ]

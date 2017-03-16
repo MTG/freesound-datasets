@@ -1,9 +1,8 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 {% load humanize %}
-{% block title %}Index{% endblock title %}
-
-{% block content %}
+{% block title %}About{% endblock title %}
+{% block page_js %}
     <script type="text/javascript">
         $(document).ready(function() {
             $( "#dataset_taxonomy_table_placeholder" ).load( "{% url 'taxonomy-table' dataset.short_name %}", function() {
@@ -14,10 +13,10 @@
             });
         });
     </script>
-
-    <h1 class="ui header">{{ dataset.name }}</h1>
+{% endblock %}
+{% block content %}
+    <h1 class="ui header">About the {{ dataset.name }}</h1>
     {{ dataset.description_html|safe }}
-
     <p>
         <table class="ui definition unstackable table">
             <thead>

@@ -6,8 +6,8 @@ body {
 /* flex tricks to have footer always at bottom */
 .main_wrapper {
 	display: flex;
-  flex-flow: column;
-  height: 100%;
+  	flex-flow: column;
+  	height: 100%;
 }
 
 div.ui.fixed.inverted.menu {
@@ -39,11 +39,7 @@ p {
 
 .ui.footer.segment {
 	margin-top: 5em;
-	padding: 1em 0em;
-}
-
-.ui.menu {
-	padding: 1em 0em;
+	padding: 0em 0em;
 }
 
 .ui.inverted.menu, .ui.inverted.segment, .ui.primary.inverted.segment {

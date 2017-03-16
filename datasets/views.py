@@ -71,6 +71,11 @@ def download(request, short_name):
     return render(request, 'download.html', {'dataset': dataset})
 
 
+def contribute(request, short_name):
+    dataset = get_object_or_404(Dataset, short_name=short_name)
+    return render(request, 'contribute.html', {'dataset': dataset})
+
+
 def taxonomy_node(request, short_name, node_id):
     dataset = get_object_or_404(Dataset, short_name=short_name)
     node_id = unquote(node_id)

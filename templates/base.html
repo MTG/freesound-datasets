@@ -24,30 +24,15 @@
     <div class="ui fixed inverted menu">
       <div class="ui container">
         {% if dataset %}
-          <a href="{% url 'dataset' dataset.short_name %}" class="header item">
-            <!--img class="logo" src="assets/images/logo.png"-->
-            {{ dataset.name }}
-          </a>
+            {% if dataset.short_name == "fsd" %}
+                <img style="padding: 5px;width: 120px;" src="{% static "img/freesound_dataset_logo_b.svg" %}">
+            {% else %}
+                {{ dataset.name }}
+            {% endif %}
         {% endif %}
-        <a href="#" class="item">Home</a>
-        <div class="ui simple dropdown item">
-          Dropdown <i class="dropdown icon"></i>
-          <div class="menu">
-            <a class="item" href="#">Link Item</a>
-            <a class="item" href="#">Link Item</a>
-            <div class="divider"></div>
-            <div class="header">Header Item</div>
-            <div class="item">
-              <i class="dropdown icon"></i>
-              Sub Menu
-              <div class="menu">
-                <a class="item" href="#">Link Item</a>
-                <a class="item" href="#">Link Item</a>
-              </div>
-            </div>
-            <a class="item" href="#">Link Item</a>
-          </div>
-        </div>
+        <a href="{% url 'dataset' dataset.short_name %}" class="item">About</a>
+        <a href="{% url 'contribute' dataset.short_name %}" class="item">Contribute</a>
+        <a href="{% url 'download' dataset.short_name %}" class="item">Download</a>
       </div>
     </div>
 
@@ -59,18 +44,23 @@
 
   	<!-- FOOTER -->
     <div class="ui inverted vertical footer segment">
-      <div class="ui center aligned container">
-        <!--img src="assets/images/logo.png" class="ui centered mini image"-->
-        <div class="ui horizontal inverted small divided link list">
-          <a class="item" href="#">Site Map</a>
-          <a class="item" href="#">Contact Us</a>
-          <a class="item" href="#">Terms and Conditions</a>
-          <a class="item" href="#">Privacy Policy</a>
+        <div class="ui center aligned container">
+            <div class="ui horizontal inverted small link list">
+                A website by:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <a class="item" href="http://mtg.upf.edu/" target="_blank">
+                    <img class="ui image" style="width: 200px;" src="{% static "img/mtg_upf_logo.svg" %}">
+                </a>
+                <a class="item" href="http://freesound.org/" target="_blank">
+                    <img class="ui image" style="width: 120px;" src="{% static "img/freesound_logo.svg" %}">
+                </a>
+            </div>
         </div>
-      </div>
     </div>
 
   </div>
+
+  {% block page_js %}
+  {% endblock %}
 
 </body>
 </html>
