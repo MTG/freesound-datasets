@@ -15,15 +15,21 @@ from pygments.formatters import HtmlFormatter
 
 def get_access_token(request):
     code = request.GET.get('code', None)
-    if not code:
+    refresh_token = request.GET.get('refresh_token', None)
+    if not code and not refresh_token:
         return HttpResponseBadRequest()
 
     data = {
-            'code': code,
             'client_id': settings.FS_CLIENT_ID,
             'client_secret': settings.FS_CLIENT_SECRET,
-            'grant_type': 'authorization_code'
     }
+    if code:
+        data['code'] = code
+        data['grant_type'] = 'authorization_code'
+    else:
+        data['refresh_token'] = refresh_token
+        data['grant_type'] = 'refresh_token'
+
     access_token_url = "https://www.freesound.org/apiv2/oauth2/access_token/"
     data = urlencode(data).encode('ascii')
 
