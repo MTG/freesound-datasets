@@ -39,7 +39,7 @@ p {
 
 .ui.footer.segment {
 	margin-top: 5em;
-	padding: 0em 0em;
+	padding: 1px;
 }
 
 .ui.inverted.menu, .ui.inverted.segment, .ui.primary.inverted.segment {
