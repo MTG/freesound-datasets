@@ -2,7 +2,8 @@ import os
 from urllib.request import urlopen
 from urllib.error import HTTPError
 from urllib.parse import urlencode, unquote
-from django.http import HttpResponse, HttpResponseBadRequest
+from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
+from django.views.decorators.cache import cache_page
 from django.shortcuts import render, get_object_or_404
 from datasets.models import Dataset
 from django.conf import settings
@@ -33,6 +34,10 @@ def get_access_token(request):
     except HTTPError:
         return HttpResponseBadRequest()
 
+@cache_page(60 * 60 * 24)
+def dataset_sounds(request, short_name):
+    dataset = get_object_or_404(Dataset, short_name=short_name)
+    return JsonResponse({'sounds': [s.id for s in dataset.sounds.all()]})
 
 def download_script(request, short_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)

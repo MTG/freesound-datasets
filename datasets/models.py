@@ -115,7 +115,8 @@ class Dataset(models.Model):
 
     @property
     def num_validated_annotations(self):
-        return len([item for item in self.annotations.annotate(num_votes=Count('votes')) if item.num_votes > 0])
+        # This is the number of annotations that have at least one vote
+        return self.annotations.annotate(num_votes=Count('votes')).filter(num_votes__lt=0).count()
 
     @property
     def percentage_validated_annotations(self):
