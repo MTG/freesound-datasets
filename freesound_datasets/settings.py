@@ -36,6 +36,20 @@ if os.getenv('DEPLOY_ENV', 'dev') == 'prod':
     ALLOWED_HOSTS = ['localhost', 'asplab-web1', 'asplab-web1.s.upf.edu', 'datasets.freesound.org']
 else:
     DEBUG = True
+    INTERNAL_IPS = ['127.0.0.1']
+
+    def show_toolbar(request):
+        if request.is_ajax():
+            return False
+        return True
+
+    # Normally django debug toolbar uses `INTERNAL_IPS` to check if it should show, but in
+    # docker request.META.REMOTE_ADDR is set to an internal docker IP instead of 127.0.0.1.
+    # We hard-code it on for development.
+    DEBUG_TOOLBAR_CONFIG = {
+        'SHOW_TOOLBAR_CALLBACK': 'freesound_datasets.settings.show_toolbar',
+    }
+
 DATABASE_URL_ENV_NAME = 'DJANGO_DATABASE_URL'
 DATABASES = {'default': dj_database_url.config(
     DATABASE_URL_ENV_NAME, default='postgres://postgres:postgres@db/freesound_datasets')}
@@ -52,6 +66,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.humanize',
     'django_extensions',
+    'debug_toolbar',
     'datasets',
 ]
 
@@ -63,6 +78,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 ROOT_URLCONF = 'freesound_datasets.urls'
