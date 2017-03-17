@@ -39,6 +39,8 @@ else:
 DATABASE_URL_ENV_NAME = 'DJANGO_DATABASE_URL'
 DATABASES = {'default': dj_database_url.config(
     DATABASE_URL_ENV_NAME, default='postgres://postgres:postgres@db/freesound_datasets')}
+if os.getenv('DEPLOY_ENV', 'dev') == 'prod':
+    DATABASES['default']['OPTIONS'] = {'sslmode': 'require'}
 
 
 # Application definition
