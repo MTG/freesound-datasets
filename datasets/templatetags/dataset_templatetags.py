@@ -8,7 +8,8 @@ register = template.Library()
 @register.simple_tag(takes_context=False)
 def taxonomy_node_stats(dataset, node_id, node_n_annotations_n_sounds=None):
     node = dataset.taxonomy.get_element_at_id(node_id)
-    if not node_n_annotations_n_sounds:
+    # could be an empty list if there are no annoations, explicitly check for None
+    if node_n_annotations_n_sounds is None:
         num_sounds = dataset.num_sounds_per_taxonomy_node(node_id)
         num_annotations = dataset.num_annotations_per_taxonomy_node(node_id)
     else:
