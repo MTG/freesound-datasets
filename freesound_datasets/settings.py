@@ -17,17 +17,10 @@ import dj_database_url
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # FREESOUND ID/SECTRET to generate access token for script
-if os.getenv('DEPLOY_ENV', 'dev') == 'prod':
-    # If in production environment, load them from environment variables
-    FS_CLIENT_ID = os.getenv('FS_CLIENT_ID', None)
-    FS_CLIENT_SECRET = os.getenv('FS_CLIENT_SECRET', None)
-    if FS_CLIENT_ID is None or FS_CLIENT_SECRET is None:
-        raise Exception('You should set both FS_CLIENT_ID and FS_CLIENT_SECRET as environment variables')
-else:
-    try:
-        from freesound_datasets.local_settings import FS_CLIENT_ID, FS_CLIENT_SECRET
-    except ImportError:
-        raise Exception('Your local_settings.py file should include FS_CLIENT_ID and FS_CLIENT_SECRET')
+try:
+    from freesound_datasets.local_settings import FS_CLIENT_ID, FS_CLIENT_SECRET
+except ImportError:
+    raise Exception('Your freesound_datasets/local_settings.py file should include FS_CLIENT_ID and FS_CLIENT_SECRET')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
