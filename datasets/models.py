@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 from django.db import models
 from django.db.models import Count
 from django.contrib.postgres.fields import JSONField
+from django.contrib.auth.models import User
 from urllib.parse import quote
 import markdown
 
@@ -87,6 +88,7 @@ class Dataset(models.Model):
     description = models.TextField(blank=True)
     taxonomy = models.ForeignKey(Taxonomy, null=True, blank=True, on_delete=models.SET_NULL)
     sounds = models.ManyToManyField(Sound, related_name='datasets', through='datasets.SoundDataset')
+    maintainers = models.ManyToManyField(User, related_name='maintained_datasets')
 
     def __str__(self):
         return 'Dataset {0}'.format(self.name)
@@ -144,6 +146,7 @@ class SoundDataset(models.Model):
 
 class Annotation(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey(User, related_name='annotations', null=True, on_delete=models.SET_NULL)
     sound_dataset = models.ForeignKey(SoundDataset, related_name='annotations')
     TYPE_CHOICES = (
         ('MA', 'Manual'),
@@ -151,7 +154,6 @@ class Annotation(models.Model):
         ('UK', 'Unknown'),
     )
     type = models.CharField(max_length=2, choices=TYPE_CHOICES, default='UK')
-    # TODO: add created_by property (user, can be null)
     algorithm = models.CharField(max_length=200, blank=True, null=True)
     value = models.CharField(max_length=200, db_index=True)
     start_time = models.DecimalField(max_digits=6, decimal_places=3, blank=True, null=True)
@@ -163,7 +165,7 @@ class Annotation(models.Model):
 
 class Vote(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
-    # TODO: add created_by property (user)
+    created_by = models.ForeignKey(User, related_name='votes', null=True, on_delete=models.SET_NULL)
     vote = models.IntegerField()
     annotation = models.ForeignKey(Annotation, related_name='votes')
 
