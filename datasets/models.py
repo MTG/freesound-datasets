@@ -129,6 +129,10 @@ class Dataset(models.Model):
             return 0  # Avoid potential division by 0 error
         return self.num_validated_annotations * 100.0 / self.num_annotations
 
+    @property
+    def releases(self):
+        return self.datasetrelease_set.all().order_by('-release_date')
+
     def sounds_per_taxonomy_node(self, node_id):
         return Sound.objects.filter(datasets=self, sounddataset__annotations__value=node_id)
 
@@ -143,6 +147,34 @@ class Dataset(models.Model):
 
     def user_is_maintainer(self, user):
         return user in self.maintainers.all()
+
+
+class DatasetRelease(models.Model):
+    dataset = models.ForeignKey(Dataset)
+    num_sounds = models.IntegerField()
+    num_annotations = models.IntegerField()
+    num_validated_annotations = models.IntegerField()
+    # TODO: add total length in seconds
+    # TODO: add total size in bytes
+    release_date = models.DateTimeField(auto_now_add=True)
+    release_tag = models.CharField(max_length=25)
+    TYPE_CHOICES = (
+        ('IN', 'Internal release only'),
+        ('PU', 'Public release'),
+    )
+    type = models.CharField(max_length=2, choices=TYPE_CHOICES, default='IN')
+
+    @property
+    def avg_annotations_per_sound(self):
+        if self.num_sounds == 0:
+            return 0  # Avoid potential division by 0 error
+        return self.num_annotations * 1.0 / self.num_sounds
+
+    @property
+    def percentage_validated_annotations(self):
+        if self.num_annotations == 0:
+            return 0  # Avoid potential division by 0 error
+        return self.num_validated_annotations * 100.0 / self.num_annotations
 
 
 class SoundDataset(models.Model):

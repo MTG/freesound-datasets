@@ -5,7 +5,7 @@ from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.views.decorators.cache import cache_page
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
-from datasets.models import Dataset
+from datasets.models import Dataset, DatasetRelease
 from django.conf import settings
 from datasets import utils
 from pygments import highlight
@@ -127,7 +127,7 @@ def download(request, short_name):
                                              'highlighting_styles': highlighting_styles})
 
 
-def __prepare_release_data(dataset, release_tag):
+def __prepare_release_data(dataset, release_tag, release_type):
     # Get sounds' info and annotations
     sounds_info = list()
     N = 5
@@ -144,7 +144,7 @@ def __prepare_release_data(dataset, release_tag):
             n_annotations += annotations.count()
             n_validated_annotations += annotations.annotate(num_votes=Count('votes')).filter(num_votes__lt=0).count()
 
-    # Write all data to file
+    # Make data structure
     release_data = {
        'meta': {
            'dataset': dataset.name,
@@ -155,17 +155,38 @@ def __prepare_release_data(dataset, release_tag):
        },
        'sounds_info': sounds_info,
     }
-    json.dump(release_data,
-              open(os.path.join(settings.DATASET_RELEASE_FILES_FOLDER,
-                                '{0}_{1}.json'.format(dataset.short_name, release_tag)), 'w'))
+    return release_data
+
 
 @login_required
 def make_release(request, short_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
 
     if request.method == 'POST':
+        # TODO: use a model form
         release_tag = request.POST.get('release-tag')
-        print(release_tag)
-        __prepare_release_data(dataset, release_tag)
+        release_type = request.POST.get('release-type', None)
+        if release_type not in [item[0] for item in DatasetRelease.TYPE_CHOICES]:
+            release_type = DatasetRelease.TYPE_CHOICES[0][0]
+
+        # Prepare release data
+        # TODO: this operation can take a long time, so we should handle the making of a release in an
+        # TODO: asychronous way (using celery?)
+        release_data = __prepare_release_data(dataset, release_tag, release_type)
+
+        # Create db entry object
+        dataset_release = DatasetRelease.objects.create(
+            dataset=dataset,
+            num_sounds=release_data['meta']['num_sounds'],
+            num_annotations=release_data['meta']['num_annotations'],
+            num_validated_annotations=release_data['meta']['num_validated_annotations'],
+            release_tag=release_tag,
+            type=release_type,
+        )
+
+        # Save release data to file
+        json.dump(release_data,
+                  open(os.path.join(settings.DATASET_RELEASE_FILES_FOLDER,
+                                    '{0}.json'.format(dataset_release.id)), 'w'))
 
     return render(request, 'make_release.html', {'dataset': dataset})

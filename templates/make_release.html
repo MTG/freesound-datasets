@@ -4,7 +4,8 @@
 
 {% block content %}
     <h1 class="ui header">New release for {{ dataset.name }}</h1>
-    <form class="ui form" action=".">
+
+    <form class="ui form" method="post" action=".">{% csrf_token %}
         <div class="field">
             <label>Release tag</label>
             <input type="text" name="release-tag" placeholder="0.1">

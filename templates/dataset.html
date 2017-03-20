@@ -21,7 +21,8 @@
         <table class="ui definition unstackable table">
             <thead>
                 <tr>
-                    <th></th>
+                    <th>Release</th>
+                    <th>Type</th>
                     <th>Num labels</th>
                     <th>Num sounds</th>
                     <th>Num annotations</th>
@@ -30,14 +31,17 @@
                 </tr>
             </thead>
             <tbody>
+                {% for release in dataset.releases %}
                 <tr>
-                    <td>{{ dataset.name }}</td>
+                    <td>{{ release.release_tag }}</td>
+                    <td>{{ release.type }}</td>
                     <td>{{ dataset.taxonomy.get_num_nodes }}</td>
-                    <td>{{ dataset.num_sounds }}</td>
-                    <td>{{ dataset.num_annotations }}</td>
-                    <td>{{ dataset.avg_annotations_per_sound|floatformat:2 }}</td>
-                    <td>{{ dataset.percentage_validated_annotations|floatformat:2 }}%</td>
+                    <td>{{ release.num_sounds }}</td>
+                    <td>{{ release.num_annotations }}</td>
+                    <td>{{ release.avg_annotations_per_sound|floatformat:2 }}</td>
+                    <td>{{ release.percentage_validated_annotations|floatformat:2 }}%</td>
                 </tr>
+                {% endfor %}
             </tbody>
         </table>
     </p>
