@@ -123,42 +123,38 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# Social auth settings
+SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/'
+SOCIAL_AUTH_USER_MODEL = 'auth.User'
+LOGIN_URL = '/login/'
+
 AUTHENTICATION_BACKENDS = (
     'social_core.backends.google.GoogleOAuth2',
     'social_core.backends.facebook.FacebookOAuth2',
     'social_core.backends.github.GithubOAuth2',
+    'freesound_datasets.freesound_auth_backend.FreesoundOAuth2',
     'django.contrib.auth.backends.ModelBackend',
 )
 
-# Google backend
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '964126274315-2grsds7moga9khb66gs0d8vfdrfjv1md'
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '6DtTQmOAEkcRT_qIOfahAhlQ'
+# Import backend keys
+from freesound_datasets.local_settings import \
+    SOCIAL_AUTH_GOOGLE_OAUTH2_KEY, SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET, \
+    SOCIAL_AUTH_FACEBOOK_KEY, SOCIAL_AUTH_FACEBOOK_SECRET, \
+    SOCIAL_AUTH_GITHUB_KEY, SOCIAL_AUTH_GITHUB_SECRET, \
+    SOCIAL_AUTH_FREESOUND_KEY, SOCIAL_AUTH_FREESOUND_SECRET
+
+# Googlebackend settings
 SOCIAL_AUTH_GOOGLE_OAUTH2_IGNORE_DEFAULT_SCOPE = True
 SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = [
     'https://www.googleapis.com/auth/userinfo.email',
     'https://www.googleapis.com/auth/userinfo.profile',
 ]
 
-# Facebook backend
+# Facebook backend settings
 SOCIAL_AUTH_FACEBOOK_IGNORE_DEFAULT_SCOPE = True
-SOCIAL_AUTH_FACEBOOK_SCOPE = [
-    'email',
-]
-SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {
-  'fields': 'id, name, email'
-}
-SOCIAL_AUTH_FACEBOOK_KEY = '173948379788209'
-SOCIAL_AUTH_FACEBOOK_SECRET = '2c3b1784d968412e59dc763e3a76d0ae'
+SOCIAL_AUTH_FACEBOOK_SCOPE = ['email', ]
+SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {'fields': 'id, name, email'}
 
-# Github
-SOCIAL_AUTH_GITHUB_KEY = '0866f9c39148b04611f4'
-SOCIAL_AUTH_GITHUB_SECRET = '50b987c0268f451c11ca4974e3710c62cdee7ac4'
-
-
-SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/'
-SOCIAL_AUTH_USER_MODEL = 'auth.User'
-
-LOGIN_URL = '/login/'
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.10/topics/i18n/
