@@ -3,18 +3,18 @@
 {% block title %}Download{% endblock title %}
 
 {% block content %}
-    <style>
-        {{ highlighting_styles | safe }}
-    </style>
-
     <h1 class="ui header">Download {{ dataset.name }}</h1>
-    <p>To download the dataset you will need a user account on freesound, so if you don't have one create it <a href="https://freesound.org/home/register/">here</a>.
-    Then you have to download and run the following <b>python script</b>, first it will ask you to enter a specific address in the browser to get a code which will give you access to the sounds. Then the script will download all the data including sound files, annotations and metadata of the sounds to your system.</p>
     <p>
-    No dependency is required to run the script, the only requirement is to use python 2. <br />
-    If you prefer you can run the script with the <i>-v</i> paramenter which will give you more information of the steps and will ask before the download of every file
+        To download this dataset please <b>download the Python script</b> below, run it, and follow the instructions on screen.
+        The script will prompt you to open a website in your browser and login with a <b>Freesound user account</b>.
+        If you don't have one, you can <a href="https://freesound.org/home/register/">create an account here</a>.
+        After successful login, the script will download all the requested data to your system.</p>
+    <p>
+        The script is written in Python 2 and has no dependencies.
+        Run the script with the <i>-v</i> parameter to print extra information on screen.
     </p>
-    <div class="ui existing segment" style="height: 250px;overflow: scroll;">
+    <style>{{ highlighting_styles | safe }}</style>
+    <div style="height: 350px;overflow: scroll;">
         {{ formatted_script | safe }}
     </div>
     <a href="{% url 'download-script' dataset.short_name %}" class="right floated ui primary button">Download script</a>
