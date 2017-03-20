@@ -139,8 +139,7 @@ class Dataset(models.Model):
         return self.annotations_per_taxonomy_node(node_id=node_id).count()
 
     def user_is_maintainer(self, user):
-        if __name__ == '__main__':
-            return user in self.maintainers.all()
+        return user in self.maintainers.all()
 
 
 class SoundDataset(models.Model):

@@ -42,6 +42,9 @@
         </table>
     </p>
     <a href="{% url 'download' dataset.short_name %}" class="blue ui button right floated">Download <i class="right chevron icon"></i></a>
+    {% if user_is_maintainer %}
+        <a href="{% url 'make-release' dataset.short_name %}" class="blue basic ui button right floated">Make new release <i class="right chevron icon"></i></a>
+    {% endif %}
     <br>
     <h2>Taxonomy labels</h2>
     <div id="dataset_taxonomy_table_placeholder">

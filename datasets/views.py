@@ -19,7 +19,8 @@ from pygments.formatters import HtmlFormatter
 
 def dataset(request, short_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
-    return render(request, 'dataset.html', {'dataset': dataset})
+    user_is_maintainer = dataset.user_is_maintainer(request.user)
+    return render(request, 'dataset.html', {'dataset': dataset, 'user_is_maintainer': user_is_maintainer})
 
 
 def dataset_taxonomy_table(request, short_name):
