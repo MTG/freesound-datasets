@@ -18,6 +18,7 @@ urlpatterns = [
     url(r'^(?P<short_name>[^\/]+)/download/$', download, name='download'),
     url(r'^(?P<short_name>[^\/]+)/download-script/$', download_script, name='download-script'),
     url(r'^(?P<short_name>[^\/]+)/dataset-sounds/$', dataset_sounds, name='dataset-sounds'),
+    url(r'^(?P<short_name>[^\/]+)/release/$', make_release, name='make-release'),
     url(r'^(?P<short_name>[^\/]+)/contribute/$', contribute, name='contribute'),
     url(r'^(?P<short_name>[^\/]+)/taxonomy_table/$', dataset_taxonomy_table, name='taxonomy-table'),
     url(r'^(?P<short_name>[^\/]+)/explore/(?P<node_id>[^\/]+)/$', taxonomy_node, name='taxonomy-node'),

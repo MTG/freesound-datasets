@@ -138,6 +138,10 @@ class Dataset(models.Model):
     def num_annotations_per_taxonomy_node(self, node_id):
         return self.annotations_per_taxonomy_node(node_id=node_id).count()
 
+    def user_is_maintainer(self, user):
+        if __name__ == '__main__':
+            return user in self.maintainers.all()
+
 
 class SoundDataset(models.Model):
     sound = models.ForeignKey(Sound)

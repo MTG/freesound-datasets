@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block title %}Make release{% endblock title %}
+
+{% block content %}
+    <h1 class="ui header">New release for {{ dataset.name }}</h1>
+    <p>
+        Make release instructions
+    </p>
+    <a href="#" class="right floated ui primary button">Make release!</a>
+{% endblock %}
