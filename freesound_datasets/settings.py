@@ -17,17 +17,10 @@ import dj_database_url
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # FREESOUND ID/SECTRET to generate access token for script
-if os.getenv('DEPLOY_ENV', 'dev') == 'prod':
-    # If in production environment, load them from environment variables
-    FS_CLIENT_ID = os.getenv('FS_CLIENT_ID', None)
-    FS_CLIENT_SECRET = os.getenv('FS_CLIENT_SECRET', None)
-    if FS_CLIENT_ID is None or FS_CLIENT_SECRET is None:
-        raise Exception('You should set both FS_CLIENT_ID and FS_CLIENT_SECRET as environment variables')
-else:
-    try:
-        from freesound_datasets.local_settings import FS_CLIENT_ID, FS_CLIENT_SECRET
-    except ImportError:
-        raise Exception('Your local_settings.py file should include FS_CLIENT_ID and FS_CLIENT_SECRET')
+try:
+    from freesound_datasets.local_settings import FS_CLIENT_ID, FS_CLIENT_SECRET
+except ImportError:
+    raise Exception('Your freesound_datasets/local_settings.py file should include FS_CLIENT_ID and FS_CLIENT_SECRET')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
@@ -40,9 +33,23 @@ if os.getenv('DEPLOY_ENV', 'dev') == 'prod':
     if SECRET_KEY == 'default_secret_key':
         print("Please configure your secret key by setting DJANGO_SECRET_KEY environment variable")
     DEBUG = False
-    ALLOWED_HOSTS = ['localhost', 'asplab-web1', 'asplab-web1.s.upf.edu']
+    ALLOWED_HOSTS = ['localhost', 'asplab-web1', 'asplab-web1.s.upf.edu', 'datasets.freesound.org']
 else:
     DEBUG = True
+    INTERNAL_IPS = ['127.0.0.1']
+
+    def show_toolbar(request):
+        if request.is_ajax():
+            return False
+        return True
+
+    # Normally django debug toolbar uses `INTERNAL_IPS` to check if it should show, but in
+    # docker request.META.REMOTE_ADDR is set to an internal docker IP instead of 127.0.0.1.
+    # We hard-code it on for development.
+    DEBUG_TOOLBAR_CONFIG = {
+        'SHOW_TOOLBAR_CALLBACK': 'freesound_datasets.settings.show_toolbar',
+    }
+
 DATABASE_URL_ENV_NAME = 'DJANGO_DATABASE_URL'
 DATABASES = {'default': dj_database_url.config(
     DATABASE_URL_ENV_NAME, default='postgres://postgres:postgres@db/freesound_datasets')}
@@ -59,6 +66,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.humanize',
     'django_extensions',
+    'debug_toolbar',
     'datasets',
     'social_django',
 ]
@@ -71,6 +79,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 ROOT_URLCONF = 'freesound_datasets.urls'
@@ -123,7 +132,8 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '964126274315-2grsds7moga9khb66gs0d8vfdrfjv1md'
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '6DtTQmOAEkcRT_qIOfahAhlQ'
 SOCIAL_AUTH_GOOGLE_OAUTH2_IGNORE_DEFAULT_SCOPE = True
 SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = [
-    'https://www.googleapis.com/auth/userinfo.email'
+    'https://www.googleapis.com/auth/userinfo.email',
+    'https://www.googleapis.com/auth/userinfo.profile',
 ]
 SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/'
 SOCIAL_AUTH_USER_MODEL = 'auth.User'
