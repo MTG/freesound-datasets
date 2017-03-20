@@ -182,3 +182,6 @@ BASE_URL = os.getenv('DJANGO_BASE_URL', 'http://example.com')
 
 # Default dataset name
 DEFAULT_DATASET_NAME = os.getenv('DEFAULT_DATASET_NAME', 'FreesoundDataset')
+
+# Dataset release files folder
+DATASET_RELEASE_FILES_FOLDER = os.path.join(BASE_DIR, 'fsdatasets_releases')

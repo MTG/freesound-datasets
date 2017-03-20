@@ -11,6 +11,9 @@ from datasets import utils
 from pygments import highlight
 from pygments.lexers import PythonLexer
 from pygments.formatters import HtmlFormatter
+from django.db.models import Count
+import json
+import os
 
 
 #######################
@@ -124,7 +127,45 @@ def download(request, short_name):
                                              'highlighting_styles': highlighting_styles})
 
 
+def __prepare_release_data(dataset, release_tag):
+    # Get sounds' info and annotations
+    sounds_info = list()
+    N = 5
+    n_sounds = 0
+    n_annotations = 0
+    n_validated_annotations = 0
+    for sound in dataset.sounds.all()[:N]:
+        annotations = sound.get_annotations(dataset)
+        if annotations:
+            sounds_info.append((
+                sound.id, [item.value for item in annotations]
+            ))
+            n_sounds += 1
+            n_annotations += annotations.count()
+            n_validated_annotations += annotations.annotate(num_votes=Count('votes')).filter(num_votes__lt=0).count()
+
+    # Write all data to file
+    release_data = {
+       'meta': {
+           'dataset': dataset.name,
+           'release': release_tag,
+           'num_sounds': n_sounds,
+           'num_annotations': n_annotations,
+           'num_validated_annotations': n_validated_annotations
+       },
+       'sounds_info': sounds_info,
+    }
+    json.dump(release_data,
+              open(os.path.join(settings.DATASET_RELEASE_FILES_FOLDER,
+                                '{0}_{1}.json'.format(dataset.short_name, release_tag)), 'w'))
+
 @login_required
 def make_release(request, short_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
+
+    if request.method == 'POST':
+        release_tag = request.POST.get('release-tag')
+        print(release_tag)
+        __prepare_release_data(dataset, release_tag)
+
     return render(request, 'make_release.html', {'dataset': dataset})

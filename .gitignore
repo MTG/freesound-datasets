@@ -87,3 +87,4 @@ ENV/
 
 .idea
 .DS_Store
+fsdatasets_releases

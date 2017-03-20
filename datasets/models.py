@@ -77,6 +77,9 @@ class Sound(models.Model):
     freesound_id = models.IntegerField()
     extra_data = JSONField(default={})
 
+    def get_annotations(self, dataset):
+        return Annotation.objects.filter(sound_dataset__in=self.sounddataset_set.filter(dataset=dataset))
+
     def __str__(self):
         return 'Sound {0} (freesound {1})'.format(self.id, self.freesound_id)
 

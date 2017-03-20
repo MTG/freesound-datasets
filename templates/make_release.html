@@ -4,8 +4,11 @@
 
 {% block content %}
     <h1 class="ui header">New release for {{ dataset.name }}</h1>
-    <p>
-        Make release instructions
-    </p>
-    <a href="#" class="right floated ui primary button">Make release!</a>
+    <form class="ui form" action=".">
+        <div class="field">
+            <label>Release tag</label>
+            <input type="text" name="release-tag" placeholder="0.1">
+        </div>
+        <button class="right floated ui primary button" type="submit">Make release!</button>
+    </form>
 {% endblock %}
