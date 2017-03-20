@@ -1,4 +1,4 @@
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.conf import settings
 from django.http import HttpResponseRedirect
@@ -15,3 +15,7 @@ def crash_me(request):
 def index(request):
     default_dataset = get_object_or_404(Dataset, name=settings.DEFAULT_DATASET_NAME)
     return HttpResponseRedirect(reverse('dataset', args=[default_dataset.short_name]))
+
+
+def login(request):
+    return render(request, 'login.html', {})

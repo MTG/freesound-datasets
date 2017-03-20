@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block title %}Login{% endblock title %}
+
+{% block header %}
+    {% comment %}supress header{% endcomment %}
+{% endblock %}
+
+{% block content %}
+    <h1 class="ui header">Login</h1>
+    <ul>
+        <li><a href="{% url "social:begin" "google-oauth2" %}">Google+</a></li>
+    </ul>
+{% endblock %}

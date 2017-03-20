@@ -1,6 +1,7 @@
-from django.conf.urls import url
+from django.conf.urls import url, include
 from django.contrib import admin
-from freesound_datasets.views import index, crash_me
+from django.contrib.auth.views import logout
+from freesound_datasets.views import index, crash_me, login
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from datasets.views import *
 
@@ -8,7 +9,10 @@ from datasets.views import *
 urlpatterns = [
     url(r'^$', index, name='index'),
     url(r'^crash/$', crash_me, name='crash_me'),
+    url(r'^login/$', login, name='login'),
+    url(r'^logout/$', logout, {'next_page': '/'}, name='logout'),
     url(r'^admin/', admin.site.urls),
+    url(r'^social/', include('social_django.urls', namespace='social')),
     url(r'^get-access-token/$', get_access_token, name='get_access_token'),
     url(r'^(?P<short_name>[^\/]+)/$', dataset, name='dataset'),
     url(r'^(?P<short_name>[^\/]+)/download/$', download, name='download'),

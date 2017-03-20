@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-    <title>{{ dataset.name }} - {% block title %}{% endblock title %}</title>
+    <title>{% if dataset %}{{ dataset.name }} - {% endif %}{% block title %}{% endblock title %}</title>
     <link rel="stylesheet" type="text/css" href="{% static "semanticui/semantic.min.css" %}" />
     <link rel="stylesheet" type="text/css" href="{% static "css/main.css" %}" />
     <link rel="stylesheet" type="text/css" href="{% static "css/dataTables.semanticui.min.css" %}" />
@@ -21,20 +21,28 @@
 <body>
   <div class="main_wrapper">
   	<!-- HEADER -->
-    <div class="ui fixed inverted menu">
-      <div class="ui container">
-        {% if dataset %}
-            {% if dataset.short_name == "fsd" %}
-                <img style="padding: 5px;width: 120px;" src="{% static "img/freesound_dataset_logo_b.svg" %}">
-            {% else %}
-                {{ dataset.name }}
+    {% block header %}
+        <div class="ui fixed inverted menu">
+          <div class="ui container">
+            {% if dataset %}
+                {% if dataset.short_name == "fsd" %}
+                    <img style="padding: 5px;width: 120px;" src="{% static "img/freesound_dataset_logo_b.svg" %}">
+                {% else %}
+                    {{ dataset.name }}
+                {% endif %}
+                <a href="{% url 'dataset' dataset.short_name %}" class="item">About</a>
+                <a href="{% url 'contribute' dataset.short_name %}" class="item">Contribute</a>
+                <a href="{% url 'download' dataset.short_name %}" class="item">Download</a>
             {% endif %}
-        {% endif %}
-        <a href="{% url 'dataset' dataset.short_name %}" class="item">About</a>
-        <a href="{% url 'contribute' dataset.short_name %}" class="item">Contribute</a>
-        <a href="{% url 'download' dataset.short_name %}" class="item">Download</a>
-      </div>
-    </div>
+            {% if request.user.is_authenticated %}
+                {{ request.user.username }}
+                <a href="{% url 'logout' %}">Logout</a>
+            {% else %}
+                <a href="{% url 'login' %}">Login</a>
+            {% endif %}
+          </div>
+        </div>
+    {% endblock %}
 
   	<!-- CONTENT -->
     <div class="ui main text container">
