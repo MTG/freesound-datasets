@@ -125,9 +125,12 @@ AUTH_PASSWORD_VALIDATORS = [
 
 AUTHENTICATION_BACKENDS = (
     'social_core.backends.google.GoogleOAuth2',
-    #'social_core.backends.twitter.TwitterOAuth',
+    'social_core.backends.facebook.FacebookOAuth2',
+    'social_core.backends.github.GithubOAuth2',
     'django.contrib.auth.backends.ModelBackend',
 )
+
+# Google backend
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '964126274315-2grsds7moga9khb66gs0d8vfdrfjv1md'
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '6DtTQmOAEkcRT_qIOfahAhlQ'
 SOCIAL_AUTH_GOOGLE_OAUTH2_IGNORE_DEFAULT_SCOPE = True
@@ -135,9 +138,27 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = [
     'https://www.googleapis.com/auth/userinfo.email',
     'https://www.googleapis.com/auth/userinfo.profile',
 ]
+
+# Facebook backend
+SOCIAL_AUTH_FACEBOOK_IGNORE_DEFAULT_SCOPE = True
+SOCIAL_AUTH_FACEBOOK_SCOPE = [
+    'email',
+]
+SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {
+  'fields': 'id, name, email'
+}
+SOCIAL_AUTH_FACEBOOK_KEY = '173948379788209'
+SOCIAL_AUTH_FACEBOOK_SECRET = '2c3b1784d968412e59dc763e3a76d0ae'
+
+# Github
+SOCIAL_AUTH_GITHUB_KEY = '0866f9c39148b04611f4'
+SOCIAL_AUTH_GITHUB_SECRET = '50b987c0268f451c11ca4974e3710c62cdee7ac4'
+
+
 SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/'
 SOCIAL_AUTH_USER_MODEL = 'auth.User'
 
+LOGIN_URL = '/login/'
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.10/topics/i18n/

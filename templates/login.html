@@ -7,8 +7,38 @@
 {% endblock %}
 
 {% block content %}
-    <h1 class="ui header">Login</h1>
-    <ul>
-        <li><a href="{% url "social:begin" "google-oauth2" %}">Google+</a></li>
-    </ul>
+
+<div class="ui middle aligned center aligned grid">
+    <div class="column">
+        <br><br><br>
+        <h2 class="ui header">
+            Login to Freesound Datasets
+        </h2>
+
+        <p>You can login to Freesound datasets using one of the social services below.
+        In order to download datasets, you'll need a Freesound account, therefore you might want to
+            <a href="https://freesound.org/home/register/">create a Freesound account</a> now and use it to log in here ;)
+        </p>
+
+        <a href="{% url "social:begin" "google-oauth2" %}" class="ui youtube button">
+          Freesound
+        </a>
+
+        <a href="{% url "social:begin" "github" %}" class="ui github button">
+          <i class="github icon"></i>
+          Github
+        </a>
+
+        <a href="{% url "social:begin" "google-oauth2" %}" class="ui google plus button">
+          <i class="google plus icon"></i>
+          Google Plus
+        </a>
+
+        <a href="{% url "social:begin" "facebook" %}" class="ui facebook button">
+          <i class="facebook icon"></i>
+          Facebook
+        </a>
+    </div>
+</div>
+
 {% endblock %}

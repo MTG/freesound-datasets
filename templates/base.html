@@ -1,4 +1,5 @@
 {% load staticfiles %}
+{% load general_templatetags %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -20,7 +21,7 @@
 </head>
 <body>
   <div class="main_wrapper">
-  	<!-- HEADER -->
+    <!-- HEADER -->
     {% block header %}
         <div class="ui fixed inverted menu">
           <div class="ui container">
@@ -30,42 +31,45 @@
                 {% else %}
                     {{ dataset.name }}
                 {% endif %}
-                <a href="{% url 'dataset' dataset.short_name %}" class="item">About</a>
-                <a href="{% url 'contribute' dataset.short_name %}" class="item">Contribute</a>
-                <a href="{% url 'download' dataset.short_name %}" class="item">Download</a>
+                <a href="{% url 'dataset' dataset.short_name %}" class="{% active_if_current 'dataset' %}item">About</a>
+                <a href="{% url 'contribute' dataset.short_name %}" class="{% active_if_current 'contribute' %}item">Contribute</a>
+                <a href="{% url 'download' dataset.short_name %}" class="{% active_if_current 'download' %}item">Download</a>
             {% endif %}
-            {% if request.user.is_authenticated %}
-                {{ request.user.username }}
-                <a href="{% url 'logout' %}">Logout</a>
-            {% else %}
-                <a href="{% url 'login' %}">Login</a>
-            {% endif %}
+            <div class="right menu">
+                {% if request.user.is_authenticated %}
+                    <div class="item">{{ request.user.username }}</div>
+                    <a class="item" href="{% url 'logout' %}"><i class="user icon"></i>Logout</a>
+                {% else %}
+                    <a class="item" href="{% url 'login' %}"><i class="user icon"></i>Login</a>
+                {% endif %}
+            </div>
           </div>
         </div>
     {% endblock %}
 
-  	<!-- CONTENT -->
+    <!-- CONTENT -->
     <div class="ui main text container">
       {% block content %}
       {% endblock content%}
     </div>
 
-  	<!-- FOOTER -->
-    <div class="ui inverted vertical footer segment">
-        <div class="ui center aligned container">
-            <div class="ui horizontal inverted small link list">
-                A website by:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                <a class="item" href="http://mtg.upf.edu/" target="_blank">
-                    <img class="ui image" style="width: 200px;" src="{% static "img/mtg_upf_logo.svg" %}">
-                </a>
-                <a class="item" href="http://freesound.org/" target="_blank">
-                    <img class="ui image" style="width: 120px;" src="{% static "img/freesound_logo.svg" %}">
-                </a>
+    <!-- FOOTER -->
+    {% block footer %}
+        <div class="ui inverted vertical footer segment">
+            <div class="ui center aligned container">
+                <div class="ui horizontal inverted small link list">
+                    A website by:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <a class="item" href="http://mtg.upf.edu/" target="_blank">
+                        <img class="ui image" style="width: 200px;" src="{% static "img/mtg_upf_logo.svg" %}">
+                    </a>
+                    <a class="item" href="http://freesound.org/" target="_blank">
+                        <img class="ui image" style="width: 120px;" src="{% static "img/freesound_logo.svg" %}">
+                    </a>
+                </div>
             </div>
         </div>
-    </div>
-
-  </div>
+      </div>
+{% endblock %}
 
   {% block page_js %}
   {% endblock %}
