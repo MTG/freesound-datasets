@@ -18,4 +18,5 @@ def index(request):
 
 
 def login(request):
-    return render(request, 'login.html', {})
+    next = request.GET.get('next', '')
+    return render(request, 'login.html', {'next': next})

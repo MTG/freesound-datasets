@@ -8,11 +8,14 @@
 
 {% block content %}
 
-<div class="ui middle aligned center aligned grid">
-    <div class="column">
-        <br><br><br>
+<div class="ui middle center aligned grid" style="margin-top: 10%;">
+
         <h2 class="ui header">
-            Login to Freesound Datasets
+            {% if next %}
+                Please login to continue...
+            {% else %}
+                Login to Freesound Datasets
+            {% endif %}
         </h2>
 
         <p>You can login to Freesound datasets using one of the social services below.
@@ -20,25 +23,36 @@
         <a href="https://freesound.org/home/register/">create a Freesound account</a> now and use it to login here ;)
         </p>
 
-        <a href="{% url "social:begin" "freesound" %}" class="ui youtube button">
-          Freesound
-        </a>
+        <div class="four column row stackable" style="max-width:660px;">
+            <div class="column">
+                <a href="{% url "social:begin" "freesound" %}" class="ui youtube button">
+                  Freesound
+                </a>
+            </div>
 
-        <a href="{% url "social:begin" "github" %}" class="ui github button">
-          <i class="github icon"></i>
-          Github
-        </a>
+            <div class="column">
+                <a href="{% url "social:begin" "github" %}" class="ui github button">
+                  <i class="github icon"></i>
+                  Github
+                </a>
+            </div>
 
-        <a href="{% url "social:begin" "google-oauth2" %}" class="ui google plus button">
-          <i class="google icon"></i>
-          Google
-        </a>
+            <div class="column">
+                <a href="{% url "social:begin" "google-oauth2" %}" class="ui google plus button">
+                  <i class="google icon"></i>
+                  Google
+                </a>
+            </div>
 
-        <a href="{% url "social:begin" "facebook" %}" class="ui facebook button">
-          <i class="facebook icon"></i>
-          Facebook
-        </a>
-    </div>
+            <div class="column">
+                <a href="{% url "social:begin" "facebook" %}" class="ui facebook button">
+                  <i class="facebook icon"></i>
+                  Facebook
+                </a>
+            </div>
+        </div>
+
+
 </div>
 
 {% endblock %}

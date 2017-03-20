@@ -1,10 +1,10 @@
-import os
 from urllib.request import urlopen
 from urllib.error import HTTPError
 from urllib.parse import urlencode, unquote
 from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.views.decorators.cache import cache_page
 from django.shortcuts import render, get_object_or_404
+from django.contrib.auth.decorators import login_required, user_passes_test
 from datasets.models import Dataset
 from django.conf import settings
 from datasets import utils
@@ -40,11 +40,15 @@ def get_access_token(request):
     except HTTPError:
         return HttpResponseBadRequest()
 
+
 @cache_page(60 * 60 * 24)
 def dataset_sounds(request, short_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
     return JsonResponse({'sounds': [s.id for s in dataset.sounds.all()]})
 
+
+@login_required
+@user_passes_test(lambda u: u.is_staff)  # Restrict download to admins (this is a temporal thing)
 def download_script(request, short_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
     response = HttpResponse(content_type='text/plain')
@@ -83,6 +87,7 @@ def dataset_taxonomy_table(request, short_name):
         'node_n_annotations_n_sounds': node_n_annotations_n_sounds})
 
 
+@login_required
 def download(request, short_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
     script = utils.generate_download_script(dataset)
@@ -93,6 +98,7 @@ def download(request, short_name):
                                              'highlighting_styles': highlighting_styles})
 
 
+@login_required
 def contribute(request, short_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
     return render(request, 'contribute.html', {'dataset': dataset})
