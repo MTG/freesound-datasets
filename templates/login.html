@@ -24,35 +24,24 @@
         </p>
 
         <div class="four column row stackable" style="max-width:660px;">
-            <div class="column">
-                <a href="{% url "social:begin" "freesound" %}" class="ui youtube button">
-                  Freesound
-                </a>
-            </div>
+            <a href="{% url "social:begin" "freesound" %}" class="ui youtube button">
+              Freesound
+            </a>
 
-            <div class="column">
-                <a href="{% url "social:begin" "github" %}" class="ui github button">
-                  <i class="github icon"></i>
-                  Github
-                </a>
-            </div>
+            <a href="{% url "social:begin" "github" %}" class="ui github button">
+              <i class="github icon"></i>
+              Github
+            </a>
 
-            <div class="column">
-                <a href="{% url "social:begin" "google-oauth2" %}" class="ui google plus button">
-                  <i class="google icon"></i>
-                  Google
-                </a>
-            </div>
-
-            <div class="column">
-                <a href="{% url "social:begin" "facebook" %}" class="ui facebook button">
-                  <i class="facebook icon"></i>
-                  Facebook
-                </a>
-            </div>
+            <a href="{% url "social:begin" "google-oauth2" %}" class="ui google plus button">
+              <i class="google icon"></i>
+              Google
+            </a>
+            <a href="{% url "social:begin" "facebook" %}" class="ui facebook button">
+              <i class="facebook icon"></i>
+              Facebook
+            </a>
         </div>
-
-
 </div>
 
 {% endblock %}
