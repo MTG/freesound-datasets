@@ -22,32 +22,55 @@
             <thead>
                 <tr>
                     <th>Release</th>
-                    <th>Type</th>
                     <th>Num labels</th>
                     <th>Num sounds</th>
                     <th>Num annotations</th>
                     <th>Avg annotations per sound</th>
                     <th>% validated annotations</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
-                {% for release in dataset.releases %}
-                <tr>
+                {% for release in dataset_releases_for_user %}
+                <tr class="{% if release.type == 'IN' %}negative{% else %}positive{% endif %}">
                     <td>{{ release.release_tag }}</td>
-                    <td>{{ release.type }}</td>
                     <td>{{ dataset.taxonomy.get_num_nodes }}</td>
                     <td>{{ release.num_sounds }}</td>
                     <td>{{ release.num_annotations }}</td>
                     <td>{{ release.avg_annotations_per_sound|floatformat:2 }}</td>
                     <td>{{ release.percentage_validated_annotations|floatformat:2 }}%</td>
+                    <td>
+                        {% if release.type != 'IN' or user_is_maintainer %}
+                            <a href="{% url 'download' dataset.short_name %}" title="Download this dataset release"><i class="download icon"></i></a>
+                        {% endif %}
+                        {% if user_is_maintainer %}
+                            {% if release.type == 'IN' %}
+                                <a href="{% url 'change-release-type' dataset.short_name release.release_tag %}?release-type=PU" title="Make this dataset public">
+                                    <i class="unlock icon"></i>
+                                </a>
+                            {% else %}
+                                <a href="{% url 'change-release-type' dataset.short_name release.release_tag %}?release-type=IN" title="Make this dataset internal">
+                                    <i class="lock icon"></i>
+                                </a>
+                            {% endif %}
+                        {% endif %}
+                    </td>
                 </tr>
                 {% endfor %}
+                <tr>
+                    <td>current</td>
+                    <td>{{ dataset.taxonomy.get_num_nodes }}</td>
+                    <td>{{ dataset.num_sounds }}</td>
+                    <td>{{ dataset.num_annotations }}</td>
+                    <td>{{ dataset.avg_annotations_per_sound|floatformat:2 }}</td>
+                    <td>{{ dataset.percentage_validated_annotations|floatformat:2 }}%</td>
+                    <td></td>
+                </tr>
             </tbody>
         </table>
     </p>
-    <a href="{% url 'download' dataset.short_name %}" class="blue ui button right floated">Download <i class="right chevron icon"></i></a>
     {% if user_is_maintainer %}
-        <a href="{% url 'make-release' dataset.short_name %}" class="blue basic ui button right floated">Make new release <i class="right chevron icon"></i></a>
+        <a href="{% url 'make-release' dataset.short_name %}" class="blue ui button right floated">Make new release <i class="right chevron icon"></i></a>
     {% endif %}
     <br>
     <h2>Taxonomy labels</h2>

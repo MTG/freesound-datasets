@@ -1,12 +1,13 @@
 from urllib.request import urlopen
 from urllib.error import HTTPError
 from urllib.parse import urlencode, unquote
-from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
+from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse, HttpResponseNotAllowed, HttpResponseRedirect
 from django.views.decorators.cache import cache_page
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
-from datasets.models import Dataset, DatasetRelease
 from django.conf import settings
+from django.core.urlresolvers import reverse
+from datasets.models import Dataset, DatasetRelease
 from datasets import utils
 from pygments import highlight
 from pygments.lexers import PythonLexer
@@ -23,7 +24,15 @@ import os
 def dataset(request, short_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
     user_is_maintainer = dataset.user_is_maintainer(request.user)
-    return render(request, 'dataset.html', {'dataset': dataset, 'user_is_maintainer': user_is_maintainer})
+    if user_is_maintainer:
+        dataset_releases_for_user = dataset.releases
+    else:
+        dataset_releases_for_user = dataset.releases.filter(type="PU")  # Only get public ones
+    return render(request, 'dataset.html', {
+        'dataset': dataset,
+        'user_is_maintainer': user_is_maintainer,
+        'dataset_releases_for_user': dataset_releases_for_user
+    })
 
 
 def dataset_taxonomy_table(request, short_name):
@@ -161,6 +170,8 @@ def __prepare_release_data(dataset, release_tag, release_type):
 @login_required
 def make_release(request, short_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
+    if not dataset.user_is_maintainer(request.user):
+        raise HttpResponseNotAllowed
 
     if request.method == 'POST':
         # TODO: use a model form
@@ -190,3 +201,19 @@ def make_release(request, short_name):
                                     '{0}.json'.format(dataset_release.id)), 'w'))
 
     return render(request, 'make_release.html', {'dataset': dataset})
+
+
+@login_required
+def change_release_type(request, short_name, release_tag):
+    dataset = get_object_or_404(Dataset, short_name=short_name)
+    release = get_object_or_404(DatasetRelease, dataset=dataset, release_tag=release_tag)
+    if not dataset.user_is_maintainer(request.user):
+        raise HttpResponseNotAllowed
+
+    release_type = request.GET.get('release-type', None)
+    if release_type not in [item[0] for item in DatasetRelease.TYPE_CHOICES]:
+        release_type = DatasetRelease.TYPE_CHOICES[0][0]
+    release.type = release_type
+    release.save()
+
+    return HttpResponseRedirect(reverse('dataset', args=[dataset.short_name]))
