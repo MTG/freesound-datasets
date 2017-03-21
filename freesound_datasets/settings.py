@@ -39,9 +39,10 @@ else:
     INTERNAL_IPS = ['127.0.0.1']
 
     def show_toolbar(request):
-        if request.is_ajax():
-            return False
-        return True
+        #if request.is_ajax():
+        #    return False
+        #return True
+        return False
 
     # Normally django debug toolbar uses `INTERNAL_IPS` to check if it should show, but in
     # docker request.META.REMOTE_ADDR is set to an internal docker IP instead of 127.0.0.1.
@@ -185,3 +186,8 @@ DEFAULT_DATASET_NAME = os.getenv('DEFAULT_DATASET_NAME', 'FreesoundDataset')
 
 # Dataset release files folder
 DATASET_RELEASE_FILES_FOLDER = os.path.join(BASE_DIR, 'fsdatasets_releases')
+
+# Celery
+CELERY_BROKER_URL = "redis://redis"
+CELERY_RESULT_BACKEND = "redis://redis"
+CELERY_ACCEPT_CONTENT = ['json']

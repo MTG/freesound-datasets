@@ -7,3 +7,5 @@ uwsgi==2.0.14
 markdown==2.6.8
 Pygments==2.2.0
 social-auth-app-django==1.1.0
+redis==2.10.5
+celery==4.0.0

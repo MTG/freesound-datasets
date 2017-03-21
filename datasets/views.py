@@ -13,6 +13,7 @@ from pygments import highlight
 from pygments.lexers import PythonLexer
 from pygments.formatters import HtmlFormatter
 from django.db.models import Count
+from celery import shared_task
 import json
 import os
 
@@ -141,7 +142,10 @@ def download_release(request, short_name, release_tag):
                                              'highlighting_styles': highlighting_styles})
 
 
-def __prepare_release_data(dataset, release_tag, release_type):
+@shared_task
+def __make_release_helper(dataset_id, release_tag, release_type):
+    dataset = Dataset.objects.get(id=dataset_id)
+
     # Get sounds' info and annotations
     sounds_info = list()
     N = 5
@@ -169,7 +173,19 @@ def __prepare_release_data(dataset, release_tag, release_type):
        },
        'sounds_info': sounds_info,
     }
-    return release_data
+
+    # Create db entry object
+    dataset_release = DatasetRelease.objects.create(
+        dataset=dataset,
+        num_sounds=release_data['meta']['num_sounds'],
+        num_annotations=release_data['meta']['num_annotations'],
+        num_validated_annotations=release_data['meta']['num_validated_annotations'],
+        release_tag=release_tag,
+        type=release_type,
+    )
+
+    # Save release data to file
+    json.dump(release_data, open(dataset_release.index_file_path, 'w'))
 
 
 @login_required
@@ -185,23 +201,8 @@ def make_release(request, short_name):
         if release_type not in [item[0] for item in DatasetRelease.TYPE_CHOICES]:
             release_type = DatasetRelease.TYPE_CHOICES[0][0]
 
-        # Prepare release data
-        # TODO: this operation can take a long time, so we should handle the making of a release in an
-        # TODO: asychronous way (using celery?)
-        release_data = __prepare_release_data(dataset, release_tag, release_type)
-
-        # Create db entry object
-        dataset_release = DatasetRelease.objects.create(
-            dataset=dataset,
-            num_sounds=release_data['meta']['num_sounds'],
-            num_annotations=release_data['meta']['num_annotations'],
-            num_validated_annotations=release_data['meta']['num_validated_annotations'],
-            release_tag=release_tag,
-            type=release_type,
-        )
-
-        # Save release data to file
-        json.dump(release_data, open(dataset_release.index_file_path, 'w'))
+        # Compute release data
+        async_job = __make_release_helper.delay(dataset.id, release_tag, release_type)
 
     # Redirect to dataset main page
     return HttpResponseRedirect(reverse('dataset', args=[dataset.short_name]))

@@ -8,6 +8,8 @@ services:
       - .env
     volumes:
       - dbvolume:/var/lib/postgresql/data/
+  redis:
+    image: redis
   web:
     build: .
     ports:
@@ -20,3 +22,14 @@ services:
     command: bash -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     depends_on:
       - db
+      - redis
+  celery:
+    build: .
+    env_file:
+      - .env
+    volumes_from:
+      - web
+    command: celery worker -A freesound_datasets --concurrency=${CELERY_CONCURRENCY}
+    depends_on:
+      - db
+      - redis
