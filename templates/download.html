@@ -3,7 +3,8 @@
 {% block title %}Download{% endblock title %}
 
 {% block content %}
-    <h1 class="ui header">Download {{ dataset.name }} - {{ release.release_tag }}</h1>
+    <h1 class="ui header">Download {{ dataset.name }}</h1>
+    <h2>Release: {{ release.release_tag }}</h2>
     <p>
         To download this dataset please <b>download the Python script</b> below, run it, and follow the instructions on screen.
         The script will prompt you to open a website in your browser and login with a <b>Freesound user account</b>.
@@ -17,5 +18,6 @@
     <div style="height: 350px;overflow: scroll;">
         {{ formatted_script | safe }}
     </div>
+    <br>
     <a href="{% url 'download-script' dataset.short_name %}" class="right floated ui primary button">Download script</a>
 {% endblock %}
