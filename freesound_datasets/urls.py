@@ -15,10 +15,10 @@ urlpatterns = [
     url(r'^social/', include('social_django.urls', namespace='social')),
     url(r'^get-access-token/$', get_access_token, name='get_access_token'),
     url(r'^(?P<short_name>[^\/]+)/$', dataset, name='dataset'),
-
     url(r'^(?P<short_name>[^\/]+)/download-script/$', download_script, name='download-script'),
     url(r'^(?P<short_name>[^\/]+)/dataset-sounds/$', dataset_sounds, name='dataset-sounds'),
     url(r'^(?P<short_name>[^\/]+)/release/$', make_release, name='make-release'),
+    url(r'^(?P<short_name>[^\/]+)/check_release_progresses/$', check_release_progresses, name='check-release-progresses'),
     url(r'^(?P<short_name>[^\/]+)/release/(?P<release_tag>[^\/]+)/$', change_release_type, name='change-release-type'),
     url(r'^(?P<short_name>[^\/]+)/release/(?P<release_tag>[^\/]+)/download/$', download_release, name='download-release'),
     url(r'^(?P<short_name>[^\/]+)/release/(?P<release_tag>[^\/]+)/delete/$', delete_release, name='delete-release'),

@@ -159,13 +159,15 @@ class Dataset(models.Model):
 
 class DatasetRelease(models.Model):
     dataset = models.ForeignKey(Dataset)
-    num_sounds = models.IntegerField()
-    num_annotations = models.IntegerField()
-    num_validated_annotations = models.IntegerField()
+    num_sounds = models.IntegerField(default=0)
+    num_annotations = models.IntegerField(default=0)
+    num_validated_annotations = models.IntegerField(default=0)
     # TODO: add total length in seconds
     # TODO: add total size in bytes
     release_date = models.DateTimeField(auto_now_add=True)
     release_tag = models.CharField(max_length=25)
+    is_processed = models.BooleanField(default=False)
+    processing_progress = models.IntegerField(default=0)
     TYPE_CHOICES = (
         ('IN', 'Internal release only'),
         ('PU', 'Public release'),

@@ -143,16 +143,18 @@ def download_release(request, short_name, release_tag):
 
 
 @shared_task
-def __make_release_helper(dataset_id, release_tag, release_type):
+def __make_release_helper(dataset_id, release_id):
     dataset = Dataset.objects.get(id=dataset_id)
+    dataset_release = DatasetRelease.objects.get(id=release_id)
 
     # Get sounds' info and annotations
     sounds_info = list()
-    N = 5
+    N = 500  # Include all sounds
     n_sounds = 0
     n_annotations = 0
     n_validated_annotations = 0
-    for sound in dataset.sounds.all()[:N]:
+    sounds = dataset.sounds.all()[:N]
+    for count, sound in enumerate(sounds):
         annotations = sound.get_annotations(dataset)
         if annotations:
             sounds_info.append((
@@ -161,12 +163,16 @@ def __make_release_helper(dataset_id, release_tag, release_type):
             n_sounds += 1
             n_annotations += annotations.count()
             n_validated_annotations += annotations.annotate(num_votes=Count('votes')).filter(num_votes__lt=0).count()
+        if count % 50:
+            # Every 50 sounds, update progress
+            dataset_release.processing_progress = int(round((count + 1) * 100.0 / len(sounds)))
+            dataset_release.save()
 
     # Make data structure
     release_data = {
        'meta': {
            'dataset': dataset.name,
-           'release': release_tag,
+           'release': dataset_release.release_tag,
            'num_sounds': n_sounds,
            'num_annotations': n_annotations,
            'num_validated_annotations': n_validated_annotations
@@ -174,18 +180,16 @@ def __make_release_helper(dataset_id, release_tag, release_type):
        'sounds_info': sounds_info,
     }
 
-    # Create db entry object
-    dataset_release = DatasetRelease.objects.create(
-        dataset=dataset,
-        num_sounds=release_data['meta']['num_sounds'],
-        num_annotations=release_data['meta']['num_annotations'],
-        num_validated_annotations=release_data['meta']['num_validated_annotations'],
-        release_tag=release_tag,
-        type=release_type,
-    )
-
     # Save release data to file
     json.dump(release_data, open(dataset_release.index_file_path, 'w'))
+
+    # Update dataset_release object
+    dataset_release.num_validated_annotations = n_validated_annotations
+    dataset_release.num_annotations = n_annotations
+    dataset_release.num_sounds = n_sounds
+    dataset_release.processing_progress = 100
+    dataset_release.is_processed = True
+    dataset_release.save()
 
 
 @login_required
@@ -201,8 +205,16 @@ def make_release(request, short_name):
         if release_type not in [item[0] for item in DatasetRelease.TYPE_CHOICES]:
             release_type = DatasetRelease.TYPE_CHOICES[0][0]
 
+        # Create (empty) dataset release entry
+        # Create db entry object
+        dataset_release = DatasetRelease.objects.create(
+            dataset=dataset,
+            release_tag=release_tag,
+            type=release_type,
+        )
+
         # Compute release data
-        async_job = __make_release_helper.delay(dataset.id, release_tag, release_type)
+        async_job = __make_release_helper.delay(dataset.id, dataset_release.id)
 
     # Redirect to dataset main page
     return HttpResponseRedirect(reverse('dataset', args=[dataset.short_name]))
@@ -227,15 +239,24 @@ def change_release_type(request, short_name, release_tag):
 @login_required
 def delete_release(request, short_name, release_tag):
     dataset = get_object_or_404(Dataset, short_name=short_name)
-    release = get_object_or_404(DatasetRelease, dataset=dataset, release_tag=release_tag)
     if not dataset.user_is_maintainer(request.user):
         raise HttpResponseNotAllowed
 
     # Remove related files and db object
-    try:
-        os.remove(release.index_file_path)
-    except FileNotFoundError:
-        pass
-    release.delete()
+    for release in DatasetRelease.objects.filter(dataset=dataset, release_tag=release_tag):
+        try:
+            os.remove(release.index_file_path)
+        except FileNotFoundError:
+            pass
+        release.delete()
 
     return HttpResponseRedirect(reverse('dataset', args=[dataset.short_name]))
+
+
+@login_required
+def check_release_progresses(request, short_name):
+    dataset = get_object_or_404(Dataset, short_name=short_name)
+    if not dataset.user_is_maintainer(request.user):
+        raise HttpResponseNotAllowed
+
+    return JsonResponse({release.id: release.processing_progress for release in dataset.releases})
