@@ -126,12 +126,17 @@ def download_script(request, short_name):
 
 
 @login_required
-def download(request, short_name):
+def download_release(request, short_name, release_tag):
     dataset = get_object_or_404(Dataset, short_name=short_name)
+    release = get_object_or_404(DatasetRelease, dataset=dataset, release_tag=release_tag)
+    if release.type is not 'PU' and not dataset.user_is_maintainer(request.user):
+        raise HttpResponseNotAllowed
+
     script = utils.generate_download_script(dataset)
     formatted_script = highlight(script, PythonLexer(), HtmlFormatter())
     highlighting_styles = HtmlFormatter().get_style_defs('.highlight')
     return render(request, 'download.html', {'dataset': dataset,
+                                             'release': release,
                                              'formatted_script': formatted_script,
                                              'highlighting_styles': highlighting_styles})
 
@@ -196,9 +201,7 @@ def make_release(request, short_name):
         )
 
         # Save release data to file
-        json.dump(release_data,
-                  open(os.path.join(settings.DATASET_RELEASE_FILES_FOLDER,
-                                    '{0}.json'.format(dataset_release.id)), 'w'))
+        json.dump(release_data, open(dataset_release.index_file_path, 'w'))
 
     return render(request, 'make_release.html', {'dataset': dataset})
 
@@ -215,5 +218,22 @@ def change_release_type(request, short_name, release_tag):
         release_type = DatasetRelease.TYPE_CHOICES[0][0]
     release.type = release_type
     release.save()
+
+    return HttpResponseRedirect(reverse('dataset', args=[dataset.short_name]))
+
+
+@login_required
+def delete_release(request, short_name, release_tag):
+    dataset = get_object_or_404(Dataset, short_name=short_name)
+    release = get_object_or_404(DatasetRelease, dataset=dataset, release_tag=release_tag)
+    if not dataset.user_is_maintainer(request.user):
+        raise HttpResponseNotAllowed
+
+    # Remove related files and db object
+    try:
+        os.remove(release.index_file_path)
+    except FileNotFoundError:
+        pass
+    release.delete()
 
     return HttpResponseRedirect(reverse('dataset', args=[dataset.short_name]))

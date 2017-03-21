@@ -4,7 +4,9 @@ from django.db import models
 from django.db.models import Count
 from django.contrib.postgres.fields import JSONField
 from django.contrib.auth.models import User
+from django.conf import settings
 from urllib.parse import quote
+import os
 import markdown
 
 
@@ -148,6 +150,12 @@ class Dataset(models.Model):
     def user_is_maintainer(self, user):
         return user in self.maintainers.all()
 
+    @property
+    def last_release_tag(self):
+        if not self.releases.all():
+            return None
+        return self.releases.all().order_by('-release_date')[0].release_tag
+
 
 class DatasetRelease(models.Model):
     dataset = models.ForeignKey(Dataset)
@@ -175,6 +183,10 @@ class DatasetRelease(models.Model):
         if self.num_annotations == 0:
             return 0  # Avoid potential division by 0 error
         return self.num_validated_annotations * 100.0 / self.num_annotations
+
+    @property
+    def index_file_path(self):
+        return os.path.join(settings.DATASET_RELEASE_FILES_FOLDER, '{0}.json'.format(self.id))
 
 
 class SoundDataset(models.Model):

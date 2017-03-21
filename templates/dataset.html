@@ -41,7 +41,7 @@
                     <td>{{ release.percentage_validated_annotations|floatformat:2 }}%</td>
                     <td>
                         {% if release.type != 'IN' or user_is_maintainer %}
-                            <a href="{% url 'download' dataset.short_name %}" title="Download this dataset release"><i class="download icon"></i></a>
+                            <a href="{% url 'download-release' dataset.short_name release.release_tag %}" title="Download this dataset release"><i class="download icon"></i></a>
                         {% endif %}
                         {% if user_is_maintainer %}
                             {% if release.type == 'IN' %}
@@ -53,6 +53,9 @@
                                     <i class="lock icon"></i>
                                 </a>
                             {% endif %}
+                            <a href="{% url 'delete-release' dataset.short_name release.release_tag %}" title="Delete this release">
+                                <i class="trash icon"></i>
+                            </a>
                         {% endif %}
                     </td>
                 </tr>
