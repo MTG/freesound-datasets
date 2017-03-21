@@ -11,6 +11,18 @@
                     'info': true,
                 });
             });
+            $('#make_release_form').form({
+              fields: {
+                release_tag: {
+                  identifier: 'release-tag',
+                  rules: [{
+                    type: 'regExp',
+                    value: '/^[a-zA-Z0-9_-]{1,25}/$',
+                    prompt: 'Please introduce a valid release tag'
+                  }]
+                }
+              }
+            });
         });
     </script>
 {% endblock %}
@@ -31,35 +43,6 @@
                 </tr>
             </thead>
             <tbody>
-                {% for release in dataset_releases_for_user %}
-                <tr class="{% if release.type == 'IN' %}negative{% else %}positive{% endif %}">
-                    <td>{{ release.release_tag }}</td>
-                    <td>{{ dataset.taxonomy.get_num_nodes }}</td>
-                    <td>{{ release.num_sounds }}</td>
-                    <td>{{ release.num_annotations }}</td>
-                    <td>{{ release.avg_annotations_per_sound|floatformat:2 }}</td>
-                    <td>{{ release.percentage_validated_annotations|floatformat:2 }}%</td>
-                    <td>
-                        {% if release.type != 'IN' or user_is_maintainer %}
-                            <a href="{% url 'download-release' dataset.short_name release.release_tag %}" title="Download this dataset release"><i class="download icon"></i></a>
-                        {% endif %}
-                        {% if user_is_maintainer %}
-                            {% if release.type == 'IN' %}
-                                <a href="{% url 'change-release-type' dataset.short_name release.release_tag %}?release-type=PU" title="Make this dataset public">
-                                    <i class="unlock icon"></i>
-                                </a>
-                            {% else %}
-                                <a href="{% url 'change-release-type' dataset.short_name release.release_tag %}?release-type=IN" title="Make this dataset internal">
-                                    <i class="lock icon"></i>
-                                </a>
-                            {% endif %}
-                            <a href="{% url 'delete-release' dataset.short_name release.release_tag %}" title="Delete this release">
-                                <i class="trash icon"></i>
-                            </a>
-                        {% endif %}
-                    </td>
-                </tr>
-                {% endfor %}
                 <tr>
                     <td>current</td>
                     <td>{{ dataset.taxonomy.get_num_nodes }}</td>
@@ -69,11 +52,77 @@
                     <td>{{ dataset.percentage_validated_annotations|floatformat:2 }}%</td>
                     <td></td>
                 </tr>
+                {% for release in dataset_releases_for_user %}
+                    <tr class="{% if release.type == 'IN' %}negative{% else %}positive{% endif %}">
+                        <td>{{ release.release_tag }}</td>
+                        <td>{{ dataset.taxonomy.get_num_nodes }}</td>
+                        <td>{{ release.num_sounds }}</td>
+                        <td>{{ release.num_annotations }}</td>
+                        <td>{{ release.avg_annotations_per_sound|floatformat:2 }}</td>
+                        <td>{{ release.percentage_validated_annotations|floatformat:2 }}%</td>
+                        <td>
+                            {% if release.type != 'IN' or user_is_maintainer %}
+                                <a href="{% url 'download-release' dataset.short_name release.release_tag %}" title="Download this dataset release"><i class="download icon"></i></a>
+                            {% endif %}
+                            {% if user_is_maintainer %}
+                                {% if release.type == 'IN' %}
+                                    <a href="{% url 'change-release-type' dataset.short_name release.release_tag %}?release-type=PU" title="Make this dataset public">
+                                        <i class="unlock icon"></i>
+                                    </a>
+                                {% else %}
+                                    <a href="{% url 'change-release-type' dataset.short_name release.release_tag %}?release-type=IN" title="Make this dataset internal">
+                                        <i class="lock icon"></i>
+                                    </a>
+                                {% endif %}
+                                <a onclick="$('#delete_release_modal').modal('show');" href="javascript:void(0);" title="Delete this release">
+                                    <i class="trash icon"></i>
+                                </a>
+                                <!-- delete release modal -->
+                                    <div id="delete_release_modal" class="ui basic modal">
+                                        <div class="ui icon header"><i class="trash icon"></i>
+                                            Delete {{ dataset.name }} release {{ release.release_tag }}
+                                        </div>
+                                        <div class="content">
+                                            <p>Are you sure you want to delete <b>{{ dataset.name }}</b> release <b>{{ release.release_tag }}</b>?</p>
+                                        </div>
+                                        <div class="actions">
+                                            <div class="ui red basic cancel inverted button"><i class="remove icon"></i>No</div>
+                                            <a href="{% url 'delete-release' dataset.short_name release.release_tag %}">
+                                                <div class="ui green ok inverted button"><i class="checkmark icon"></i>Yes</div>
+                                            </a>
+                                        </div>
+                                    </div>
+                                <!-- end delete release modal -->
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
             </tbody>
         </table>
     </p>
     {% if user_is_maintainer %}
-        <a href="{% url 'make-release' dataset.short_name %}" class="blue ui button right floated">Make new release <i class="right chevron icon"></i></a>
+        <button onclick="$('#make_release_modal').modal('show');" class="green ui button right labeled icon right floated">Make new release <i class="add icon"></i></button>
+        <!-- make release modal -->
+            <div id="make_release_modal" class="ui modal">
+                <div class="header">
+                    Make a new release for {{ dataset.name }}
+                </div>
+                <div class="content">
+                    <form id="make_release_form" class="ui form" method="post" action="{% url 'make-release' dataset.short_name %}">{% csrf_token %}
+                        <p>Please introduce a tag for the release (i.e. version number)</p>
+                        <div class="ui error message"></div>
+                        <div class="field">
+                            <label>Release tag</label>
+                            <input type="text" name="release-tag" placeholder="0.1">
+                        </div>
+                        <div class="actions">
+                            <button class="right floated ui green button" type="submit">OK</button>
+                            <br><br>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        <!-- end make release modal -->
     {% endif %}
     <br>
     <h2>Taxonomy labels</h2>

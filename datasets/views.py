@@ -203,7 +203,8 @@ def make_release(request, short_name):
         # Save release data to file
         json.dump(release_data, open(dataset_release.index_file_path, 'w'))
 
-    return render(request, 'make_release.html', {'dataset': dataset})
+    # Redirect to dataset main page
+    return HttpResponseRedirect(reverse('dataset', args=[dataset.short_name]))
 
 
 @login_required

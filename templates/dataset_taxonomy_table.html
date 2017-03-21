@@ -19,7 +19,7 @@
             <td>{{ node_stats.num_children }}</td>
             <td>{{ node_stats.num_sounds }}</td>
             <td>{{ node_stats.num_annotations }}</td>
-            <td class="right aligned"><a href="{% url 'taxonomy-node' dataset.short_name node.url_id %}" class="blue ui button">Explore <i class="right chevron icon"></i></a></td>
+            <td class="right aligned"><a href="{% url 'taxonomy-node' dataset.short_name node.url_id %}" class="blue ui button right labeled icon">Explore <i class="right arrow icon"></i></a></td>
         </tr>
     {% endfor %}
     </tbody>
