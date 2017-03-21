@@ -149,7 +149,7 @@ def __make_release_helper(dataset_id, release_id):
 
     # Get sounds' info and annotations
     sounds_info = list()
-    N = 500  # Include all sounds
+    N = None  # Include all sounds
     n_sounds = 0
     n_annotations = 0
     n_validated_annotations = 0
