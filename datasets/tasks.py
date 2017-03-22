@@ -18,13 +18,16 @@ def generate_release_index(dataset_id, release_id, max_sounds=None):
     n_sounds = 0
     n_annotations = 0
     n_validated_annotations = 0
+    node_set = set()
     sounds = dataset.sounds.all()[:max_sounds]
     for count, sound in enumerate(sounds):
         annotations = sound.get_annotations(dataset)
         if annotations:
+            annotation_values = [item.value for item in annotations]
             sounds_info.append((
-                sound.id, [item.value for item in annotations]
+                sound.id, annotation_values
             ))
+            node_set.update(annotation_values)
             n_sounds += 1
             n_annotations += annotations.count()
             n_validated_annotations += annotations.annotate(num_votes=Count('votes')).filter(num_votes__lt=0).count()
@@ -40,6 +43,7 @@ def generate_release_index(dataset_id, release_id, max_sounds=None):
            'dataset': dataset.name,
            'release': dataset_release.release_tag,
            'num_sounds': n_sounds,
+           'num_taxonomy_nodes': len(node_set),
            'num_annotations': n_annotations,
            'num_validated_annotations': n_validated_annotations
        },

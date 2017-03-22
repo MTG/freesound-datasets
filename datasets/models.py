@@ -163,6 +163,7 @@ class Dataset(models.Model):
 class DatasetRelease(models.Model):
     dataset = models.ForeignKey(Dataset)
     num_sounds = models.IntegerField(default=0)
+    num_nodes = models.IntegerField(default=0)
     num_annotations = models.IntegerField(default=0)
     num_validated_annotations = models.IntegerField(default=0)
     # TODO: add total length in seconds

@@ -25,7 +25,7 @@
         {% for release in dataset_releases_for_user %}
             <tr id="release_row_{{ release.id }}" class="{% if not release.is_processed %}negative{% else %}{% if release.type == 'IN' %}warning{% else %}{% endif %}{% endif %}">
                 <td>{{ release.release_tag }}<br><span class="small_gray_text">{{ release.release_date | timesince  }} ago</span></td>
-                <td>{{ dataset.taxonomy.get_num_nodes }}</td>
+                <td>{{ release.num_nodes }}</td>
                 <td>{{ release.num_sounds }}</td>
                 <td>{{ release.num_annotations }}</td>
                 <td>{{ release.avg_annotations_per_sound|floatformat:2 }}</td>
