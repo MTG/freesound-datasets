@@ -14,8 +14,10 @@ from pygments.lexers import PythonLexer
 from pygments.formatters import HtmlFormatter
 from django.db.models import Count
 from celery import shared_task
+from django.utils import timezone
 import json
 import os
+import math
 
 
 #######################
@@ -58,6 +60,20 @@ def dataset_taxonomy_table(request, short_name):
     return render(request, 'dataset_taxonomy_table.html', {
         'dataset': dataset,
         'node_n_annotations_n_sounds': node_n_annotations_n_sounds})
+
+
+def dataset_releases_table(request, short_name):
+    dataset = get_object_or_404(Dataset, short_name=short_name)
+    user_is_maintainer = dataset.user_is_maintainer(request.user)
+    if user_is_maintainer:
+        dataset_releases_for_user = dataset.releases
+    else:
+        dataset_releases_for_user = dataset.releases.filter(type="PU")  # Only get public ones
+    return render(request, 'dataset_releases_table.html', {
+        'dataset': dataset,
+        'user_is_maintainer': user_is_maintainer,
+        'dataset_releases_for_user': dataset_releases_for_user
+    })
 
 
 def taxonomy_node(request, short_name, node_id):
@@ -143,17 +159,16 @@ def download_release(request, short_name, release_tag):
 
 
 @shared_task
-def __make_release_helper(dataset_id, release_id):
+def __make_release_helper(dataset_id, release_id, max_sounds=None):
     dataset = Dataset.objects.get(id=dataset_id)
     dataset_release = DatasetRelease.objects.get(id=release_id)
 
     # Get sounds' info and annotations
     sounds_info = list()
-    N = None  # Include all sounds
     n_sounds = 0
     n_annotations = 0
     n_validated_annotations = 0
-    sounds = dataset.sounds.all()[:N]
+    sounds = dataset.sounds.all()[:max_sounds]
     for count, sound in enumerate(sounds):
         annotations = sound.get_annotations(dataset)
         if annotations:
@@ -165,7 +180,8 @@ def __make_release_helper(dataset_id, release_id):
             n_validated_annotations += annotations.annotate(num_votes=Count('votes')).filter(num_votes__lt=0).count()
         if count % 50:
             # Every 50 sounds, update progress
-            dataset_release.processing_progress = int(round((count + 1) * 100.0 / len(sounds)))
+            dataset_release.processing_progress = int(math.floor(count * 100.0 / len(sounds)))
+            dataset_release.processing_last_updated = timezone.now()
             dataset_release.save()
 
     # Make data structure
@@ -188,6 +204,7 @@ def __make_release_helper(dataset_id, release_id):
     dataset_release.num_annotations = n_annotations
     dataset_release.num_sounds = n_sounds
     dataset_release.processing_progress = 100
+    dataset_release.processing_last_updated = timezone.now()
     dataset_release.is_processed = True
     dataset_release.save()
 
@@ -214,7 +231,7 @@ def make_release(request, short_name):
         )
 
         # Compute release data
-        async_job = __make_release_helper.delay(dataset.id, dataset_release.id)
+        async_job = __make_release_helper.delay(dataset.id, dataset_release.id, max_sounds=1000)
 
     # Redirect to dataset main page
     return HttpResponseRedirect(reverse('dataset', args=[dataset.short_name]))

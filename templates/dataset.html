@@ -5,12 +5,8 @@
 {% block page_js %}
     <script type="text/javascript">
         $(document).ready(function() {
-            $( "#dataset_taxonomy_table_placeholder" ).load( "{% url 'taxonomy-table' dataset.short_name %}", function() {
-                $('#dataset_contents').DataTable({
-                    'paging': true,
-                    'info': true,
-                });
-            });
+            loadDatasetReleasesTable();
+            loadDatasetTaxonomyTable();
             $('#make_release_form').form({
               fields: {
                 release_tag: {
@@ -23,37 +19,67 @@
                 }
               }
             });
-            startUpdatingPercentages();
         });
 
+        function loadDatasetTaxonomyTable(){
+            $( "#dataset_taxonomy_table_placeholder" ).load( "{% url 'taxonomy-table' dataset.short_name %}", function() {
+                $('#dataset_contents').DataTable({
+                    'paging': true,
+                    'info': true,
+                });
+            });
+        }
+
+        function loadDatasetReleasesTable() {
+            $( "#dataset_releases_table_placeholder" ).load( "{% url 'releases-table' dataset.short_name %}", function() {
+                startUpdatingPercentages();
+            });
+        }
+
         function updateReleasePercentages() {
+            n_polling_checks += 1;
             $.get( "{% url 'check-release-progresses' dataset.short_name %}", function( data ) {
+
+                console.log(n_polling_checks,data )
+
+                // First check if all releases are complete
                 var allComplete = true;
                 for (var key in data) {
-                  if (data.hasOwnProperty(key)) {
-                      $('#release_percentage_bar_' + key).progress({
-                          percent: data[key],
-                          text: {active: '{percent}%'}
-                      });
-                      if (data[key] != 100) {
-                          allComplete = false;
-                      } else {
-                           $('#release_percentage_bar_placeholder_' + key).html('Done!');
-                           $('#release_row_' + key).removeClass('negative').addClass('positive');
-                      }
-                  }
+                    if (data.hasOwnProperty(key)) {
+                        if (data[key] != 100) {
+                            allComplete = false;
+                        }
+                    }
                 }
-                if (allComplete) {
+
+                // If all releases are complete at first check, there is no progress to track, cancel timer
+                if (allComplete && n_polling_checks === 1){
                     window.clearInterval(polling_timer);
                     polling_timer = undefined;
+                    n_polling_checks = 0;
+                } else {
+                    // If not all are complete or we're at later polling check, update progress bars
+                    for (var key in data) {
+                        if (data.hasOwnProperty(key)) {
+                            $('#release_percentage_bar_' + key).progress({
+                                percent: data[key],
+                                text: {active: '{percent}%'}
+                            });
+                            if (data[key] == 100) {
+                                // If one of them has reached 100, we reload the releases table
+                                loadDatasetReleasesTable();
+                            }
+                        }
+                    }
                 }
             });
         }
 
         var polling_timer = undefined;
+        var n_polling_checks = 0;
         function startUpdatingPercentages(){
             if (polling_timer === undefined) {
-                polling_timer = setInterval(function(){ updateReleasePercentages(); }, 200);
+                polling_timer = setInterval(function(){ updateReleasePercentages(); }, 1000);
             }
         }
     </script>
@@ -62,81 +88,9 @@
     <h1 class="ui header">About the {{ dataset.name }}</h1>
     {{ dataset.description_html|safe }}
     <p>
-        <table class="ui definition unstackable table">
-            <thead>
-                <tr>
-                    <th class="one wide">Release</th>
-                    <th class="one wide">Num labels</th>
-                    <th class="one wide">Num sounds</th>
-                    <th class="one wide">Num annotations</th>
-                    <th class="one wide">Avg annotations per sound</th>
-                    <th class="one wide">% validated annotations</th>
-                    <th class="one wide"></th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>current</td>
-                    <td>{{ dataset.taxonomy.get_num_nodes }}</td>
-                    <td>{{ dataset.num_sounds }}</td>
-                    <td>{{ dataset.num_annotations }}</td>
-                    <td>{{ dataset.avg_annotations_per_sound|floatformat:2 }}</td>
-                    <td>{{ dataset.percentage_validated_annotations|floatformat:2 }}%</td>
-                    <td></td>
-                </tr>
-                {% for release in dataset_releases_for_user %}
-                    <tr id="release_row_{{ release.id }}" class="{% if not release.is_processed %}negative{% else %}{% if release.type == 'IN' %}warning{% else %}{% endif %}{% endif %}">
-                        <td>{{ release.release_tag }}</td>
-                        <td>{{ dataset.taxonomy.get_num_nodes }}</td>
-                        <td>{{ release.num_sounds }}</td>
-                        <td>{{ release.num_annotations }}</td>
-                        <td>{{ release.avg_annotations_per_sound|floatformat:2 }}</td>
-                        <td>{{ release.percentage_validated_annotations|floatformat:2 }}%</td>
-                        <td>
-                            {% if release.is_processed %}
-                                {% if release.type != 'IN' or user_is_maintainer %}
-                                    <a href="{% url 'download-release' dataset.short_name release.release_tag %}" title="Download this dataset release"><i class="download icon"></i></a>
-                                {% endif %}
-                                {% if user_is_maintainer %}
-                                    {% if release.type == 'IN' %}
-                                        <a href="{% url 'change-release-type' dataset.short_name release.release_tag %}?release-type=PU" title="Make this dataset public">
-                                            <i class="unlock icon"></i>
-                                        </a>
-                                    {% else %}
-                                        <a href="{% url 'change-release-type' dataset.short_name release.release_tag %}?release-type=IN" title="Make this dataset internal">
-                                            <i class="lock icon"></i>
-                                        </a>
-                                    {% endif %}
-                                    <a onclick="$('#delete_release_modal_{{ release.id }}').modal('show');" href="javascript:void(0);" title="Delete this release">
-                                        <i class="trash icon"></i>
-                                    </a>
-                                    <!-- delete release modal -->
-                                        <div id="delete_release_modal_{{ release.id }}" class="ui basic modal">
-                                            <div class="ui icon header"><i class="trash icon"></i>
-                                                Delete {{ dataset.name }} release {{ release.release_tag }}
-                                            </div>
-                                            <div class="content">
-                                                <p>Are you sure you want to delete <b>{{ dataset.name }}</b> release <b>{{ release.release_tag }}</b>?</p>
-                                            </div>
-                                            <div class="actions">
-                                                <div class="ui red basic cancel inverted button"><i class="remove icon"></i>No</div>
-                                                <a href="{% url 'delete-release' dataset.short_name release.release_tag %}">
-                                                    <div class="ui green ok inverted button"><i class="checkmark icon"></i>Yes</div>
-                                                </a>
-                                            </div>
-                                        </div>
-                                    <!-- end delete release modal -->
-                                {% endif %}
-                            {% else %}
-                                <div id="release_percentage_bar_placeholder_{{ release.id }}">
-                                    <div id="release_percentage_bar_{{ release.id }}" class="ui indicating progress"><div class="bar"></div><div class="label"></div></div>
-                                </div>
-                            {% endif %}
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <div id="dataset_releases_table_placeholder">
+            <div class="ui active centered inline text loader">Loading data...</div>
+        </div>
     </p>
     {% if user_is_maintainer %}
         <button onclick="$('#make_release_modal').modal('show');" class="green ui button right labeled icon right floated">Make new release <i class="add icon"></i></button>

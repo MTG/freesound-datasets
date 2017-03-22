@@ -8,6 +8,8 @@ from django.conf import settings
 from urllib.parse import quote
 import os
 import markdown
+import datetime
+from django.utils import timezone
 
 
 class Taxonomy(models.Model):
@@ -168,7 +170,7 @@ class DatasetRelease(models.Model):
     release_tag = models.CharField(max_length=25)
     is_processed = models.BooleanField(default=False)
     processing_progress = models.IntegerField(default=0)
-    processing_last_updated = models.DateTimeField(auto_now=True)
+    processing_last_updated = models.DateTimeField(auto_now_add=True)
     TYPE_CHOICES = (
         ('IN', 'Internal release only'),
         ('PU', 'Public release'),
@@ -190,6 +192,12 @@ class DatasetRelease(models.Model):
     @property
     def index_file_path(self):
         return os.path.join(settings.DATASET_RELEASE_FILES_FOLDER, '{0}.json'.format(self.id))
+
+    @property
+    def last_processing_progress_is_old(self):
+        # Check processing_last_updated and if it is older than 5 minutes, that probably means there
+        # have been errors with the computation and we can show it on screen
+        return self.processing_last_updated < (timezone.now() - datetime.timedelta(minutes=2))
 
 
 class SoundDataset(models.Model):

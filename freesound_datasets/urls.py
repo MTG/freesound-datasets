@@ -24,6 +24,7 @@ urlpatterns = [
     url(r'^(?P<short_name>[^\/]+)/release/(?P<release_tag>[^\/]+)/delete/$', delete_release, name='delete-release'),
     url(r'^(?P<short_name>[^\/]+)/contribute/$', contribute, name='contribute'),
     url(r'^(?P<short_name>[^\/]+)/taxonomy_table/$', dataset_taxonomy_table, name='taxonomy-table'),
+    url(r'^(?P<short_name>[^\/]+)/releases_table/$', dataset_releases_table, name='releases-table'),
     url(r'^(?P<short_name>[^\/]+)/explore/(?P<node_id>[^\/]+)/$', taxonomy_node, name='taxonomy-node'),
 ]
 
