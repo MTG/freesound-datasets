@@ -3,8 +3,6 @@
     <thead>
         <tr>
             <th>Label</th>
-            <th>N parents</th>
-            <th>N children</th>
             <th>N sounds</th>
             <th>N annotations</th>
             <th></th>
@@ -15,8 +13,6 @@
         {% taxonomy_node_stats dataset node.id node_n_annotations_n_sounds as node_stats %}
         <tr {% if node_stats.is_blacklisted %}class="negative"{% elif node_stats.is_abstract %}class="warning"{% else %}{% endif %}>
             <td>{{ node.name }}</td>
-            <td>{{ node_stats.num_parents }}</td>
-            <td>{{ node_stats.num_children }}</td>
             <td>{{ node_stats.num_sounds }}</td>
             <td>{{ node_stats.num_annotations }}</td>
             <td class="right aligned"><a href="{% url 'taxonomy-node' dataset.short_name node.url_id %}" class="blue ui button right labeled icon">Explore <i class="right arrow icon"></i></a></td>

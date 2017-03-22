@@ -45,3 +45,9 @@ p {
 .ui.inverted.menu, .ui.inverted.segment, .ui.primary.inverted.segment {
 	background: #c00;
 }
+
+.small_gray_text {
+	color: gray;
+	font-size: 0.7em;
+	font-weight: 100;
+}

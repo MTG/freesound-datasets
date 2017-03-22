@@ -13,17 +13,17 @@
     </thead>
     <tbody>
         <tr>
-            <td>current</td>
-            <td>{{ dataset.taxonomy.get_num_nodes }}</td>
-            <td>{{ dataset.num_sounds }}</td>
-            <td>{{ dataset.num_annotations }}</td>
-            <td>{{ dataset.avg_annotations_per_sound|floatformat:2 }}</td>
-            <td>{{ dataset.percentage_validated_annotations|floatformat:2 }}%</td>
+            <td>current<br><span class="small_gray_text">{{ dataset_basic_stats.redis_timestamp | timesince  }} ago</span></td>
+            <td>{{ dataset_basic_stats.num_taxonomy_nodes }}</td>
+            <td>{{ dataset_basic_stats.num_sounds }}</td>
+            <td>{{ dataset_basic_stats.num_annotations }}</td>
+            <td>{{ dataset_basic_stats.avg_annotations_per_sound|floatformat:2 }}</td>
+            <td>{{ dataset_basic_stats.percentage_validated_annotations|floatformat:2 }}%</td>
             <td></td>
         </tr>
         {% for release in dataset_releases_for_user %}
             <tr id="release_row_{{ release.id }}" class="{% if not release.is_processed %}negative{% else %}{% if release.type == 'IN' %}warning{% else %}{% endif %}{% endif %}">
-                <td>{{ release.release_tag }}</td>
+                <td>{{ release.release_tag }}<br><span class="small_gray_text">{{ release.release_date | timesince  }} ago</span></td>
                 <td>{{ dataset.taxonomy.get_num_nodes }}</td>
                 <td>{{ release.num_sounds }}</td>
                 <td>{{ release.num_annotations }}</td>

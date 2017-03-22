@@ -187,5 +187,9 @@ CELERY_BROKER_URL = "redis://redis"
 CELERY_RESULT_BACKEND = "redis://redis"
 CELERY_ACCEPT_CONTENT = ['json']
 
+# Redis
+REDIS_HOST = 'redis'  # Host where redis is running (we use docker alias here)
+REDIS_PORT = 6379
+
 # Import local settings
 from freesound_datasets.local_settings import *

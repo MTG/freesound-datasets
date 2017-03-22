@@ -13,12 +13,10 @@ from datasets.forms import DatasetReleaseForm
 from pygments import highlight
 from pygments.lexers import PythonLexer
 from pygments.formatters import HtmlFormatter
-from django.db.models import Count
-from celery import shared_task
-from django.utils import timezone
-import json
+from datasets.tasks import generate_release_index, compute_dataset_basic_stats
+from utils.redis_store import store, DATASET_BASIC_STATS_KEY_TEMPLATE
 import os
-import math
+
 
 
 #######################
@@ -35,7 +33,7 @@ def dataset(request, short_name):
             dataset_release = form.save(commit=False)
             dataset_release.dataset = dataset
             dataset_release.save()
-            async_job = __make_release_helper.delay(dataset.id, dataset_release.id, form.cleaned_data['max_number_of_sounds'])
+            async_job = generate_release_index.delay(dataset.id, dataset_release.id, form.cleaned_data['max_number_of_sounds'])
             form = DatasetReleaseForm()  # Reset form
         else:
             form_errors = True
@@ -80,8 +78,15 @@ def dataset_releases_table(request, short_name):
         dataset_releases_for_user = dataset.releases
     else:
         dataset_releases_for_user = dataset.releases.filter(type="PU")  # Only get public ones
+    dataset_basic_stats, elapsed_time = \
+        store.get(DATASET_BASIC_STATS_KEY_TEMPLATE.format(dataset.id), include_elapsed_time=True)
+    if elapsed_time > 60:
+        # If redis data is older than 60 seconds, trigger recompute it (for next time)
+        compute_dataset_basic_stats.delay(dataset.id)
+
     return render(request, 'dataset_releases_table.html', {
         'dataset': dataset,
+        'dataset_basic_stats': dataset_basic_stats,
         'user_is_maintainer': user_is_maintainer,
         'dataset_releases_for_user': dataset_releases_for_user
     })
@@ -167,57 +172,6 @@ def download_release(request, short_name, release_tag):
                                              'release': release,
                                              'formatted_script': formatted_script,
                                              'highlighting_styles': highlighting_styles})
-
-
-@shared_task
-def __make_release_helper(dataset_id, release_id, max_sounds=None):
-    dataset = Dataset.objects.get(id=dataset_id)
-    dataset_release = DatasetRelease.objects.get(id=release_id)
-
-    # Get sounds' info and annotations
-    sounds_info = list()
-    n_sounds = 0
-    n_annotations = 0
-    n_validated_annotations = 0
-    sounds = dataset.sounds.all()[:max_sounds]
-    for count, sound in enumerate(sounds):
-        annotations = sound.get_annotations(dataset)
-        if annotations:
-            sounds_info.append((
-                sound.id, [item.value for item in annotations]
-            ))
-            n_sounds += 1
-            n_annotations += annotations.count()
-            n_validated_annotations += annotations.annotate(num_votes=Count('votes')).filter(num_votes__lt=0).count()
-        if count % 50:
-            # Every 50 sounds, update progress
-            dataset_release.processing_progress = int(math.floor(count * 100.0 / len(sounds)))
-            dataset_release.processing_last_updated = timezone.now()
-            dataset_release.save()
-
-    # Make data structure
-    release_data = {
-       'meta': {
-           'dataset': dataset.name,
-           'release': dataset_release.release_tag,
-           'num_sounds': n_sounds,
-           'num_annotations': n_annotations,
-           'num_validated_annotations': n_validated_annotations
-       },
-       'sounds_info': sounds_info,
-    }
-
-    # Save release data to file
-    json.dump(release_data, open(dataset_release.index_file_path, 'w'))
-
-    # Update dataset_release object
-    dataset_release.num_validated_annotations = n_validated_annotations
-    dataset_release.num_annotations = n_annotations
-    dataset_release.num_sounds = n_sounds
-    dataset_release.processing_progress = 100
-    dataset_release.processing_last_updated = timezone.now()
-    dataset_release.is_processed = True
-    dataset_release.save()
 
 
 @login_required
