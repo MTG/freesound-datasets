@@ -168,6 +168,7 @@ class DatasetRelease(models.Model):
     release_tag = models.CharField(max_length=25)
     is_processed = models.BooleanField(default=False)
     processing_progress = models.IntegerField(default=0)
+    processing_last_updated = models.DateTimeField(auto_now=True)
     TYPE_CHOICES = (
         ('IN', 'Internal release only'),
         ('PU', 'Public release'),
