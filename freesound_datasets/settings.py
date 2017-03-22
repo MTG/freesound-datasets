@@ -185,7 +185,7 @@ BASE_URL = os.getenv('DJANGO_BASE_URL', 'http://example.com')
 DEFAULT_DATASET_NAME = os.getenv('DEFAULT_DATASET_NAME', 'FreesoundDataset')
 
 # Dataset release files folder
-DATASET_RELEASE_FILES_FOLDER = os.path.join(BASE_DIR, 'fsdatasets_releases')
+DATASET_RELEASE_FILES_FOLDER = os.getenv('DATASET_RELEASE_FILES_FOLDER', os.path.join(BASE_DIR, 'fsdatasets_releases'))
 
 # Celery
 CELERY_BROKER_URL = "redis://redis"
