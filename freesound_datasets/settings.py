@@ -11,16 +11,11 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 """
 
 import os
+import errno
 import dj_database_url
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-# FREESOUND ID/SECTRET to generate access token for script
-try:
-    from freesound_datasets.local_settings import FS_CLIENT_ID, FS_CLIENT_SECRET
-except ImportError:
-    raise Exception('Your freesound_datasets/local_settings.py file should include FS_CLIENT_ID and FS_CLIENT_SECRET')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
@@ -137,13 +132,6 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
 )
 
-# Import backend keys
-from freesound_datasets.local_settings import \
-    SOCIAL_AUTH_GOOGLE_OAUTH2_KEY, SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET, \
-    SOCIAL_AUTH_FACEBOOK_KEY, SOCIAL_AUTH_FACEBOOK_SECRET, \
-    SOCIAL_AUTH_GITHUB_KEY, SOCIAL_AUTH_GITHUB_SECRET, \
-    SOCIAL_AUTH_FREESOUND_KEY, SOCIAL_AUTH_FREESOUND_SECRET
-
 # Googlebackend settings
 SOCIAL_AUTH_GOOGLE_OAUTH2_IGNORE_DEFAULT_SCOPE = True
 SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = [
@@ -186,8 +174,18 @@ DEFAULT_DATASET_NAME = os.getenv('DEFAULT_DATASET_NAME', 'FreesoundDataset')
 
 # Dataset release files folder
 DATASET_RELEASE_FILES_FOLDER = os.getenv('DATASET_RELEASE_FILES_FOLDER', os.path.join(BASE_DIR, 'fsdatasets_releases'))
+try:
+    os.makedirs(DATASET_RELEASE_FILES_FOLDER)
+except OSError as exc:
+    if exc.errno == errno.EEXIST and os.path.isdir(DATASET_RELEASE_FILES_FOLDER):
+        pass
+    else:
+        raise Exception('DATASET_RELEASE_FILES_FOLDER does not exist and could not be created (%s)' % str(exc))
 
 # Celery
 CELERY_BROKER_URL = "redis://redis"
 CELERY_RESULT_BACKEND = "redis://redis"
 CELERY_ACCEPT_CONTENT = ['json']
+
+# Import local settings
+from freesound_datasets.local_settings import *
