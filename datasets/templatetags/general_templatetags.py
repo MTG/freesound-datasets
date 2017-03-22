@@ -40,5 +40,7 @@ def active_if_current(context, url_name, return_value=' current', **kwargs):
 
 @register.filter()
 def timestamp_to_datetime(value):
+    if not value or value is None:
+        return None
     return datetime.datetime.fromtimestamp(value)
 
