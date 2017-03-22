@@ -32,7 +32,6 @@ class RedisStore(object):
         if self.verbose:
             print('Getting data from key {0}'.format(key))
         data = json.loads(data.decode("utf-8"))
-        print(data)
         time_elapsed = time.time() - int(data.get(TIMESTAMP_FIELDNAME, time.time()))
         data[TIMESTAMP_FIELDNAME] = datetime.datetime.fromtimestamp(int(data[TIMESTAMP_FIELDNAME]))
         if not include_elapsed_time:

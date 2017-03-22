@@ -47,6 +47,11 @@
                     polling_timer = undefined;
                     n_polling_checks = 0;
                 } else {
+                    if (allComplete && n_polling_checks > 1){
+                        // If all are complete and we checked more than once, this means that those which
+                        // were progressing have now finished
+                        loadDatasetReleasesTable();
+                    }
                     // If not all are complete or we're at later polling check, update progress bars
                     for (var key in data) {
                         if (data.hasOwnProperty(key)) {
@@ -54,10 +59,6 @@
                                 percent: data[key],
                                 text: {active: '{percent}%'}
                             });
-                            if (data[key] == 100) {
-                                // If one of them has reached 100, we reload the releases table
-                                loadDatasetReleasesTable();
-                            }
                         }
                     }
                 }
