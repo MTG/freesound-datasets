@@ -21,10 +21,12 @@ urlpatterns = [
     url(r'^(?P<short_name>[^\/]+)/release/(?P<release_tag>[^\/]+)/$', change_release_type, name='change-release-type'),
     url(r'^(?P<short_name>[^\/]+)/release/(?P<release_tag>[^\/]+)/download/$', download_release, name='download-release'),
     url(r'^(?P<short_name>[^\/]+)/release/(?P<release_tag>[^\/]+)/delete/$', delete_release, name='delete-release'),
-    url(r'^(?P<short_name>[^\/]+)/contribute/$', contribute, name='contribute'),
     url(r'^(?P<short_name>[^\/]+)/taxonomy_table/$', dataset_taxonomy_table, name='taxonomy-table'),
     url(r'^(?P<short_name>[^\/]+)/releases_table/$', dataset_releases_table, name='releases-table'),
-    url(r'^(?P<short_name>[^\/]+)/explore/(?P<node_id>[^\/]+)/$', taxonomy_node, name='taxonomy-node'),
+    url(r'^(?P<short_name>[^\/]+)/explore/(?P<node_id>[^\/]+)/$', taxonomy_node, name='explore-taxonomy-node'),
+    url(r'^(?P<short_name>[^\/]+)/contribute/$', contribute, name='contribute'),
+    url(r'^(?P<short_name>[^\/]+)/contribute/validate_annotations/$', contribute_validate_annotations, name='contribute-validate-annotations'),
+    url(r'^(?P<short_name>[^\/]+)/contribute/validate_annotations/(?P<node_id>[^\/]+)/$', contribute_validate_annotations_category, name='contribute-validate-annotations-category'),
 ]
 
 if settings.DEBUG:

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load humanize %}
+{% block title %}About{% endblock title %}
+{% block page_js %}
+    <script type="text/javascript">
+        $(document).ready(function() {
+            loadDatasetTaxonomyTable();
+        });
+
+        function loadDatasetTaxonomyTable(){
+            $( "#dataset_taxonomy_table_placeholder" ).load( "{% url 'taxonomy-table' dataset.short_name %}?link_to=cva", function() {
+                $('#dataset_contents').DataTable({
+                    'paging': true,
+                    'info': true,
+                });
+            });
+        }
+    </script>
+{% endblock %}
+{% block content %}
+    <h1 class="ui header">Validate category annotations</h1>
+    <br>
+    <h2>Taxonomy categories</h2>
+    <div id="dataset_taxonomy_table_placeholder">
+        <div class="ui active centered inline text loader">Loading data...</div>
+    </div>
+{% endblock %}

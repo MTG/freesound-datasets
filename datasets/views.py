@@ -50,6 +50,12 @@ def dataset(request, short_name):
 def dataset_taxonomy_table(request, short_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
 
+    # Get request info to chose which button to place per category
+    category_link_to = {
+        'e': ('explore-taxonomy-node', 'Explore'),
+        'cva': ('contribute-validate-annotations-category', 'Choose this'),
+    }[request.GET.get('link_to', 'e')]
+
     # Get previously stored dataset taxonomy stats
     dataset_taxonomy_stats, elapsed_time = \
         store.get(DATASET_TAXONOMY_STATS_KEY_TEMPLATE.format(dataset.id), include_elapsed_time=True)
@@ -59,6 +65,7 @@ def dataset_taxonomy_table(request, short_name):
 
     return render(request, 'dataset_taxonomy_table.html', {
         'dataset': dataset,
+        'category_link_to': category_link_to,
         'dataset_taxonomy_stats': dataset_taxonomy_stats})
 
 
@@ -100,6 +107,18 @@ def taxonomy_node(request, short_name, node_id):
 def contribute(request, short_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
     return render(request, 'contribute.html', {'dataset': dataset})
+
+@login_required
+def contribute_validate_annotations(request, short_name):
+    dataset = get_object_or_404(Dataset, short_name=short_name)
+    return render(request, 'contribute_validate_annotations.html', {'dataset': dataset})
+
+@login_required
+def contribute_validate_annotations_category(request, short_name, node_id):
+    dataset = get_object_or_404(Dataset, short_name=short_name)
+    node_id = unquote(node_id)
+    node = dataset.taxonomy.get_element_at_id(node_id)
+    return render(request, 'taxonomy_node.html', {'dataset': dataset, 'node': node})
 
 
 ########################

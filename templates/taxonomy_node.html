@@ -17,7 +17,7 @@
                 <td>
                     {% for node in node.parents %}
                         {% taxonomy_node_stats dataset node.id as node_stats %}
-                        <a href="{% url 'taxonomy-node' dataset.short_name node_stats.url_id %}" class="ui label">{{ node.name }}</a>
+                        <a href="{% url 'explore-taxonomy-node' dataset.short_name node_stats.url_id %}" class="ui label">{{ node.name }}</a>
                     {% empty %}
                         -
                     {% endfor %}
@@ -28,7 +28,7 @@
                 <td>
                     {% for node in node.children %}
                         {% taxonomy_node_stats dataset node.id as node_stats %}
-                        <a href="{% url 'taxonomy-node' dataset.short_name node_stats.url_id %}" class="ui label">{{ node.name }}</a>
+                        <a href="{% url 'explore-taxonomy-node' dataset.short_name node_stats.url_id %}" class="ui label">{{ node.name }}</a>
                     {% empty %}
                         -
                     {% endfor %}
