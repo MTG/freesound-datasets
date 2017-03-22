@@ -1,5 +1,7 @@
 from django import template
 from django.core import urlresolvers
+import datetime
+import time
 
 register = template.Library()
 
@@ -34,3 +36,9 @@ def active_if_current(context, url_name, return_value=' current', **kwargs):
         return 'active '
     else:
         return ''
+
+
+@register.filter()
+def timestamp_to_datetime(value):
+    return datetime.datetime.fromtimestamp(value)
+

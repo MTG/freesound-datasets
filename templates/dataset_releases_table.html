@@ -1,4 +1,5 @@
 {% load dataset_templatetags %}
+{% load general_templatetags %}
 <table class="ui definition unstackable table">
     <thead>
         <tr>
@@ -13,7 +14,7 @@
     </thead>
     <tbody>
         <tr>
-            <td>current<br><span class="small_gray_text">{{ dataset_basic_stats.redis_timestamp | timesince  }} ago</span></td>
+            <td>current<br><span class="small_gray_text">{{ dataset_basic_stats.redis_timestamp | timestamp_to_datetime | timesince  }} ago</span></td>
             <td>{{ dataset_basic_stats.num_taxonomy_nodes }}</td>
             <td>{{ dataset_basic_stats.num_sounds }}</td>
             <td>{{ dataset_basic_stats.num_annotations }}</td>

@@ -1,4 +1,4 @@
-{% load dataset_templatetags %}
+{% load general_templatetags %}
 <table id="dataset_contents" class="ui unstackable table" width="100%">
     <thead>
         <tr>
@@ -9,14 +9,14 @@
         </tr>
     </thead>
     <tbody>
-    {% for node in dataset.taxonomy.get_all_nodes %}
-        {% taxonomy_node_stats dataset node.id node_n_annotations_n_sounds as node_stats %}
-        <tr {% if node_stats.is_blacklisted %}class="negative"{% elif node_stats.is_abstract %}class="warning"{% else %}{% endif %}>
+    {% for node in dataset_taxonomy_stats.nodes_data %}
+        <tr {% if node.is_blacklisted %}class="negative"{% elif node.is_abstract %}class="warning"{% else %}{% endif %}>
             <td>{{ node.name }}</td>
-            <td>{{ node_stats.num_sounds }}</td>
-            <td>{{ node_stats.num_annotations }}</td>
+            <td>{{ node.num_sounds }}</td>
+            <td>{{ node.num_annotations }}</td>
             <td class="right aligned"><a href="{% url 'taxonomy-node' dataset.short_name node.url_id %}" class="blue ui button right labeled icon">Explore <i class="right arrow icon"></i></a></td>
         </tr>
     {% endfor %}
     </tbody>
 </table>
+<span class="small_gray_text">Taxonomy table data last updated {{ dataset_taxonomy_stats.redis_timestamp | timestamp_to_datetime | timesince  }} ago</span>

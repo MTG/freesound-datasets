@@ -2,7 +2,7 @@ from django.conf import settings
 import json
 import redis
 import time
-import datetime
+
 
 TIMESTAMP_FIELDNAME = 'redis_timestamp'
 
@@ -27,17 +27,18 @@ class RedisStore(object):
         if data is None:
             if self.verbose:
                 print('Getting data from key {0} (it was empty)'.format(key))
-            return {}
+            if not include_elapsed_time:
+                return {}
+            else:
+                return {}, 9999999999  # Magic number that will be bigger than any "cache" time (in seconds)
 
         if self.verbose:
             print('Getting data from key {0}'.format(key))
         data = json.loads(data.decode("utf-8"))
-        time_elapsed = time.time() - int(data.get(TIMESTAMP_FIELDNAME, time.time()))
-        data[TIMESTAMP_FIELDNAME] = datetime.datetime.fromtimestamp(int(data[TIMESTAMP_FIELDNAME]))
         if not include_elapsed_time:
             return data
         else:
-            return data, time_elapsed
+            return data, time.time() - int(data.get(TIMESTAMP_FIELDNAME, time.time()))
 
     def delete(self, key):
         if self.verbose:
@@ -48,3 +49,4 @@ store = RedisStore(verbose=True)
 
 
 DATASET_BASIC_STATS_KEY_TEMPLATE = 'dataset_basic_stats_{0}'
+DATASET_TAXONOMY_STATS_KEY_TEMPLATE = 'dataset_taxonomy_stats_{0}'

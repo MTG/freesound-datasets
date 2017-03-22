@@ -13,8 +13,8 @@ from datasets.forms import DatasetReleaseForm
 from pygments import highlight
 from pygments.lexers import PythonLexer
 from pygments.formatters import HtmlFormatter
-from datasets.tasks import generate_release_index, compute_dataset_basic_stats
-from utils.redis_store import store, DATASET_BASIC_STATS_KEY_TEMPLATE
+from datasets.tasks import generate_release_index, compute_dataset_basic_stats, compute_dataset_taxonomy_stats
+from utils.redis_store import store, DATASET_BASIC_STATS_KEY_TEMPLATE, DATASET_TAXONOMY_STATS_KEY_TEMPLATE
 import os
 
 
@@ -50,25 +50,16 @@ def dataset(request, short_name):
 def dataset_taxonomy_table(request, short_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
 
-   # TODO: do the following query in django orm instead of a raw query
-    node_ids = dataset.taxonomy.get_all_node_ids()
-    from django.db import connection
-    with connection.cursor() as cursor:
-        cursor.execute("""
-            SELECT "datasets_annotation"."value", COUNT("datasets_annotation"."id"), COUNT(DISTINCT("datasets_sound"."id"))
-            FROM "datasets_annotation"
-            INNER JOIN "datasets_sounddataset" ON ("datasets_annotation"."sound_dataset_id" = "datasets_sounddataset"."id")
-            INNER JOIN "datasets_sound" ON ("datasets_sound"."id" = "datasets_sounddataset"."sound_id")
-            WHERE ("datasets_annotation"."value" IN ({0}) AND "datasets_sounddataset"."dataset_id" = {1})
-            GROUP BY "datasets_annotation"."value";
-            """.format(
-            str(node_ids)[1:-1],
-            dataset.id
-        ))
-        node_n_annotations_n_sounds = cursor.fetchall()
+    # Get previously stored dataset taxonomy stats
+    dataset_taxonomy_stats, elapsed_time = \
+        store.get(DATASET_TAXONOMY_STATS_KEY_TEMPLATE.format(dataset.id), include_elapsed_time=True)
+    if elapsed_time > 60*5:
+        # If redis data is older than 60 seconds, trigger recompute it (for next time)
+        compute_dataset_taxonomy_stats.delay(dataset.id)
+
     return render(request, 'dataset_taxonomy_table.html', {
         'dataset': dataset,
-        'node_n_annotations_n_sounds': node_n_annotations_n_sounds})
+        'dataset_taxonomy_stats': dataset_taxonomy_stats})
 
 
 def dataset_releases_table(request, short_name):
@@ -77,10 +68,12 @@ def dataset_releases_table(request, short_name):
     if user_is_maintainer:
         dataset_releases_for_user = dataset.releases
     else:
-        dataset_releases_for_user = dataset.releases.filter(type="PU")  # Only get public ones
+        dataset_releases_for_user = dataset.releases.filter(type="PU")  # Only get public releases
+
+    # Get previously stored dataset release stats
     dataset_basic_stats, elapsed_time = \
         store.get(DATASET_BASIC_STATS_KEY_TEMPLATE.format(dataset.id), include_elapsed_time=True)
-    if elapsed_time > 60:
+    if elapsed_time > 60*5:
         # If redis data is older than 60 seconds, trigger recompute it (for next time)
         compute_dataset_basic_stats.delay(dataset.id)
 
