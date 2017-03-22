@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load semanticui %}
 {% load staticfiles %}
 {% load humanize %}
 {% block title %}About{% endblock title %}
@@ -39,8 +40,6 @@
         function updateReleasePercentages() {
             n_polling_checks += 1;
             $.get( "{% url 'check-release-progresses' dataset.short_name %}", function( data ) {
-
-                console.log(n_polling_checks,data )
 
                 // First check if all releases are complete
                 var allComplete = true;
@@ -100,6 +99,14 @@
                     Make a new release for {{ dataset.name }}
                 </div>
                 <div class="content">
+                    {% comment %}
+                    <form id="make_release_form" class="ui form" method="post" action=".">
+                        <legend>Form Title</legend>
+                        {% csrf_token %}
+                        {{ dataset_release_form|semanticui }}
+                        <button class="ui button" type="submit">Submit</button>
+                    </form>
+                    {% endcomment %}
                     <form id="make_release_form" class="ui form" method="post" action="{% url 'make-release' dataset.short_name %}">{% csrf_token %}
                         <p>Please introduce a tag for the release (i.e. version number)</p>
                         <div class="ui error message"></div>
@@ -112,6 +119,7 @@
                             <br><br>
                         </div>
                     </form>
+
                 </div>
             </div>
         <!-- end make release modal -->

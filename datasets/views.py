@@ -9,6 +9,7 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from datasets.models import Dataset, DatasetRelease
 from datasets import utils
+from datasets.forms import DatasetReleaseForm
 from pygments import highlight
 from pygments.lexers import PythonLexer
 from pygments.formatters import HtmlFormatter
@@ -20,6 +21,62 @@ import os
 import math
 
 
+##############
+# CELERY TASKS
+##############
+
+
+@shared_task
+def __make_release_helper(dataset_id, release_id):
+    dataset = Dataset.objects.get(id=dataset_id)
+    dataset_release = DatasetRelease.objects.get(id=release_id)
+
+    # Get sounds' info and annotations
+    sounds_info = list()
+    n_sounds = 0
+    n_annotations = 0
+    n_validated_annotations = 0
+    sounds = dataset.sounds.all()[:1000]
+    for count, sound in enumerate(sounds):
+        annotations = sound.get_annotations(dataset)
+        if annotations:
+            sounds_info.append((
+                sound.id, [item.value for item in annotations]
+            ))
+            n_sounds += 1
+            n_annotations += annotations.count()
+            n_validated_annotations += annotations.annotate(num_votes=Count('votes')).filter(num_votes__lt=0).count()
+        if count % 50:
+            # Every 50 sounds, update progress
+            dataset_release.processing_progress = int(math.floor(count * 100.0 / len(sounds)))
+            dataset_release.processing_last_updated = timezone.now()
+            dataset_release.save()
+
+    # Make data structure
+    release_data = {
+       'meta': {
+           'dataset': dataset.name,
+           'release': dataset_release.release_tag,
+           'num_sounds': n_sounds,
+           'num_annotations': n_annotations,
+           'num_validated_annotations': n_validated_annotations
+       },
+       'sounds_info': sounds_info,
+    }
+
+    # Save release data to file
+    json.dump(release_data, open(dataset_release.index_file_path, 'w'))
+
+    # Update dataset_release object
+    dataset_release.num_validated_annotations = n_validated_annotations
+    dataset_release.num_annotations = n_annotations
+    dataset_release.num_sounds = n_sounds
+    dataset_release.processing_progress = 100
+    dataset_release.processing_last_updated = timezone.now()
+    dataset_release.is_processed = True
+    dataset_release.save()
+
+
 #######################
 # EXPLORE DATASET VIEWS
 #######################
@@ -27,14 +84,23 @@ import math
 def dataset(request, short_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
     user_is_maintainer = dataset.user_is_maintainer(request.user)
-    if user_is_maintainer:
-        dataset_releases_for_user = dataset.releases
+    if request.method == 'POST':
+        pass
+        '''
+        form = DatasetReleaseForm(request.POST)
+        if form.is_valid():
+            dataset_release = form.save(commit=False)
+            dataset_release.dataset = dataset
+            dataset_release.save()
+            async_job = __make_release_helper.delay(dataset.id, dataset_release.id, 1000)
+        '''
     else:
-        dataset_releases_for_user = dataset.releases.filter(type="PU")  # Only get public ones
+        form = DatasetReleaseForm()
+
     return render(request, 'dataset.html', {
         'dataset': dataset,
         'user_is_maintainer': user_is_maintainer,
-        'dataset_releases_for_user': dataset_releases_for_user
+        'dataset_release_form': form,
     })
 
 
@@ -158,57 +224,6 @@ def download_release(request, short_name, release_tag):
                                              'highlighting_styles': highlighting_styles})
 
 
-@shared_task
-def __make_release_helper(dataset_id, release_id, max_sounds=None):
-    dataset = Dataset.objects.get(id=dataset_id)
-    dataset_release = DatasetRelease.objects.get(id=release_id)
-
-    # Get sounds' info and annotations
-    sounds_info = list()
-    n_sounds = 0
-    n_annotations = 0
-    n_validated_annotations = 0
-    sounds = dataset.sounds.all()[:max_sounds]
-    for count, sound in enumerate(sounds):
-        annotations = sound.get_annotations(dataset)
-        if annotations:
-            sounds_info.append((
-                sound.id, [item.value for item in annotations]
-            ))
-            n_sounds += 1
-            n_annotations += annotations.count()
-            n_validated_annotations += annotations.annotate(num_votes=Count('votes')).filter(num_votes__lt=0).count()
-        if count % 50:
-            # Every 50 sounds, update progress
-            dataset_release.processing_progress = int(math.floor(count * 100.0 / len(sounds)))
-            dataset_release.processing_last_updated = timezone.now()
-            dataset_release.save()
-
-    # Make data structure
-    release_data = {
-       'meta': {
-           'dataset': dataset.name,
-           'release': dataset_release.release_tag,
-           'num_sounds': n_sounds,
-           'num_annotations': n_annotations,
-           'num_validated_annotations': n_validated_annotations
-       },
-       'sounds_info': sounds_info,
-    }
-
-    # Save release data to file
-    json.dump(release_data, open(dataset_release.index_file_path, 'w'))
-
-    # Update dataset_release object
-    dataset_release.num_validated_annotations = n_validated_annotations
-    dataset_release.num_annotations = n_annotations
-    dataset_release.num_sounds = n_sounds
-    dataset_release.processing_progress = 100
-    dataset_release.processing_last_updated = timezone.now()
-    dataset_release.is_processed = True
-    dataset_release.save()
-
-
 @login_required
 def make_release(request, short_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
@@ -231,7 +246,7 @@ def make_release(request, short_name):
         )
 
         # Compute release data
-        async_job = __make_release_helper.delay(dataset.id, dataset_release.id, max_sounds=1000)
+        async_job = __make_release_helper.delay(dataset.id, dataset_release.id)
 
     # Redirect to dataset main page
     return HttpResponseRedirect(reverse('dataset', args=[dataset.short_name]))

@@ -29,7 +29,7 @@ services:
       - .env
     volumes_from:
       - web
-    command: celery worker -A freesound_datasets --concurrency=${CELERY_CONCURRENCY}
+    command: celery worker -A freesound_datasets --loglevel=DEBUG --concurrency=${CELERY_CONCURRENCY}
     depends_on:
       - db
       - redis
