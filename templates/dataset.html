@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-{% load semanticui %}
 {% load staticfiles %}
 {% load humanize %}
 {% block title %}About{% endblock title %}
@@ -8,18 +7,9 @@
         $(document).ready(function() {
             loadDatasetReleasesTable();
             loadDatasetTaxonomyTable();
-            $('#make_release_form').form({
-              fields: {
-                release_tag: {
-                  identifier: 'release-tag',
-                  rules: [{
-                    type: 'regExp',
-                    value: '^[\\.a-zA-Z0-9_-]{1,25}$',
-                    prompt: 'Please introduce a valid release tag'
-                  }]
-                }
-              }
-            });
+            {% if dataset_release_form_errors %}
+                $('#make_release_modal').modal('show');
+            {% endif %}
         });
 
         function loadDatasetTaxonomyTable(){
@@ -99,27 +89,13 @@
                     Make a new release for {{ dataset.name }}
                 </div>
                 <div class="content">
-                    {% comment %}
-                    <form id="make_release_form" class="ui form" method="post" action=".">
-                        <legend>Form Title</legend>
-                        {% csrf_token %}
-                        {{ dataset_release_form|semanticui }}
-                        <button class="ui button" type="submit">Submit</button>
-                    </form>
-                    {% endcomment %}
-                    <form id="make_release_form" class="ui form" method="post" action="{% url 'make-release' dataset.short_name %}">{% csrf_token %}
+                    <form id="make_release_form" class="ui form" method="post" action=".">{% csrf_token %}
                         <p>Please introduce a tag for the release (i.e. version number)</p>
-                        <div class="ui error message"></div>
-                        <div class="field">
-                            <label>Release tag</label>
-                            <input type="text" name="release-tag" placeholder="0.1">
-                        </div>
-                        <div class="actions">
-                            <button class="right floated ui green button" type="submit">OK</button>
-                            <br><br>
-                        </div>
+                        <p>
+                            {{ dataset_release_form }}
+                        </p>
+                        <p><button class="right floated ui green button" type="submit">OK</button><br></p>
                     </form>
-
                 </div>
             </div>
         <!-- end make release modal -->

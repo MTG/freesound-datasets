@@ -21,62 +21,6 @@ import os
 import math
 
 
-##############
-# CELERY TASKS
-##############
-
-
-@shared_task
-def __make_release_helper(dataset_id, release_id):
-    dataset = Dataset.objects.get(id=dataset_id)
-    dataset_release = DatasetRelease.objects.get(id=release_id)
-
-    # Get sounds' info and annotations
-    sounds_info = list()
-    n_sounds = 0
-    n_annotations = 0
-    n_validated_annotations = 0
-    sounds = dataset.sounds.all()[:1000]
-    for count, sound in enumerate(sounds):
-        annotations = sound.get_annotations(dataset)
-        if annotations:
-            sounds_info.append((
-                sound.id, [item.value for item in annotations]
-            ))
-            n_sounds += 1
-            n_annotations += annotations.count()
-            n_validated_annotations += annotations.annotate(num_votes=Count('votes')).filter(num_votes__lt=0).count()
-        if count % 50:
-            # Every 50 sounds, update progress
-            dataset_release.processing_progress = int(math.floor(count * 100.0 / len(sounds)))
-            dataset_release.processing_last_updated = timezone.now()
-            dataset_release.save()
-
-    # Make data structure
-    release_data = {
-       'meta': {
-           'dataset': dataset.name,
-           'release': dataset_release.release_tag,
-           'num_sounds': n_sounds,
-           'num_annotations': n_annotations,
-           'num_validated_annotations': n_validated_annotations
-       },
-       'sounds_info': sounds_info,
-    }
-
-    # Save release data to file
-    json.dump(release_data, open(dataset_release.index_file_path, 'w'))
-
-    # Update dataset_release object
-    dataset_release.num_validated_annotations = n_validated_annotations
-    dataset_release.num_annotations = n_annotations
-    dataset_release.num_sounds = n_sounds
-    dataset_release.processing_progress = 100
-    dataset_release.processing_last_updated = timezone.now()
-    dataset_release.is_processed = True
-    dataset_release.save()
-
-
 #######################
 # EXPLORE DATASET VIEWS
 #######################
@@ -84,23 +28,23 @@ def __make_release_helper(dataset_id, release_id):
 def dataset(request, short_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
     user_is_maintainer = dataset.user_is_maintainer(request.user)
+    form_errors = False
     if request.method == 'POST':
-        pass
-        '''
         form = DatasetReleaseForm(request.POST)
         if form.is_valid():
             dataset_release = form.save(commit=False)
             dataset_release.dataset = dataset
             dataset_release.save()
             async_job = __make_release_helper.delay(dataset.id, dataset_release.id, 1000)
-        '''
+        else:
+            form_errors = True
     else:
         form = DatasetReleaseForm()
 
     return render(request, 'dataset.html', {
         'dataset': dataset,
         'user_is_maintainer': user_is_maintainer,
-        'dataset_release_form': form,
+        'dataset_release_form': form, 'dataset_release_form_errors': form_errors,
     })
 
 
@@ -224,32 +168,55 @@ def download_release(request, short_name, release_tag):
                                              'highlighting_styles': highlighting_styles})
 
 
-@login_required
-def make_release(request, short_name):
-    dataset = get_object_or_404(Dataset, short_name=short_name)
-    if not dataset.user_is_maintainer(request.user):
-        raise HttpResponseNotAllowed
+@shared_task
+def __make_release_helper(dataset_id, release_id, max_sounds=None):
+    dataset = Dataset.objects.get(id=dataset_id)
+    dataset_release = DatasetRelease.objects.get(id=release_id)
 
-    if request.method == 'POST':
-        # TODO: use a model form
-        release_tag = request.POST.get('release-tag')
-        release_type = request.POST.get('release-type', None)
-        if release_type not in [item[0] for item in DatasetRelease.TYPE_CHOICES]:
-            release_type = DatasetRelease.TYPE_CHOICES[0][0]
+    # Get sounds' info and annotations
+    sounds_info = list()
+    n_sounds = 0
+    n_annotations = 0
+    n_validated_annotations = 0
+    sounds = dataset.sounds.all()[:max_sounds]
+    for count, sound in enumerate(sounds):
+        annotations = sound.get_annotations(dataset)
+        if annotations:
+            sounds_info.append((
+                sound.id, [item.value for item in annotations]
+            ))
+            n_sounds += 1
+            n_annotations += annotations.count()
+            n_validated_annotations += annotations.annotate(num_votes=Count('votes')).filter(num_votes__lt=0).count()
+        if count % 50:
+            # Every 50 sounds, update progress
+            dataset_release.processing_progress = int(math.floor(count * 100.0 / len(sounds)))
+            dataset_release.processing_last_updated = timezone.now()
+            dataset_release.save()
 
-        # Create (empty) dataset release entry
-        # Create db entry object
-        dataset_release = DatasetRelease.objects.create(
-            dataset=dataset,
-            release_tag=release_tag,
-            type=release_type,
-        )
+    # Make data structure
+    release_data = {
+       'meta': {
+           'dataset': dataset.name,
+           'release': dataset_release.release_tag,
+           'num_sounds': n_sounds,
+           'num_annotations': n_annotations,
+           'num_validated_annotations': n_validated_annotations
+       },
+       'sounds_info': sounds_info,
+    }
 
-        # Compute release data
-        async_job = __make_release_helper.delay(dataset.id, dataset_release.id)
+    # Save release data to file
+    json.dump(release_data, open(dataset_release.index_file_path, 'w'))
 
-    # Redirect to dataset main page
-    return HttpResponseRedirect(reverse('dataset', args=[dataset.short_name]))
+    # Update dataset_release object
+    dataset_release.num_validated_annotations = n_validated_annotations
+    dataset_release.num_annotations = n_annotations
+    dataset_release.num_sounds = n_sounds
+    dataset_release.processing_progress = 100
+    dataset_release.processing_last_updated = timezone.now()
+    dataset_release.is_processed = True
+    dataset_release.save()
 
 
 @login_required

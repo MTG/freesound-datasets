@@ -65,7 +65,6 @@ INSTALLED_APPS = [
     'debug_toolbar',
     'datasets',
     'social_django',
-    'semanticuiform',
 ]
 
 MIDDLEWARE = [

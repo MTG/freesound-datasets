@@ -10,6 +10,7 @@ import os
 import markdown
 import datetime
 from django.utils import timezone
+from django.core.validators import RegexValidator
 
 
 class Taxonomy(models.Model):
@@ -167,7 +168,12 @@ class DatasetRelease(models.Model):
     # TODO: add total length in seconds
     # TODO: add total size in bytes
     release_date = models.DateTimeField(auto_now_add=True)
-    release_tag = models.CharField(max_length=25)
+    release_tag = models.CharField(max_length=25, validators=[
+            RegexValidator(
+                regex=r'^[\.a-zA-Z0-9_-]{1,25}$',
+                message='Please enter a valid release tag',
+            ),
+        ])
     is_processed = models.BooleanField(default=False)
     processing_progress = models.IntegerField(default=0)
     processing_last_updated = models.DateTimeField(auto_now_add=True)
