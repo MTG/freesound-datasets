@@ -57,6 +57,7 @@ def generate_release_index(dataset_id, release_id, max_sounds=None):
     dataset_release.num_validated_annotations = n_validated_annotations
     dataset_release.num_annotations = n_annotations
     dataset_release.num_sounds = n_sounds
+    dataset_release.num_nodes = len(node_set)
     dataset_release.processing_progress = 100
     dataset_release.processing_last_updated = timezone.now()
     dataset_release.is_processed = True
