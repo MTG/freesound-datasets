@@ -13,8 +13,10 @@ from datasets.forms import DatasetReleaseForm
 from pygments import highlight
 from pygments.lexers import PythonLexer
 from pygments.formatters import HtmlFormatter
-from datasets.tasks import generate_release_index, compute_dataset_basic_stats, compute_dataset_taxonomy_stats
-from utils.redis_store import store, DATASET_BASIC_STATS_KEY_TEMPLATE, DATASET_TAXONOMY_STATS_KEY_TEMPLATE
+from datasets.tasks import generate_release_index, compute_dataset_basic_stats, compute_dataset_taxonomy_stats, \
+    compute_annotators_ranking
+from utils.redis_store import store, DATASET_BASIC_STATS_KEY_TEMPLATE, DATASET_TAXONOMY_STATS_KEY_TEMPLATE, \
+    DATASET_ANNOTATORS_RANKING_TEMPLATE
 import os
 
 
@@ -59,7 +61,7 @@ def dataset_taxonomy_table(request, short_name):
     # Get previously stored dataset taxonomy stats
     dataset_taxonomy_stats, elapsed_time = \
         store.get(DATASET_TAXONOMY_STATS_KEY_TEMPLATE.format(dataset.id), include_elapsed_time=True)
-    if elapsed_time > 60*5:
+    if elapsed_time > 60 * 1:
         # If redis data is older than 60 seconds, trigger recompute it (for next time)
         compute_dataset_taxonomy_stats.delay(dataset.id)
 
@@ -80,7 +82,7 @@ def dataset_releases_table(request, short_name):
     # Get previously stored dataset release stats
     dataset_basic_stats, elapsed_time = \
         store.get(DATASET_BASIC_STATS_KEY_TEMPLATE.format(dataset.id), include_elapsed_time=True)
-    if elapsed_time > 60*5:
+    if elapsed_time > 60 * 1:
         # If redis data is older than 60 seconds, trigger recompute it (for next time)
         compute_dataset_basic_stats.delay(dataset.id)
 
@@ -106,7 +108,15 @@ def taxonomy_node(request, short_name, node_id):
 @login_required
 def contribute(request, short_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
-    return render(request, 'contribute.html', {'dataset': dataset})
+
+    # Get previously stored annotators ranking
+    annotators_ranking, elapsed_time = \
+        store.get(DATASET_ANNOTATORS_RANKING_TEMPLATE.format(dataset.id), include_elapsed_time=True)
+    if elapsed_time > 60 * 1:  # Update every minute
+        # If redis data is older than 60 seconds, trigger recompute it (for next time)
+        compute_annotators_ranking.delay(dataset.id, request.user.id)
+
+    return render(request, 'contribute.html', {'dataset': dataset, 'annotators_ranking': annotators_ranking})
 
 @login_required
 def contribute_validate_annotations(request, short_name):

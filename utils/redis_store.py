@@ -50,3 +50,4 @@ store = RedisStore(verbose=True)
 
 DATASET_BASIC_STATS_KEY_TEMPLATE = 'dataset_basic_stats_{0}'
 DATASET_TAXONOMY_STATS_KEY_TEMPLATE = 'dataset_taxonomy_stats_{0}'
+DATASET_ANNOTATORS_RANKING_TEMPLATE = 'dataset_annotators_ranking_{0}'

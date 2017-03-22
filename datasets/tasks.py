@@ -1,8 +1,10 @@
-from datasets.models import Dataset, DatasetRelease
+from datasets.models import Dataset, DatasetRelease, Annotation
 from django.db.models import Count
+from django.contrib.auth.models import User
 from celery import shared_task
 from django.utils import timezone
-from utils.redis_store import store, DATASET_BASIC_STATS_KEY_TEMPLATE, DATASET_TAXONOMY_STATS_KEY_TEMPLATE
+from utils.redis_store import store, DATASET_BASIC_STATS_KEY_TEMPLATE, DATASET_TAXONOMY_STATS_KEY_TEMPLATE, \
+    DATASET_ANNOTATORS_RANKING_TEMPLATE
 from datasets.templatetags.dataset_templatetags import taxonomy_node_stats
 import json
 import math
@@ -112,4 +114,26 @@ def compute_dataset_taxonomy_stats(dataset_id):
             'nodes_data': nodes_data,
         })
     except Dataset.DoesNotExist:
+        pass
+
+
+@shared_task
+def compute_annotators_ranking(dataset_id, user_id, N=10):
+    try:
+        dataset = Dataset.objects.get(id=dataset_id)
+        user = User.objects.get(id=user_id)
+
+        ranking = list()
+        for user in User.objects.all():
+            ranking.append(
+                (user.username, Annotation.objects.filter(created_by=user, sound_dataset__dataset=dataset).count())
+            )
+            ranking = sorted(ranking, key=lambda x: x[1])  # Sort by number of annotations
+
+            store.set(DATASET_ANNOTATORS_RANKING_TEMPLATE.format(dataset.id), {
+                'ranking': ranking[:N],
+            })
+    except Dataset.DoesNotExist:
+        pass
+    except User.DoesNotExist:
         pass

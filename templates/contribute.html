@@ -1,9 +1,36 @@
 {% extends "base.html" %}
 {% load staticfiles %}
+{% load general_templatetags %}
 {% block title %}Contribute{% endblock title %}
 
 {% block content %}
     <h1 class="ui header">Contribute to {{ dataset.name }}</h1>
-    <p>This part of the website has not been finished yet :)</p>
+    <p>Missing explanation of what does this mean ;)</p>
+
+    <h2>Annotators ranking</h2>
+    <table class="ui unstackable table" width="100%">
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Number of annotations</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for username, n_annotations in annotators_ranking.ranking %}
+            <tr>
+                <td>{{ username }}</td>
+                <td>{{ n_annotations}}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <div class="ui grid">
+        <div class="right aligned column">
+            <span class="small_gray_text">Data last updated {{ annotators_ranking.redis_timestamp | timestamp_to_datetime | timesince  }} ago</span>
+        </div>
+    </div>
+
     <a href="{% url 'contribute-validate-annotations' dataset.short_name %}" class="ui button">Validate annotations</a>
 {% endblock %}
+
+
