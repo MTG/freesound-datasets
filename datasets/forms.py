@@ -1,8 +1,10 @@
-from django.forms import ModelForm
+from django import forms
 from datasets.models import DatasetRelease
 
 
-class DatasetReleaseForm(ModelForm):
+class DatasetReleaseForm(forms.ModelForm):
+    max_number_of_sounds = forms.IntegerField(required=False)
+
     class Meta:
         model = DatasetRelease
-        fields = ['release_tag']
+        fields = ['release_tag', 'type']

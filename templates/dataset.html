@@ -90,10 +90,7 @@
                 </div>
                 <div class="content">
                     <form id="make_release_form" class="ui form" method="post" action=".">{% csrf_token %}
-                        <p>Please introduce a tag for the release (i.e. version number)</p>
-                        <p>
-                            {{ dataset_release_form }}
-                        </p>
+                        {{ dataset_release_form.as_p }}
                         <p><button class="right floated ui green button" type="submit">OK</button><br></p>
                     </form>
                 </div>

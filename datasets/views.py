@@ -35,7 +35,8 @@ def dataset(request, short_name):
             dataset_release = form.save(commit=False)
             dataset_release.dataset = dataset
             dataset_release.save()
-            async_job = __make_release_helper.delay(dataset.id, dataset_release.id, 1000)
+            async_job = __make_release_helper.delay(dataset.id, dataset_release.id, form.cleaned_data['max_number_of_sounds'])
+            form = DatasetReleaseForm()  # Reset form
         else:
             form_errors = True
     else:
