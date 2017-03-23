@@ -3,8 +3,7 @@ from django.db.models import Count
 from django.contrib.auth.models import User
 from celery import shared_task
 from django.utils import timezone
-from utils.redis_store import store, DATASET_BASIC_STATS_KEY_TEMPLATE, DATASET_TAXONOMY_STATS_KEY_TEMPLATE, \
-    DATASET_ANNOTATORS_RANKING_TEMPLATE
+from utils.redis_store import store
 from datasets.templatetags.dataset_templatetags import taxonomy_node_stats
 import json
 import math
@@ -67,10 +66,10 @@ def generate_release_index(dataset_id, release_id, max_sounds=None):
 
 
 @shared_task
-def compute_dataset_basic_stats(dataset_id):
+def compute_dataset_basic_stats(store_key, dataset_id):
     try:
         dataset = Dataset.objects.get(id=dataset_id)
-        store.set(DATASET_BASIC_STATS_KEY_TEMPLATE.format(dataset.id), {
+        store.set(store_key, {
             'num_taxonomy_nodes': dataset.taxonomy.get_num_nodes(),
             'num_sounds': dataset.num_sounds,
             'num_annotations': dataset.num_annotations,
@@ -82,7 +81,7 @@ def compute_dataset_basic_stats(dataset_id):
 
 
 @shared_task
-def compute_dataset_taxonomy_stats(dataset_id):
+def compute_dataset_taxonomy_stats(store_key, dataset_id):
     try:
         dataset = Dataset.objects.get(id=dataset_id)
         node_ids = dataset.taxonomy.get_all_node_ids()
@@ -110,7 +109,7 @@ def compute_dataset_taxonomy_stats(dataset_id):
             })
             nodes_data.append(node_stats)
 
-        store.set(DATASET_TAXONOMY_STATS_KEY_TEMPLATE.format(dataset.id), {
+        store.set(store_key, {
             'nodes_data': nodes_data,
         })
     except Dataset.DoesNotExist:
@@ -118,7 +117,7 @@ def compute_dataset_taxonomy_stats(dataset_id):
 
 
 @shared_task
-def compute_annotators_ranking(dataset_id, user_id, N=10):
+def compute_annotators_ranking(store_key, dataset_id, user_id, N=10):
     try:
         dataset = Dataset.objects.get(id=dataset_id)
         user = User.objects.get(id=user_id)
@@ -130,9 +129,7 @@ def compute_annotators_ranking(dataset_id, user_id, N=10):
             )
             ranking = sorted(ranking, key=lambda x: x[1])  # Sort by number of annotations
 
-            store.set(DATASET_ANNOTATORS_RANKING_TEMPLATE.format(dataset.id), {
-                'ranking': ranking[:N],
-            })
+        store.set(store_key, {'ranking': ranking[:N]})
     except Dataset.DoesNotExist:
         pass
     except User.DoesNotExist:

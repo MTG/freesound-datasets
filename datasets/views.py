@@ -17,8 +17,8 @@ from datasets.tasks import generate_release_index, compute_dataset_basic_stats, 
     compute_annotators_ranking
 from utils.redis_store import store, DATASET_BASIC_STATS_KEY_TEMPLATE, DATASET_TAXONOMY_STATS_KEY_TEMPLATE, \
     DATASET_ANNOTATORS_RANKING_TEMPLATE
+from utils.async_tasks import data_from_async_task
 import os
-
 
 
 #######################
@@ -59,11 +59,8 @@ def dataset_taxonomy_table(request, short_name):
     }[request.GET.get('link_to', 'e')]
 
     # Get previously stored dataset taxonomy stats
-    dataset_taxonomy_stats, elapsed_time = \
-        store.get(DATASET_TAXONOMY_STATS_KEY_TEMPLATE.format(dataset.id), include_elapsed_time=True)
-    if elapsed_time > 60 * 1:
-        # If redis data is older than 60 seconds, trigger recompute it (for next time)
-        compute_dataset_taxonomy_stats.delay(dataset.id)
+    dataset_taxonomy_stats = data_from_async_task(compute_dataset_taxonomy_stats, [dataset.id], {},
+                                                  DATASET_TAXONOMY_STATS_KEY_TEMPLATE.format(dataset.id), 60)
 
     return render(request, 'dataset_taxonomy_table.html', {
         'dataset': dataset,
@@ -80,11 +77,8 @@ def dataset_releases_table(request, short_name):
         dataset_releases_for_user = dataset.releases.filter(type="PU")  # Only get public releases
 
     # Get previously stored dataset release stats
-    dataset_basic_stats, elapsed_time = \
-        store.get(DATASET_BASIC_STATS_KEY_TEMPLATE.format(dataset.id), include_elapsed_time=True)
-    if elapsed_time > 60 * 1:
-        # If redis data is older than 60 seconds, trigger recompute it (for next time)
-        compute_dataset_basic_stats.delay(dataset.id)
+    dataset_basic_stats = data_from_async_task(compute_dataset_basic_stats, [dataset.id], {},
+                                               DATASET_BASIC_STATS_KEY_TEMPLATE.format(dataset.id), 60)
 
     return render(request, 'dataset_releases_table.html', {
         'dataset': dataset,
@@ -110,18 +104,17 @@ def contribute(request, short_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
 
     # Get previously stored annotators ranking
-    annotators_ranking, elapsed_time = \
-        store.get(DATASET_ANNOTATORS_RANKING_TEMPLATE.format(dataset.id), include_elapsed_time=True)
-    if elapsed_time > 60 * 1:  # Update every minute
-        # If redis data is older than 60 seconds, trigger recompute it (for next time)
-        compute_annotators_ranking.delay(dataset.id, request.user.id)
+    annotators_ranking = data_from_async_task(compute_annotators_ranking, [dataset.id, request.user.id], {},
+                                              DATASET_ANNOTATORS_RANKING_TEMPLATE.format(dataset.id), 60 * 1)
 
     return render(request, 'contribute.html', {'dataset': dataset, 'annotators_ranking': annotators_ranking})
+
 
 @login_required
 def contribute_validate_annotations(request, short_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
     return render(request, 'contribute_validate_annotations.html', {'dataset': dataset})
+
 
 @login_required
 def contribute_validate_annotations_category(request, short_name, node_id):
