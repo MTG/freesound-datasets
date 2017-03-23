@@ -43,6 +43,7 @@ class Command(BaseCommand):
                 dataset=dataset,
                 sound=sound
             )
+        all_sounddataset_object_ids = SoundDataset.objects.all().values_list('id', flat=True)
 
         # Create users
         print('Generating {0} fake users...'.format(num_users))
@@ -51,33 +52,27 @@ class Command(BaseCommand):
             User.objects.create(
                 username='username_{0}'.format(i + num_current_users),
             )
+        all_user_object_ids = User.objects.all().values_list('id', flat=True)
 
         # Create annotations
         print('Generating {0} fake annotations...'.format(num_annotations))
         possible_fake_annotation_values = [node['id'] for node in dataset.taxonomy.get_all_nodes()]
-        n_sounddataset_objects = SoundDataset.objects.all().count()
-        n_user_objects = User.objects.all().count()
         for i in range(0, num_annotations):
-            sound_dataset = SoundDataset.objects.all()[random.randint(0, n_sounddataset_objects - 1)]
-            user = User.objects.all()[random.randint(0, n_user_objects - 1)]
             Annotation.objects.create(
-                sound_dataset=sound_dataset,
+                sound_dataset_id=random.choice(all_sounddataset_object_ids),
                 type='AU',
                 algorithm='Fake algorithm name',
                 value=random.choice(possible_fake_annotation_values),
-                created_by=user,
+                created_by_id=random.choice(all_user_object_ids),
             )
+        all_annotation_object_ids = Annotation.objects.all().values_list('id', flat=True)
 
         # Add votes for annotations
         print('Generating {0} fake annotation votes...'.format(num_votes))
-        possible_vote_options = [-1, 1]
-        n_user_objects = User.objects.all().count()
-        n_annotation_objects = Annotation.objects.all().count()
+        possible_vote_options = [-1, 1, 1, 1]  # Bias towards positive votes
         for i in range(0, num_votes):
-            annotation = Annotation.objects.all()[random.randint(0, n_annotation_objects - 1)]
-            user = User.objects.all()[random.randint(0, n_user_objects - 1)]
             Vote.objects.create(
-                annotation=annotation,
+                annotation_id=random.choice(all_annotation_object_ids),
                 vote=random.choice(possible_vote_options),
-                created_by=user,
+                created_by_id=random.choice(all_user_object_ids),
             )
