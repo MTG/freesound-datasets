@@ -38,7 +38,7 @@
                         {% for node in node.children %}
                             {% taxonomy_node_stats dataset node.id as node_stats %}
                             <div class="item" style="margin-left:0px;margin-right:5px;">
-                                <a href="{% url 'explore-taxonomy-node' dataset.short_name node_stats.url_id %}" target="_blank" class="ui label">{{ node.name }}</a>
+                                <a href="{% url 'dataset-explore-taxonomy-node' dataset.short_name node_stats.url_id %}" target="_blank" class="ui label">{{ node.name }}</a>
                             </div>
                         {% endfor %}
                     </div></td>

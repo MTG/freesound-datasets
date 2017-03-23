@@ -54,7 +54,7 @@ def dataset_taxonomy_table(request, short_name):
 
     # Get request info to chose which button to place per category
     category_link_to = {
-        'e': ('explore-taxonomy-node', 'Explore'),
+        'e': ('dataset-explore-taxonomy-node', 'Explore'),
         'cva': ('contribute-validate-annotations-category', 'Choose'),
     }[request.GET.get('link_to', 'e')]
 
