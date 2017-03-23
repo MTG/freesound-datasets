@@ -27,7 +27,7 @@
           <div class="ui container">
             {% if dataset %}
                 {% if dataset.short_name == "fsd" %}
-                    <img style="padding: 5px;width: 120px;" src="{% static "img/freesound_dataset_logo_b.svg" %}">
+                    <img style="padding: 5px;width: 120px;max-height:70px;" src="{% static "img/freesound_dataset_logo_b.svg" %}">
                 {% else %}
                     {{ dataset.name }}
                 {% endif %}
