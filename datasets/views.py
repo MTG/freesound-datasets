@@ -7,7 +7,8 @@ from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.conf import settings
 from django.core.urlresolvers import reverse
-from datasets.models import Dataset, DatasetRelease
+from django.db.models import Count
+from datasets.models import Dataset, DatasetRelease, Annotation, Vote
 from datasets import utils
 from datasets.forms import DatasetReleaseForm
 from pygments import highlight
@@ -19,6 +20,7 @@ from utils.redis_store import store, DATASET_BASIC_STATS_KEY_TEMPLATE, DATASET_T
     DATASET_ANNOTATORS_RANKING_TEMPLATE
 from utils.async_tasks import data_from_async_task
 import os
+import random
 
 
 #######################
@@ -121,7 +123,18 @@ def contribute_validate_annotations_category(request, short_name, node_id):
     dataset = get_object_or_404(Dataset, short_name=short_name)
     node_id = unquote(node_id)
     node = dataset.taxonomy.get_element_at_id(node_id)
-    return render(request, 'contribute_validate_annotations_category.html', {'dataset': dataset, 'node': node})
+
+    # Get non-validated annotations for this category
+    annotations = dataset.annotations_per_taxonomy_node(node_id).annotate(num_votes=Count('votes')).filter(num_votes__lte=0)
+    all_annotation_object_ids = annotations.values_list('id', flat=True)
+
+    N_ANNOTATIONS_TO_VALIDATE = 20
+    annotations = Annotation.objects\
+        .filter(id__in=random.sample(list(all_annotation_object_ids), N_ANNOTATIONS_TO_VALIDATE))\
+        .select_related('sound_dataset__sound')
+
+    return render(request, 'contribute_validate_annotations_category.html',
+                  {'dataset': dataset, 'node': node, 'annotations': annotations})
 
 
 ########################

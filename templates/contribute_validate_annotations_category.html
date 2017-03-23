@@ -63,11 +63,12 @@
         </tr>
     </thead>
     <tbody>
-        {% sounds_per_taxonomy_node dataset node.id 10 as sounds %}
-        {% for sound in sounds %}
+        {% for annotation in annotations%}
             <tr>
-                <td>{{ sound.freesound_id | fs_embed | safe }}</td>
-                <td><a href="http://freesound.org/s/{{ sound.freesound_id }}" target="_blank">http://freesound.org/s/{{ sound.freesound_id }}</a></td>
+                {% with annotation.sound_dataset.sound.freesound_id as fsid  %}
+                    <td>{{ fsid| fs_embed | safe }}</td>
+                    <td><a href="http://freesound.org/s/{{ fsid }}" target="_blank">http://freesound.org/s/{{ fsid }}</a></td>
+                {% endwith %}
             </tr>
         {% endfor %}
     </tbody>
