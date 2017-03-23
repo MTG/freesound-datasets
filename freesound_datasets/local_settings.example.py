@@ -7,7 +7,7 @@ FS_CLIENT_SECRET = 'FREESOUND_SECRET'
 # Freesound keys for "login with" functionality
 # Get credentials at http://www.freesound.org/apiv2/apply
 # Set callback url to http://localhost:8000/social/complete/freesound/
-SOCIAL_AUTH_FREESOUND_KEY = None'
+SOCIAL_AUTH_FREESOUND_KEY = None
 SOCIAL_AUTH_FREESOUND_SECRET = 'FREESOUND_SECRET'
 
 # Google keys for "login with" functionality
