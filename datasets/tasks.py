@@ -1,4 +1,4 @@
-from datasets.models import Dataset, DatasetRelease, Annotation
+from datasets.models import Dataset, DatasetRelease, Annotation, Vote
 from django.db.models import Count
 from django.contrib.auth.models import User
 from celery import shared_task
@@ -124,10 +124,12 @@ def compute_annotators_ranking(store_key, dataset_id, user_id, N=10):
 
         ranking = list()
         for user in User.objects.all():
+            n_annotations = Annotation.objects.filter(created_by=user, sound_dataset__dataset=dataset).count()
+            n_votes = Vote.objects.filter(created_by=user, annotation__sound_dataset__dataset=dataset).count()
             ranking.append(
-                (user.username, Annotation.objects.filter(created_by=user, sound_dataset__dataset=dataset).count())
+                (user.username, n_annotations + n_votes)
             )
-            ranking = sorted(ranking, key=lambda x: x[1])  # Sort by number of annotations
+            ranking = sorted(ranking, key=lambda x: x[1], reverse=True)  # Sort by number of annotations
 
         store.set(store_key, {'ranking': ranking[:N]})
     except Dataset.DoesNotExist:

@@ -54,6 +54,7 @@ p {
 
 ul {
 	list-style: none;
+  margin-left: -40px;
 }
 
 .ui.freesound.button {
@@ -75,4 +76,3 @@ ul {
     color: #fff;
     text-shadow: none
 }
-

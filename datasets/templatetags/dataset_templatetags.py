@@ -43,6 +43,11 @@ def sounds_per_taxonomy_node(dataset, node_id, N):
 
 
 @register.filter()
-def fs_embed(value):
+def fs_embed_small(value):
     embed_code = '<iframe frameborder="0" scrolling="no" src="https://www.freesound.org/embed/sound/iframe/{0}/simple/small/" width="375" height="30"></iframe>'
+    return embed_code.format(str(value))
+
+@register.filter()
+def fs_embed(value):
+    embed_code = '<iframe frameborder="0" scrolling="no" src="https://www.freesound.org/embed/sound/iframe/{0}/simple/medium/" width="481" height="86"></iframe>'
     return embed_code.format(str(value))

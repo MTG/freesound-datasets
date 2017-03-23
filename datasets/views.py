@@ -153,12 +153,13 @@ def save_contribute_validate_annotations_category(request):
         formset = PresentNotPresentUnsureFormSet(request.POST)
         if formset.is_valid():
             for form in formset:
-                # Save votes for annotations
-                Vote.objects.create(
-                    created_by=request.user,
-                    vote=int(form.cleaned_data['vote']),
-                    annotation_id=form.cleaned_data['annotation_id'],
-                )
+                if 'vote' in form.cleaned_data:  # This is to skip last element of formset which is empty
+                    # Save votes for annotations
+                    Vote.objects.create(
+                        created_by=request.user,
+                        vote=int(form.cleaned_data['vote']),
+                        annotation_id=form.cleaned_data['annotation_id'],
+                    )
         else:
             error_response = {'errors': [count for count, value in enumerate(formset.errors) if value != {}]}
             return JsonResponse(error_response)

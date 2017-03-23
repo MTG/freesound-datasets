@@ -18,7 +18,7 @@
                         }
                         $('#on_error_modal').modal('show');
                     } else {
-                        $('#on_success_modal').modal('show');
+                        $('#on_success_modal').modal({closable: false}).modal('show');
                     }
                 },
                 dataType: 'json'
@@ -77,7 +77,15 @@
         </tbody>
     </table>
     <br>
-    <h2>Is this category present in the following sounds?</h2>
+    <div class="ui grid">
+        <div class="twelve wide column">
+            <h2>Is <div class="ui big label">{{ node.name }}</div> present in the following sounds?</h2>
+        </div>
+        <div class="four wide column right aligned">
+            <a href="{% url 'contribute-validate-annotations-category' dataset.short_name node.url_id %}" class="ui button right labeled icon">Choose other sounds <i class="refresh icon"></i></a>
+        </div>
+    </div>
+
     <form id="votes_form" class="ui form">{% csrf_token %}
         {{ formset.management_form }}
         <table id="node_sounds" class="ui unstackable table" width="100%">
@@ -85,7 +93,7 @@
                 <tr>
                     <th>#</th>
                     <th>Sound</th>
-                    <th>Freesound URL</th>
+                    <th>Vote</th>
                 </tr>
             </thead>
             <tbody>
@@ -93,7 +101,10 @@
                     <tr id="row_annotation_{{ forloop.counter0 }}">
                         {% with annotation.sound_dataset.sound.freesound_id as fsid  %}
                             <td>{{ forloop.counter }}</td>
-                            <td>{{ fsid| fs_embed | safe }}</td>
+                            <td>
+                                {{ fsid| fs_embed | safe }}
+                                <br>{{ fsid }}
+                            </td>
                             <td>
                                 {{ form.vote }}
                                 {{ form.annotation_id }}
