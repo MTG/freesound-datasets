@@ -35,6 +35,7 @@ def taxonomy_node_stats(dataset, node_id, node_n_annotations_n_sounds=None):
         'num_sounds': num_sounds,
         'num_annotations': num_annotations,
         'num_non_validated_annotations': num_non_validated_annotations,
+        'percentage_validated_annotations': (num_annotations - num_non_validated_annotations) * 100.0 / num_annotations,
         'num_parents': len(node['parents']),
         'num_children': len(node['children']),
         'is_abstract': 'abstract' in node['restrictions'],
