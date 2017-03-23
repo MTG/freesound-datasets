@@ -40,27 +40,27 @@ class Taxonomy(models.Model):
             parent = self.get_one_parent(parent)
         return child
 
-    def get_one_parent(self, ontology_id):
+    def get_one_parent(self, node_id):
         for e in self.data:
-            if ontology_id in e['child_ids']:
+            if node_id in e['child_ids']:
                 return e
 
-    def get_parents(self, ontology_id):
+    def get_parents(self, node_id):
         parents = []
         for e in self.data:
-            if ontology_id in e['child_ids']:
+            if node_id in e['child_ids']:
                 parents.append(self.get_element_at_id(e['id']))
         return parents
 
-    def get_children(self, ontology_id):
+    def get_children(self, node_id):
         for e in self.data:
-            if e['id'] == ontology_id:
+            if e['id'] == node_id:
                 return [self.get_element_at_id(child_id) for child_id in e['child_ids']]
         return None
 
-    def get_element_at_id(self, ontology_id):
+    def get_element_at_id(self, node_id):
         for e in self.data:
-            if e['id'] == ontology_id:
+            if e['id'] == node_id:
                 return e
         return None
 
@@ -74,6 +74,24 @@ class Taxonomy(models.Model):
 
     def get_num_nodes(self):
         return len(self.data)
+
+    def get_hierarchy_paths(self, node_id):
+
+        def paths(node_id, cur=list()):
+            parents = self.get_parents(node_id)
+            if not parents:
+                yield cur
+            else:
+                for node in parents:
+                    for path in paths(node['id'], [node['name']] + cur):
+                        yield path
+
+        hierarchy_paths = list()
+        for path in paths(node_id):
+            # Add root and current category to path
+            hierarchy_paths.append(' > '.join(path + [self.get_element_at_id(node_id)['name']]))
+
+        return hierarchy_paths
 
 
 class Sound(models.Model):

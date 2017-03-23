@@ -8,7 +8,7 @@ register = template.Library()
 @register.simple_tag(takes_context=False)
 def taxonomy_node_stats(dataset, node_id, node_n_annotations_n_sounds=None):
     node = dataset.taxonomy.get_element_at_id(node_id)
-    # could be an empty list if there are no annoations, explicitly check for None
+    # could be an empty list if there are no annotations, explicitly check for None
     if node_n_annotations_n_sounds is None:
         num_sounds = dataset.num_sounds_per_taxonomy_node(node_id)
         num_annotations = dataset.num_annotations_per_taxonomy_node(node_id)
@@ -21,6 +21,10 @@ def taxonomy_node_stats(dataset, node_id, node_n_annotations_n_sounds=None):
             num_annotations = [n_nann for n_id, n_nann, _ in node_n_annotations_n_sounds if n_id == node_id][0]
         except IndexError:
             num_annotations = 0
+
+    # Calculate node hierarchy paths
+    hierarchy_paths = dataset.taxonomy.get_hierarchy_paths(node_id)
+
     return {
         'num_sounds': num_sounds,
         'num_annotations': num_annotations,
@@ -29,7 +33,7 @@ def taxonomy_node_stats(dataset, node_id, node_n_annotations_n_sounds=None):
         'is_abstract': 'abstract' in node['restrictions'],
         'is_blacklisted': 'blacklist' in node['restrictions'],
         'url_id': quote(node['id'], safe=''),
-        'hierarchy_paths': ['path / one', 'path / to / the / second'],
+        'hierarchy_paths': hierarchy_paths,
     }
 
 
