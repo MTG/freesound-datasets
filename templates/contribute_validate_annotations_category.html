@@ -77,7 +77,15 @@
         </tbody>
     </table>
     <br>
-    <h2>Is <div class="ui big label">{{ node.name }}</div> present in the following sounds?</h2>
+    <div class="ui grid">
+        <div class="twelve wide column">
+            <h2>Is <div class="ui big label">{{ node.name }}</div> present in the following sounds?</h2>
+        </div>
+        <div class="four wide column right aligned">
+            <a href="{% url 'contribute-validate-annotations-category' dataset.short_name node.url_id %}" class="ui button right labeled icon">Choose other sounds <i class="refresh icon"></i></a>
+        </div>
+    </div>
+
     <form id="votes_form" class="ui form">{% csrf_token %}
         {{ formset.management_form }}
         <table id="node_sounds" class="ui unstackable table" width="100%">
