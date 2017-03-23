@@ -23,7 +23,9 @@
 
         function loadDatasetReleasesTable() {
             $( "#dataset_releases_table_placeholder" ).load( "{% url 'releases-table' dataset.short_name %}", function() {
-                startUpdatingPercentages();
+                {% if user_is_maintainer %}
+                    startUpdatingPercentages();
+                {% endif %}
             });
         }
 
