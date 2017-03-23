@@ -124,6 +124,7 @@ PresentNotPresentUnsureFormSet = formset_factory(PresentNotPresentUnsureForm)
 @login_required
 def contribute_validate_annotations_category(request, short_name, node_id):
     dataset = get_object_or_404(Dataset, short_name=short_name)
+    user_is_maintainer = dataset.user_is_maintainer(request.user)
     node_id = unquote(node_id)
     node = dataset.taxonomy.get_element_at_id(node_id)
 
@@ -144,7 +145,7 @@ def contribute_validate_annotations_category(request, short_name, node_id):
 
     return render(request, 'contribute_validate_annotations_category.html',
                   {'dataset': dataset, 'node': node, 'annotations_forms': annotations_forms,
-                   'formset': formset, 'N': N})
+                   'formset': formset, 'N': N, 'user_is_maintainer': user_is_maintainer})
 
 
 @login_required
