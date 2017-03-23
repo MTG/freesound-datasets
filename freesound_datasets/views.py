@@ -18,5 +18,16 @@ def index(request):
 
 
 def login(request):
-    next = request.GET.get('next', '')
-    return render(request, 'login.html', {'next': next})
+    next_url = request.GET.get('next', '')
+    show_freesound = bool(settings.SOCIAL_AUTH_FREESOUND_KEY)
+    show_github = bool(settings.SOCIAL_AUTH_GITHUB_KEY)
+    show_facebook = bool(settings.SOCIAL_AUTH_FACEBOOK_KEY)
+    show_google = bool(settings.SOCIAL_AUTH_GOOGLE_OAUTH2_KEY)
+
+    tvars = {'next': next_url,
+             'show_freesound': show_freesound,
+             'show_github': show_github,
+             'show_facebook': show_facebook,
+             'show_google': show_google
+             }
+    return render(request, 'login.html', tvars)

@@ -24,23 +24,27 @@
         </p>
 
         <div class="four column row stackable" style="max-width:660px;">
-            <a href="{% url "social:begin" "freesound" %}" class="ui youtube button">
+            {% if show_freesound %}
+            <a href="{% url "social:begin" "freesound" %}" class="ui freesound button">
+              <img src="{% static 'img/fs-white-icon.png' %}" style="height: 1em;" >
               Freesound
             </a>
-
+            {% endif %}{% if show_github %}
             <a href="{% url "social:begin" "github" %}" class="ui github button">
               <i class="github icon"></i>
               Github
             </a>
-
+            {% endif %}{% if show_google %}
             <a href="{% url "social:begin" "google-oauth2" %}" class="ui google plus button">
               <i class="google icon"></i>
               Google
             </a>
+            {% endif %}{% if show_facebook %}
             <a href="{% url "social:begin" "facebook" %}" class="ui facebook button">
               <i class="facebook icon"></i>
               Facebook
             </a>
+            {% endif %}
         </div>
 </div>
 
