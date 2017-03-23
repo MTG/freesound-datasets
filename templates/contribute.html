@@ -7,7 +7,7 @@
     <h1 class="ui header">Contribute to {{ dataset.name }}</h1>
     <p>Missing explanation of what does this mean ;)</p>
 
-    <h2>Annotators ranking</h2>
+    <h2>Annotators' ranking</h2>
     <table class="ui unstackable table" width="100%">
         <thead>
             <tr>
@@ -30,7 +30,12 @@
         </div>
     </div>
 
-    <a href="{% url 'contribute-validate-annotations' dataset.short_name %}" class="ui button">Validate annotations</a>
+    <h2>Available tasks:</h2>
+    <div class="ui relaxed horizontal list">
+        <div class="item">
+            <a href="{% url 'contribute-validate-annotations' dataset.short_name %}" class="ui huge right labeled icon blue button"><i class="checkmark box icon"></i>Validate category annotations</a>
+        </div>
+    </div>
 {% endblock %}
 
 
