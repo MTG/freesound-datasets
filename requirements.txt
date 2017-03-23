@@ -9,3 +9,4 @@ Pygments==2.2.0
 social-auth-app-django==1.1.0
 redis==2.10.5
 celery==4.0.0
+ipython==5.3.0
