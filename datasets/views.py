@@ -134,7 +134,7 @@ def contribute_validate_annotations_category(request, short_name, node_id):
     all_annotation_object_ids = annotations.values_list('id', flat=True)
 
     # Select 10 at random and return their Annotation objects
-    N_ANNOTATIONS_TO_VALIDATE = 10
+    N_ANNOTATIONS_TO_VALIDATE = 12
     N = min(len(all_annotation_object_ids), N_ANNOTATIONS_TO_VALIDATE)
     annotations = Annotation.objects\
         .filter(id__in=random.sample(list(all_annotation_object_ids), N))\
@@ -142,7 +142,7 @@ def contribute_validate_annotations_category(request, short_name, node_id):
 
     formset = PresentNotPresentUnsureFormSet(
         initial=[{'annotation_id': annotation.id} for annotation in annotations])
-    annotations_forms = zip(list(annotations), formset)
+    annotations_forms = list(zip(list(annotations), formset))
 
     return render(request, 'contribute_validate_annotations_category.html',
                   {'dataset': dataset, 'node': node, 'annotations_forms': annotations_forms,
