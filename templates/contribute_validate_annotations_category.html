@@ -103,7 +103,7 @@
                             <td>{{ forloop.counter }}</td>
                             <td>
                                 {{ fsid| fs_embed | safe }}
-                                <br>{{ fsid }}
+                                {% if user_is_maintainer %}{{ fsid }}{% endif %}
                             </td>
                             <td>
                                 {{ form.vote }}
