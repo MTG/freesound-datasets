@@ -19,7 +19,7 @@ services:
     volumes:
       - .:/code
       - /static/
-    command: bash -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    command: dumb-init python manage.py runserver 0.0.0.0:8000
     depends_on:
       - db
       - redis
