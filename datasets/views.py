@@ -121,7 +121,7 @@ def contribute_validate_annotations_category(request, short_name, node_id):
     dataset = get_object_or_404(Dataset, short_name=short_name)
     node_id = unquote(node_id)
     node = dataset.taxonomy.get_element_at_id(node_id)
-    return render(request, 'taxonomy_node.html', {'dataset': dataset, 'node': node})
+    return render(request, 'contribute_validate_annotations_category.html', {'dataset': dataset, 'node': node})
 
 
 ########################

@@ -29,6 +29,7 @@ def taxonomy_node_stats(dataset, node_id, node_n_annotations_n_sounds=None):
         'is_abstract': 'abstract' in node['restrictions'],
         'is_blacklisted': 'blacklist' in node['restrictions'],
         'url_id': quote(node['id'], safe=''),
+        'hierarchy_paths': ['path / one', 'path / to / the / second'],
     }
 
 

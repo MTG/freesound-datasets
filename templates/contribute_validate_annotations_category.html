@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load dataset_templatetags %}
+{% block title %}Validate category {{ node.name }}{% endblock title %}
+
+{% block content %}
+
+    <div class="ui grid">
+        <div class="eight wide column">
+            <h1 class="ui header">{{ node.name }}</h1>
+        </div>
+        <div class="eight wide column right aligned">
+                <a href="{% url 'contribute-validate-annotations' dataset.short_name %}" class="blue ui button right labeled icon">Choose another category <i class="refresh icon"></i></a>
+        </div>
+    </div>
+
+    <table class="ui unstackable table" width="100%">
+        {% taxonomy_node_stats dataset node.id as main_node_stats %}
+        <tbody>
+            <tr>
+                <td>Hierarchy</td>
+                <td>
+                    <div class="ui list">
+                    {% for hierarchy_path in main_node_stats.hierarchy_paths %}
+                        <div class="item">
+                            <i class="tree icon"></i>{{ hierarchy_path }}
+                        </div>
+                    {% empty %}
+                        <div class="item">-</div>
+                    {% endfor %}
+                    </div>
+                </td>
+            </tr>
+            {% if node.children %}
+                <tr>
+                    <td>Direct children</td>
+                    <td><div class="ui horizontal list">
+                        {% for node in node.children %}
+                            {% taxonomy_node_stats dataset node.id as node_stats %}
+                            <div class="item" style="margin-left:0px;margin-right:5px;">
+                                <a href="{% url 'explore-taxonomy-node' dataset.short_name node_stats.url_id %}" target="_blank" class="ui label">{{ node.name }}</a>
+                            </div>
+                        {% endfor %}
+                    </div></td>
+                </tr>
+            {% endif %}
+            <tr>
+                <td class="three wide">Description</td>
+                <td>{{ node.description }}</td>
+            </tr>
+            <tr><td>URI</td><td>{% if node.citation_uri %}<a href="{{ node.citation_uri }}" target="_blank">{{ node.citation_uri }}</a>{% else %}-{% endif %}</td></tr>
+            <tr><td>Num sounds</td><td>{{ main_node_stats.num_sounds }}</td></tr>
+            <tr><td>Num annotations</td><td>{{ main_node_stats.num_annotations }}</td></tr>
+        </tbody>
+    </table>
+    <br>
+    <h2>Does this category apply to the following sounds?</h2>
+    <table id="node_sounds" class="ui unstackable table" width="100%">
+    <thead>
+        <tr>
+            <th>Sound</th>
+            <th>Freesound URL</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% sounds_per_taxonomy_node dataset node.id 10 as sounds %}
+        {% for sound in sounds %}
+            <tr>
+                <td>{{ sound.freesound_id | fs_embed | safe }}</td>
+                <td><a href="http://freesound.org/s/{{ sound.freesound_id }}" target="_blank">http://freesound.org/s/{{ sound.freesound_id }}</a></td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+
+{% endblock %}

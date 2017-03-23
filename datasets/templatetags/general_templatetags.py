@@ -20,7 +20,7 @@ def current_url_equals(context, url_name, **kwargs):
         resolved = urlresolvers.resolve(context.get('request').path)
     except:
         pass
-    matches = resolved and resolved.url_name == url_name
+    matches = resolved and (resolved.url_name == url_name or url_name in resolved.url_name)
     if matches and kwargs:
         for key in kwargs:
             kwarg = kwargs.get(key)
