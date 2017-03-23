@@ -25,9 +25,16 @@ def taxonomy_node_stats(dataset, node_id, node_n_annotations_n_sounds=None):
     # Calculate node hierarchy paths
     hierarchy_paths = dataset.taxonomy.get_hierarchy_paths(node_id)
 
+    # Calculate num_non_validated_annotations
+    # TODO: computation num_non_validated_annotations_per_taxonomy_node could be improved by
+    # TODO: doing it in the main SQL query and passing this data through `node_n_annotations_n_sounds`
+    # TODO: similarly as for `num_sounds` and `num_annotations`
+    num_non_validated_annotations = dataset.num_non_validated_annotations_per_taxonomy_node(node_id)
+
     return {
         'num_sounds': num_sounds,
         'num_annotations': num_annotations,
+        'num_non_validated_annotations': num_non_validated_annotations,
         'num_parents': len(node['parents']),
         'num_children': len(node['children']),
         'is_abstract': 'abstract' in node['restrictions'],

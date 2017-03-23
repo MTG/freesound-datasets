@@ -129,7 +129,8 @@ def contribute_validate_annotations_category(request, short_name, node_id):
     node = dataset.taxonomy.get_element_at_id(node_id)
 
     # Get non-validated annotations for this category
-    annotations = dataset.annotations_per_taxonomy_node(node_id).annotate(num_votes=Count('votes')).filter(num_votes__lte=0)
+    annotations = dataset.non_validated_annotations_per_taxonomy_node(node_id)
+    num_non_validated = annotations.count()
     all_annotation_object_ids = annotations.values_list('id', flat=True)
 
     # Select 10 at random and return their Annotation objects
@@ -145,7 +146,8 @@ def contribute_validate_annotations_category(request, short_name, node_id):
 
     return render(request, 'contribute_validate_annotations_category.html',
                   {'dataset': dataset, 'node': node, 'annotations_forms': annotations_forms,
-                   'formset': formset, 'N': N, 'user_is_maintainer': user_is_maintainer})
+                   'formset': formset, 'N': N, 'user_is_maintainer': user_is_maintainer,
+                   'num_non_validated': num_non_validated})
 
 
 @login_required

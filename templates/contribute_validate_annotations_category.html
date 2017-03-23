@@ -73,7 +73,7 @@
             </tr>
             <tr><td>URI</td><td>{% if node.citation_uri %}<a href="{{ node.citation_uri }}" target="_blank">{{ node.citation_uri }}</a>{% else %}-{% endif %}</td></tr>
             <tr><td>Num sounds</td><td>{{ main_node_stats.num_sounds }}</td></tr>
-            <tr><td>Num annotations</td><td>{{ main_node_stats.num_annotations }}</td></tr>
+            <tr><td>Num annotations</td><td>{{ main_node_stats.num_annotations }} ({{ num_non_validated }} non validated)</td></tr>
         </tbody>
     </table>
     <br>
@@ -111,6 +111,10 @@
                             </td>
                         {% endwith %}
                     </tr>
+                {% empty %}
+                    <tr class="center aligned">
+                        <td colspan="3">There are no annotations to validate for this category!</td>
+                    </tr>
                 {% endfor %}
             </tbody>
         </table>
@@ -119,7 +123,7 @@
 
     <!-- on success modal -->
     <div id="on_success_modal" class="ui basic modal">
-        <div class="ui icon header"><i class="simle icon"></i>
+        <div class="ui icon header"><i class="smile icon"></i>
             Thanks!
         </div>
         <div class="content">
@@ -137,7 +141,7 @@
 
     <!-- on error modal -->
     <div id="on_error_modal" class="ui basic modal">
-        <div class="ui icon header"><i class="Meh icon"></i>
+        <div class="ui icon header"><i class="meh icon"></i>
             Meh!
         </div>
         <div class="content">

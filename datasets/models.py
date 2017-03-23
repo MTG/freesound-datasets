@@ -168,6 +168,12 @@ class Dataset(models.Model):
     def num_annotations_per_taxonomy_node(self, node_id):
         return self.annotations_per_taxonomy_node(node_id=node_id).count()
 
+    def non_validated_annotations_per_taxonomy_node(self, node_id):
+        return self.annotations_per_taxonomy_node(node_id).annotate(num_votes=Count('votes')).filter(num_votes__lte=0)
+
+    def num_non_validated_annotations_per_taxonomy_node(self, node_id):
+        return self.non_validated_annotations_per_taxonomy_node(node_id).count()
+
     def user_is_maintainer(self, user):
         return user in self.maintainers.all()
 
