@@ -14,6 +14,7 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^social/', include('social_django.urls', namespace='social')),
     url(r'^get-access-token/$', get_access_token, name='get_access_token'),
+    url(r'^save_contribute_validate_annotations_category/$', save_contribute_validate_annotations_category, name='save-contribute-validate-annotations-per-category'),
     url(r'^(?P<short_name>[^\/]+)/$', dataset, name='dataset'),
     url(r'^(?P<short_name>[^\/]+)/download-script/$', download_script, name='download-script'),
     url(r'^(?P<short_name>[^\/]+)/dataset-sounds/$', dataset_sounds, name='dataset-sounds'),

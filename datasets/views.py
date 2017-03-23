@@ -8,9 +8,10 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db.models import Count
+from django.forms import formset_factory
 from datasets.models import Dataset, DatasetRelease, Annotation, Vote
 from datasets import utils
-from datasets.forms import DatasetReleaseForm
+from datasets.forms import DatasetReleaseForm, PresentNotPresentUnsureForm
 from pygments import highlight
 from pygments.lexers import PythonLexer
 from pygments.formatters import HtmlFormatter
@@ -118,6 +119,8 @@ def contribute_validate_annotations(request, short_name):
     return render(request, 'contribute_validate_annotations.html', {'dataset': dataset})
 
 
+PresentNotPresentUnsureFormSet = formset_factory(PresentNotPresentUnsureForm)
+
 @login_required
 def contribute_validate_annotations_category(request, short_name, node_id):
     dataset = get_object_or_404(Dataset, short_name=short_name)
@@ -128,13 +131,38 @@ def contribute_validate_annotations_category(request, short_name, node_id):
     annotations = dataset.annotations_per_taxonomy_node(node_id).annotate(num_votes=Count('votes')).filter(num_votes__lte=0)
     all_annotation_object_ids = annotations.values_list('id', flat=True)
 
-    N_ANNOTATIONS_TO_VALIDATE = 20
+    # Select 10 at random and return their Annotation objects
+    N_ANNOTATIONS_TO_VALIDATE = 10
+    N = min(len(all_annotation_object_ids), N_ANNOTATIONS_TO_VALIDATE)
     annotations = Annotation.objects\
-        .filter(id__in=random.sample(list(all_annotation_object_ids), N_ANNOTATIONS_TO_VALIDATE))\
+        .filter(id__in=random.sample(list(all_annotation_object_ids), N))\
         .select_related('sound_dataset__sound')
 
+    formset = PresentNotPresentUnsureFormSet(
+        initial=[{'annotation_id': annotation.id} for annotation in annotations])
+    annotations_forms = zip(list(annotations), formset)
+
     return render(request, 'contribute_validate_annotations_category.html',
-                  {'dataset': dataset, 'node': node, 'annotations': annotations})
+                  {'dataset': dataset, 'node': node, 'annotations_forms': annotations_forms,
+                   'formset': formset, 'N': N})
+
+
+@login_required
+def save_contribute_validate_annotations_category(request):
+    if request.method == 'POST':
+        formset = PresentNotPresentUnsureFormSet(request.POST)
+        if formset.is_valid():
+            for form in formset:
+                # Save votes for annotations
+                Vote.objects.create(
+                    created_by=request.user,
+                    vote=int(form.cleaned_data['vote']),
+                    annotation_id=form.cleaned_data['annotation_id'],
+                )
+        else:
+            error_response = {'errors': [count for count, value in enumerate(formset.errors) if value != {}]}
+            return JsonResponse(error_response)
+    return JsonResponse({'errors': False})
 
 
 ########################
