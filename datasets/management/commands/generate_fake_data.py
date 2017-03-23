@@ -35,11 +35,11 @@ class Command(BaseCommand):
         num_current_sounds = Sound.objects.all().count()
         fsids = [VALID_FS_IDS[i % len(VALID_FS_IDS)] for i in range(0, num_sounds)]
         for count, fsid in enumerate(fsids):
-            sound, _ = Sound.objects.get_or_create(
+            sound = Sound.objects.create(
                 name='Freesound sound #{0}'.format(count + num_current_sounds),
                 freesound_id=fsid,
             )
-            SoundDataset.objects.get_or_create(
+            SoundDataset.objects.create(
                 dataset=dataset,
                 sound=sound
             )
