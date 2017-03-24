@@ -119,7 +119,15 @@ def compute_dataset_taxonomy_stats(store_key, dataset_id):
 
         nodes_data = []
         for node in dataset.taxonomy.get_all_nodes():
-            counts = annotation_numbers[node['id']]
+            try:
+                counts = annotation_numbers[node['id']]
+            except KeyError:
+                # Can happen if there are no annotations/sounds per a category
+                counts = {
+                    'num_sounds': 0,
+                    'num_annotations': 0,
+                    'num_missing_votes': 0,
+                }
             node_stats = calculate_taxonomy_node_stats(dataset, node,
                                                        counts['num_sounds'],
                                                        counts['num_annotations'],
