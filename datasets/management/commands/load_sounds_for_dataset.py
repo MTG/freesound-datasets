@@ -1,7 +1,20 @@
 from django.core.management.base import BaseCommand
 from datasets.models import *
+from django.db import transaction
 import sys
 import json
+
+
+def chunks(l, n):
+    """Yield successive ``n``-sized chunks from ``l``.
+    Examples:
+        >>> chunks([1, 2, 3, 4, 5], 2) #doctest: +ELLIPSIS
+        <generator object chunks at 0x...>
+        >>> list(chunks([1, 2, 3, 4, 5], 2))
+        [[1, 2], [3, 4], [5]]
+    """
+    for i in range(0, len(l), n):
+        yield l[i:i+n]
 
 
 class Command(BaseCommand):
@@ -21,32 +34,37 @@ class Command(BaseCommand):
         print('Loading data...')
         data = json.load(open(file_location))
 
-        for count, (sound_id, sound_data) in enumerate(data.items()):
-            sys.stdout.write('\rCreating sound %i of %i (%.2f%%)' % (count + 1, len(data),
-                                                                    100.0 * (count + 1) / len(data)))
-            sys.stdout.flush()
-
-            try:
-                Sound.objects.get(freesound_id=sound_id)
-            except Sound.DoesNotExist:
-                # If does not yet exist, create it :)
-
-                sound, _ = Sound.objects.get_or_create(
-                    name=sound_data['name'][:200],
-                    freesound_id=sound_id,
-                    extra_data={
-                        'tags': sound_data['tags'],
-                    }
-                )
-                sound_dataset, _ = SoundDataset.objects.get_or_create(
-                    dataset=dataset,
-                    sound=sound
-                )
-
-                for node_id in sound_data['aso_ids']:
-                    Annotation.objects.create(
-                        sound_dataset=sound_dataset,
-                        type='AU',
-                        algorithm=algorithm_name,
-                        value=node_id
+        count = 0
+        # Iterate all the sounds in chunks so we can do all transactions of a chunk atomically
+        for chunk in chunks(list(data.keys()), 5000):
+            with transaction.atomic():
+                for sound_id in chunk:
+                    sound_data = data[sound_id]
+                    count += 1
+                    sys.stdout.write('\rCreating sound %i of %i (%.2f%%)'
+                                     % (count + 1, len(data), 100.0 * (count + 1) / len(data)))
+                    sys.stdout.flush()
+                    sound = Sound.objects.create(
+                        name=sound_data['name'][:200],
+                        freesound_id=sound_id,
+                        extra_data={
+                            'tags': sound_data['tags'],
+                            'duration': sound_data['duration'],
+                            'username': sound_data['username'],
+                            'license': sound_data['license'],
+                            'description': sound_data['description'],
+                            'previews': sound_data['previews'],
+                        }
                     )
+                    sound_dataset = SoundDataset.objects.create(
+                        dataset=dataset,
+                        sound=sound
+                    )
+
+                    for node_id in sound_data['aso_ids']:
+                        Annotation.objects.create(
+                            sound_dataset=sound_dataset,
+                            type='AU',
+                            algorithm=algorithm_name,
+                            value=node_id
+                        )
