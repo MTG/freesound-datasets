@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 
+import collections
 from django.db import models
 from django.db.models import Count
 from django.contrib.postgres.fields import JSONField
@@ -15,6 +16,20 @@ from django.core.validators import RegexValidator
 
 class Taxonomy(models.Model):
     data = JSONField()
+
+    _parsed_data = {}
+
+    @property
+    def taxonomy(self):
+        if not self._parsed_data:
+            parents = collections.defaultdict(list)
+            for d in self.data:
+                for cid in d['child_ids']:
+                    parents[cid].append(d['id'])
+                self._parsed_data[d['id']] = d
+            for childid, parentids in parents.items():
+                self._parsed_data[childid]['parent_ids'] = parentids
+        return self._parsed_data
 
     def preprocess_taxonomy(self):
         # This should only be done once, now it is implemented as a sort oh hack, called after url patterns...
@@ -32,45 +47,20 @@ class Taxonomy(models.Model):
         self.data = processed_data
         self.save()
 
-    def get_root_node(self):
-        parent = self.data[0]['id']
-        child = None
-        while parent:
-            child = parent
-            parent = self.get_one_parent(parent)
-        return child
-
-    def get_one_parent(self, node_id):
-        for e in self.data:
-            if node_id in e['child_ids']:
-                return e
-
     def get_parents(self, node_id):
-        parents = []
-        for e in self.data:
-            if node_id in e['child_ids']:
-                parents.append(self.get_element_at_id(e['id']))
-        return parents
+        return [self.get_element_at_id(i) for i in self.taxonomy[node_id].get('parent_ids', [])]
 
     def get_children(self, node_id):
-        for e in self.data:
-            if e['id'] == node_id:
-                return [self.get_element_at_id(child_id) for child_id in e['child_ids']]
-        return None
+        return [self.get_element_at_id(i) for i in self.taxonomy[node_id].get('child_ids', [])]
 
     def get_element_at_id(self, node_id):
-        for e in self.data:
-            if e['id'] == node_id:
-                return e
-        return None
+        return self.taxonomy.get(node_id)
 
     def get_all_nodes(self):
-        names_ids_list = [(e['id'], e['name']) for e in self.data]  # Quote id as it contains slashes
-        sorted_names_ids_list = sorted(names_ids_list, key=lambda x: x[1])  # Sort by name
-        return [self.get_element_at_id(node_id) for node_id, _ in sorted_names_ids_list]
+        return sorted(self.taxonomy.values(), key=lambda x: x['name'])
 
     def get_all_node_ids(self):
-        return [e['id'] for e in self.data]
+        return self.taxonomy.keys()
 
     def get_num_nodes(self):
         return len(self.data)
