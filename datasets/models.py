@@ -87,7 +87,7 @@ class Taxonomy(models.Model):
 class Sound(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=200)
-    freesound_id = models.IntegerField()
+    freesound_id = models.IntegerField(db_index=True)
     extra_data = JSONField(default={})
 
     def get_annotations(self, dataset):
