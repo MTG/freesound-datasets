@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from celery import shared_task
 from django.utils import timezone
 from utils.redis_store import store
-from datasets.templatetags.dataset_templatetags import taxonomy_node_stats
+from datasets.templatetags.dataset_templatetags import calculate_taxonomy_node_stats
 import json
 import math
 
@@ -88,24 +88,42 @@ def compute_dataset_taxonomy_stats(store_key, dataset_id):
         from django.db import connection
         with connection.cursor() as cursor:
             cursor.execute("""
-                    SELECT annotation.value
-                         , COUNT(annotation.id)
-                         , COUNT(DISTINCT(sound.id))
-                      FROM datasets_annotation annotation
-                INNER JOIN datasets_sounddataset sounddataset
-                        ON annotation.sound_dataset_id = sounddataset.id
-                INNER JOIN datasets_sound sound
-                        ON sound.id = sounddataset.sound_id
-                     WHERE annotation.value IN %s
-                       AND sounddataset.dataset_id = %s
-                  GROUP BY annotation.value
+              SELECT annotation.value
+                   , COUNT(annotation.id) num_annotations
+                   , COUNT(DISTINCT(sound.id)) num_sounds
+                   , cvotes.count missing_votes
+                FROM datasets_annotation annotation
+          INNER JOIN datasets_sounddataset sounddataset
+                  ON annotation.sound_dataset_id = sounddataset.id
+          INNER JOIN datasets_sound sound
+                  ON sound.id = sounddataset.sound_id
+        LEFT JOIN LATERAL (
+                  SELECT COUNT(a.sound_dataset_id)
+                    FROM datasets_annotation a
+               LEFT JOIN datasets_vote v
+                      ON v.annotation_id = a.id
+                   WHERE a.value = annotation.value
+                     AND v.vote IS NULL) as cvotes on TRUE
+               WHERE annotation.value IN %s
+                 AND sounddataset.dataset_id = %s
+            GROUP BY annotation.value, missing_votes
                     """, (tuple(node_ids), dataset.id)
             )
             node_n_annotations_n_sounds = cursor.fetchall()
 
-        nodes_data = list()
+        annotation_numbers = {}
+        for node_id, num_ann, num_sounds, num_missing in node_n_annotations_n_sounds:
+            annotation_numbers[node_id] = {'num_annotations': num_ann,
+                                           'num_sounds': num_sounds,
+                                           'num_missing_votes': num_missing}
+
+        nodes_data = []
         for node in dataset.taxonomy.get_all_nodes():
-            node_stats = taxonomy_node_stats(dataset, node['id'], node_n_annotations_n_sounds)
+            counts = annotation_numbers[node['id']]
+            node_stats = calculate_taxonomy_node_stats(dataset, node,
+                                                       counts['num_sounds'],
+                                                       counts['num_annotations'],
+                                                       counts['num_missing_votes'])
             node_stats.update({
                 'id': node['id'],
                 'name': node['name'],

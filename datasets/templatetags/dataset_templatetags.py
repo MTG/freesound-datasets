@@ -5,35 +5,14 @@ from urllib.parse import quote
 register = template.Library()
 
 
-@register.simple_tag(takes_context=False)
-def taxonomy_node_stats(dataset, node_id, node_n_annotations_n_sounds=None):
-    node = dataset.taxonomy.get_element_at_id(node_id)
-    # could be an empty list if there are no annotations, explicitly check for None
-    if node_n_annotations_n_sounds is None:
-        num_sounds = dataset.num_sounds_per_taxonomy_node(node_id)
-        num_annotations = dataset.num_annotations_per_taxonomy_node(node_id)
-    else:
-        try:
-            num_sounds = [n_nsounds for n_id, _, n_nsounds in node_n_annotations_n_sounds if n_id == node_id][0]
-        except IndexError:
-            num_sounds = 0
-        try:
-            num_annotations = [n_nann for n_id, n_nann, _ in node_n_annotations_n_sounds if n_id == node_id][0]
-        except IndexError:
-            num_annotations = 0
-
+def calculate_taxonomy_node_stats(dataset, node, num_sounds, num_annotations, num_non_validated_annotations):
     # Calculate node hierarchy paths
-    hierarchy_paths = dataset.taxonomy.get_hierarchy_paths(node_id)
+    hierarchy_paths = dataset.taxonomy.get_hierarchy_paths(node['id'])
 
-    # Calculate num_non_validated_annotations
-    # TODO: computation num_non_validated_annotations_per_taxonomy_node could be improved by
-    # TODO: doing it in the main SQL query and passing this data through `node_n_annotations_n_sounds`
-    # TODO: similarly as for `num_sounds` and `num_annotations`
+    # Calculate percentage of validated annotations
     if num_annotations != 0:
-        num_non_validated_annotations = dataset.num_non_validated_annotations_per_taxonomy_node(node_id)
         percentage_validated_annotations = (num_annotations - num_non_validated_annotations) * 100.0 / num_annotations
     else:
-        num_non_validated_annotations = 0
         percentage_validated_annotations = 0.0
 
     return {
@@ -48,6 +27,17 @@ def taxonomy_node_stats(dataset, node_id, node_n_annotations_n_sounds=None):
         'url_id': quote(node['id'], safe=''),
         'hierarchy_paths': hierarchy_paths,
     }
+
+
+@register.simple_tag(takes_context=False)
+def taxonomy_node_stats(dataset, node_id):
+    node = dataset.taxonomy.get_element_at_id(node_id)
+
+    num_sounds = dataset.num_sounds_per_taxonomy_node(node_id)
+    num_annotations = dataset.num_annotations_per_taxonomy_node(node_id)
+    num_non_validated_annotations = dataset.num_non_validated_annotations_per_taxonomy_node(node_id)
+
+    return calculate_taxonomy_node_stats(dataset, node, num_sounds, num_annotations, num_non_validated_annotations)
 
 
 @register.simple_tag(takes_context=False)
