@@ -1,12 +1,12 @@
 from django.core.management.base import BaseCommand
 from datasets.models import *
 import json
-import random
-
 from datasets.models import Taxonomy, Dataset
 
+
 class Command(BaseCommand):
-    help = 'Create new taxonomy from json file'
+    help = 'Load and prepare a taxonomy from json file. Use it as python manage.py load_taxonomy ' \
+           'DATASET_ID PATH/TO/TAOXNOMY_FILE.json'
 
     def add_arguments(self, parser):
         parser.add_argument('dataset_id', type=int)
@@ -18,6 +18,16 @@ class Command(BaseCommand):
 
         ds = Dataset.objects.get(id=dataset_id)
         data = json.load(open(file_location))
-        tx = Taxonomy.objects.create(data=data)
+
+        prepared_data = {}
+        parents = collections.defaultdict(list)
+        for d in data:
+            for cid in d['child_ids']:
+                parents[cid].append(d['id'])
+            prepared_data[d['id']] = d
+        for childid, parentids in parents.items():
+            prepared_data[childid]['parent_ids'] = parentids
+
+        tx = Taxonomy.objects.create(data=prepared_data)
         ds.taxonomy = tx
         ds.save()
