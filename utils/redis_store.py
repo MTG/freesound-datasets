@@ -45,6 +45,15 @@ class RedisStore(object):
             print('Deleting data at key {0}'.format(key))
         self.r.delete(key)
 
+    def delete_keys(self, pattern='*'):
+        if self.verbose:
+            print('Deleting keys that match pattern: {0}'.format(pattern))
+        count = 0
+        for key in self.r.keys(pattern):
+            self.r.delete(key)
+            count += 1
+        return count
+
 store = RedisStore(verbose=False)
 
 
