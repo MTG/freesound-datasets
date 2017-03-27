@@ -94,34 +94,29 @@ def compute_dataset_taxonomy_stats(store_key, dataset_id):
         from django.db import connection
         with connection.cursor() as cursor:
             cursor.execute("""
-              SELECT annotation.value
-                   , COUNT(annotation.id) num_annotations
-                   , COUNT(DISTINCT(sound.id)) num_sounds
-                   , cvotes.count missing_votes
-                FROM datasets_annotation annotation
-          INNER JOIN datasets_sounddataset sounddataset
-                  ON annotation.sound_dataset_id = sounddataset.id
-          INNER JOIN datasets_sound sound
-                  ON sound.id = sounddataset.sound_id
-        LEFT JOIN LATERAL (
-                  SELECT COUNT(a.sound_dataset_id)
-                    FROM datasets_annotation a
-               LEFT JOIN datasets_vote v
-                      ON v.annotation_id = a.id
-                   WHERE a.value = annotation.value
-                     AND v.vote IS NULL) as cvotes on TRUE
-               WHERE annotation.value IN %s
-                 AND sounddataset.dataset_id = %s
-            GROUP BY annotation.value, missing_votes
-                    """, (tuple(node_ids), dataset.id)
+                SELECT "datasets_annotation"."value", COUNT("datasets_annotation"."id"), COUNT(DISTINCT("datasets_sound"."id"))
+                FROM "datasets_annotation"
+                INNER JOIN "datasets_sounddataset" ON ("datasets_annotation"."sound_dataset_id" = "datasets_sounddataset"."id")
+                INNER JOIN "datasets_sound" ON ("datasets_sound"."id" = "datasets_sounddataset"."sound_id")
+                WHERE ("datasets_annotation"."value" IN %s AND "datasets_sounddataset"."dataset_id" = %s)
+                GROUP BY "datasets_annotation"."value";
+                """, (tuple(node_ids), dataset.id)
             )
             node_n_annotations_n_sounds = cursor.fetchall()
 
         annotation_numbers = {}
-        for node_id, num_ann, num_sounds, num_missing in node_n_annotations_n_sounds:
+        for node_id, num_ann, num_sounds in node_n_annotations_n_sounds:
+            # In commit https://github.com/MTG/freesound-datasets/commit/0a748ec3e8481cc1ca4625bced24e0aee9d059d0 we
+            # introduced a single SQL query that go num_ann, num_sounds and num_missing_votes in one go.
+            # However when tested in production we saw the query took hours to complete with full a sized dataset.
+            # To make it work in a reasonable amount of time we now do a query to get nun validated annotations
+            # for each node in the taxonomy. This should be refactored and use a single query to get all non
+            # validated annotation counts for all nodes.
+            num_missing_votes = dataset.num_non_validated_annotations_per_taxonomy_node(node_id)
+
             annotation_numbers[node_id] = {'num_annotations': num_ann,
                                            'num_sounds': num_sounds,
-                                           'num_missing_votes': num_missing}
+                                           'num_missing_votes': num_missing_votes}
 
         nodes_data = []
         for node in dataset.taxonomy.get_all_nodes():
