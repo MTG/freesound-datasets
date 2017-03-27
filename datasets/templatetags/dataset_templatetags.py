@@ -20,8 +20,8 @@ def calculate_taxonomy_node_stats(dataset, node, num_sounds, num_annotations, nu
         'num_annotations': num_annotations,
         'num_non_validated_annotations': num_non_validated_annotations,
         'percentage_validated_annotations': percentage_validated_annotations,
-        'num_parents': len(node['parents']),
-        'num_children': len(node['children']),
+        'num_parents': len(node.get('parent_ids', [])),
+        'num_children': len(node.get('child_ids', [])),
         'is_abstract': 'abstract' in node['restrictions'],
         'is_blacklisted': 'blacklist' in node['restrictions'],
         'url_id': quote(node['id'], safe=''),
@@ -49,6 +49,7 @@ def sounds_per_taxonomy_node(dataset, node_id, N):
 def fs_embed_small(value):
     embed_code = '<iframe frameborder="0" scrolling="no" src="https://www.freesound.org/embed/sound/iframe/{0}/simple/small/" width="375" height="30"></iframe>'
     return embed_code.format(str(value))
+
 
 @register.filter()
 def fs_embed(value):
