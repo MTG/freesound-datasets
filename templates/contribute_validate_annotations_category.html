@@ -83,7 +83,7 @@
         </div>
         <div class="four wide column right aligned">
             {% if annotations_forms %}
-                <a href="{% url 'contribute-validate-annotations-category' dataset.short_name node.url_id %}" class="ui button right labeled icon">Choose other sounds <i class="refresh icon"></i></a>
+                <a href="{% url 'contribute-validate-annotations-category' dataset.short_name main_node_stats.url_id %}" class="ui button right labeled icon">Choose other sounds <i class="refresh icon"></i></a>
             {% endif %}
         </div>
     </div>
@@ -135,7 +135,7 @@
             </p>
         </div>
         <div class="actions">
-            <a href="{% url 'contribute-validate-annotations-category' dataset.short_name node.url_id %}" class="green ui inverted button icon"><i class="plus icon"></i> Give me more sounds from this category</a>
+            <a href="{% url 'contribute-validate-annotations-category' dataset.short_name main_node_stats.url_id %}" class="green ui inverted button icon"><i class="plus icon"></i> Give me more sounds from this category</a>
             <a href="{% url 'contribute-validate-annotations' dataset.short_name %}" class="blue ui inverted button icon"><i class="refresh icon"></i> Choose another category</a>
         </div>
     </div>
