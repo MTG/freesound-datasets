@@ -94,13 +94,18 @@ def compute_dataset_taxonomy_stats(store_key, dataset_id):
         from django.db import connection
         with connection.cursor() as cursor:
             cursor.execute("""
-                SELECT "datasets_annotation"."value", COUNT("datasets_annotation"."id"), COUNT(DISTINCT("datasets_sound"."id"))
-                FROM "datasets_annotation"
-                INNER JOIN "datasets_sounddataset" ON ("datasets_annotation"."sound_dataset_id" = "datasets_sounddataset"."id")
-                INNER JOIN "datasets_sound" ON ("datasets_sound"."id" = "datasets_sounddataset"."sound_id")
-                WHERE ("datasets_annotation"."value" IN %s AND "datasets_sounddataset"."dataset_id" = %s)
-                GROUP BY "datasets_annotation"."value";
-                """, (tuple(node_ids), dataset.id)
+                    SELECT annotation.value
+                           , COUNT(annotation.id)
+                           , COUNT(DISTINCT(sound.id))
+                        FROM datasets_annotation annotation
+                  INNER JOIN datasets_sounddataset sounddataset
+                          ON annotation.sound_dataset_id = sounddataset.id
+                  INNER JOIN datasets_sound sound
+                          ON sound.id = sounddataset.sound_id
+                       WHERE annotation.value IN %s
+                         AND sounddataset.dataset_id = %s
+                    GROUP BY annotation.value
+                           """, (tuple(node_ids), dataset.id)
             )
             node_n_annotations_n_sounds = cursor.fetchall()
 
