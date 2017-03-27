@@ -6,7 +6,6 @@ from django.db.models import Count
 from django.contrib.postgres.fields import JSONField
 from django.contrib.auth.models import User
 from django.conf import settings
-from urllib.parse import quote
 import os
 import markdown
 import datetime
@@ -17,35 +16,9 @@ from django.core.validators import RegexValidator
 class Taxonomy(models.Model):
     data = JSONField()
 
-    _parsed_data = {}
-
     @property
     def taxonomy(self):
-        if not self._parsed_data:
-            parents = collections.defaultdict(list)
-            for d in self.data:
-                for cid in d['child_ids']:
-                    parents[cid].append(d['id'])
-                self._parsed_data[d['id']] = d
-            for childid, parentids in parents.items():
-                self._parsed_data[childid]['parent_ids'] = parentids
-        return self._parsed_data
-
-    def preprocess_taxonomy(self):
-        # This should only be done once, now it is implemented as a sort oh hack, called after url patterns...
-        processed_data = list()
-        for node in self.data:
-            new_node = {key: value for key, value in node.items()}
-            children = self.get_children(node['id'])
-            parents = self.get_parents(node['id'])
-            new_node.update({
-                'url_id': quote(node['id'], safe=''),
-                'children': children,
-                'parents': parents,
-            })
-            processed_data.append(new_node)
-        self.data = processed_data
-        self.save()
+        return self.data
 
     def get_parents(self, node_id):
         return [self.get_element_at_id(i) for i in self.taxonomy[node_id].get('parent_ids', [])]
