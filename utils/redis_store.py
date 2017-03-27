@@ -45,7 +45,7 @@ class RedisStore(object):
             print('Deleting data at key {0}'.format(key))
         self.r.delete(key)
 
-store = RedisStore(verbose=True)
+store = RedisStore(verbose=False)
 
 
 DATASET_BASIC_STATS_KEY_TEMPLATE = 'dataset_basic_stats_{0}'

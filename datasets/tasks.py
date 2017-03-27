@@ -7,6 +7,9 @@ from utils.redis_store import store
 from datasets.templatetags.dataset_templatetags import calculate_taxonomy_node_stats
 import json
 import math
+import logging
+
+logger = logging.getLogger('tasks')
 
 
 @shared_task
@@ -67,6 +70,7 @@ def generate_release_index(dataset_id, release_id, max_sounds=None):
 
 @shared_task
 def compute_dataset_basic_stats(store_key, dataset_id):
+    logger.info('Start computing data for {0}'.format(store_key))
     try:
         dataset = Dataset.objects.get(id=dataset_id)
         store.set(store_key, {
@@ -76,12 +80,14 @@ def compute_dataset_basic_stats(store_key, dataset_id):
             'avg_annotations_per_sound': dataset.avg_annotations_per_sound,
             'percentage_validated_annotations': dataset.percentage_validated_annotations
         })
+        logger.info('Finished computing data for {0}'.format(store_key))
     except Dataset.DoesNotExist:
         pass
 
 
 @shared_task
 def compute_dataset_taxonomy_stats(store_key, dataset_id):
+    logger.info('Start computing data for {0}'.format(store_key))
     try:
         dataset = Dataset.objects.get(id=dataset_id)
         node_ids = dataset.taxonomy.get_all_node_ids()
@@ -141,12 +147,14 @@ def compute_dataset_taxonomy_stats(store_key, dataset_id):
         store.set(store_key, {
             'nodes_data': nodes_data,
         })
+        logger.info('Finished computing data for {0}'.format(store_key))
     except Dataset.DoesNotExist:
         pass
 
 
 @shared_task
 def compute_annotators_ranking(store_key, dataset_id, user_id, N=10):
+    logger.info('Start computing data for {0}'.format(store_key))
     try:
         dataset = Dataset.objects.get(id=dataset_id)
         user = User.objects.get(id=user_id)
@@ -161,6 +169,7 @@ def compute_annotators_ranking(store_key, dataset_id, user_id, N=10):
             ranking = sorted(ranking, key=lambda x: x[1], reverse=True)  # Sort by number of annotations
 
         store.set(store_key, {'ranking': ranking[:N]})
+        logger.info('Finished computing data for {0}'.format(store_key))
     except Dataset.DoesNotExist:
         pass
     except User.DoesNotExist:

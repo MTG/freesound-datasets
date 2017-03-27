@@ -191,5 +191,20 @@ CELERY_ACCEPT_CONTENT = ['json']
 REDIS_HOST = 'redis'  # Host where redis is running (we use docker alias here)
 REDIS_PORT = 6379
 
+# Logging
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+    },
+    'loggers': {
+        'tasks': {
+            'handlers': [],  # Just use default handlers, no file output for now
+            'level': 'INFO',
+            'propagate': True,
+        },
+    },
+}
+
 # Import local settings
 from freesound_datasets.local_settings import *
