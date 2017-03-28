@@ -61,7 +61,7 @@
                         {% for node_id in node.child_ids %}
                             {% taxonomy_node_data dataset node_id as node_data %}
                             <div class="item" style="margin-left:0px;margin-right:5px;">
-                                <a href="{% url 'dataset-explore-taxonomy-node' dataset.short_name node_data.url_id %}" target="_blank" class="ui label">{{ node_data.name }}</a>
+                                <a href="{% url 'contribute-validate-annotations-category' dataset.short_name node_data.url_id %}" target="_blank" class="ui label">{{ node_data.name }}</a>
                             </div>
                         {% endfor %}
                     </div></td>
