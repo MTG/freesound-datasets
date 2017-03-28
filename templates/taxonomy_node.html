@@ -9,13 +9,13 @@
     </div>
 
     <table class="ui unstackable table" width="100%">
-        {% taxonomy_node_stats dataset node.id as main_node_stats %}
+        {% taxonomy_node_data dataset node.id as main_node_data %}
         <tbody>
             <tr>
                 <td>Hierarchy</td>
                 <td>
                     <div class="ui list">
-                    {% for hierarchy_path in main_node_stats.hierarchy_paths %}
+                    {% for hierarchy_path in main_node_data.hierarchy_paths %}
                         <div class="item">
                             <i class="tree icon"></i>{{ hierarchy_path }}
                         </div>
@@ -25,14 +25,14 @@
                     </div>
                 </td>
             </tr>
-            {% if node.children %}
+            {% if node.child_ids %}
                 <tr>
                     <td>Direct children</td>
                     <td><div class="ui horizontal list">
-                        {% for node in node.children %}
-                            {% taxonomy_node_stats dataset node.id as node_stats %}
+                        {% for node_id in node.child_ids %}
+                            {% taxonomy_node_data dataset node_id as node_data %}
                             <div class="item" style="margin-left:0px;margin-right:5px;">
-                                <a href="{% url 'dataset-explore-taxonomy-node' dataset.short_name node_stats.url_id %}" target="_blank" class="ui label">{{ node.name }}</a>
+                                <a href="{% url 'dataset-explore-taxonomy-node' dataset.short_name node_data.url_id %}" target="_blank" class="ui label">{{ node_data.name }}</a>
                             </div>
                         {% endfor %}
                     </div></td>
@@ -43,11 +43,11 @@
                 <td>{{ node.description }}</td>
             </tr>
             <tr><td>URI</td><td>{% if node.citation_uri %}<a href="{{ node.citation_uri }}" target="_blank">{{ node.citation_uri }}</a>{% else %}-{% endif %}</td></tr>
-            <tr><td>Num sounds</td><td>{{ main_node_stats.num_sounds }}</td></tr>
-            <tr><td>Num annotations</td><td>{{ main_node_stats.num_annotations }}</td></tr>
-            {% if main_node_stats.is_abstract or main_node_stats.is_blacklisted %}
-                <tr {% if main_node_stats.is_blacklisted %}class="negative"{% elif main_node_stats.is_abstract %}class="warning"{% else %}{% endif %}>
-                    <td colspan="2">This node is labeled as <b>{% if main_node_stats.is_blacklisted %}blacklisted{% elif main_node_stats.is_abstract %}abstract{% endif %}</b></td>
+            <tr><td>Num sounds</td><td>{{ main_node_data.num_sounds }}</td></tr>
+            <tr><td>Num annotations</td><td>{{ main_node_data.num_annotations }}</td></tr>
+            {% if main_node_data.is_abstract or main_node_data.is_blacklisted %}
+                <tr {% if main_node_data.is_blacklisted %}class="negative"{% elif main_node_data.is_abstract %}class="warning"{% else %}{% endif %}>
+                    <td colspan="2">This node is labeled as <b>{% if main_node_data.is_blacklisted %}blacklisted{% elif main_node_data.is_abstract %}abstract{% endif %}</b></td>
                 </tr>
             {% endif %}
         </tbody>

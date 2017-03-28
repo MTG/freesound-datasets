@@ -30,14 +30,16 @@ def calculate_taxonomy_node_stats(dataset, node, num_sounds, num_annotations, nu
 
 
 @register.simple_tag(takes_context=False)
-def taxonomy_node_stats(dataset, node_id):
+def taxonomy_node_data(dataset, node_id):
     node = dataset.taxonomy.get_element_at_id(node_id)
 
     num_sounds = dataset.num_sounds_per_taxonomy_node(node_id)
     num_annotations = dataset.num_annotations_per_taxonomy_node(node_id)
     num_non_validated_annotations = dataset.num_non_validated_annotations_per_taxonomy_node(node_id)
 
-    return calculate_taxonomy_node_stats(dataset, node, num_sounds, num_annotations, num_non_validated_annotations)
+    node.update(calculate_taxonomy_node_stats(dataset, node, num_sounds, num_annotations, num_non_validated_annotations))
+
+    return node
 
 
 @register.simple_tag(takes_context=False)
