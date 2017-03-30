@@ -17,6 +17,7 @@ def calculate_taxonomy_node_stats(dataset, node, num_sounds=0, num_annotations=0
         'num_sounds': num_sounds,
         'num_annotations': num_annotations,
         'num_non_validated_annotations': num_non_validated_annotations,
+        'num_validated_annotations': num_annotations - num_non_validated_annotations,
         'percentage_validated_annotations': percentage_validated_annotations,
         'num_parents': len(node.get('parent_ids', [])),
         'num_children': len(node.get('child_ids', [])),
@@ -36,6 +37,7 @@ def taxonomy_node_data(dataset, node_id):
     num_non_validated_annotations = dataset.num_non_validated_annotations_per_taxonomy_node(node_id)
     hierarchy_paths = dataset.taxonomy.get_hierarchy_paths(node['id'])
 
+    node = node.copy()  # Duplicate the dict, so update operation below doesn't alter the original dict
     node.update(calculate_taxonomy_node_stats(dataset, node, num_sounds, num_annotations, num_non_validated_annotations, hierarchy_paths))
     return node
 
@@ -43,8 +45,19 @@ def taxonomy_node_data(dataset, node_id):
 @register.simple_tag(takes_context=False)
 def taxonomy_node_minimal_data(dataset, node_id):
     node = dataset.taxonomy.get_element_at_id(node_id)
+    node = node.copy()  # Duplicate the dict, so update operation below doesn't alter the original dict
     node.update(calculate_taxonomy_node_stats(dataset, node))
     return node
+
+
+@register.inclusion_tag('taxonomy_node_info.html', takes_context=True)
+def display_taxonomy_node_info(context, dataset, node_id, category_link_to='e'):
+    category_link_to = {
+        'e': 'dataset-explore-taxonomy-node',
+        'cva': 'contribute-validate-annotations-category',
+    }[category_link_to]
+    node_data = taxonomy_node_data(dataset, node_id)
+    return {'dataset': dataset, 'node': node_data, 'category_link_to': category_link_to}
 
 
 @register.simple_tag(takes_context=False)
@@ -62,3 +75,4 @@ def fs_embed_small(value):
 def fs_embed(value):
     embed_code = '<iframe frameborder="0" scrolling="no" src="https://www.freesound.org/embed/sound/iframe/{0}/simple/medium_no_info/" width="130" height="80"></iframe>'
     return embed_code.format(str(value))
+

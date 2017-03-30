@@ -36,62 +36,8 @@
                 <a href="{% url 'contribute-validate-annotations' dataset.short_name %}" class="blue ui button right labeled icon">Choose another category <i class="refresh icon"></i></a>
         </div>
     </div>
-
-    <table class="ui unstackable table" width="100%">
-        {% taxonomy_node_data dataset node.id as main_node_data %}
-        <tbody>
-            <tr>
-                <td>Hierarchy</td>
-                <td>
-                    <div class="ui list">
-                        {% for hierarchy_path in main_node_data.hierarchy_paths %}
-                            <div class="item">
-                                <div class="ui horizontal list">
-                                    <div class="item">
-                                        <i class="tree icon"></i> 
-                                    </div>
-                                    {% for node_id in hierarchy_path %}
-                                        {% taxonomy_node_minimal_data dataset node_id as node_data %}
-                                        <div class="item" style="margin-left:0px;margin-right:5px;"> 
-                                            >
-                                            <a href="{% url 'contribute-validate-annotations-category' dataset.short_name node_data.url_id %}" target="_blank">{{ node_data.name }}</a>
-                                        </div>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                    {% empty %}
-                        <div class="item">-</div>
-                    {% endfor %}
-                    </div>
-                </td>
-            </tr>
-            {% if node.child_ids %}
-                <tr>
-                    <td>Direct children</td>
-                    <td><div class="ui horizontal list">
-                        {% for node_id in node.child_ids %}
-                            {% taxonomy_node_minimal_data dataset node_id as node_data %}
-                            <div class="item" style="margin-left:0px;margin-right:5px;">
-                                <a href="{% url 'contribute-validate-annotations-category' dataset.short_name node_data.url_id %}" target="_blank" class="ui label">{{ node_data.name }}</a>
-                            </div>
-                        {% endfor %}
-                    </div></td>
-                </tr>
-            {% endif %}
-            <tr>
-                <td class="three wide">Description</td>
-                <td>{{ node.description }}</td>
-            </tr>
-            <tr><td>URI</td><td>{% if node.citation_uri %}<a href="{{ node.citation_uri }}" target="_blank">{{ node.citation_uri }}</a>{% else %}-{% endif %}</td></tr>
-            <tr><td>Num sounds</td><td>{{ main_node_data.num_sounds }}</td></tr>
-            <tr><td>Num annotations</td><td>{{ main_node_data.num_annotations }} ({{ num_non_validated }} non validated)</td></tr>
-            {% if main_node_data.is_abstract %}
-                <tr class="warning">
-                    <td colspan="2">This node is labeled as <b>abstract</b></td>
-                </tr>
-            {% endif %}
-        </tbody>
-    </table>
+    {% display_taxonomy_node_info dataset node.id 'cva' %}
+    {% taxonomy_node_minimal_data dataset node.id as main_node_data %}
     <br>
     <div class="ui grid">
         <div class="twelve wide column">
