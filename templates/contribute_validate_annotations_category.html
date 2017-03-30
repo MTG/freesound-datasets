@@ -44,10 +44,21 @@
                 <td>Hierarchy</td>
                 <td>
                     <div class="ui list">
-                    {% for hierarchy_path in main_node_data.hierarchy_paths %}
-                        <div class="item">
-                            <i class="tree icon"></i>{{ hierarchy_path }}
-                        </div>
+                        {% for hierarchy_path in main_node_data.hierarchy_paths %}
+                            <div class="item">
+                                <div class="ui horizontal list">
+                                    <div class="item">
+                                        <i class="tree icon"></i> 
+                                    </div>
+                                    {% for node_id in hierarchy_path %}
+                                        {% taxonomy_node_minimal_data dataset node_id as node_data %}
+                                        <div class="item" style="margin-left:0px;margin-right:5px;"> 
+                                            >
+                                            <a href="{% url 'contribute-validate-annotations-category' dataset.short_name node_data.url_id %}" target="_blank">{{ node_data.name }}</a>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
                     {% empty %}
                         <div class="item">-</div>
                     {% endfor %}
@@ -59,7 +70,7 @@
                     <td>Direct children</td>
                     <td><div class="ui horizontal list">
                         {% for node_id in node.child_ids %}
-                            {% taxonomy_node_data dataset node_id as node_data %}
+                            {% taxonomy_node_minimal_data dataset node_id as node_data %}
                             <div class="item" style="margin-left:0px;margin-right:5px;">
                                 <a href="{% url 'contribute-validate-annotations-category' dataset.short_name node_data.url_id %}" target="_blank" class="ui label">{{ node_data.name }}</a>
                             </div>

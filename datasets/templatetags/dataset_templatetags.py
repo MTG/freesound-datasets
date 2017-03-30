@@ -5,10 +5,8 @@ from urllib.parse import quote
 register = template.Library()
 
 
-def calculate_taxonomy_node_stats(dataset, node, num_sounds, num_annotations, num_non_validated_annotations):
-    # Calculate node hierarchy paths
-    hierarchy_paths = dataset.taxonomy.get_hierarchy_paths(node['id'])
-
+def calculate_taxonomy_node_stats(dataset, node, num_sounds=0, num_annotations=0, num_non_validated_annotations=0, hierarchy_paths=None):
+    
     # Calculate percentage of validated annotations
     if num_annotations != 0:
         percentage_validated_annotations = (num_annotations - num_non_validated_annotations) * 100.0 / num_annotations
@@ -25,7 +23,7 @@ def calculate_taxonomy_node_stats(dataset, node, num_sounds, num_annotations, nu
         'is_abstract': 'abstract' in node['restrictions'],
         'is_blacklisted': 'blacklist' in node['restrictions'],
         'url_id': quote(node['id'], safe=''),
-        'hierarchy_paths': hierarchy_paths,
+        'hierarchy_paths': hierarchy_paths if hierarchy_paths is not None else [],
     }
 
 
@@ -36,9 +34,16 @@ def taxonomy_node_data(dataset, node_id):
     num_sounds = dataset.num_sounds_per_taxonomy_node(node_id)
     num_annotations = dataset.num_annotations_per_taxonomy_node(node_id)
     num_non_validated_annotations = dataset.num_non_validated_annotations_per_taxonomy_node(node_id)
+    hierarchy_paths = dataset.taxonomy.get_hierarchy_paths(node['id'])
 
-    node.update(calculate_taxonomy_node_stats(dataset, node, num_sounds, num_annotations, num_non_validated_annotations))
+    node.update(calculate_taxonomy_node_stats(dataset, node, num_sounds, num_annotations, num_non_validated_annotations, hierarchy_paths))
+    return node
 
+
+@register.simple_tag(takes_context=False)
+def taxonomy_node_minimal_data(dataset, node_id):
+    node = dataset.taxonomy.get_element_at_id(node_id)
+    node.update(calculate_taxonomy_node_stats(dataset, node))
     return node
 
 

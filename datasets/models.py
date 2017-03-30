@@ -46,13 +46,13 @@ class Taxonomy(models.Model):
                 yield cur
             else:
                 for node in parents:
-                    for path in paths(node['id'], [node['name']] + cur):
+                    for path in paths(node['id'], [node['id']] + cur):
                         yield path
 
         hierarchy_paths = list()
         for path in paths(node_id):
             # Add root and current category to path
-            hierarchy_paths.append(' > '.join(path + [self.get_element_at_id(node_id)['name']]))
+            hierarchy_paths.append(path + [self.get_element_at_id(node_id)['id']])
 
         return hierarchy_paths
 
