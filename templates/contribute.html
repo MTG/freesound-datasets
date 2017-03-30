@@ -5,37 +5,50 @@
 
 {% block content %}
     <h1 class="ui header">Contribute to {{ dataset.name }}</h1>
-    <p>Missing explanation of what does this mean ;)</p>
+    <p>This is your entry point for helping making the world a batter place by contributing to the {{ dataset.name }} :)
+    <br>Please choose one of the available tasks below for contributing to the dataset:
+    <div class="ui relaxed horizontal list">
+        <div class="item">
+            <a href="{% url 'contribute-validate-annotations' dataset.short_name %}" class="ui big right labeled icon blue button"><i class="checkmark box icon"></i>Validate category annotations</a>
+        </div>
+    </div>
+    <br><br>
+    </p>
 
-    <h2>Annotators' ranking</h2>
+    <h2>Top 10 contributors</h2>
     <table class="ui unstackable table" width="100%">
         <thead>
             <tr>
-                <th>Username</th>
-                <th>Number of contributions</th>
+                <th>#</th>
+                <th class="center aligned">Username</th>
+                <th class="center aligned">Number of contributions</th>
             </tr>
         </thead>
         <tbody>
         {% for username, n_annotations in annotators_ranking.ranking %}
             <tr>
-                <td>{{ username }}</td>
-                <td>{{ n_annotations}}</td>
+                <td>{{ forloop.counter }}</td>
+                <td class="center aligned">
+                    {% if forloop.counter == 1 %}
+                        &#x1F947;
+                    {% elif forloop.counter == 2 %}
+                        &#x1F948;
+                    {% elif forloop.counter == 3 %}
+                        &#x1F949;
+                    {% endif %}
+                    {{ username }}
+                </td>
+                <td class="center aligned">{{ n_annotations}}</td>
             </tr>
         {% endfor %}
         </tbody>
     </table>
     <div class="ui grid">
         <div class="right aligned column">
-            <span class="small_gray_text">Data last updated {{ annotators_ranking.redis_timestamp | timestamp_to_datetime | timesince  }} ago</span>
+            <span class="small_gray_text">Last updated {{ annotators_ranking.redis_timestamp | timestamp_to_datetime | timesince  }} ago</span>
         </div>
     </div>
-
-    <h2>Available tasks:</h2>
-    <div class="ui relaxed horizontal list">
-        <div class="item">
-            <a href="{% url 'contribute-validate-annotations' dataset.short_name %}" class="ui huge right labeled icon blue button"><i class="checkmark box icon"></i>Validate category annotations</a>
-        </div>
-    </div>
+    
 {% endblock %}
 
 
