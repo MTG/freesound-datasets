@@ -74,6 +74,11 @@
             <tr><td>URI</td><td>{% if node.citation_uri %}<a href="{{ node.citation_uri }}" target="_blank">{{ node.citation_uri }}</a>{% else %}-{% endif %}</td></tr>
             <tr><td>Num sounds</td><td>{{ main_node_data.num_sounds }}</td></tr>
             <tr><td>Num annotations</td><td>{{ main_node_data.num_annotations }} ({{ num_non_validated }} non validated)</td></tr>
+            {% if main_node_data.is_abstract %}
+                <tr class="warning">
+                    <td colspan="2">This node is labeled as <b>abstract</b></td>
+                </tr>
+            {% endif %}
         </tbody>
     </table>
     <br>
@@ -96,7 +101,7 @@
                     {% with annotation.sound_dataset.sound.freesound_id as fsid  %}
                         <div class="content">
                             <div class="header">#{{ forloop.counter }}</div>
-                            {% if user_is_maintainer %}<div class="meta">{{ fsid }}</div>{% endif %}
+                            <div class="meta"><a href="https://freesound.org/s/{{ fsid }}/" target="_blank"><i class="external icon"></i> {{ fsid }}</a></div>
 
                             <div class="description">
                                 <div class="ui grid">

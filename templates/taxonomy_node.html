@@ -45,9 +45,9 @@
             <tr><td>URI</td><td>{% if node.citation_uri %}<a href="{{ node.citation_uri }}" target="_blank">{{ node.citation_uri }}</a>{% else %}-{% endif %}</td></tr>
             <tr><td>Num sounds</td><td>{{ main_node_data.num_sounds }}</td></tr>
             <tr><td>Num annotations</td><td>{{ main_node_data.num_annotations }}</td></tr>
-            {% if main_node_data.is_abstract or main_node_data.is_blacklisted %}
-                <tr {% if main_node_data.is_blacklisted %}class="negative"{% elif main_node_data.is_abstract %}class="warning"{% else %}{% endif %}>
-                    <td colspan="2">This node is labeled as <b>{% if main_node_data.is_blacklisted %}blacklisted{% elif main_node_data.is_abstract %}abstract{% endif %}</b></td>
+            {% if main_node_data.is_abstract %}
+                <tr class="warning">
+                    <td colspan="2">This node is labeled as <b>abstract</b></td>
                 </tr>
             {% endif %}
         </tbody>
