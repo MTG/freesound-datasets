@@ -52,9 +52,7 @@ class Taxonomy(models.Model):
         hierarchy_paths = list()
         for path in paths(node_id):
             # Add root and current category to path
-            #hierarchy_paths.append(' > '.join(path + [self.get_element_at_id(node_id)['name']]))
             hierarchy_paths.append(path + [self.get_element_at_id(node_id)['id']])
-        #print(hierarchy_paths)
 
         return hierarchy_paths
 
