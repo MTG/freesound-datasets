@@ -223,6 +223,8 @@ class Vote(models.Model):
     created_by = models.ForeignKey(User, related_name='votes', null=True, on_delete=models.SET_NULL)
     vote = models.FloatField()
     annotation = models.ForeignKey(Annotation, related_name='votes')
+    visited_sound = models.NullBooleanField(null=True, blank=True, default=None)
+    # 'visited_sound' is to store whether the user needed to open the sound in Freesound to perform this vote
 
     def __str__(self):
         return 'Vote for annotation {0}'.format(self.annotation.id)
