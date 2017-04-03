@@ -24,6 +24,11 @@
                 dataType: 'json'
             });
         }
+
+        function openFreesoundSoundPage(freesound_id, sound_idx){
+            window.open('https://freesound.org/s/' + freesound_id + '/');
+            $('#id_form-' + sound_idx + '-visited_sound').val(true);
+        }
     </script>
 {% endblock %}
 {% block content %}
@@ -58,7 +63,7 @@
                 <div class="card" id="row_annotation_{{ forloop.counter0 }}">
                     {% with annotation.sound_dataset.sound.freesound_id as fsid  %}
                         <div class="content">
-                            <div class="right floated meta"><a href="https://freesound.org/s/{{ fsid }}/" target="_blank"><i class="external icon"></i></a></div>
+                            <div class="right floated meta"><a href="javascript:void(0);" onclick="openFreesoundSoundPage('{{ fsid }}', '{{ forloop.counter0 }}');"><i class="external icon"></i></a></div>
                             <div class="header">#{{ forloop.counter }}</div>
 
                             <div class="description">
@@ -69,6 +74,7 @@
                                     <div class="eight wide column vote_card_form">
                                         {{ form.vote }}
                                         {{ form.annotation_id }}
+                                        {{ form.visited_sound }}
                                     </div>
                                 </div>
 

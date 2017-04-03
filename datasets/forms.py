@@ -25,3 +25,9 @@ class PresentNotPresentUnsureForm(forms.Form):
         required=True,
         widget=forms.HiddenInput,
     )
+    visited_sound = forms.BooleanField(
+        required=False,
+        initial=False,
+        widget=forms.HiddenInput,
+    )
+
