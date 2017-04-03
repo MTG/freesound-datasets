@@ -40,12 +40,13 @@
     {% taxonomy_node_minimal_data dataset node.id as main_node_data %}
     <br>
     <div class="ui grid">
-        <div class="twelve wide column">
+        <div class="ten wide column">
             <h2>Is <div class="ui big label">{{ node.name }}</div> present in the following sounds?</h2>
         </div>
-        <div class="four wide column right aligned">
+        <div class="six wide column right aligned">
             {% if annotations_forms %}
-                <a href="{% url 'contribute-validate-annotations-category' dataset.short_name main_node_data.url_id %}" class="ui button right labeled icon">Choose other sounds <i class="refresh icon"></i></a>
+                <a href="javascript:void(0);" onclick="$('#help_modal').modal('show');" class="ui button right labeled icon">Help <i class="help icon"></i></a>
+                <a href="{% url 'contribute-validate-annotations-category' dataset.short_name main_node_data.url_id %}" class="ui button right labeled teal icon">Choose other sounds <i class="refresh icon"></i></a>
             {% endif %}
         </div>
     </div>
@@ -57,8 +58,8 @@
                 <div class="card" id="row_annotation_{{ forloop.counter0 }}">
                     {% with annotation.sound_dataset.sound.freesound_id as fsid  %}
                         <div class="content">
+                            <div class="right floated meta"><a href="https://freesound.org/s/{{ fsid }}/" target="_blank"><i class="external icon"></i></a></div>
                             <div class="header">#{{ forloop.counter }}</div>
-                            <div class="meta"><a href="https://freesound.org/s/{{ fsid }}/" target="_blank"><i class="external icon"></i> {{ fsid }}</a></div>
 
                             <div class="description">
                                 <div class="ui grid">
@@ -119,6 +120,22 @@
         </div>
     </div>
     <!-- end on error modal -->
+
+    <!-- help modal -->
+    <div id="help_modal" class="ui basic modal">
+        <div class="ui icon header"><i class="help icon"></i>
+            Help
+        </div>
+        <div class="content">
+            <p>
+                Summary of annotation instructions with link to full instructions.
+            </p>
+        </div>
+        <div class="actions">
+            <div class="green ui inverted button icon cancel">Ok</div>
+        </div>
+    </div>
+    <!-- end help modal -->
 
 
 {% endblock %}
