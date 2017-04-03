@@ -221,7 +221,7 @@ class Annotation(models.Model):
 class Vote(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(User, related_name='votes', null=True, on_delete=models.SET_NULL)
-    vote = models.IntegerField()
+    vote = models.FloatField()
     annotation = models.ForeignKey(Annotation, related_name='votes')
 
     def __str__(self):

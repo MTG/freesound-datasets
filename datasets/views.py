@@ -158,7 +158,7 @@ def save_contribute_validate_annotations_category(request):
                     # Save votes for annotations
                     Vote.objects.create(
                         created_by=request.user,
-                        vote=int(form.cleaned_data['vote']),
+                        vote=float(form.cleaned_data['vote']),
                         annotation_id=form.cleaned_data['annotation_id'],
                     )
         else:
