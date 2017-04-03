@@ -5,7 +5,9 @@ from urllib.parse import quote
 register = template.Library()
 
 
-def calculate_taxonomy_node_stats(dataset, node, num_sounds=0, num_annotations=0, num_non_validated_annotations=0, hierarchy_paths=None):
+def calculate_taxonomy_node_stats(
+        dataset, node, num_sounds=0, num_annotations=0, num_non_validated_annotations=0,
+        hierarchy_paths=None, comments=None):
     
     # Calculate percentage of validated annotations
     if num_annotations != 0:
@@ -25,6 +27,7 @@ def calculate_taxonomy_node_stats(dataset, node, num_sounds=0, num_annotations=0
         'is_blacklisted': 'blacklist' in node['restrictions'],
         'url_id': quote(node['id'], safe=''),
         'hierarchy_paths': hierarchy_paths if hierarchy_paths is not None else [],
+        'comments': comments,
     }
 
 
@@ -36,9 +39,11 @@ def taxonomy_node_data(dataset, node_id):
     num_annotations = dataset.num_annotations_per_taxonomy_node(node_id)
     num_non_validated_annotations = dataset.num_non_validated_annotations_per_taxonomy_node(node_id)
     hierarchy_paths = dataset.taxonomy.get_hierarchy_paths(node['id'])
+    comments = dataset.get_comments_per_taxonomy_node(node['id'])
 
     node = node.copy()  # Duplicate the dict, so update operation below doesn't alter the original dict
-    node.update(calculate_taxonomy_node_stats(dataset, node, num_sounds, num_annotations, num_non_validated_annotations, hierarchy_paths))
+    node.update(calculate_taxonomy_node_stats(dataset, node, num_sounds, num_annotations, num_non_validated_annotations,
+                                              hierarchy_paths, comments))
     return node
 
 
@@ -52,12 +57,14 @@ def taxonomy_node_minimal_data(dataset, node_id):
 
 @register.inclusion_tag('taxonomy_node_info.html', takes_context=True)
 def display_taxonomy_node_info(context, dataset, node_id, category_link_to='e'):
+    user_is_maintainer = dataset.user_is_maintainer(context['request'].user)
     category_link_to = {
         'e': 'dataset-explore-taxonomy-node',
         'cva': 'contribute-validate-annotations-category',
     }[category_link_to]
     node_data = taxonomy_node_data(dataset, node_id)
-    return {'dataset': dataset, 'node': node_data, 'category_link_to': category_link_to}
+    return {'dataset': dataset, 'node': node_data, 'category_link_to': category_link_to,
+            'user_is_maintainer': user_is_maintainer}
 
 
 @register.simple_tag(takes_context=False)

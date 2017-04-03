@@ -91,6 +91,7 @@
         <div class="field">
             {{ category_comment_form.comment }}
             <input id="id_category_id" name="category_id" type="hidden" value="{{ node.id }}">
+            <input id="id_dataset" name="dataset" type="hidden" value="{{ dataset.id }}">
         </div>
     </form>
     {% if annotations_forms %}

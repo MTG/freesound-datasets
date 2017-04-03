@@ -137,6 +137,9 @@ class Dataset(models.Model):
     def num_non_validated_annotations_per_taxonomy_node(self, node_id):
         return self.non_validated_annotations_per_taxonomy_node(node_id).count()
 
+    def get_comments_per_taxonomy_node(self, node_id):
+        return CategoryComment.objects.filter(dataset=self, category_id=node_id)
+
     def user_is_maintainer(self, user):
         return user in self.maintainers.all()
 
@@ -233,7 +236,8 @@ class Vote(models.Model):
 class CategoryComment(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(User, related_name='comments', null=True, on_delete=models.SET_NULL)
-    comment = models.TextField()
+    dataset = models.ForeignKey(Dataset)
+    comment = models.TextField(blank=True)
     category_id = models.CharField(max_length=200)
     # NOTE: currently categories are not stored as db objects, therefore we store a reference to the category (node) id
     # as used in other parts of the application. At some point categories should be stored as db objects and this

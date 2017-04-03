@@ -166,9 +166,10 @@ def save_contribute_validate_annotations_category(request):
                         visited_sound=form.cleaned_data['visited_sound'],
                         annotation_id=form.cleaned_data['annotation_id'],
                     )
-            comment = comment_form.save(commit=False)
-            comment.created_by = request.user
-            comment.save()
+            if comment_form.cleaned_data['comment'].strip():  # If there is a comment
+                comment = comment_form.save(commit=False)
+                comment.created_by = request.user
+                comment.save()
         else:
             error_response = {'errors': [count for count, value in enumerate(formset.errors) if value != {}]}
             return JsonResponse(error_response)

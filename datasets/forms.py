@@ -36,10 +36,11 @@ class CategoryCommentForm(forms.ModelForm):
 
     class Meta:
         model = CategoryComment
-        fields = ['comment', 'category_id']
+        fields = ['comment', 'category_id', 'dataset']
         widgets = {
             'comment': forms.Textarea(attrs={
                 'cols': 80, 'rows': 3,
                 'placeholder': 'Add here any general comments you want to make about this category'}),
             'category_id': forms.HiddenInput,
+            'dataset_id': forms.HiddenInput,
         }

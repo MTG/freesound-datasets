@@ -51,5 +51,18 @@
                 <td colspan="2">This node is labeled as <b>abstract</b></td>
             </tr>
         {% endif %}
+        {% if user_is_maintainer %}
+            {% if node.comments %}
+                <tr>
+                    <td>User comments</td><td>
+                    <div class="ui segments">
+                        {% for comment in node.comments %}
+                            <div class="ui segment">{{ comment.comment | linebreaksbr }}</div>
+                        {% endfor %}
+                    </div>
+                    </td>
+                </tr>
+            {% endif %}
+        {% endif %}
     </tbody>
 </table>
