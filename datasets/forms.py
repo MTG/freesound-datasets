@@ -1,5 +1,5 @@
 from django import forms
-from datasets.models import DatasetRelease, Vote
+from datasets.models import DatasetRelease, CategoryComment
 
 
 class DatasetReleaseForm(forms.ModelForm):
@@ -31,3 +31,15 @@ class PresentNotPresentUnsureForm(forms.Form):
         widget=forms.HiddenInput,
     )
 
+
+class CategoryCommentForm(forms.ModelForm):
+
+    class Meta:
+        model = CategoryComment
+        fields = ['comment', 'category_id']
+        widgets = {
+            'comment': forms.Textarea(attrs={
+                'cols': 80, 'rows': 3,
+                'placeholder': 'Add here any general comments you want to make about this category'}),
+            'category_id': forms.HiddenInput,
+        }
