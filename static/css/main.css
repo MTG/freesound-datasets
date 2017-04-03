@@ -76,3 +76,8 @@ ul {
     color: #fff;
     text-shadow: none
 }
+
+.eight.wide.column.vote_card_form {
+	overflow:hidden;
+	padding-top:0;
+}

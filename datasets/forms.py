@@ -14,7 +14,12 @@ class PresentNotPresentUnsureForm(forms.Form):
     vote = forms.ChoiceField(
         required=True,
         widget=forms.RadioSelect,
-        choices=(('1', 'Present',), ('-1', 'Not Present',), ('0', 'Unsure',),),
+        choices=(
+            ('1', 'Present',),
+            ('0.5', 'Slightly present',),
+            ('-1', 'Not Present',),
+            ('0', 'Unsure',),
+        ),
     )
     annotation_id = forms.IntegerField(
         required=True,
