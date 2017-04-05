@@ -3,21 +3,23 @@
 {% load humanize %}
 {% block title %}Validate category annotations{% endblock title %}
 {% block content %}
-    <h1 class="ui header">Validate category annotations</h1>
-
-    <h2>Task instructions - Tagathon guidelines</h2>
+    <h1 class="ui header">Task instructions</h1>
 
     <p>
-        Thank you for participating in the Tagathon’s first edition! Please read these guidelines carefully before annotating. If you have any questions, do not hesitate to ask an organizer.
+        Thank you for participating in the Tagathon’s first edition! Please read these guidelines carefully before annotating.
+        If you have any questions, do not hesitate to ask an organizer.
     </p>
     <p>
-        As you may know, we are trying to build a dataset with sounds from Freesound following the <a href="https://research.google.com/audioset/ontology/index.html" target="_blank">AudioSet Ontology</a>. As starting point, we have populated the AudioSet categories with Freesound clips based on tag matching (manually assigning Freesound tags to each category).
+        <b>A bit of context:</b> As you may know, we are trying to build a dataset with sounds from Freesound following
+        the <a href="https://research.google.com/audioset/ontology/index.html" target="_blank">AudioSet Ontology</a>.
+        As starting point, we have populated the AudioSet sound categories with Freesound clips based on tag matching
+        (manually assigning Freesound tags to each category).
     </p>
 
     <h3>Why are we doing this Tagathon?</h3>
     <p>
-        The main goal is to validate annotations obtained from the tag matching process, which will allow us to:
-        <ul class="ui list">
+        The <b>main goal</b> is to validate annotations obtained from the tag matching process, which will allow us to:
+        <ul class="ui list" style="margin-top:-20px;margin-left:40px;font-weight: 100;">
             <li>Estimate the quality of the sound categories coming from that process</li>
             <li>Take the first step towards building a Freesound Dataset</li>
             <li>Gather feedback on the ontology, the audio content and the annotation procedure</li>
@@ -27,39 +29,139 @@
 
     <h3>Tagathon guidelines</h3>
     <p>
-
+        To organize the Tagathon, we have split the sound categories of the
+        <a href="https://research.google.com/audioset/ontology/index.html" target="_blank">AudioSet Ontology</a> into
+        several groups that can be seen in this <a href="https://docs.google.com/spreadsheets/d/1JfKJCyCf1vKcrIUk0dHzKEt56dMTLwLnm3SHTzhDSXI/edit?usp=sharing"
+        target="_blank">spreadsheet</a> (surrounded by red boxes). Categories in each group should be validated by one person.
+        These groups vary in size, so that you can choose one based on how much time you think that you have available to help.
+        For each category you will be presented with pages of 12 sounds. <b>For each sound clip, you will be asked if this
+        sound contains the item described by the category</b>. You will find more detailed description below, in the section
+        <a href="#how-to-validate-a-category">How to validate a category</a>.
+    </p>
+    <p>
+        You should <b>validate from 5 to 8 pages of sounds per category</b> (~60-100 sounds). Some categories may contain fewer
+        sounds. In this case, just validate all annotations. While we prefer that you complete as many validations as
+        possible, it is likely that some validation tasks will be more complex than others. In this case, you can validate
+        a smaller number of pages (5 or 6).
     </p>
 
-    <h3>How to validate a category</h3>
+    <h3>How to proceed</h3>
+    <table class="ui celled padded definition table">
+        <tr><td>1</td><td><p>
+            <b>Log in</b> to <a href="https://datasets.freesound.org/fsd/" target="_blank">https://datasets.freesound.org/fsd/</a>
+        </p></td></tr>
+        <tr><td>2</td><td><p>
+            Go to the <a href="https://docs.google.com/spreadsheets/d/1JfKJCyCf1vKcrIUk0dHzKEt56dMTLwLnm3SHTzhDSXI/edit?usp=sharing"
+            target="_blank">spreadsheet</a> and <b>choose a group to validate</b> (please write your name next to it). Understand the type of
+            categories that you are about to validate.
+        </p></td></tr>
+        <tr><td>3</td><td><p>
+            Use the hyperlinks in the spreadsheet to access the validation page for each category or browse the categories
+            in the main <a href="{% url 'contribute-validate-annotations' dataset.short_name %}" target="_blank">Validate category annotations</a> page.
+        </p></td></tr>
+        <tr><td>4</td><td><p>
+            Start listening and validating the annotations!
+        </p></td></tr>
+    </table>
+
+    <h3>How to validate a category</h3><a name="how-to-validate-a-category"></a>
     <table class="ui celled padded definition table">
         <tr><td>1</td>
             <td>Acclimatise yourself with your category and its related categories
-            <p>The section at the top of the page gives you an overview of the category and its meaning.</p>
-                <table class="ui very basic celled padded table">
-                    <tr><td><p>Hierarchy</p></td>
-                        <td><p>
+                <p><b>Acclimatise yourself with your category and its related categories</b>.
+                    The section at the top of the page gives you an overview of the category and its meaning.</p>
+                <table class="ui celled table">
+                    <tr><td><p>Hierarchy</p></td><td><p>
                             A path that tells you where you are in the ontology, for example
-                            Animal  > Domestic animals, pets > Cat.
+                            <i>Animal  > Domestic animals, pets > Cat</i>.
                             Note that in some cases there may be several paths, ie, several parents for your category. For example, <a href="https://datasets.freesound.org/fsd/explore/%252Fm%252F07rjwbb/" target="_blank">Hiss</a>:
-                            <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Animal > Domestic animals, pets > Cat > Hiss
-                            <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Animal > Wild animals > Snake > Hiss
+                            <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Animal > Domestic animals, pets > Cat > Hiss</i>
+                            <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Animal > Wild animals > Snake > Hiss</i>
                             <br>Please consider all the parents of your category when annotating.
-                        </p></td></tr>
+                    </p></td></tr>
+                    <tr><td><p>Direct children</p></td><td><p>
+                            Children of the category you are seeing. Useful for understanding the context of the category
+                            that you are in, and navigating through children. This section will not appear if you are on
+                            a final leaf category.
+                    </p></td></tr>
+                    <tr><td><p>Description</p></td><td><p>
+                            An explanation of the meaning and limits of the category.
+                    </p></td></tr>
+                </table>
+                <p>Note that some categories are highlighted in red. You should not validate them!
+                    <br>Feel free to also check <a href="https://research.google.com/audioset/ontology/index.html" target="_blank">AudioSet website</a> to explore the Ontology
+                </p>
+        </td></tr>
+        <tr><td>2</td>
+            <td>
+                <p><b>Rate sounds in the category</b> according to the formulated question: <b>Is &#60;sound category&#62;
+                    present in the following sounds?</b> For some categories, a few examples are provided (please note they
+                    don’t necessarily cover all the possible cases). There are 4 possible answers:</p>
+                <table class="ui celled table">
+                    <tr><td><p>Present and predominant</p></td><td><p>
+                        The type of sound described is clearly present in the audio clip and it is predominant, either
+                        isolated from other types of sound or with low/mild background noise.
+                    </p></td></tr>
+                    <tr><td><p>Present but not predominant</p></td><td><p>
+                        The type of sound described is present, but the audio clip also contains other salient types of
+                        sound and/or strong background noise.
+                    </p></td></tr>
+                    <tr><td><p>Not Present</p></td><td><p>
+                        The type of sound described is not present in the audio clip.
+                    </p></td></tr>
+                    <tr><td><p>Unsure</p></td><td><p>
+                        I am not sure whether the type of sound described is present or not.
+                    </p></td></tr>
                 </table>
         </td></tr>
+        <tr><td>3</td>
+            <td>
+                <p><b>Are you finding it difficult?</b> Feel free to access Freesound through the link at the top
+                    right corner of every sound (<i class="external icon"></i>) to check the sound’s metadata (description and tags).</p>
+        </td></tr>
+        <tr><td>4</td>
+            <td><p><b>Do you have any feedback about the category?</b> You can add comments in the text box at the bottom of the page.</p>
+        </td></tr>
+        <tr><td>5</td>
+            <td><p><b>Submit your ratings for this page</b> and either:
+                <ul class="ui list" style="margin-top:-20px;margin-left:40px;font-weight: 100;">
+                    <li>continue with the next page in this category (from 5 to 8 pages) or...</li>
+                    <li>move to your next category :)</li>
+                </ul>
+            </p>
+        </td></tr>
     </table>
-
+    <p>
+        You can click the help button next to the formulated question to see a short version of these guidelines.
+        If you have any general comments, eg, annotation tool improvements, annotation process, ontology aspects, etc.,
+        do not hesitate to share your opinion with us. Your feedback is very valuable!
+    </p>
+    <p>
+        <b>Thanks a lot</b> for helping out and happy annotating! Take a rest every now and then and don’t forget there
+        are food and drinks!
+    </p>
 
     <h3>FAQ</h3>
     <table class="ui celled padded table">
         <tr><td>
             What if there are human imitations of the sound source?
-            <p>If they sound like the original source, they should be rated as one type of “Present”.
-                However, bad imitations should be rated as “Not Present”</p>
+            <p>If they sound like the original source, they should be rated as one type of <i>Present</i>. However, bad
+                imitations should be rated as <i>Not Present</i>.</p>
+        </td></tr>
+        <tr><td>
+            What about synthesized sounds? Are they <i>Present</i>?
+            <p>The principle above applies. Only bad synthetic sounds or fake sounds should be rated as <i>Not Present</i>.</p>
+        </td></tr>
+        <tr><td>
+            What about heavily processed sounds (e.g., using effects)?
+            <p>Sounds that are easily recognizable should be rated as as one type of <i>Present</i>. On the contrary, sounds
+                that are very different from the original source should be rated as <i>Not Present</i> or <i>Unsure</i>.</p>
         </td></tr>
     </table>
 
-
-    <a href="{% url 'contribute-validate-annotations' dataset.short_name %}" class="ui big right labeled icon blue button"><i class="checkmark box icon"></i>Let's start!</a>
+    <br><br>
+    <div class="ui center aligned grid">
+        <a href="{% url 'contribute-validate-annotations' dataset.short_name %}" class="ui big right labeled icon blue button"><i class="checkmark box icon"></i>I can't wait anymore, let's start!</a>
+    </div>
 
 {% endblock %}
