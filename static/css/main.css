@@ -81,3 +81,20 @@ ul {
 	overflow:hidden;
 	padding-top:0;
 }
+
+.eight.wide.column.vote_card_form label {
+	display: block;
+	margin-left: 15px;
+	padding-left: 7px;
+	text-indent: -19px;
+}
+
+.eight.wide.column.vote_card_form input {
+	margin-right: 4px;
+	margin-top: 10px;
+}
+
+.eight.wide.column.vote_card_form li:hover {
+	background-color:#f0f0f0;
+	border-radius: 5px;
+}

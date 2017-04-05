@@ -15,8 +15,8 @@ class PresentNotPresentUnsureForm(forms.Form):
         required=True,
         widget=forms.RadioSelect,
         choices=(
-            ('1', 'Present',),
-            ('0.5', 'Slightly present',),
+            ('1', 'Present and predominant',),
+            ('0.5', 'Present but not predominant',),
             ('-1', 'Not Present',),
             ('0', 'Unsure',),
         ),
