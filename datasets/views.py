@@ -11,7 +11,7 @@ from django.db.models import Count
 from django.forms import formset_factory
 from datasets.models import Dataset, DatasetRelease, Annotation, Vote
 from datasets import utils
-from datasets.forms import DatasetReleaseForm, PresentNotPresentUnsureForm
+from datasets.forms import DatasetReleaseForm, PresentNotPresentUnsureForm, CategoryCommentForm
 from pygments import highlight
 from pygments.lexers import PythonLexer
 from pygments.formatters import HtmlFormatter
@@ -143,24 +143,33 @@ def contribute_validate_annotations_category(request, short_name, node_id):
         initial=[{'annotation_id': annotation.id} for annotation in annotations])
     annotations_forms = list(zip(list(annotations), formset))
 
+    category_comment_form = CategoryCommentForm()
+
     return render(request, 'contribute_validate_annotations_category.html',
                   {'dataset': dataset, 'node': node, 'annotations_forms': annotations_forms,
-                   'formset': formset, 'N': N, 'user_is_maintainer': user_is_maintainer})
+                   'formset': formset, 'N': N, 'user_is_maintainer': user_is_maintainer,
+                   'category_comment_form': category_comment_form})
 
 
 @login_required
 def save_contribute_validate_annotations_category(request):
     if request.method == 'POST':
+        comment_form = CategoryCommentForm(request.POST)
         formset = PresentNotPresentUnsureFormSet(request.POST)
-        if formset.is_valid():
+        if formset.is_valid() and comment_form.is_valid():
             for form in formset:
                 if 'vote' in form.cleaned_data:  # This is to skip last element of formset which is empty
                     # Save votes for annotations
                     Vote.objects.create(
                         created_by=request.user,
-                        vote=int(form.cleaned_data['vote']),
+                        vote=float(form.cleaned_data['vote']),
+                        visited_sound=form.cleaned_data['visited_sound'],
                         annotation_id=form.cleaned_data['annotation_id'],
                     )
+            if comment_form.cleaned_data['comment'].strip():  # If there is a comment
+                comment = comment_form.save(commit=False)
+                comment.created_by = request.user
+                comment.save()
         else:
             error_response = {'errors': [count for count, value in enumerate(formset.errors) if value != {}]}
             return JsonResponse(error_response)

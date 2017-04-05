@@ -46,9 +46,22 @@
         <tr><td>URI</td><td>{% if node.citation_uri %}<a href="{{ node.citation_uri }}" target="_blank">{{ node.citation_uri }}</a>{% else %}-{% endif %}</td></tr>
         <tr><td># sounds</td><td>{{ node.num_sounds }}</td></tr>
         <tr><td>% validated</td><td>{{ node.percentage_validated_annotations|floatformat:2 }}% ({{ node.num_validated_annotations }} out of {{ node.num_annotations }} annotations)</td></tr>
-        {% if node.is_abstract %}
-            <tr class="warning">
-                <td colspan="2">This node is labeled as <b>abstract</b></td>
+        {% if user_is_maintainer %}
+            {% if node.comments %}
+                <tr>
+                    <td>User comments</td><td>
+                    <div class="ui segments">
+                        {% for comment in node.comments %}
+                            <div class="ui segment">{{ comment.comment | linebreaksbr }}</div>
+                        {% endfor %}
+                    </div>
+                    </td>
+                </tr>
+            {% endif %}
+        {% endif %}
+        {% if node.is_omitted %}
+            <tr class="negative">
+                <td colspan="2">This node is labeled as <b>omitted</b> and its annotations should not be validated</td>
             </tr>
         {% endif %}
     </tbody>
