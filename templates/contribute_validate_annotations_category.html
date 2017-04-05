@@ -138,12 +138,55 @@
     <!-- help modal -->
     <div id="help_modal" class="ui basic modal">
         <div class="ui icon header"><i class="help icon"></i>
-            Help
+            Sumamry of instructions
         </div>
         <div class="content">
-            <p>
-                Summary of annotation instructions with link to full instructions.
-            </p>
+            <div class="ui bulleted list">
+                <div class="item">
+                    Response type meanings:
+                    <p>
+                        <table class="ui celled padded inverted table">
+                            <thead>
+                            <tr><th>Response type</th>
+                            <th>Meaning</th>
+                            </tr></thead>
+                            <tbody>
+                            <tr>
+                                <td>Present and predominant</td>
+                                <td>Clearly present in the audio clip and predominant, either isolated from other types of sound or with low/mild background noise.</td>
+                            </tr>
+                            <tr>
+                                <td>Present but not predominant</td>
+                                <td>Present, but the audio clip also contains other salient types of sound and/or strong background noise.</td>
+                            </tr>
+                            <tr>
+                                <td>Not Present</td>
+                                <td>The type of sound is not present in the audio clip.</td>
+                            </tr>
+                            <tr>
+                                <td>Unsure</td>
+                                <td>I am not sure whether the type of sound is present or not.</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </p>
+                </div>
+                <div class="item">
+                    Please consider check categories <b>Hierarchy</b>, <b>Direct children</b> and <b>Description</b> fields before annotating.
+                </div>
+                <div class="item">
+                    Check the sound’s <b>tags and description in Freesound</b> if you can’t make up your mind (click on <i class="external icon"></i> icons)
+                </div>
+                <div class="item">
+                    You can add general <b>comments about a category</b> at the bottom of the page
+                </div>
+                <div class="item">
+                    Validate from <b>5 to 8 pages</b> for a category and then move to your next one
+                </div>
+                <div class="item">
+                    Check the full instructions for the task here
+                </div>
+            </div>
         </div>
         <div class="actions">
             <div class="green ui inverted button icon cancel">Ok</div>
