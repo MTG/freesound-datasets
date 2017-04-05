@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load humanize %}
+{% block title %}Validate category annotations{% endblock title %}
+{% block content %}
+    <h1 class="ui header">Validate category annotations</h1>
+
+    <h2>Task instructions</h2>
+
+
+    <a href="{% url 'contribute-validate-annotations' dataset.short_name %}" class="ui big right labeled icon blue button"><i class="checkmark box icon"></i>Let's start!</a>
+
+{% endblock %}

@@ -20,8 +20,8 @@
 {% endblock %}
 {% block content %}
     <h1 class="ui header">Validate category annotations</h1>
-    <p>Add some instructions here about what is this about...</p>
-    <h2>Please choose one of the labels below:</h2>
+    <p>Please <b>choose one of the categories</b> below to continue.
+        <br>Read the <a href="{% url 'contribute-validate-annotations' dataset.short_name %}?help=1"> task instructions</a> if you're not sure how to proceed.</p>
     <div id="dataset_taxonomy_table_placeholder">
         <div class="ui active centered inline text loader">Loading data...</div>
     </div>
