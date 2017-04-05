@@ -44,6 +44,15 @@
             <td>{{ node.description }}</td>
         </tr>
         <tr><td>URI</td><td>{% if node.citation_uri %}<a href="{{ node.citation_uri }}" target="_blank">{{ node.citation_uri }}</a>{% else %}-{% endif %}</td></tr>
+        {% if node.freesound_examples %}
+            <tr><td>Examples</td>
+                <td>
+                    {% for fsid in node.freesound_examples %}
+                        {{ fsid| fs_embed | safe }}
+                    {% endfor %}
+                </td>
+            </tr>
+        {% endif %}
         <tr><td># sounds</td><td>{{ node.num_sounds }}</td></tr>
         <tr><td>% validated</td><td>{{ node.percentage_validated_annotations|floatformat:2 }}% ({{ node.num_validated_annotations }} out of {{ node.num_annotations }} annotations)</td></tr>
         {% if user_is_maintainer %}

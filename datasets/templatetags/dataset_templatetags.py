@@ -26,6 +26,7 @@ def calculate_taxonomy_node_stats(
         'is_abstract': 'abstract' in node['restrictions'],
         'is_blacklisted': 'blacklist' in node['restrictions'],
         'is_omitted': 'omittedTT' in node['restrictions'],
+        'freesound_examples': node['positive_examples_FS'],
         'url_id': quote(node['id'], safe=''),
         'hierarchy_paths': hierarchy_paths if hierarchy_paths is not None else [],
         'comments': comments,
