@@ -44,58 +44,60 @@
     {% display_taxonomy_node_info dataset node.id 'cva' %}
     {% taxonomy_node_minimal_data dataset node.id as main_node_data %}
     <br>
-    <div class="ui grid">
-        <div class="ten wide column">
-            <h2>Is <div class="ui big label">{{ node.name }}</div> present in the following sounds?</h2>
+    {% if not main_node_data.is_omitted %}
+        <div class="ui grid">
+            <div class="ten wide column">
+                <h2>Is <div class="ui big label">{{ node.name }}</div> present in the following sounds?</h2>
+            </div>
+            <div class="six wide column right aligned">
+                {% if annotations_forms %}
+                    <a href="javascript:void(0);" onclick="$('#help_modal').modal('show');" class="ui button right labeled icon">Help <i class="help icon"></i></a>
+                    <a href="{% url 'contribute-validate-annotations-category' dataset.short_name main_node_data.url_id %}" class="ui button right labeled teal icon">Choose other sounds <i class="refresh icon"></i></a>
+                {% endif %}
+            </div>
         </div>
-        <div class="six wide column right aligned">
-            {% if annotations_forms %}
-                <a href="javascript:void(0);" onclick="$('#help_modal').modal('show');" class="ui button right labeled icon">Help <i class="help icon"></i></a>
-                <a href="{% url 'contribute-validate-annotations-category' dataset.short_name main_node_data.url_id %}" class="ui button right labeled teal icon">Choose other sounds <i class="refresh icon"></i></a>
-            {% endif %}
-        </div>
-    </div>
-    <br>
-    <form id="votes_form" class="ui form">{% csrf_token %}
-        {{ formset.management_form }}
-        <div class="ui centered cards">
-            {% for annotation, form in annotations_forms %}
-                <div class="card" id="row_annotation_{{ forloop.counter0 }}">
-                    {% with annotation.sound_dataset.sound.freesound_id as fsid  %}
-                        <div class="content">
-                            <div class="right floated meta"><a href="javascript:void(0);" onclick="openFreesoundSoundPage('{{ fsid }}', '{{ forloop.counter0 }}');"><i class="external icon"></i></a></div>
-                            <div class="header">#{{ forloop.counter }}</div>
+        <br>
+        <form id="votes_form" class="ui form">{% csrf_token %}
+            {{ formset.management_form }}
+            <div class="ui centered cards">
+                {% for annotation, form in annotations_forms %}
+                    <div class="card" id="row_annotation_{{ forloop.counter0 }}">
+                        {% with annotation.sound_dataset.sound.freesound_id as fsid  %}
+                            <div class="content">
+                                <div class="right floated meta"><a href="javascript:void(0);" onclick="openFreesoundSoundPage('{{ fsid }}', '{{ forloop.counter0 }}');"><i class="external icon"></i></a></div>
+                                <div class="header">#{{ forloop.counter }}</div>
 
-                            <div class="description">
-                                <div class="ui grid">
-                                    <div class="eight wide column">
-                                        {{ fsid| fs_embed | safe }}
+                                <div class="description">
+                                    <div class="ui grid">
+                                        <div class="eight wide column">
+                                            {{ fsid| fs_embed | safe }}
+                                        </div>
+                                        <div class="eight wide column vote_card_form">
+                                            {{ form.vote }}
+                                            {{ form.annotation_id }}
+                                            {{ form.visited_sound }}
+                                        </div>
                                     </div>
-                                    <div class="eight wide column vote_card_form">
-                                        {{ form.vote }}
-                                        {{ form.annotation_id }}
-                                        {{ form.visited_sound }}
-                                    </div>
+
                                 </div>
-
                             </div>
-                        </div>
-                    {% endwith %}
-                </div>
-            {% empty %}
-                <br>
-                There are no more annotations to validate for this category!
-            {% endfor %}
-        </div>
-        <br><br>
-        <div class="field">
-            {{ category_comment_form.comment }}
-            <input id="id_category_id" name="category_id" type="hidden" value="{{ node.id }}">
-            <input id="id_dataset" name="dataset" type="hidden" value="{{ dataset.id }}">
-        </div>
-    </form>
-    {% if annotations_forms %}
-        <br><button class="right floated ui green button" onclick="submitForm();">Submit!</button>
+                        {% endwith %}
+                    </div>
+                {% empty %}
+                    <br>
+                    There are no more annotations to validate for this category!
+                {% endfor %}
+            </div>
+            <br><br>
+            <div class="field">
+                {{ category_comment_form.comment }}
+                <input id="id_category_id" name="category_id" type="hidden" value="{{ node.id }}">
+                <input id="id_dataset" name="dataset" type="hidden" value="{{ dataset.id }}">
+            </div>
+        </form>
+        {% if annotations_forms %}
+            <br><button class="right floated ui green button" onclick="submitForm();">Submit!</button>
+        {% endif %}
     {% endif %}
 
     <!-- on success modal -->

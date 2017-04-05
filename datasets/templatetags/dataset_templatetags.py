@@ -25,6 +25,7 @@ def calculate_taxonomy_node_stats(
         'num_children': len(node.get('child_ids', [])),
         'is_abstract': 'abstract' in node['restrictions'],
         'is_blacklisted': 'blacklist' in node['restrictions'],
+        'is_omitted': 'omittedTT' in node['restrictions'],
         'url_id': quote(node['id'], safe=''),
         'hierarchy_paths': hierarchy_paths if hierarchy_paths is not None else [],
         'comments': comments,

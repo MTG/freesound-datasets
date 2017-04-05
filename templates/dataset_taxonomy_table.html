@@ -10,7 +10,7 @@
     </thead>
     <tbody>
     {% for node in dataset_taxonomy_stats.nodes_data %}
-        <tr {% if node.is_blacklisted %}class="negative"{% elif node.is_abstract %}class="warning"{% else %}{% endif %}>
+        <tr {% if node.is_omitted %}class="negative"{% endif %}>
             <td>{{ node.name }}</td>
             <td>{{ node.num_sounds }}</td>
             <td>{{ node.percentage_validated_annotations|floatformat:2 }}%</td>
