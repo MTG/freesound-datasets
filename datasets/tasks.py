@@ -8,6 +8,7 @@ from datasets.templatetags.dataset_templatetags import calculate_taxonomy_node_s
 import json
 import math
 import logging
+import datetime
 
 logger = logging.getLogger('tasks')
 
@@ -153,22 +154,31 @@ def compute_dataset_taxonomy_stats(store_key, dataset_id):
 
 
 @shared_task
-def compute_annotators_ranking(store_key, dataset_id, user_id, N=10):
+def compute_annotators_ranking(store_key, dataset_id, N=15):
     logger.info('Start computing data for {0}'.format(store_key))
     try:
         dataset = Dataset.objects.get(id=dataset_id)
-        user = User.objects.get(id=user_id)
-
+        reference_date = datetime.datetime.today() - datetime.timedelta(days=1)
         ranking = list()
+        ranking_24h = list()
         for user in User.objects.all():
             n_annotations = Annotation.objects.filter(created_by=user, sound_dataset__dataset=dataset).count()
             n_votes = Vote.objects.filter(created_by=user, annotation__sound_dataset__dataset=dataset).count()
             ranking.append(
                 (user.username, n_annotations + n_votes)
             )
-            ranking = sorted(ranking, key=lambda x: x[1], reverse=True)  # Sort by number of annotations
+            n_annotations_24h = Annotation.objects.filter(
+                created_at__gt=reference_date, created_by=user, sound_dataset__dataset=dataset).count()
+            n_votes_24h = Vote.objects.filter(
+                created_at__gt=reference_date, created_by=user, annotation__sound_dataset__dataset=dataset).count()
+            ranking_24h.append(
+                (user.username, n_annotations_24h + n_votes_24h)
+            )
 
-        store.set(store_key, {'ranking': ranking[:N]})
+        ranking = sorted(ranking, key=lambda x: x[1], reverse=True)  # Sort by number of annotations
+        ranking_24h = sorted(ranking_24h, key=lambda x: x[1], reverse=True)  # Sort by number of annotations
+
+        store.set(store_key, {'ranking': ranking[:N], 'ranking_24h': ranking_24h[:N]})
         logger.info('Finished computing data for {0}'.format(store_key))
     except Dataset.DoesNotExist:
         pass

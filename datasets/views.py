@@ -107,7 +107,7 @@ def contribute(request, short_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
 
     # Get previously stored annotators ranking
-    annotators_ranking = data_from_async_task(compute_annotators_ranking, [dataset.id, request.user.id], {},
+    annotators_ranking = data_from_async_task(compute_annotators_ranking, [dataset.id], {},
                                               DATASET_ANNOTATORS_RANKING_TEMPLATE.format(dataset.id), 60 * 1)
 
     return render(request, 'contribute.html', {'dataset': dataset, 'annotators_ranking': annotators_ranking})
