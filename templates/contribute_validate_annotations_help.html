@@ -5,7 +5,59 @@
 {% block content %}
     <h1 class="ui header">Validate category annotations</h1>
 
-    <h2>Task instructions</h2>
+    <h2>Task instructions - Tagathon guidelines</h2>
+
+    <p>
+        Thank you for participating in the Tagathon’s first edition! Please read these guidelines carefully before annotating. If you have any questions, do not hesitate to ask an organizer.
+    </p>
+    <p>
+        As you may know, we are trying to build a dataset with sounds from Freesound following the <a href="https://research.google.com/audioset/ontology/index.html" target="_blank">AudioSet Ontology</a>. As starting point, we have populated the AudioSet categories with Freesound clips based on tag matching (manually assigning Freesound tags to each category).
+    </p>
+
+    <h3>Why are we doing this Tagathon?</h3>
+    <p>
+        The main goal is to validate annotations obtained from the tag matching process, which will allow us to:
+        <ul class="ui list">
+            <li>Estimate the quality of the sound categories coming from that process</li>
+            <li>Take the first step towards building a Freesound Dataset</li>
+            <li>Gather feedback on the ontology, the audio content and the annotation procedure</li>
+            <li>Test the annotation tool and think of improvements</li>
+        </ul>
+    </p>
+
+    <h3>Tagathon guidelines</h3>
+    <p>
+
+    </p>
+
+    <h3>How to validate a category</h3>
+    <table class="ui celled padded definition table">
+        <tr><td>1</td>
+            <td>Acclimatise yourself with your category and its related categories
+            <p>The section at the top of the page gives you an overview of the category and its meaning.</p>
+                <table class="ui very basic celled padded table">
+                    <tr><td><p>Hierarchy</p></td>
+                        <td><p>
+                            A path that tells you where you are in the ontology, for example
+                            Animal  > Domestic animals, pets > Cat.
+                            Note that in some cases there may be several paths, ie, several parents for your category. For example, <a href="https://datasets.freesound.org/fsd/explore/%252Fm%252F07rjwbb/" target="_blank">Hiss</a>:
+                            <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Animal > Domestic animals, pets > Cat > Hiss
+                            <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Animal > Wild animals > Snake > Hiss
+                            <br>Please consider all the parents of your category when annotating.
+                        </p></td></tr>
+                </table>
+        </td></tr>
+    </table>
+
+
+    <h3>FAQ</h3>
+    <table class="ui celled padded table">
+        <tr><td>
+            What if there are human imitations of the sound source?
+            <p>If they sound like the original source, they should be rated as one type of “Present”.
+                However, bad imitations should be rated as “Not Present”</p>
+        </td></tr>
+    </table>
 
 
     <a href="{% url 'contribute-validate-annotations' dataset.short_name %}" class="ui big right labeled icon blue button"><i class="checkmark box icon"></i>Let's start!</a>
