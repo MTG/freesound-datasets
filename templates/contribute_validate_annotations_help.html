@@ -36,7 +36,7 @@
         These groups vary in size, so that you can choose one based on how much time you think that you have available to help.
         For each category you will be presented with pages of 12 sounds. <b>For each sound clip, you will be asked if this
         sound contains the item described by the category</b>. You will find more detailed description below, in the section
-        <a href="#how-to-validate-a-category">How to validate a category</a>.
+        <a onclick="$(document.body).scrollTop($('#how-to-validate-a-category').offset().top - 70);" href="javascript:void(0);">How to validate a category</a>.
     </p>
     <p>
         You should <b>validate from 5 to 8 pages of sounds per category</b> (~60-100 sounds). Some categories may contain fewer
@@ -64,7 +64,8 @@
         </p></td></tr>
     </table>
 
-    <h3>How to validate a category</h3><a name="how-to-validate-a-category"></a>
+    <a id="how-to-validate-a-category"></a>
+    <h3>How to validate a category</h3>
     <table class="ui celled padded definition table">
         <tr><td>1</td>
             <td>
@@ -132,7 +133,7 @@
         </td></tr>
     </table>
     <p>
-        You can click the help button next to the formulated question to see a short version of these guidelines.
+        You can click the <b>help</b> button next to the formulated question to see a short version of these guidelines.
         If you have any general comments, eg, annotation tool improvements, annotation process, ontology aspects, etc.,
         do not hesitate to share your opinion with us. Your feedback is very valuable!
     </p>
