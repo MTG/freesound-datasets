@@ -102,7 +102,6 @@ def taxonomy_node(request, short_name, node_id):
 # CONTRIBUTE TO DATASET VIEWS
 #############################
 
-@login_required
 def contribute(request, short_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
 
@@ -113,11 +112,13 @@ def contribute(request, short_name):
     return render(request, 'contribute.html', {'dataset': dataset, 'annotators_ranking': annotators_ranking})
 
 
-@login_required
 def contribute_validate_annotations(request, short_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
     if request.GET.get('help', False):
         return render(request, 'contribute_validate_annotations_help.html', {'dataset': dataset})
+    if not request.user.is_authenticated():
+        return HttpResponseRedirect(reverse('login') + '?next={0}'.format(
+            reverse('contribute-validate-annotations', args=[dataset.short_name])))
     return render(request, 'contribute_validate_annotations.html', {'dataset': dataset})
 
 
