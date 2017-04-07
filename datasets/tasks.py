@@ -119,10 +119,17 @@ def compute_dataset_taxonomy_stats(store_key, dataset_id):
             # for each node in the taxonomy. This should be refactored and use a single query to get all non
             # validated annotation counts for all nodes.
             num_missing_votes = dataset.num_non_validated_annotations_per_taxonomy_node(node_id)
+            votes_stats = {
+                'num_present_and_predominant': dataset.num_votes_with_value(node_id, 1.0),
+                'num_present_not_predominant': dataset.num_votes_with_value(node_id, 0.5),
+                'num_not_present': dataset.num_votes_with_value(node_id, -1.0),
+                'num_unsure': dataset.num_votes_with_value(node_id, 0.0)
+            }
 
             annotation_numbers[node_id] = {'num_annotations': num_ann,
                                            'num_sounds': num_sounds,
-                                           'num_missing_votes': num_missing_votes}
+                                           'num_missing_votes': num_missing_votes,
+                                           'votes_stats': votes_stats}
 
         nodes_data = []
         for node in dataset.taxonomy.get_all_nodes():
@@ -134,11 +141,13 @@ def compute_dataset_taxonomy_stats(store_key, dataset_id):
                     'num_sounds': 0,
                     'num_annotations': 0,
                     'num_missing_votes': 0,
+                    'votes_stats': None,
                 }
             node_stats = calculate_taxonomy_node_stats(dataset, node,
                                                        counts['num_sounds'],
                                                        counts['num_annotations'],
-                                                       counts['num_missing_votes'])
+                                                       counts['num_missing_votes'],
+                                                       counts['votes_stats'])
             node_stats.update({
                 'id': node['id'],
                 'name': node['name'],

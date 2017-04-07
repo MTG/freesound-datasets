@@ -22,7 +22,6 @@ def calculate_taxonomy_node_stats(
                 'quality_estimate': (votes_stats['num_present_and_predominant']
                                      + votes_stats['num_present_not_predominant']) * 100 / num_total,
             })
-            print(votes_stats)
         else:
             votes_stats = {}
     
