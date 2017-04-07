@@ -102,3 +102,15 @@ ul {
 .ui.list>.item>i.icon {
 	display: inline;
 }
+
+.category_quality_bars {
+	text-align: center;
+	line-height: 50px;
+	white-space:nowrap;
+}
+
+.category_quality_bars .element {
+	margin: 0;
+	display: inline-block;
+	color: white;
+}

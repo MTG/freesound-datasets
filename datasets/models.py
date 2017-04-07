@@ -137,6 +137,10 @@ class Dataset(models.Model):
     def num_non_validated_annotations_per_taxonomy_node(self, node_id):
         return self.non_validated_annotations_per_taxonomy_node(node_id).count()
 
+    def num_votes_with_value(self, node_id, vote_value):
+        return Vote.objects.filter(
+            annotation__sound_dataset__dataset=self, annotation__value=node_id, vote=vote_value).count()
+
     def get_comments_per_taxonomy_node(self, node_id):
         return CategoryComment.objects.filter(dataset=self, category_id=node_id)
 

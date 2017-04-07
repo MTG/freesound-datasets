@@ -55,6 +55,9 @@
         {% endif %}
         <tr><td># sounds</td><td>{{ node.num_sounds }}</td></tr>
         <tr><td>% validated</td><td>{{ node.percentage_validated_annotations|floatformat:2 }}% ({{ node.num_validated_annotations }} out of {{ node.num_annotations }} annotations)</td></tr>
+        {% if node.votes_stats %}
+            <tr><td>Quality estimate</td><td>{{ node.votes_stats.quality_estimate|floatformat:2 }}%</td></tr>
+        {% endif %}
         {% if user_is_maintainer %}
             {% if node.comments %}
                 <tr>
@@ -66,6 +69,21 @@
                     </div>
                     </td>
                 </tr>
+            {% endif %}
+            {% if node.votes_stats %}
+                <tr><td colspan="2" style="padding:0;">
+                    <div class="category_quality_bars" style="text-align: center">
+                        <div class="element" style="width:{{ node.votes_stats.percentage_present_and_predominant|floatformat:2 }}%;background-color:#21ba45;" data-tooltip="Present and predominant">
+                            {{ node.votes_stats.percentage_present_and_predominant|floatformat:2 }}{% if node.votes_stats.num_present_and_predominant %}%{% endif %}
+                        </div><div class="element" style="width:{{ node.votes_stats.percentage_present_not_predominant|floatformat:2 }}%;background-color:#b5cc18;" data-tooltip="Present but not predominant">
+                            {{ node.votes_stats.percentage_present_not_predominant|floatformat:2 }}{% if node.votes_stats.num_present_not_predominant %}%{% endif %}
+                        </div><div class="element" style="width:{{ node.votes_stats.percentage_unsure|floatformat:2 }}%;background-color:#eaae00;" data-tooltip="Unsure">
+                            {{ node.votes_stats.percentage_unsure|floatformat:2 }}{% if node.votes_stats.num_unsure %}%{% endif %}
+                        </div><div class="element" style="width:{{ node.votes_stats.percentage_not_present|floatformat:2 }}%;background-color:#f26202;" data-tooltip="Not present">
+                            {{ node.votes_stats.percentage_not_present|floatformat:2 }}{% if node.votes_stats.num_not_present %}%{% endif %}
+                        </div>
+                    </div>
+                </td></tr>
             {% endif %}
         {% endif %}
         {% if node.is_omitted %}

@@ -6,8 +6,25 @@ register = template.Library()
 
 
 def calculate_taxonomy_node_stats(
-        dataset, node, num_sounds=0, num_annotations=0, num_non_validated_annotations=0,
+        dataset, node, num_sounds=0, num_annotations=0, num_non_validated_annotations=0, votes_stats=None,
         hierarchy_paths=None, comments=None):
+
+    if votes_stats is not None:
+        num_total = votes_stats['num_unsure'] + votes_stats['num_not_present'] \
+                    + votes_stats['num_present_not_predominant'] + votes_stats['num_present_and_predominant']
+        if num_total:
+            votes_stats.update({
+                'num_total': num_total,
+                'percentage_present_and_predominant': votes_stats['num_present_and_predominant'] * 100 / num_total,
+                'percentage_present_not_predominant': votes_stats['num_present_not_predominant'] * 100 / num_total,
+                'percentage_not_present': votes_stats['num_not_present'] * 100 / num_total,
+                'percentage_unsure': votes_stats['num_unsure'] * 100 / num_total,
+                'quality_estimate': (votes_stats['num_present_and_predominant']
+                                     + votes_stats['num_present_not_predominant']) * 100 / num_total,
+            })
+            print(votes_stats)
+        else:
+            votes_stats = {}
     
     # Calculate percentage of validated annotations
     if num_annotations != 0:
@@ -29,6 +46,7 @@ def calculate_taxonomy_node_stats(
         'freesound_examples': node['positive_examples_FS'],
         'url_id': quote(node['id'], safe=''),
         'hierarchy_paths': hierarchy_paths if hierarchy_paths is not None else [],
+        'votes_stats': votes_stats if votes_stats is not None else {},
         'comments': comments,
     }
 
@@ -41,11 +59,17 @@ def taxonomy_node_data(dataset, node_id):
     num_annotations = dataset.num_annotations_per_taxonomy_node(node_id)
     num_non_validated_annotations = dataset.num_non_validated_annotations_per_taxonomy_node(node_id)
     hierarchy_paths = dataset.taxonomy.get_hierarchy_paths(node['id'])
+    votes_stats = {
+        'num_present_and_predominant': dataset.num_votes_with_value(node['id'], 1.0),
+        'num_present_not_predominant': dataset.num_votes_with_value(node['id'], 0.5),
+        'num_not_present': dataset.num_votes_with_value(node['id'], -1.0),
+        'num_unsure': dataset.num_votes_with_value(node['id'], 0.0)
+    }
     comments = dataset.get_comments_per_taxonomy_node(node['id'])
 
     node = node.copy()  # Duplicate the dict, so update operation below doesn't alter the original dict
     node.update(calculate_taxonomy_node_stats(dataset, node, num_sounds, num_annotations, num_non_validated_annotations,
-                                              hierarchy_paths, comments))
+                                              votes_stats, hierarchy_paths, comments))
     return node
 
 

@@ -88,12 +88,14 @@
                     There are no more annotations to validate for this category!
                 {% endfor %}
             </div>
-            <br><br>
-            <div class="field">
-                {{ category_comment_form.comment }}
-                <input id="id_category_id" name="category_id" type="hidden" value="{{ node.id }}">
-                <input id="id_dataset" name="dataset" type="hidden" value="{{ dataset.id }}">
-            </div>
+            {% if annotations_forms %}
+                <br><br>
+                <div class="field">
+                    {{ category_comment_form.comment }}
+                    <input id="id_category_id" name="category_id" type="hidden" value="{{ node.id }}">
+                    <input id="id_dataset" name="dataset" type="hidden" value="{{ dataset.id }}">
+                </div>
+            {% endif %}
         </form>
         {% if annotations_forms %}
             <br><button class="right floated ui green button" onclick="submitForm();">Submit!</button>
