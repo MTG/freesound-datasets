@@ -6,7 +6,7 @@
     <h1 class="ui header">Task instructions</h1>
 
     <p>
-        Thank you for participating in the Tagathon’s first edition! Please read these guidelines carefully before annotating.
+        Thank you for participating in the Tagathon’s first edition! <b>Please read these guidelines carefully</b> before annotating.
         If you have any questions, do not hesitate to ask an organizer.
     </p>
     <p>
@@ -39,12 +39,10 @@
         <a onclick="$(document.body).scrollTop($('#how-to-validate-a-category').offset().top - 70);" href="javascript:void(0);">How to validate a category</a>.
     </p>
     <p>
-        You should <b>validate from 5 to 8 pages of sounds per category</b> (~60-100 sounds). Some categories may contain fewer
-        sounds. In this case, just validate all annotations. While we prefer that you complete as many validations as
-        possible, it is likely that some validation tasks will be more complex than others. In this case, you can validate
-        a smaller number of pages (5 or 6).
+        You <b><u>should</u> validate until the number of validated annotations reaches 72</b>. You can see this number in the table at the top of a validation page, after choosing a category.
+        Some categories may contain fewer sounds (&lt; 72). In this case, just validate all annotations (the interface will tell you whenever it is the case).
     </p>
-
+        
     <h3>How to proceed</h3>
     <table class="ui celled padded definition table">
         <tr><td>1</td><td><p>
@@ -86,7 +84,8 @@
                             a final leaf category.
                     </p></td></tr>
                     <tr><td><p>Description</p></td><td><p>
-                            An explanation of the meaning and limits of the category.
+                            An explanation of the meaning and limits of the category. <b>Please read and understand the description of the category before annotating.</b>
+
                     </p></td></tr>
                 </table>
                 <p>Note that some categories are highlighted in red. You should not validate them!
@@ -95,7 +94,7 @@
         </td></tr>
         <tr><td>2</td>
             <td>
-                <p><b>Rate sounds in the category</b> according to the formulated question: <b>Is &#60;sound category&#62;
+                <p><b>Put your headphones, adjust sound level comfortably and rate sounds in the category</b> according to the formulated question: <b>Is &#60;sound category&#62;
                     present in the following sounds?</b> For some categories, a few examples are provided (please note they
                     don’t necessarily cover all the possible cases). There are 4 possible answers:</p>
                 <table class="ui celled table">
@@ -126,14 +125,19 @@
         <tr><td>5</td>
             <td><p><b>Submit your ratings for this page</b> and either:
                 <ul class="ui list" style="margin-top:-20px;margin-left:40px;font-weight: 100;">
-                    <li>continue with the next page in this category (from 5 to 8 pages) or...</li>
+                    <li>continue with the next page in this category (until 72 validated) or...</li>
                     <li>move to your next category :)</li>
                 </ul>
             </p>
         </td></tr>
+        <tr><td>6</td>
+            <td><p>
+                Please take a <b>10-minute break each hour</b>, and take a longer break to rest if you reach 3 hours.
+            </p>
+        </td></tr>
     </table>
     <p>
-        You can click the <b>help</b> button next to the formulated question to see a short version of these guidelines.
+        <b><u>You can click the help button</u></b> next to the formulated question to see a short version of these guidelines.
         If you have any general comments, eg, annotation tool improvements, annotation process, ontology aspects, etc.,
         do not hesitate to share your opinion with us. Your feedback is very valuable!
     </p>
@@ -145,18 +149,49 @@
     <h3>FAQ</h3>
     <table class="ui celled padded table">
         <tr><td>
-            What if there are human imitations of the sound source?
-            <p>If they sound like the original source, they should be rated as one type of <i>Present</i>. However, bad
-                imitations should be rated as <i>Not Present</i>.</p>
+            How should I rate human imitations?
+            <p>If they sound like the original source, they should be rated as one type of <i>Present</i>.<br> 
+            Bad imitations should be rated as <i>Not Present</i>.</p>
         </td></tr>
         <tr><td>
-            What about synthesized sounds? Are they <i>Present</i>?
-            <p>The principle above applies. Only bad synthetic sounds or fake sounds should be rated as <i>Not Present</i>.</p>
+            How should I rate synthesized sounds?
+            <p>If they sound like the original source, they should be rated as one type of <i>Present</i>.<br> 
+            Bad synthetic sounds should be rated as <i>Not Present</i>.</p>
         </td></tr>
         <tr><td>
-            What about heavily processed sounds (e.g., using effects)?
-            <p>Sounds that are easily recognizable should be rated as as one type of <i>Present</i>. On the contrary, sounds
-                that are very different from the original source should be rated as <i>Not Present</i> or <i>Unsure</i>.</p>
+            How should I rate heavily processed sounds (e.g., using effects)?
+            <p>Easily recognizable sounds should be rated as as one type of <i>Present</i>. <br>
+            Sounds that are very different from the original source should be rated as <i>Not Present</i>.</p>
+        </td></tr>
+        <tr><td>
+            How should I rate badly recorded sounds (e.g., clipping and/or strong noise)?
+            <p>Easily recognizable sounds should be rated as as one type of <i>Present</i>. <br>
+            Sounds that are very different from the original source should be rated as <i>Not Present</i>.</p>
+        </td></tr>         
+        <tr><td>
+            How should I rate reversed sounds?
+            <p>Easily recognizable sounds should be rated as as one type of <i>Present</i>.<br>
+            Sounds that are very different from the original source should be rated as <i>Not Present</i>.</p>
+        </td></tr>         
+        <tr><td>
+            In the context of the <div class="ui label">Vehicle</div> category: how should I rate announcements of flights/bus?
+            <p>Rate it as <i>Not Present</i>.</p>
+        </td></tr>     
+        
+        <tr><td>
+            <div class="ui label">Clatter</div> sounds need to be repetitive?
+            <p>Yes, but is not necessary that it repeats during the whole clip. 
+                <br>Considering the definition: "An <i>irregular</i> rattling noise, often produced by rapid movement, consisting of a cluster of transient sounds". <br><i>Irregular</i> suggests that the noise is repetitive.</p>
+        </td></tr>       
+        <tr><td>
+            How should I rate any sound generated by an <div class="ui label">Animal</div>?
+            <br><i>Example 1: The sound of a horse walking should be rated as horse?</i>
+            <br><i>Example 2: The sound of a cat/dog eating should be rated as cat/dog?</i>
+            <p>Sounds generated by an animal should be rated as as one type of <i>Present</i>. Please be sure it corresponds to the specific animal class by accessing Freesound through the link (<i class="external icon"></i>).</p>
+        </td></tr>         
+        <tr><td>
+            How should I rate the sound produced by the retracting of the <div class="ui label">vacuum cleaner</div>'s cable?
+            <p>Rate it as <i>Present</i>.</p>
         </td></tr>
     </table>
 

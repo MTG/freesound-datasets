@@ -51,7 +51,7 @@
             </div>
             <div class="six wide column right aligned">
                 {% if annotations_forms %}
-                    <a href="javascript:void(0);" onclick="$('#help_modal').modal('show');" class="ui button right labeled icon">Help <i class="help icon"></i></a>
+                    <a href="javascript:void(0);" onclick="$('#help_modal').modal('show');" class="ui orange button right labeled icon">Help <i class="help icon"></i></a>
                     <a href="{% url 'contribute-validate-annotations-category' dataset.short_name main_node_data.url_id %}" class="ui button right labeled teal icon">Choose other sounds <i class="refresh icon"></i></a>
                 {% endif %}
             </div>
@@ -183,7 +183,7 @@
                     You can add general <b>comments about a category</b> at the bottom of the page
                 </div>
                 <div class="item">
-                    Validate from <b>5 to 8 pages</b> for a category and then move to your next one
+                    You <b><u>should</u> validate</b> until the number of validated annotations reaches 72
                 </div>
                 <div class="item">
                     Check the <a href="{% url 'contribute-validate-annotations' dataset.short_name %}?help=1" target="_blank">full instructions</a> if you have any doubts
