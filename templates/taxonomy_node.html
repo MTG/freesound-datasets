@@ -10,6 +10,7 @@
     {% display_taxonomy_node_info dataset node.id %}
     <br>
     <h2>Example sounds with this label</h2>
+<!--
     <table id="node_sounds" class="ui unstackable table" width="100%">
     <thead>
         <tr>
@@ -18,8 +19,8 @@
         </tr>
     </thead>
     <tbody>
-        {% sounds_per_taxonomy_node dataset node.id 10 as sounds %}
-        {% for sound in sounds %}
+        {% sounds_per_taxonomy_node dataset node.id 10 as sounds_ %}
+        {% for sound in sounds_ %}
             <tr>
                 <td>{{ sound.freesound_id | fs_embed | safe }}</td>
                 <td><a href="http://freesound.org/s/{{ sound.freesound_id }}" target="_blank">http://freesound.org/s/{{ sound.freesound_id }}</a></td>
@@ -27,6 +28,43 @@
         {% endfor %}
     </tbody>
 </table>
+-->
+<div class="pagination">
+    <table id="node_sounds" class="ui unstackable table" width="100%">
+        {% if sounds.has_previous %}
+            <a href="?page={{ sounds.previous_page_number }}">previous</a>
+        {% endif %}
+        {% for sound in sounds %}
+            <tr>
+                <td>{{ sound.freesound_id | fs_embed | safe }}</td>
+                <td><a href="http://freesound.org/s/{{ sound.freesound_id }}" target="_blank">http://freesound.org/s/{{ sound.freesound_id }}</a></td>
+            </tr>
+        {% endfor %}
+        {% if sounds.has_next %}
+            <a href="?page={{ sounds.next_page_number }}">next</a>
+        {% endif %}
+    </table>
+</div>
+
+<!--
+
+<div class="pagination">
+    <span class="step-links">
+        {% if contacts.has_previous %}
+            <a href="?page={{ contacts.previous_page_number }}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ contacts.number }} of {{ contacts.paginator.num_pages }}.
+        </span>
+
+        {% if contacts.has_next %}
+            <a href="?page={{ contacts.next_page_number }}">next</a>
+        {% endif %}
+    </span>
+</div>
+-->
+
 
 
 {% endblock %}
