@@ -97,7 +97,7 @@ def taxonomy_node(request, short_name, node_id):
     node_id = unquote(node_id)
     node = dataset.taxonomy.get_element_at_id(node_id)
     sound_list = dataset.sounds_per_taxonomy_node(node_id)
-    paginator = Paginator(sound_list, 25)
+    paginator = Paginator(sound_list, 15)
     page = request.GET.get('page')
     try:
         sounds = paginator.page(page)
