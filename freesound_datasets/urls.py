@@ -28,7 +28,6 @@ urlpatterns = [
     url(r'^(?P<short_name>[^\/]+)/contribute/$', contribute, name='contribute'),
     url(r'^(?P<short_name>[^\/]+)/contribute/validate_annotations/$', contribute_validate_annotations, name='contribute-validate-annotations'),
     url(r'^(?P<short_name>[^\/]+)/contribute/validate_annotations/(?P<node_id>[^\/]+)/$', contribute_validate_annotations_category, name='contribute-validate-annotations-category'),
-    url(r'^(?P<short_name>[^\/]+)/tree/$', ontology_tree, name='exploration-tree'),
 ]
 
 if settings.DEBUG:

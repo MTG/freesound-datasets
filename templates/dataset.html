@@ -84,6 +84,30 @@
             }
         }
     </script>
+
+    <script type="text/javascript">
+        function openTab(evt, contentName) {
+            // Declare all variables
+            var i, tabcontent, tablinks;
+
+            // Get all elements with class="tabcontent" and hide them
+            tabcontent = document.getElementsByClassName("tabcontent");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+
+            // Get all elements with class="tablinks" and remove the class "active"
+            tablinks = document.getElementsByClassName("item");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+
+            // Show the current tab, and add an "active" class to the button that opened the tab
+            document.getElementById(contentName).style.display = "block";
+            evt.currentTarget.className += " active";
+        }  
+    </script>
+
 {% endblock %}
 {% block content %}
     <h1 class="ui header">About the {{ dataset.name }}</h1>
@@ -111,7 +135,19 @@
     {% endif %}
     <br>
     <h2>Taxonomy categories</h2>
-    <div id="dataset_taxonomy_table_placeholder">
+    <!-- MENU -->
+    <div class="ui inverted menu">
+        <a class="item" onclick="openTab(event, 'dataset_taxonomy_table_placeholder')">
+            <i class="list layout icon"></i> Content
+        </a>
+        <a class="item" onclick="openTab(event, 'dataset_taxonomy_tree_placeholder')">
+            <i class="tree icon"></i> Tree
+        </a>
+    </div>
+
+    <!-- Content -->
+    <div id="dataset_taxonomy_table_placeholder" class="tabcontent">
         <div class="ui active centered inline text loader">Loading data...</div>
     </div>
+        {% include "ontology_tree.html" %}
 {% endblock %}

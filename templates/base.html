@@ -39,7 +39,6 @@
                 {% else %}
                     <a href="#" class="item disabled">Download</a>
                 {% endif %}
-                <a href="{% url 'exploration-tree' dataset.short_name %}" class="{% active_if_current 'exploration-tree' %}item">Ontology</a>
             {% endif %}
             <div class="right menu">
                 {% if request.user.is_authenticated %}

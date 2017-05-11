@@ -46,10 +46,13 @@ def dataset(request, short_name):
     else:
         form = DatasetReleaseForm()
 
+    ontology = json.load(open('ontology_html5.json', encoding='utf-8'))    
+    
     return render(request, 'dataset.html', {
         'dataset': dataset,
         'user_is_maintainer': user_is_maintainer,
         'dataset_release_form': form, 'dataset_release_form_errors': form_errors,
+        'ontology': json.dumps(ontology),
     })
 
 
@@ -97,12 +100,6 @@ def taxonomy_node(request, short_name, node_id):
     node_id = unquote(node_id)
     node = dataset.taxonomy.get_element_at_id(node_id)
     return render(request, 'taxonomy_node.html', {'dataset': dataset, 'node': node})
-
-
-def ontology_tree(request, short_name):
-    dataset = get_object_or_404(Dataset, short_name=short_name)
-    ontology = json.load(open('ontology_html5.json', encoding='utf-8'))
-    return render(request, 'ontology_tree.html', {'dataset': dataset, 'ontology':json.dumps(ontology)})
 
 #############################
 # CONTRIBUTE TO DATASET VIEWS
