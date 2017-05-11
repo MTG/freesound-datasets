@@ -23,6 +23,9 @@
             {% if sounds.has_previous %}
                 <a class="ui button" href="?page={{ sounds.previous_page_number }}"> Previous </a>
             {% endif %}
+            <span class="current">
+            Page {{ sounds.number }} of {{ sounds.paginator.num_pages }} 
+            </span>
             {% if sounds.has_next %}
                 <a class="ui button" href="?page={{ sounds.next_page_number }}"> Next </a>
             {% endif %}
