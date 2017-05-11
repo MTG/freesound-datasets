@@ -16,6 +16,7 @@
     <script src="{% static "js/dataTables.semanticui.min.js" %}" type="text/javascript"></script>
     <script src="{% static "semanticui/semantic.min.js" %}" type="text/javascript"></script>
     <script src="{% static "js/main.js" %}" type="text/javascript"></script>
+    <script src="{% static "js/d3.v3.min.js" %}"></script> 
     {% block extra_head %}
     {% endblock extra_head%}
 </head>
@@ -38,6 +39,7 @@
                 {% else %}
                     <a href="#" class="item disabled">Download</a>
                 {% endif %}
+                <a href="{% url 'exploration-tree' dataset.short_name %}" class="{% active_if_current 'exploration-tree' %}item">Ontology</a>
             {% endif %}
             <div class="right menu">
                 {% if request.user.is_authenticated %}

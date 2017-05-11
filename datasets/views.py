@@ -22,6 +22,7 @@ from utils.redis_store import store, DATASET_BASIC_STATS_KEY_TEMPLATE, DATASET_T
 from utils.async_tasks import data_from_async_task
 import os
 import random
+import json
 
 
 #######################
@@ -97,6 +98,11 @@ def taxonomy_node(request, short_name, node_id):
     node = dataset.taxonomy.get_element_at_id(node_id)
     return render(request, 'taxonomy_node.html', {'dataset': dataset, 'node': node})
 
+
+def ontology_tree(request, short_name):
+    dataset = get_object_or_404(Dataset, short_name=short_name)
+    ontology = json.load(open('ontology_html5.json', encoding='utf-8'))
+    return render(request, 'ontology_tree.html', {'dataset': dataset, 'ontology':json.dumps(ontology)})
 
 #############################
 # CONTRIBUTE TO DATASET VIEWS
