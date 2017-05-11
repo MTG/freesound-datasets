@@ -1,6 +1,6 @@
 from urllib.request import urlopen
 from urllib.error import HTTPError
-from urllib.parse import urlencode, unquote
+from urllib.parse import urlencode, unquote, quote
 from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse, HttpResponseNotAllowed, HttpResponseRedirect
 from django.views.decorators.cache import cache_page
 from django.shortcuts import render, get_object_or_404
@@ -10,6 +10,7 @@ from django.core.urlresolvers import reverse
 from django.db.models import Count
 from django.forms import formset_factory
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.core import serializers
 from datasets.models import Dataset, DatasetRelease, Annotation, Vote
 from datasets import utils
 from datasets.forms import DatasetReleaseForm, PresentNotPresentUnsureForm, CategoryCommentForm
@@ -23,6 +24,7 @@ from utils.redis_store import store, DATASET_BASIC_STATS_KEY_TEMPLATE, DATASET_T
 from utils.async_tasks import data_from_async_task
 import os
 import random
+import json
 
 
 #######################
@@ -110,6 +112,35 @@ def taxonomy_node(request, short_name, node_id):
         
     return render(request, 'taxonomy_node.html', {'dataset': dataset, 'node': node, 'sounds':sounds})
 
+# function for rendering html table for DataTable, ajax call
+# only for testing and sending a few sounds (not usable)
+def taxonomy_node2(request, short_name, node_id):
+    dataset = get_object_or_404(Dataset, short_name=short_name)
+    node_id = unquote(node_id)
+    node = dataset.taxonomy.get_element_at_id(node_id)
+    sound_list = dataset.sounds_per_taxonomy_node(node_id)
+    node_url = quote(node_id, safe='')
+    sounds = sound_list[:20]
+    return render(request, 'dataset_node_table.html', {'dataset': dataset, 'node': node, 'sounds':sounds, 'node_url':node_url})
+
+# function for sending json to DataTable, ajax call (not working)
+#def taxonomy_node2(request, short_name, node_id):
+#    dataset = get_object_or_404(Dataset, short_name=short_name)
+#    node_id = unquote(node_id)
+#    node = dataset.taxonomy.get_element_at_id(node_id)
+#    sound_list = dataset.sounds_per_taxonomy_node(node_id)
+#    json = serializers.serialize('json', sound_list)
+#    #json2 = json.dumps([{"embed":'<iframe frameborder="0" scrolling="no" src="https://www.freesound.org/embed/sound/iframe/115239/simple/small/" width="375" height="30"></iframe>', "url":""}])
+#    json2 = json.dumps([{}])
+#    return HttpResponse(json2, content_type='application/json')
+
+
+def taxonomy_node_page(request, short_name, node_id):
+    dataset = get_object_or_404(Dataset, short_name=short_name)
+    node_id = unquote(node_id)
+    node = dataset.taxonomy.get_element_at_id(node_id)
+    node_url = quote(node_id, safe='')
+    return render(request, 'taxonomy_node2.html', {'dataset': dataset, 'node': node, 'node_url':node_url})
 
 #############################
 # CONTRIBUTE TO DATASET VIEWS

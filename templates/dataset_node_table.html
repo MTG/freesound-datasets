@@ -1,0 +1,20 @@
+{% load general_templatetags %}
+{% load dataset_templatetags %}
+
+<table id="node_contents" class="ui unstackable table" width="100%">
+    <thead>
+        <tr>
+            <th>Sound</th>
+            <th>Freesound URL</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for sound in sounds %}
+        <tr>
+            <td>{{ sound.freesound_id | fs_embed | safe }}</td>
+            <td><a href="http://freesound.org/s/{{ sound.freesound_id }}" target="_blank">http://freesound.org/s/{{ sound.freesound_id }}</a></td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+

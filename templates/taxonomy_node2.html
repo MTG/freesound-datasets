@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load humanize %}
+{% load general_templatetags %}
+{% load dataset_templatetags %}
+<!--{% load dataset_templatetags %}-->
+{% block title %}{{ node.name }}{% endblock title %}
+
+{% block page_js %}
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            loadDatasetNodeTable();
+        });
+
+        function loadDatasetNodeTable(){
+            $( "#dataset_node_table_placeholder" ).load( "{% url 'taxonomy-node' dataset.short_name node_url %}", function() {
+                $('#node_contents').DataTable({
+                    'paging': true,
+                    'info': true,
+                });
+            });
+        }
+    </script>
+
+{% endblock %}
+{% block content %}
+    <div id="dataset_node_table_placeholder">
+        <div class="ui active centered inline text loader">Loading data...</div>
+    </div>
+{% endblock %}
+
+
+
+
+
+
