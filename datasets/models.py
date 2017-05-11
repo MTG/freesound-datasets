@@ -56,6 +56,34 @@ class Taxonomy(models.Model):
 
         return hierarchy_paths
 
+    def get_dict_tree(self):
+        def get_all_children(node_id):
+            children = self.get_children(node_id)
+            children_names = []
+            for child in children:
+                child_name = {}
+                child_name["name"] = child["name"]
+                child_name["mark"] = child["restrictions"]
+                if "child_ids" in child: 
+                    child_name["children"] = get_all_children(child["id"])
+                children_names.append(child_name)
+            if children_names: 
+                return children_names
+            
+        taxonomy = self.taxonomy
+        higher_categories = [node for node in taxonomy 
+                             if "parent_ids" not in taxonomy[node]]
+        output_dict = {}
+        output_dict["name"] = "Ontology"
+        output_dict["children"] = []
+        for node_id in higher_categories:
+            dict_level1 = {}
+            dict_level1["name"] = taxonomy[node_id]["name"]
+            dict_level1["mark"] = taxonomy[node_id]["restrictions"]
+            dict_level1["children"] = get_all_children(node_id)
+            output_dict["children"].append(dict_level1)
+        return output_dict
+
 
 class Sound(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)

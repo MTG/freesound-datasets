@@ -33,6 +33,7 @@ def dataset(request, short_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
     user_is_maintainer = dataset.user_is_maintainer(request.user)
     form_errors = False
+    ontology = dataset.taxonomy.get_dict_tree()
     if request.method == 'POST':
         form = DatasetReleaseForm(request.POST)
         if form.is_valid():
@@ -45,9 +46,7 @@ def dataset(request, short_name):
             form_errors = True
     else:
         form = DatasetReleaseForm()
-
-    ontology = json.load(open('ontology_html5.json', encoding='utf-8'))    
-    
+        
     return render(request, 'dataset.html', {
         'dataset': dataset,
         'user_is_maintainer': user_is_maintainer,
