@@ -17,7 +17,13 @@
   stroke: #ccc;
   stroke-width: 1.5px;
 }
+#ontology_placeholder {
+    overflow-x: scroll;
+    width: 100%;
+    background-color: #FAFAFA;
+}
 </style>
+
 <div id="dataset_taxonomy_tree_placeholder" class="tabcontent" style="display: none;">
 	<center>
 	<i><font face="sans-serif" color="gray">Expandable nodes have its name category in the left.</font></i>
@@ -27,7 +33,7 @@
 	<font face="sans-serif" color="red"><strong>blacklist</strong></font>
 	</center>
     
-    <div id="ontology_placeholder" style="overflow-x: scroll; width: 100%"></div>
+    <div id="ontology_placeholder"></div>
 </div>
 {% endblock %}
 
