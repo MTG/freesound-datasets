@@ -57,19 +57,18 @@ class Taxonomy(models.Model):
         return hierarchy_paths
 
     def get_dict_tree(self):
+        keys = [("name", "name"), ("mark", "restrictions")]
         def get_all_children(node_id):
+            # recursive function for adding children in dict 
             children = self.get_children(node_id)
             children_names = []
             for child in children:
-                child_name = {}
-                child_name["name"] = child["name"]
-                child_name["mark"] = child["restrictions"]
-                if "child_ids" in child: 
-                    child_name["children"] = get_all_children(child["id"])
+                child_name = {key[0]:child[key[1]] for key in keys}
+                child_name["children"] = get_all_children(child["id"])
                 children_names.append(child_name)
             if children_names: 
                 return children_names
-            
+        
         taxonomy = self.taxonomy
         higher_categories = [node for node in taxonomy 
                              if "parent_ids" not in taxonomy[node]]
@@ -77,11 +76,10 @@ class Taxonomy(models.Model):
         output_dict["name"] = "Ontology"
         output_dict["children"] = []
         for node_id in higher_categories:
-            dict_level1 = {}
-            dict_level1["name"] = taxonomy[node_id]["name"]
-            dict_level1["mark"] = taxonomy[node_id]["restrictions"]
-            dict_level1["children"] = get_all_children(node_id)
-            output_dict["children"].append(dict_level1)
+            dict_level = {key[0]:taxonomy[node_id][key[1]] for key in keys}
+            dict_level["children"] = get_all_children(node_id)
+            output_dict["children"].append(dict_level)
+            
         return output_dict
 
 
