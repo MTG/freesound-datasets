@@ -72,9 +72,7 @@ class Taxonomy(models.Model):
         taxonomy = self.taxonomy
         higher_categories = [node for node in taxonomy 
                              if "parent_ids" not in taxonomy[node]]
-        output_dict = {}
-        output_dict["name"] = "Ontology"
-        output_dict["children"] = []
+        output_dict = {"name":"Ontology", "children":[]}
         for node_id in higher_categories:
             dict_level = {key[0]:taxonomy[node_id][key[1]] for key in keys}
             dict_level["children"] = get_all_children(node_id)
