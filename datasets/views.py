@@ -8,6 +8,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db.models import Count
+from django.db import transaction
 from django.forms import formset_factory
 from datasets.models import Dataset, DatasetRelease, Annotation, Vote
 from datasets import utils
@@ -155,6 +156,7 @@ def contribute_validate_annotations_category(request, short_name, node_id):
 
 
 @login_required
+@transaction.atomic
 def save_contribute_validate_annotations_category(request):
     if request.method == 'POST':
         comment_form = CategoryCommentForm(request.POST)
@@ -162,13 +164,17 @@ def save_contribute_validate_annotations_category(request):
         if formset.is_valid() and comment_form.is_valid():
             for form in formset:
                 if 'vote' in form.cleaned_data:  # This is to skip last element of formset which is empty
-                    # Save votes for annotations
-                    Vote.objects.create(
-                        created_by=request.user,
-                        vote=float(form.cleaned_data['vote']),
-                        visited_sound=form.cleaned_data['visited_sound'],
-                        annotation_id=form.cleaned_data['annotation_id'],
-                    )
+                    annotation_id = form.cleaned_data['annotation_id']
+                    check = Vote.objects.filter(created_by=request.user,
+                                               annotation_id=annotation_id)
+                    if not check.exists():
+                        # Save votes for annotations
+                        Vote.objects.create(
+                            created_by=request.user,
+                            vote=float(form.cleaned_data['vote']),
+                            visited_sound=form.cleaned_data['visited_sound'],
+                            annotation_id=annotation_id,
+                        )
             if comment_form.cleaned_data['comment'].strip():  # If there is a comment
                 comment = comment_form.save(commit=False)
                 comment.created_by = request.user

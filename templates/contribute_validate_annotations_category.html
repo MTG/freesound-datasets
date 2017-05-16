@@ -5,6 +5,7 @@
 {% block page_js %}
     <script type="text/javascript">
         function submitForm(){
+            $("#submitButton").prop('disable', true);
             $.ajax({
                 type: "POST",
                 url: "{% url 'save-contribute-validate-annotations-per-category' %}",
@@ -98,7 +99,7 @@
             {% endif %}
         </form>
         {% if annotations_forms %}
-            <br><button class="right floated ui green button" onclick="submitForm();">Submit!</button>
+            <br><button id="submitButton" class="right floated ui green button" onclick="submitForm();">Submit!</button>
         {% endif %}
     {% endif %}
 
