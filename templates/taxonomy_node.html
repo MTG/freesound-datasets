@@ -20,24 +20,48 @@
             </tr>
         </thead>
         <tbody>
-            {% if sounds.has_previous %}
-                <a class="ui button" href="?page={{ sounds.previous_page_number }}"> Previous </a>
-            {% endif %}
-            <span class="current">
-            Page {{ sounds.number }} of {{ sounds.paginator.num_pages }} 
-            </span>
-            {% if sounds.has_next %}
-                <a class="ui button" href="?page={{ sounds.next_page_number }}"> Next </a>
-            {% endif %}
             {% for sound in sounds %}
                 <tr>
                     <td>{{ sound.freesound_id | fs_embed | safe }}</td>
                     <td><a href="http://freesound.org/s/{{ sound.freesound_id }}" target="_blank">http://freesound.org/s/{{ sound.freesound_id }}</a></td>
                 </tr>
-            {% endfor %}
+            {% endfor %} 
         </tbody>
     </table>
+    <div class="ui pagination menu" style="float:right">
+        {% if sounds.has_previous %}
+            <a class="item" href="?page={{ sounds.previous_page_number }}"> Previous </a>
+        {% else %}
+            <a class="disabled item"> Previous </a>
+        {% endif %}
+        {% if sounds.has_previous %}
+            <a class="item" href="?page=1"> 1 </a>
+        {% endif %}
+        {% if sounds.number > 3 %}
+            <div class="disabled item">
+                ...
+            </div>
+        {% endif %}
+        {% if sounds.has_previous and sounds.previous_page_number != 1 %}
+            <a class="item" href="?page={{ sounds.previous_page_number }}"> {{ sounds.previous_page_number }} </a>
+        {% endif %}
+            <a class="active item"> {{ sounds.number }} </a>
+        {% if sounds.has_next and sounds.next_page_number != sounds.paginator.num_pages %}
+            <a class="item" href="?page={{ sounds.next_page_number }}"> {{ sounds.next_page_number }} </a>
+        {% endif %}
+        {% if sounds.number|add:1 < sounds.paginator.num_pages %}
+            <div class="disabled item">
+                ...
+            </div>
+        {% endif %}
+        {% if sounds.has_next %}
+            <a class="item" href="?page={{ sounds.paginator.num_pages }}"> {{ sounds.paginator.num_pages }} </a>
+        {% endif %}
+        {% if sounds.has_next %}
+            <a class="item" href="?page={{ sounds.next_page_number }}"> Next </a>
+        {% else %}
+            <a class="disabled item"> Next </a>
+        {% endif %}
+    </div>
 </div>
-
-
 {% endblock %}
