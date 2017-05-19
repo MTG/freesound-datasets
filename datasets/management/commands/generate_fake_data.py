@@ -37,7 +37,7 @@ def create_users(num_users):
     num_current_users = User.objects.all().count()
     with transaction.atomic():
         for i in range(0, num_users):
-            User.objects.create(
+            User.objects.create_user(
                 username='username_{0}'.format(i + num_current_users),
             )
 
