@@ -9,6 +9,7 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db.models import Count
 from django.forms import formset_factory
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from datasets.models import Dataset, DatasetRelease, Annotation, Vote
 from datasets import utils
 from datasets.forms import DatasetReleaseForm, PresentNotPresentUnsureForm, CategoryCommentForm
@@ -95,7 +96,19 @@ def taxonomy_node(request, short_name, node_id):
     dataset = get_object_or_404(Dataset, short_name=short_name)
     node_id = unquote(node_id)
     node = dataset.taxonomy.get_element_at_id(node_id)
-    return render(request, 'taxonomy_node.html', {'dataset': dataset, 'node': node})
+    sound_list = dataset.sounds_per_taxonomy_node(node_id)
+    paginator = Paginator(sound_list, 10)
+    page = request.GET.get('page')
+    try:
+        sounds = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        sounds = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        sounds = paginator.page(paginator.num_pages)
+        
+    return render(request, 'taxonomy_node.html', {'dataset': dataset, 'node': node, 'sounds':sounds})
 
 
 #############################
