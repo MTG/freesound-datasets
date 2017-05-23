@@ -3,8 +3,6 @@ from datasets.models import *
 from datasets.views import *
 from datasets.forms import *
 from datasets.management.commands.generate_fake_data import create_sounds, create_users, create_annotations
-from django.http.request import QueryDict, MultiValueDict
-from datetime import timedelta
 
 
 class ContributeTest(TestCase):
@@ -37,18 +35,12 @@ class ContributeTest(TestCase):
             
         self.client.login(username='username_0', password='123456')
         
-        response = self.client.post(reverse('save-contribute-validate-annotations-per-category'), data=form_data)
-        self.client.post(reverse('save-contribute-validate-annotations-per-category'), data=form_data)
-
-        # checking duplicates
-        duplicate_votes = []
-        for row in Vote.objects.all():
-            if Vote.objects.filter(created_by=row.created_by,
-                    annotation_id = row.annotation_id, 
-                    created_at__lte=row.created_at+timedelta(seconds=10),  
-                    created_at__gt=row.created_at-timedelta(seconds=10)).count() > 1:
-                duplicate_votes.append(row)
-                
+        # check the response an that a vote is added in the database
+        response = self.client.post(reverse('save-contribute-validate-annotations-per-category'), data=form_data) 
         self.assertEquals(response.status_code, 200)
-        self.assertEquals(duplicate_votes, [])
+        self.assertEquals(len(Vote.objects.filter(annotation_id=annotation_object_id)), 1)
+        
+        # check that a second vote is not added
+        self.client.post(reverse('save-contribute-validate-annotations-per-category'), data=form_data)
+        self.assertEquals(len(Vote.objects.filter(annotation_id=annotation_object_id)), 1)
         
