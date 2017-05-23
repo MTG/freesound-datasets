@@ -37,10 +37,8 @@ class ContributeTest(TestCase):
             form_data['form-{0}-annotation_id'.format(i)] = str(all_annotation_object_ids[i])
             form_data['form-{0}-vote'.format(i)] = ['1', '-1', '1'][i%3]
             
-        # login
         self.client.login(username='username_0', password='123456')
         
-        # post requests
         response = self.client.post(reverse('save-contribute-validate-annotations-per-category'), data=form_data)
         response2 = self.client.post(reverse('save-contribute-validate-annotations-per-category'), data=form_data)
 
