@@ -6,19 +6,20 @@ from datasets import models
 class TaxonomyTest(TestCase):
 
     def setUp(self):
-        taxonomy = [
-            {
+        taxonomy = {
+            "/m/0dgw9r" : {
                 "id": "/m/0dgw9r",
                 "name": "Sorted second",
                 "description": "This item should be second if sorted",
                 "child_ids": ["/m/09l8g"],
             },
-            {
+            "/m/09l8g" : {
                 "id": "/m/09l8g",
                 "name": "Sorted first",
                 "description": "This item should be first if sorted",
                 "child_ids": [],
-            }]
+                'parent_ids': ["/m/0dgw9r"],
+            }}
 
         self.taxobj = models.Taxonomy.objects.create(data=taxonomy)
 
