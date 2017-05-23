@@ -5,7 +5,7 @@
 {% block page_js %}
     <script type="text/javascript">
         function submitForm(){
-            $("#submitButton").prop('disable', true);
+            document.getElementById("submitButton").disabled = true; 
             $.ajax({
                 type: "POST",
                 url: "{% url 'save-contribute-validate-annotations-per-category' %}",
@@ -18,6 +18,7 @@
                             $('#row_annotation_' + position).addClass('red');
                         }
                         $('#on_error_modal').modal('show');
+                        document.getElementById("submitButton").disabled = false;
                     } else {
                         $('#on_success_modal').modal({closable: false}).modal('show');
                     }
