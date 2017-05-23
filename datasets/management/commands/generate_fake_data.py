@@ -39,6 +39,7 @@ def create_users(num_users):
         for i in range(0, num_users):
             User.objects.create_user(
                 username='username_{0}'.format(i + num_current_users),
+                password='123456'
             )
 
 def create_annotations(dataset_short_name, num_annotations):
