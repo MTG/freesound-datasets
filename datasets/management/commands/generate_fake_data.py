@@ -3,6 +3,7 @@ from datasets.models import *
 from django.contrib.auth.models import User
 from django.db import transaction
 import random
+import logging
 
 
 VALID_FS_IDS = [384240, 384239, 384238, 384237, 384218, 384217, 384211, 384210, 384206, 384202, 384201, 384200, 384199, 384198, 384197, 384196, 384195, 384193, 384192, 384191, 384190, 384188, 384187, 384186, 384185, 384184, 384183, 384182, 384181, 384180, 384179, 384178, 384177, 384176, 384175, 384174, 384173, 384172, 384171, 384170, 384169, 384168, 384167, 384166, 384165, 384164, 384163, 384162, 384161, 384160, 384159, 384158, 384157, 384156, 384155, 384154, 384153, 384152, 384151, 384150, 384149, 384148, 384147, 384146, 384145, 384144, 384143, 384142, 384141, 384140, 384139, 384138, 384137, 384136, 384135, 384134, 384133, 384132, 384131, 384130, 384129, 384128, 384127, 384126, 384125, 384124, 384123, 384122, 384121, 384120, 384119, 384118, 384117, 384116, 384115, 384114, 384113, 384112, 384111, 384110, 384109, 384107, 384106, 384105, 384104, 384103, 384102, 384101, 384100, 384099, 384098, 384097, 384096, 384095, 384094, 384093, 384092, 384091, 384090, 384089, 384088, 384087, 384086, 384085, 384084, 384083, 384082, 384081, 384080, 384079, 384078, 384077, 384076, 384075, 384074, 384073, 384072, 384071, 384070, 384069, 384068, 384067, 384066, 384065, 384064, 384063, 384062, 384061, 384060, 384059, 384058, 384057, 384056, 384055, 384054, 384053, 384052, 384051, 384050, 384049, 384048, 384047, 384046, 384045, 384044, 384043, 384042, 384041, 384040, 384038, 384037, 384036, 384035, 384034, 384033, 384032, 384031, 384030, 384029, 384028, 384027, 384026, 384025, 384024, 384023, 384022, 384021, 384020, 384019, 384018, 384017, 384016, 384015, 384014, 384013, 384012, 384011, 384010, 384009, 384008]
@@ -36,7 +37,7 @@ def create_sounds(dataset_short_name, num_sounds):
     dataset = get_dataset(dataset_short_name)
 
     # Create sounds and add them to dataset
-    print('Generating {0} fake sounds...'.format(num_sounds))
+    logging.info('Generating {0} fake sounds...'.format(num_sounds))
     num_current_sounds = Sound.objects.all().count()
     fsids = [VALID_FS_IDS[i % len(VALID_FS_IDS)] for i in range(0, num_sounds)]
     with transaction.atomic():
@@ -56,7 +57,7 @@ def create_users(num_users):
     Args:
         num_users: An integer corresponding to the number of fake users to create.
     """
-    print('Generating {0} fake users...'.format(num_users))
+    logging.info('Generating {0} fake users...'.format(num_users))
     num_current_users = User.objects.all().count()
     with transaction.atomic():
         for i in range(0, num_users):
@@ -79,7 +80,7 @@ def create_annotations(dataset_short_name, num_annotations):
     all_sounddataset_object_ids = SoundDataset.objects.all().values_list('id', flat=True)
     all_user_object_ids = User.objects.all().values_list('id', flat=True)
 
-    print('Generating {0} fake annotations...'.format(num_annotations))
+    logging.info('Generating {0} fake annotations...'.format(num_annotations))
     possible_fake_annotation_values = [node['id'] for node in dataset.taxonomy.get_all_nodes()]
     with transaction.atomic():
         for i in range(0, num_annotations):
@@ -104,7 +105,7 @@ def create_votes(num_votes):
     all_user_object_ids = User.objects.all().values_list('id', flat=True)
 
     # Add votes for annotations
-    print('Generating {0} fake annotation votes...'.format(num_votes))
+    logging.info('Generating {0} fake annotation votes...'.format(num_votes))
     possible_vote_options = [-1, 1, 1, 1]  # Bias towards positive votes
     with transaction.atomic():
         for i in range(0, num_votes):
