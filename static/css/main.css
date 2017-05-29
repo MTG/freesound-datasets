@@ -114,3 +114,27 @@ ul {
 	display: inline-block;
 	color: white;
 }
+
+/* CSS FOR TREE VISUALISATION */
+.node {
+  cursor: pointer;
+}
+.node circle {
+  fill: #fff;
+  stroke: steelblue;
+  stroke-width: 1.5px;
+}
+.node text {
+  font: 10px sans-serif;
+}
+.link {
+  fill: none;
+  stroke: #ccc;
+  stroke-width: 1.5px;
+}
+#ontology_placeholder {
+    overflow-x: scroll;
+    width: 100%;
+    background-color: #FAFAFA;
+}
+
