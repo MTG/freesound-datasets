@@ -1,13 +1,5 @@
 {% block content %}
 <div id="dataset_taxonomy_tree_placeholder" class="tabcontent" style="display: none;">
-	<center>
-	<i><font face="sans-serif" color="gray">Expandable nodes have its name category in the left.</font></i>
-	<br>
-	<font face="sans-serif" color="gray"><i>Color code:</i></font> &nbsp;&nbsp;&nbsp; <font face="sans-serif" color="yellow"><strong>abstract</strong></font> -
-	<font face="sans-serif" color="orange"><strong>both</strong></font> - 
-	<font face="sans-serif" color="red"><strong>blacklist</strong></font>
-	</center>
-    
     <div id="ontology_placeholder"></div>
 </div>
 {% endblock %}
@@ -15,7 +7,7 @@
 {% block page_js %}
 <script type="text/javascript">
     
-var margin = {top: 10, right: 10, bottom: 10, left: 60},
+var margin = {top: 10, right: 10, bottom: 10, left: 105},
     width = 1560 - margin.right - margin.left,
     height = 800 - margin.top - margin.bottom;
 var i = 0,
@@ -57,7 +49,7 @@ function update(source) {
   var nodes = tree.nodes(root).reverse(),
       links = tree.links(nodes);
   // Normalize for fixed-depth.
-  nodes.forEach(function(d) { d.y = d.depth * 240; });
+  nodes.forEach(function(d) { d.y = d.depth * 340; });
   // Update the nodes…
   var node = svg.selectAll("g.node")
       .data(nodes, function(d) { return d.id || (d.id = ++i); });
@@ -70,17 +62,19 @@ function update(source) {
       .attr("r", 1e-6)
       .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
   nodeEnter.append("text")
-      .attr("x", function(d) { return d.children || d._children ? -10 : 10; })
-      .attr("dy", ".35em")
-      .attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
-      .text(function(d) { return d.name; })
+      //.attr("x", function(d) { return d.children || d._children ? -10 : 10; })
+      .attr("x", function(d) { return -10; })
+      .attr("dy", ".30em")
+      //.attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
+      .attr("text-anchor", function(d) { return "end"; })
+      .text(function(d) { return d.children || d._children ? d.name+' [+]' :  d.name; })
       .style("fill-opacity", 1e-6);
   // Transition nodes to their new position.
   var nodeUpdate = node.transition()
       .duration(duration)
       .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
   nodeUpdate.select("circle")
-      .attr("r", 4.5)
+      .attr("r", 5.5)
       .style("fill", function(d) { if ("abstract,blacklist"==d.mark) {return "orange";}
 				   else if ("abstract"==d.mark) {return "yellow";}
 				   else if ("blacklist"==d.mark) {return "red";}

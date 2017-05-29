@@ -122,10 +122,10 @@ ul {
 .node circle {
   fill: #fff;
   stroke: steelblue;
-  stroke-width: 1.5px;
+  stroke-width: 2px;
 }
 .node text {
-  font: 10px sans-serif;
+  font: 10px;
 }
 .link {
   fill: none;
