@@ -56,7 +56,10 @@ class Taxonomy(models.Model):
 
         return hierarchy_paths
 
-    def get_dict_tree(self):
+    def get_taxonomy_as_tree(self):
+        """
+            Returns a dictionary for the tree visualization
+        """
         keys = [("name", "name"), ("mark", "restrictions")]
         def get_all_children(node_id):
             # recursive function for adding children in dict 
