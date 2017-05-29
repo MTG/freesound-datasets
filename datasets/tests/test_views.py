@@ -28,19 +28,21 @@ class ContributeTest(TestCase):
                      'form-TOTAL_FORMS': 2,
                      'comment': '',
                      'dataset': '1',
+                     'form-0-visited_sound': 'False',
+                     'form-0-annotation_id': str(annotation_object_id),
+                     'form-0-vote': '1',
                     }     
-        form_data['form-0-visited_sound'] = 'Flase'
-        form_data['form-0-annotation_id'] = str(annotation_object_id)
-        form_data['form-0-vote'] = '1'
             
         self.client.login(username='username_0', password='123456')
         
         # check the response an that a vote is added in the database
         response = self.client.post(reverse('save-contribute-validate-annotations-per-category'), data=form_data) 
         self.assertEquals(response.status_code, 200)
-        self.assertEquals(len(Vote.objects.filter(annotation_id=annotation_object_id)), 1)
+        self.assertEquals(Vote.objects.filter(annotation_id=annotation_object_id).count(), 1)
         
-        # check that a second vote is not added
+        # check that a second vote is not added, or modified
+        form_data['form-0-vote'] = '-1'
         self.client.post(reverse('save-contribute-validate-annotations-per-category'), data=form_data)
-        self.assertEquals(len(Vote.objects.filter(annotation_id=annotation_object_id)), 1)
+        self.assertEquals(Vote.objects.filter(annotation_id=annotation_object_id).count(), 1)
+        self.assertEquals(Vote.objects.get(annotation_id=annotation_object_id).vote, 1)
         
