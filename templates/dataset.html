@@ -96,7 +96,7 @@
                 tabcontent[i].style.display = "none";
             }
 
-            // Get all elements with class="tablinks" and remove the class "active"
+            // Get all elements with class="item" and remove the class "active"
             tablinks = document.getElementsByClassName("item");
             for (i = 0; i < tablinks.length; i++) {
                 tablinks[i].className = tablinks[i].className.replace(" active", "");
@@ -137,7 +137,7 @@
     <h2>Taxonomy categories</h2>
     <!-- MENU -->
     <div class="ui inverted menu">
-        <a class="item" onclick="openTab(event, 'dataset_taxonomy_table_placeholder')">
+        <a class="item active" onclick="openTab(event, 'dataset_taxonomy_table_placeholder')">
             <i class="list layout icon"></i> Content
         </a>
         <a class="item" onclick="openTab(event, 'dataset_taxonomy_tree_placeholder')">
