@@ -24,6 +24,7 @@ from utils.redis_store import store, DATASET_BASIC_STATS_KEY_TEMPLATE, DATASET_T
 from utils.async_tasks import data_from_async_task
 import os
 import random
+import json
 
 
 #######################
@@ -34,6 +35,7 @@ def dataset(request, short_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
     user_is_maintainer = dataset.user_is_maintainer(request.user)
     form_errors = False
+    taxonomy_tree = dataset.taxonomy.get_taxonomy_as_tree()
     if request.method == 'POST':
         form = DatasetReleaseForm(request.POST)
         if form.is_valid():
@@ -46,11 +48,12 @@ def dataset(request, short_name):
             form_errors = True
     else:
         form = DatasetReleaseForm()
-
+        
     return render(request, 'dataset.html', {
         'dataset': dataset,
         'user_is_maintainer': user_is_maintainer,
         'dataset_release_form': form, 'dataset_release_form_errors': form_errors,
+        'ontology': json.dumps(taxonomy_tree),
     })
 
 
@@ -110,7 +113,6 @@ def taxonomy_node(request, short_name, node_id):
         sounds = paginator.page(paginator.num_pages)
         
     return render(request, 'taxonomy_node.html', {'dataset': dataset, 'node': node, 'sounds':sounds})
-
 
 #############################
 # CONTRIBUTE TO DATASET VIEWS
