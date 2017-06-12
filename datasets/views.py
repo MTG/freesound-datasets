@@ -8,7 +8,9 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db.models import Count
+from django.db import transaction
 from django.forms import formset_factory
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from datasets.models import Dataset, DatasetRelease, Annotation, Vote
 from datasets import utils
 from datasets.forms import DatasetReleaseForm, PresentNotPresentUnsureForm, CategoryCommentForm
@@ -98,7 +100,19 @@ def taxonomy_node(request, short_name, node_id):
     dataset = get_object_or_404(Dataset, short_name=short_name)
     node_id = unquote(node_id)
     node = dataset.taxonomy.get_element_at_id(node_id)
-    return render(request, 'taxonomy_node.html', {'dataset': dataset, 'node': node})
+    sound_list = dataset.sounds_per_taxonomy_node(node_id)
+    paginator = Paginator(sound_list, 10)
+    page = request.GET.get('page')
+    try:
+        sounds = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        sounds = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        sounds = paginator.page(paginator.num_pages)
+        
+    return render(request, 'taxonomy_node.html', {'dataset': dataset, 'node': node, 'sounds':sounds})
 
 #############################
 # CONTRIBUTE TO DATASET VIEWS
@@ -157,6 +171,7 @@ def contribute_validate_annotations_category(request, short_name, node_id):
 
 
 @login_required
+@transaction.atomic
 def save_contribute_validate_annotations_category(request):
     if request.method == 'POST':
         comment_form = CategoryCommentForm(request.POST)
@@ -164,13 +179,17 @@ def save_contribute_validate_annotations_category(request):
         if formset.is_valid() and comment_form.is_valid():
             for form in formset:
                 if 'vote' in form.cleaned_data:  # This is to skip last element of formset which is empty
-                    # Save votes for annotations
-                    Vote.objects.create(
-                        created_by=request.user,
-                        vote=float(form.cleaned_data['vote']),
-                        visited_sound=form.cleaned_data['visited_sound'],
-                        annotation_id=form.cleaned_data['annotation_id'],
-                    )
+                    annotation_id = form.cleaned_data['annotation_id']
+                    check = Vote.objects.filter(created_by=request.user,
+                                               annotation_id=annotation_id)
+                    if not check.exists():
+                        # Save votes for annotations
+                        Vote.objects.create(
+                            created_by=request.user,
+                            vote=float(form.cleaned_data['vote']),
+                            visited_sound=form.cleaned_data['visited_sound'],
+                            annotation_id=annotation_id,
+                        )
             if comment_form.cleaned_data['comment'].strip():  # If there is a comment
                 comment = comment_form.save(commit=False)
                 comment.created_by = request.user
