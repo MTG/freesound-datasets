@@ -125,12 +125,12 @@ ul {
   stroke-width: 2px;
 }
 .node text {
-  font: 10px;
+  font-size: 13px;
 }
 .link {
   fill: none;
   stroke: #ccc;
-  stroke-width: 1.5px;
+  stroke-width: 1px;
 }
 #ontology_placeholder {
     overflow-x: scroll;

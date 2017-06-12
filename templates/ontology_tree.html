@@ -9,7 +9,7 @@
     
 var margin = {top: 10, right: 10, bottom: 10, left: 105},
     width = 1560 - margin.right - margin.left,
-    height = 800 - margin.top - margin.bottom;
+    height = 1000 - margin.top - margin.bottom;
 var i = 0,
     duration = 750,
     root;
@@ -74,7 +74,7 @@ function update(source) {
       .duration(duration)
       .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
   nodeUpdate.select("circle")
-      .attr("r", 5.5)
+      .attr("r",5)
       .style("fill", function(d) { if ("abstract,blacklist"==d.mark) {return "orange";}
 				   else if ("abstract"==d.mark) {return "yellow";}
 				   else if ("blacklist"==d.mark) {return "red";}
