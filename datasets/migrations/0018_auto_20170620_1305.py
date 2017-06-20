@@ -7,30 +7,31 @@ import django.db.models.deletion
 
 
 def add_taxonomy_nodes(apps, schema_editor):
-    Dataset = apps.get_model('datasets', 'Dataset') 
-    dataset = Dataset.objects.get(short_name='fsd')
-    taxonomy = dataset.taxonomy
     TaxonomyNode = apps.get_model('datasets', 'TaxonomyNode')
-    
-    # loop for creating instances for each taxonomy node
-    for node_id, node in taxonomy.data.items():
-        abstract = 'abstract' in node['restrictions']
-        omitted = 'omittedTT' in node['restrictions']
-        taxonomy_node =  TaxonomyNode.objects.create(node_id=node_id, 
-                                      name=node['name'], 
-                                      description=node['description'], 
-                                      citation_uri=node['citation_uri'], 
-                                      abstract=abstract,
-                                      omitted=omitted, 
-                                      taxonomy=taxonomy)
-        
-    # loop for adding parent relations
-    all_taxonomy_nodes = TaxonomyNode.objects.all()
-    for taxonomy_node in all_taxonomy_nodes:
-        if 'parent_ids' in taxonomy.data[taxonomy_node.node_id]:
-            for node_id in taxonomy.data[taxonomy_node.node_id]['parent_ids']:
-                parent_node = TaxonomyNode.objects.get(node_id=node_id)
-                taxonomy_node.parents.add(parent_node)
+    Taxonomy = apps.get_model('datasets', 'Taxonomy')
+    all_taxonomies = Taxonomy.objects.all()
+
+    # loop on all taxonomy
+    for taxonomy in all_taxonomies:
+        # loop for creating instances for each taxonomy node
+        for node_id, node in taxonomy.data.items():
+            abstract = 'abstract' in node['restrictions']
+            omitted = 'omittedTT' in node['restrictions']
+            taxonomy_node =  TaxonomyNode.objects.create(node_id=node_id, 
+                                          name=node['name'], 
+                                          description=node['description'], 
+                                          citation_uri=node['citation_uri'], 
+                                          abstract=abstract,
+                                          omitted=omitted, 
+                                          taxonomy=taxonomy)
+
+        # loop for adding parent relations
+        all_taxonomy_nodes = TaxonomyNode.objects.all()
+        for taxonomy_node in all_taxonomy_nodes:
+            if 'parent_ids' in taxonomy.data[taxonomy_node.node_id]:
+                for node_id in taxonomy.data[taxonomy_node.node_id]['parent_ids']:
+                    parent_node = TaxonomyNode.objects.get(node_id=node_id)
+                    taxonomy_node.parents.add(parent_node)
 
 
 class Migration(migrations.Migration):
@@ -60,5 +61,5 @@ class Migration(migrations.Migration):
             name='comment',
             field=models.TextField(blank=True),
         ),
-        migrations.RunPython(add_taxonomy_nodes),
+        migrations.RunPython(add_taxonomy_nodes, migrations.RunPython.noop),
     ]
