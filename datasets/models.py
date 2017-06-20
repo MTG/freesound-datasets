@@ -97,6 +97,18 @@ class Sound(models.Model):
         return 'Sound {0} (freesound {1})'.format(self.id, self.freesound_id)
 
 
+class TaxonomyNode(models.Model):
+    node_id = models.CharField(max_length=20)
+    name = models.CharField(max_length=100)
+    description = models.CharField(max_length=500)
+    citation_uri = models.CharField(max_length=100)
+    abstract = models.BooleanField(default=False)
+    omitted = models.BooleanField(default=False)
+    freesound_examples = models.ManyToManyField(Sound, related_name='taxonomy_node')
+    taxonomy = models.ForeignKey(Taxonomy, null=True, blank=True, on_delete=models.SET_NULL)
+    parents = models.ManyToManyField('self', symmetrical=False, related_name='children')
+    
+    
 class Dataset(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=200)
@@ -105,6 +117,7 @@ class Dataset(models.Model):
     taxonomy = models.ForeignKey(Taxonomy, null=True, blank=True, on_delete=models.SET_NULL)
     sounds = models.ManyToManyField(Sound, related_name='datasets', through='datasets.SoundDataset')
     maintainers = models.ManyToManyField(User, related_name='maintained_datasets')
+    
 
     def __str__(self):
         return 'Dataset {0}'.format(self.name)
@@ -244,12 +257,17 @@ class Annotation(models.Model):
     )
     type = models.CharField(max_length=2, choices=TYPE_CHOICES, default='UK')
     algorithm = models.CharField(max_length=200, blank=True, null=True)
-    value = models.CharField(max_length=200, db_index=True)
+    value = models.CharField(max_length=200, db_index=True) # to delete after
+    #taxonomy_node = models.ForeignKey(TaxonomyNode)
     start_time = models.DecimalField(max_digits=6, decimal_places=3, blank=True, null=True)
     end_time = models.DecimalField(max_digits=6, decimal_places=3, blank=True, null=True)
 
     def __str__(self):
         return 'Annotation for sound {0}'.format(self.sound_dataset.sound.id)
+    
+#    @property
+#    def value(self):
+#        return self.taxonomy_node.node_id
 
 
 class Vote(models.Model):
