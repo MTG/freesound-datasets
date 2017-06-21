@@ -129,8 +129,9 @@ class TaxonomyNode(models.Model):
     
     def as_dict(self):
         node_dict = self.__dict__
-        if "freesound_examples" not in node_dict:
-            node_dict["freesound_examples"] = []
+        node_dict["freesound_examples"] = []
+        for fs_id in [example.freesound_id for example in self.freesound_examples.all()]:
+            node_dict["freesound_examples"].append(fs_id)
         return node_dict
     
     
