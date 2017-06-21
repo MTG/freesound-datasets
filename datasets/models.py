@@ -22,28 +22,21 @@ class Taxonomy(models.Model):
 
     def get_parents(self, node_id):
         return self.get_element_at_id(node_id).parents.all()
-        #return [self.get_element_at_id(i) for i in self.taxonomy[node_id].get('parent_ids', [])]
 
     def get_children(self, node_id):
         return self.get_element_at_id(node_id).children.all()
-        #return [self.get_element_at_id(i) for i in self.taxonomy[node_id].get('child_ids', [])]
 
     def get_element_at_id(self, node_id):
         return self.taxonomynode_set.get(node_id=node_id)
-        #return TaxonomyNode.objects.get(node_id=node_id)
-        #return self.taxonomy.get(node_id)
 
     def get_all_nodes(self):
         return self.taxonomynode_set.all().order_by('name')
-        #return sorted(self.taxonomy.values(), key=lambda x: x['name'])
 
     def get_all_node_ids(self):
         return [node.node_id for node in self.taxonomynode_set.all()]
-        #return self.taxonomy.keys()
 
     def get_num_nodes(self):
         return self.taxonomynode_set.count()
-        #return len(self.data)
 
     def get_hierarchy_paths(self, node_id):
 
@@ -78,17 +71,12 @@ class Taxonomy(models.Model):
                     child_name["mark"].append("abstract")
                 if child.omitted:
                     child_name["mark"].append("omittedTT")
-                #child_name = {key[0]:getattr(child,key[1]) for key in keys}
-                #child_name = {key[0]:child.[key[1]] for key in keys}
                 child_name["children"] = get_all_children(child.node_id)
                 children_names.append(child_name)
             if children_names: 
                 return children_names
         
-        #taxonomy = self.taxonomy
         higher_categories = self.taxonomynode_set.filter(parents=None)
-        #higher_categories = [node for node in taxonomy 
-        #                     if "parent_ids" not in taxonomy[node]]
         output_dict = {"name":"Ontology", "children":[]}
         for node in higher_categories:
             dict_level = {"name":node.name, "mark":[]}
@@ -96,7 +84,6 @@ class Taxonomy(models.Model):
                 dict_level["mark"].append("abstract")
             if node.omitted:
                 dict_level["mark"].append("omittedTT")
-            #dict_level = {key[0]:taxonomy[node_id][key[1]] for key in keys}
             dict_level["children"] = get_all_children(node.node_id)
             output_dict["children"].append(dict_level)
             
