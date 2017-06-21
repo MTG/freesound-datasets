@@ -81,7 +81,7 @@ def create_annotations(dataset_short_name, num_annotations):
     all_user_object_ids = User.objects.all().values_list('id', flat=True)
 
     logging.info('Generating {0} fake annotations...'.format(num_annotations))
-    possible_fake_annotation_values = [node['id'] for node in dataset.taxonomy.get_all_nodes()]
+    possible_fake_annotation_values = dataset.taxonomy.get_all_node_ids()#[node['node_id'] for node in dataset.taxonomy.get_all_nodes()]
     with transaction.atomic():
         for i in range(0, num_annotations):
             Annotation.objects.create(

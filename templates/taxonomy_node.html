@@ -7,7 +7,7 @@
     <div class="ui breadcrumb">
         <h1 class="ui header"><a href="{% url 'dataset' dataset.short_name %}">{{ dataset.name }}</a> <i class="right arrow icon divider"></i> {{ node.name }}</h1>
     </div>
-    {% display_taxonomy_node_info dataset node.id %}
+    {% display_taxonomy_node_info dataset node.node_id %}
     <br>
     <h2>Sounds with this label</h2>
 

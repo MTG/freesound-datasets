@@ -123,9 +123,15 @@ class TaxonomyNode(models.Model):
     citation_uri = models.CharField(max_length=100)
     abstract = models.BooleanField(default=False)
     omitted = models.BooleanField(default=False)
-    freesound_examples = models.ManyToManyField(Sound, related_name='taxonomy_node', through='datasets.SoundDataset')
+    freesound_examples = models.ManyToManyField(Sound, related_name='taxonomy_node')
     taxonomy = models.ForeignKey(Taxonomy, null=True, blank=True, on_delete=models.SET_NULL)
     parents = models.ManyToManyField('self', symmetrical=False, related_name='children')
+    
+    def as_dict(self):
+        node_dict = self.__dict__
+        if "freesound_examples" not in node_dict:
+            node_dict["freesound_examples"] = []
+        return node_dict
     
     
 class Dataset(models.Model):
