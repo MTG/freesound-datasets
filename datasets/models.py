@@ -128,11 +128,16 @@ class TaxonomyNode(models.Model):
     parents = models.ManyToManyField('self', symmetrical=False, related_name='children')
     
     def as_dict(self):
-        node_dict = self.__dict__
-        node_dict["freesound_examples"] = []
-        for fs_id in [example.freesound_id for example in self.freesound_examples.all()]:
-            node_dict["freesound_examples"].append(fs_id)
-        return node_dict
+        return {"name":self.name,
+                "node_id":self.node_id,
+                "id":self.id,
+                "description":self.description,
+                "citation_uri":self.citation_uri,
+                "abstract":self.abstract,
+                "omitted":self.omitted,
+                "freesound_examples":[example.freesound_id for example in self.freesound_examples.all()],
+                "parent_ids":[parent.node_id for parent in self.parents.all()],
+                "child_ids":[child.node_id for child in self.children.all()]}
     
     
 class Dataset(models.Model):
