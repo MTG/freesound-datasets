@@ -26,7 +26,7 @@ def add_taxonomy_nodes(apps, schema_editor):
                                           taxonomy=taxonomy)
 
         # loop for adding parent relations
-        all_taxonomy_nodes = TaxonomyNode.objects.all()
+        all_taxonomy_nodes = taxonomy.taxonomynode_set.all()
         for taxonomy_node in all_taxonomy_nodes:
             if 'parent_ids' in taxonomy.data[taxonomy_node.node_id]:
                 for node_id in taxonomy.data[taxonomy_node.node_id]['parent_ids']:
