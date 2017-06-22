@@ -113,6 +113,7 @@ class TaxonomyNode(models.Model):
     freesound_examples = models.ManyToManyField(Sound, related_name='taxonomy_node')
     taxonomy = models.ForeignKey(Taxonomy, null=True, blank=True, on_delete=models.SET_NULL)
     parents = models.ManyToManyField('self', symmetrical=False, related_name='children')
+    priority_score = models.IntegerField(default=0)
     
     def as_dict(self):
         return {"name":self.name,
