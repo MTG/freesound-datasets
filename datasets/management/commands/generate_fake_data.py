@@ -88,7 +88,8 @@ def create_annotations(dataset_short_name, num_annotations):
                 sound_dataset_id=random.choice(all_sounddataset_object_ids),
                 type='AU',
                 algorithm='Fake algorithm name',
-                value=random.choice(possible_fake_annotation_values),
+                taxonomy_node=TaxonomyNode.objects.get(node_id=random.choice(possible_fake_annotation_values)),
+                #value=random.choice(possible_fake_annotation_values),
                 created_by_id=random.choice(all_user_object_ids),
             )
 
