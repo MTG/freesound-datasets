@@ -276,7 +276,7 @@ class Annotation(models.Model):
     type = models.CharField(max_length=2, choices=TYPE_CHOICES, default='UK')
     algorithm = models.CharField(max_length=200, blank=True, null=True)
     value = models.CharField(max_length=200, db_index=True) # to delete after
-    #taxonomy_node = models.ForeignKey(TaxonomyNode)
+    taxonomy_node = models.ForeignKey(TaxonomyNode, blank=True, null=True)
     start_time = models.DecimalField(max_digits=6, decimal_places=3, blank=True, null=True)
     end_time = models.DecimalField(max_digits=6, decimal_places=3, blank=True, null=True)
 
