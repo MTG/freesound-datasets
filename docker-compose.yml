@@ -37,3 +37,12 @@ services:
     depends_on:
       - db
       - redis
+  celery_beat:
+    build: .
+    env_file:
+      - .env
+    volumes_from:
+      - web
+    command: celery beat -A freesound_datasets
+    depends_on:
+        - redis
