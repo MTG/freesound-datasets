@@ -178,13 +178,13 @@ class Dataset(models.Model):
         return self.datasetrelease_set.all().order_by('-release_date')
 
     def sounds_per_taxonomy_node(self, node_id):
-        return Sound.objects.filter(datasets=self, sounddataset__annotations__value=node_id)
+        return Sound.objects.filter(datasets=self, sounddataset__annotations__taxonomy_node__node_id=node_id)
 
     def num_sounds_per_taxonomy_node(self, node_id):
         return self.sounds_per_taxonomy_node(node_id=node_id).count()
 
     def annotations_per_taxonomy_node(self, node_id):
-        return self.annotations.filter(value=node_id)
+        return self.annotations.filter(taxonomy_node__node_id=node_id)
 
     def num_annotations_per_taxonomy_node(self, node_id):
         return self.annotations_per_taxonomy_node(node_id=node_id).count()
@@ -197,7 +197,7 @@ class Dataset(models.Model):
 
     def num_votes_with_value(self, node_id, vote_value):
         return Vote.objects.filter(
-            annotation__sound_dataset__dataset=self, annotation__value=node_id, vote=vote_value).count()
+            annotation__sound_dataset__dataset=self, annotation__taxonomy_node__node_id=node_id, vote=vote_value).count()
 
     def get_comments_per_taxonomy_node(self, node_id):
         return CategoryComment.objects.filter(dataset=self, category_id=node_id)
@@ -275,7 +275,6 @@ class Annotation(models.Model):
     )
     type = models.CharField(max_length=2, choices=TYPE_CHOICES, default='UK')
     algorithm = models.CharField(max_length=200, blank=True, null=True)
-    #value = models.CharField(max_length=200, db_index=True) # to delete after
     taxonomy_node = models.ForeignKey(TaxonomyNode, blank=True, null=True)
     start_time = models.DecimalField(max_digits=6, decimal_places=3, blank=True, null=True)
     end_time = models.DecimalField(max_digits=6, decimal_places=3, blank=True, null=True)
