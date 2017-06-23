@@ -1,4 +1,4 @@
-from datasets.models import Dataset, DatasetRelease, Annotation, Vote
+from datasets.models import Dataset, DatasetRelease, Annotation, Vote, TaxonomyNode
 from django.db.models import Count
 from django.contrib.auth.models import User
 from celery import shared_task
@@ -193,3 +193,17 @@ def compute_annotators_ranking(store_key, dataset_id, N=15):
         pass
     except User.DoesNotExist:
         pass
+
+
+@shared_task
+def compute_gt_taxonomy_node():
+    logger.info('Start computing number of ground truth annotation')
+    dataset = Dataset.objects.get(short_name='fsd')
+    taxonomy = dataset.taxonomy
+    for node_id in taxonomy.get_all_node_ids():
+        taxonomy_node = TaxonomyNode.objects.get(node_id=node_id)
+        nb_ground_truth = Annotation.objects.filter(taxonomy_node__node_id=node_id, votes__vote=1)\
+            .annotate(num_votes=Count('votes')).filter(num_votes__gte=2).count()
+        taxonomy_node.nb_ground_truth = nb_ground_truth
+        taxonomy_node.save()
+    logger.info('Finished computing number of ground truth annotation')
