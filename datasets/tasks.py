@@ -95,7 +95,7 @@ def compute_dataset_taxonomy_stats(store_key, dataset_id):
         from django.db import connection
         with connection.cursor() as cursor:
             cursor.execute("""
-                    SELECT annotation.value
+                    SELECT taxonomynode.node_id
                            , COUNT(annotation.id)
                            , COUNT(DISTINCT(sound.id))
                         FROM datasets_annotation annotation
@@ -103,9 +103,11 @@ def compute_dataset_taxonomy_stats(store_key, dataset_id):
                           ON annotation.sound_dataset_id = sounddataset.id
                   INNER JOIN datasets_sound sound
                           ON sound.id = sounddataset.sound_id
-                       WHERE annotation.value IN %s
+                  INNER JOIN datasets_taxonomynode taxonomynode
+                          ON taxonomynode.id = annotation.taxonomy_node_id
+                       WHERE taxonomynode.node_id IN %s
                          AND sounddataset.dataset_id = %s
-                    GROUP BY annotation.value
+                    GROUP BY taxonomynode.node_id
                            """, (tuple(node_ids), dataset.id)
             )
             node_n_annotations_n_sounds = cursor.fetchall()
@@ -134,7 +136,7 @@ def compute_dataset_taxonomy_stats(store_key, dataset_id):
         nodes_data = []
         for node in dataset.taxonomy.get_all_nodes():
             try:
-                counts = annotation_numbers[node['id']]
+                counts = annotation_numbers[node.node_id]
             except KeyError:
                 # Can happen if there are no annotations/sounds per a category
                 counts = {
@@ -143,14 +145,14 @@ def compute_dataset_taxonomy_stats(store_key, dataset_id):
                     'num_missing_votes': 0,
                     'votes_stats': None,
                 }
-            node_stats = calculate_taxonomy_node_stats(dataset, node,
+            node_stats = calculate_taxonomy_node_stats(dataset, node.as_dict(),
                                                        counts['num_sounds'],
                                                        counts['num_annotations'],
                                                        counts['num_missing_votes'],
                                                        counts['votes_stats'])
             node_stats.update({
-                'id': node['id'],
-                'name': node['name'],
+                'id': node.node_id,
+                'name': node.name,
             })
             nodes_data.append(node_stats)
 
