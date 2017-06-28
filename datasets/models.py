@@ -21,22 +21,22 @@ class Taxonomy(models.Model):
         return self.data
 
     def get_parents(self, node_id):
-        return [self.get_element_at_id(i) for i in self.taxonomy[node_id].get('parent_ids', [])]
+        return self.get_element_at_id(node_id).parents.all()
 
     def get_children(self, node_id):
-        return [self.get_element_at_id(i) for i in self.taxonomy[node_id].get('child_ids', [])]
+        return self.get_element_at_id(node_id).children.all()
 
     def get_element_at_id(self, node_id):
-        return self.taxonomy.get(node_id)
+        return self.taxonomynode_set.get(node_id=node_id)
 
     def get_all_nodes(self):
-        return sorted(self.taxonomy.values(), key=lambda x: x['name'])
+        return self.taxonomynode_set.all().order_by('name')
 
     def get_all_node_ids(self):
-        return self.taxonomy.keys()
+        return [node.node_id for node in self.taxonomynode_set.all()]
 
     def get_num_nodes(self):
-        return len(self.data)
+        return self.taxonomynode_set.count()
 
     def get_hierarchy_paths(self, node_id):
 
@@ -46,13 +46,13 @@ class Taxonomy(models.Model):
                 yield cur
             else:
                 for node in parents:
-                    for path in paths(node['id'], [node['id']] + cur):
+                    for path in paths(node.node_id, [node.node_id] + cur):
                         yield path
 
         hierarchy_paths = list()
         for path in paths(node_id):
             # Add root and current category to path
-            hierarchy_paths.append(path + [self.get_element_at_id(node_id)['id']])
+            hierarchy_paths.append(path + [self.get_element_at_id(node_id).node_id])
 
         return hierarchy_paths
 
@@ -66,19 +66,25 @@ class Taxonomy(models.Model):
             children = self.get_children(node_id)
             children_names = []
             for child in children:
-                child_name = {key[0]:child[key[1]] for key in keys}
-                child_name["children"] = get_all_children(child["id"])
+                child_name = {"name":child.name, "mark":[]}
+                if child.abstract:
+                    child_name["mark"].append("abstract")
+                if child.omitted:
+                    child_name["mark"].append("omittedTT")
+                child_name["children"] = get_all_children(child.node_id)
                 children_names.append(child_name)
             if children_names: 
                 return children_names
         
-        taxonomy = self.taxonomy
-        higher_categories = [node for node in taxonomy 
-                             if "parent_ids" not in taxonomy[node]]
+        higher_categories = self.taxonomynode_set.filter(parents=None)
         output_dict = {"name":"Ontology", "children":[]}
-        for node_id in higher_categories:
-            dict_level = {key[0]:taxonomy[node_id][key[1]] for key in keys}
-            dict_level["children"] = get_all_children(node_id)
+        for node in higher_categories:
+            dict_level = {"name":node.name, "mark":[]}
+            if node.abstract:
+                dict_level["mark"].append("abstract")
+            if node.omitted:
+                dict_level["mark"].append("omittedTT")
+            dict_level["children"] = get_all_children(node.node_id)
             output_dict["children"].append(dict_level)
             
         return output_dict
@@ -97,6 +103,31 @@ class Sound(models.Model):
         return 'Sound {0} (freesound {1})'.format(self.id, self.freesound_id)
 
 
+class TaxonomyNode(models.Model):
+    node_id = models.CharField(max_length=20)
+    name = models.CharField(max_length=100)
+    description = models.CharField(max_length=500)
+    citation_uri = models.CharField(max_length=100)
+    abstract = models.BooleanField(default=False)
+    omitted = models.BooleanField(default=False)
+    freesound_examples = models.ManyToManyField(Sound, related_name='taxonomy_node')
+    taxonomy = models.ForeignKey(Taxonomy, null=True, blank=True, on_delete=models.SET_NULL)
+    parents = models.ManyToManyField('self', symmetrical=False, related_name='children')
+    nb_ground_truth = models.IntegerField(default=0)
+    
+    def as_dict(self):
+        return {"name":self.name,
+                "node_id":self.node_id,
+                "id":self.id,
+                "description":self.description,
+                "citation_uri":self.citation_uri,
+                "abstract":self.abstract,
+                "omitted":self.omitted,
+                "freesound_examples":[example.freesound_id for example in self.freesound_examples.all()],
+                "parent_ids":[parent.node_id for parent in self.parents.all()],
+                "child_ids":[child.node_id for child in self.children.all()]}
+    
+    
 class Dataset(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=200)
@@ -105,6 +136,7 @@ class Dataset(models.Model):
     taxonomy = models.ForeignKey(Taxonomy, null=True, blank=True, on_delete=models.SET_NULL)
     sounds = models.ManyToManyField(Sound, related_name='datasets', through='datasets.SoundDataset')
     maintainers = models.ManyToManyField(User, related_name='maintained_datasets')
+    
 
     def __str__(self):
         return 'Dataset {0}'.format(self.name)
@@ -147,13 +179,13 @@ class Dataset(models.Model):
         return self.datasetrelease_set.all().order_by('-release_date')
 
     def sounds_per_taxonomy_node(self, node_id):
-        return Sound.objects.filter(datasets=self, sounddataset__annotations__value=node_id)
+        return Sound.objects.filter(datasets=self, sounddataset__annotations__taxonomy_node__node_id=node_id)
 
     def num_sounds_per_taxonomy_node(self, node_id):
         return self.sounds_per_taxonomy_node(node_id=node_id).count()
 
     def annotations_per_taxonomy_node(self, node_id):
-        return self.annotations.filter(value=node_id)
+        return self.annotations.filter(taxonomy_node__node_id=node_id)
 
     def num_annotations_per_taxonomy_node(self, node_id):
         return self.annotations_per_taxonomy_node(node_id=node_id).count()
@@ -166,7 +198,7 @@ class Dataset(models.Model):
 
     def num_votes_with_value(self, node_id, vote_value):
         return Vote.objects.filter(
-            annotation__sound_dataset__dataset=self, annotation__value=node_id, vote=vote_value).count()
+            annotation__sound_dataset__dataset=self, annotation__taxonomy_node__node_id=node_id, vote=vote_value).count()
 
     def get_comments_per_taxonomy_node(self, node_id):
         return CategoryComment.objects.filter(dataset=self, category_id=node_id)
@@ -244,12 +276,16 @@ class Annotation(models.Model):
     )
     type = models.CharField(max_length=2, choices=TYPE_CHOICES, default='UK')
     algorithm = models.CharField(max_length=200, blank=True, null=True)
-    value = models.CharField(max_length=200, db_index=True)
+    taxonomy_node = models.ForeignKey(TaxonomyNode, blank=True, null=True)
     start_time = models.DecimalField(max_digits=6, decimal_places=3, blank=True, null=True)
     end_time = models.DecimalField(max_digits=6, decimal_places=3, blank=True, null=True)
 
     def __str__(self):
         return 'Annotation for sound {0}'.format(self.sound_dataset.sound.id)
+    
+    @property
+    def value(self):
+        return self.taxonomy_node.node_id
 
 
 class Vote(models.Model):

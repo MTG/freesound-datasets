@@ -81,14 +81,15 @@ def create_annotations(dataset_short_name, num_annotations):
     all_user_object_ids = User.objects.all().values_list('id', flat=True)
 
     logging.info('Generating {0} fake annotations...'.format(num_annotations))
-    possible_fake_annotation_values = [node['id'] for node in dataset.taxonomy.get_all_nodes()]
+    possible_fake_annotation_values = dataset.taxonomy.get_all_node_ids()#[node['node_id'] for node in dataset.taxonomy.get_all_nodes()]
     with transaction.atomic():
         for i in range(0, num_annotations):
             Annotation.objects.create(
                 sound_dataset_id=random.choice(all_sounddataset_object_ids),
                 type='AU',
                 algorithm='Fake algorithm name',
-                value=random.choice(possible_fake_annotation_values),
+                taxonomy_node=TaxonomyNode.objects.get(node_id=random.choice(possible_fake_annotation_values)),
+                #value=random.choice(possible_fake_annotation_values),
                 created_by_id=random.choice(all_user_object_ids),
             )
 
@@ -115,6 +116,33 @@ def create_votes(num_votes):
                 created_by_id=random.choice(all_user_object_ids),
             )
 
+def add_taxonomy_nodes(taxonomy):
+    """Create TaxonomyNode object instances for a Taxonomy.
+    
+    Args:
+       taxonomy: A Taxonomy instance to which TaxonomyNode will be linked.
+    """
+    taxonomy_dict = taxonomy.taxonomy
+
+    # loop for creating instances for each taxonomy node
+    for node_id, node in taxonomy_dict.items():
+        abstract = 'abstract' in node['restrictions']
+        omitted = 'omittedTT' in node['restrictions']
+        taxonomy_node =  TaxonomyNode.objects.create(node_id=node_id, 
+                                      name=node['name'], 
+                                      description=node['description'], 
+                                      citation_uri=node['citation_uri'], 
+                                      abstract=abstract,
+                                      omitted=omitted, 
+                                      taxonomy=taxonomy)
+
+    # loop for adding parent relations
+    all_taxonomy_nodes = TaxonomyNode.objects.all()
+    for taxonomy_node in all_taxonomy_nodes:
+        if 'parent_ids' in taxonomy.data[taxonomy_node.node_id]:
+            for node_id in taxonomy.data[taxonomy_node.node_id]['parent_ids']:
+                parent_node = TaxonomyNode.objects.get(node_id=node_id)
+                taxonomy_node.parents.add(parent_node)
 
 class Command(BaseCommand):
     help = 'Generates fake Sounds, Annotations and Votes data. ' \

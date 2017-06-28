@@ -2,17 +2,18 @@ from django.test import Client, TestCase
 from datasets.models import *
 from datasets.views import *
 from datasets.forms import *
-from datasets.management.commands.generate_fake_data import create_sounds, create_users, create_annotations
+from datasets.management.commands.generate_fake_data import create_sounds, create_users, create_annotations, add_taxonomy_nodes
 
 
 class ContributeTest(TestCase):
     fixtures = ['datasets/fixtures/initial.json']
     
     def setUp(self):
+        add_taxonomy_nodes(Taxonomy.objects.get())
         create_sounds('fsd', 1)
         create_users(1)
         create_annotations('fsd', 1)
-        
+           
     def test_save_contribute_validate_annotations_category(self):
         dataset = Dataset.objects.get(short_name='fsd')
         

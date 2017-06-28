@@ -43,8 +43,8 @@
                 <a href="{% url 'contribute-validate-annotations' dataset.short_name %}" class="blue ui button right labeled icon">Choose another category <i class="refresh icon"></i></a>
         </div>
     </div>
-    {% display_taxonomy_node_info dataset node.id 'cva' %}
-    {% taxonomy_node_minimal_data dataset node.id as main_node_data %}
+    {% display_taxonomy_node_info dataset node.node_id 'cva' %}
+    {% taxonomy_node_minimal_data dataset node.node_id as main_node_data %}
     <br>
     {% if not main_node_data.is_omitted %}
         <div class="ui grid">
@@ -94,7 +94,7 @@
                 <br><br>
                 <div class="field">
                     {{ category_comment_form.comment }}
-                    <input id="id_category_id" name="category_id" type="hidden" value="{{ node.id }}">
+                    <input id="id_category_id" name="category_id" type="hidden" value="{{ node.node_id }}">
                     <input id="id_dataset" name="dataset" type="hidden" value="{{ dataset.id }}">
                 </div>
             {% endif %}

@@ -39,11 +39,11 @@ def calculate_taxonomy_node_stats(
         'percentage_validated_annotations': percentage_validated_annotations,
         'num_parents': len(node.get('parent_ids', [])),
         'num_children': len(node.get('child_ids', [])),
-        'is_abstract': 'abstract' in node['restrictions'],
-        'is_blacklisted': 'blacklist' in node['restrictions'],
-        'is_omitted': 'omittedTT' in node['restrictions'],
-        'freesound_examples': node['positive_examples_FS'],
-        'url_id': quote(node['id'], safe=''),
+        'is_abstract': node["abstract"],#'abstract' in node['restrictions'],
+        'is_blacklisted': False,#'blacklist' in node['restrictions'],
+        'is_omitted': node["omitted"],#'omittedTT' in node['restrictions'],
+        'freesound_examples': node['freesound_examples'],
+        'url_id': quote(node['node_id'], safe=''),
         'hierarchy_paths': hierarchy_paths if hierarchy_paths is not None else [],
         'votes_stats': votes_stats if votes_stats is not None else {},
         'comments': comments,
@@ -52,19 +52,19 @@ def calculate_taxonomy_node_stats(
 
 @register.simple_tag(takes_context=False)
 def taxonomy_node_data(dataset, node_id):
-    node = dataset.taxonomy.get_element_at_id(node_id)
+    node = dataset.taxonomy.get_element_at_id(node_id).as_dict()
 
     num_sounds = dataset.num_sounds_per_taxonomy_node(node_id)
     num_annotations = dataset.num_annotations_per_taxonomy_node(node_id)
     num_non_validated_annotations = dataset.num_non_validated_annotations_per_taxonomy_node(node_id)
-    hierarchy_paths = dataset.taxonomy.get_hierarchy_paths(node['id'])
+    hierarchy_paths = dataset.taxonomy.get_hierarchy_paths(node['node_id'])
     votes_stats = {
-        'num_present_and_predominant': dataset.num_votes_with_value(node['id'], 1.0),
-        'num_present_not_predominant': dataset.num_votes_with_value(node['id'], 0.5),
-        'num_not_present': dataset.num_votes_with_value(node['id'], -1.0),
-        'num_unsure': dataset.num_votes_with_value(node['id'], 0.0)
+        'num_present_and_predominant': dataset.num_votes_with_value(node['node_id'], 1.0),
+        'num_present_not_predominant': dataset.num_votes_with_value(node['node_id'], 0.5),
+        'num_not_present': dataset.num_votes_with_value(node['node_id'], -1.0),
+        'num_unsure': dataset.num_votes_with_value(node['node_id'], 0.0)
     }
-    comments = dataset.get_comments_per_taxonomy_node(node['id'])
+    comments = dataset.get_comments_per_taxonomy_node(node['node_id'])
 
     node = node.copy()  # Duplicate the dict, so update operation below doesn't alter the original dict
     node.update(calculate_taxonomy_node_stats(dataset, node, num_sounds, num_annotations, num_non_validated_annotations,
@@ -74,7 +74,7 @@ def taxonomy_node_data(dataset, node_id):
 
 @register.simple_tag(takes_context=False)
 def taxonomy_node_minimal_data(dataset, node_id):
-    node = dataset.taxonomy.get_element_at_id(node_id)
+    node = dataset.taxonomy.get_element_at_id(node_id).as_dict()
     node = node.copy()  # Duplicate the dict, so update operation below doesn't alter the original dict
     node.update(calculate_taxonomy_node_stats(dataset, node))
     return node
