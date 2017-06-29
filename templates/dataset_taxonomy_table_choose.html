@@ -11,9 +11,20 @@
         </thead>
         <tbody>
         {% for node in nodes %}
-            <tr>
+            <tr {% if node.omitted %}class="negative"{% endif %}>
                 <td>{{ node.name }}</td>
-                <td class="right aligned"><a href= "{% url 'choose_category' dataset.short_name node.url_id %}" class="blue ui button right labeled icon"> Choose <i class="right arrow icon"></i></a></td>
+                {% ifequal end False %}
+                    <td class="right aligned">
+                        <a href= "{% url 'choose_category' dataset.short_name node.url_id %}" class="blue ui button right labeled icon"> Choose
+                            <i class="right arrow icon"></i>
+                        </a>
+                    </td>
+                {% else %}
+                    <td class="right aligned">
+                        <a href= "{% url 'contribute-validate-annotations-category' dataset.short_name node.url_id %}" class="blue ui button right labeled icon"> Choose
+                            <i class="right arrow icon"></i>
+                        </a>
+                {% endifequal %}
             </tr>
         {% endfor %}
         </tbody>

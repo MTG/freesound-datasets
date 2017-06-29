@@ -69,11 +69,43 @@ class Taxonomy(models.Model):
                 for node in children:
                     for child in get_children(node.node_id, [node]):
                         yield child
-        children_list = list()
+        children_list = list(self.get_children(node_id))
         for child in get_children(node_id):
             children_list += child
 
         return children_list
+
+    def get_all_parents(self, node_id):
+        """
+            Returns a list of all the children of the given node id
+        """
+        def get_parents(node_id, cur=list()):
+            parents = self.get_parents(node_id)
+            if not parents:
+                yield cur
+            else:
+                for node in parents:
+                    for parent in get_parents(node.node_id, [node]):
+                        yield parent
+
+        parents_list = list(self.get_parents(node_id))
+        for parent in get_parents(node_id):
+            parents_list += parent
+
+        return parents_list
+
+    def get_nodes_at_level(self, level):
+        """
+            Returns a list of all the nodes at a given level of the taxonomy
+        """
+        def flat_list(l):
+            return [item for sublist in l for item in sublist]
+
+        if level == 0:
+            return self.taxonomynode_set.filter(parents=None)
+        else:
+            parent_node_ids = self.get_nodes_at_level(level-1)
+            return flat_list([parent.children.all() for parent in parent_node_ids])
 
     def get_taxonomy_as_tree(self):
         """

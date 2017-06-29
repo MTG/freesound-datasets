@@ -201,13 +201,22 @@ def save_contribute_validate_annotations_category(request):
 
 
 def choose_category(request, short_name, node_id = ''):
+    node_id = unquote(node_id)
     dataset = get_object_or_404(Dataset, short_name=short_name)
+    taxonomy = dataset.taxonomy
+    end = False
+    print(node_id)
     if node_id:
-        nodes = TaxonomyNode.objects.all()
+        if node_id in [node.node_id for node in taxonomy.get_nodes_at_level(0)]:
+            nodes = taxonomy.get_children(node_id)
+        else:
+            nodes = taxonomy.get_all_children(node_id) + [taxonomy.get_element_at_id(node_id)] \
+                    + taxonomy.get_all_parents(node_id)
+            end = True
     else:
-        nodes = TaxonomyNode.objects.all()
+        nodes = taxonomy.get_nodes_at_level(0)
     return render(request, 'dataset_taxonomy_table_choose.html',
-                  {'nodes': nodes, 'dataset': dataset})
+                  {'nodes': nodes, 'dataset': dataset, 'end': end})
 
 
 ########################
