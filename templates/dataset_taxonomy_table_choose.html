@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block content %}
+<table class="ui unstackable table" width="100%">
+    <div class="two column row">
+        <thead>
+            <tr>
+                <th>Category</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for node in nodes %}
+            <tr>
+                <td>{{ node.name }}</td>
+                <td class="right aligned"><a href= "{% url 'choose_category' dataset.short_name node.url_id %}" class="blue ui button right labeled icon"> Choose <i class="right arrow icon"></i></a></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </div>
+</table>
+{% endblock %}
+

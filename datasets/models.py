@@ -11,6 +11,7 @@ import markdown
 import datetime
 from django.utils import timezone
 from django.core.validators import RegexValidator
+from urllib.parse import quote
 
 
 class Taxonomy(models.Model):
@@ -126,7 +127,12 @@ class TaxonomyNode(models.Model):
                 "freesound_examples":[example.freesound_id for example in self.freesound_examples.all()],
                 "parent_ids":[parent.node_id for parent in self.parents.all()],
                 "child_ids":[child.node_id for child in self.children.all()]}
-    
+
+    @property
+    def url_id(self):
+        # Used to return url for node ids
+        return quote(self.node_id, safe='')
+
     
 class Dataset(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)

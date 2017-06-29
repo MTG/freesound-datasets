@@ -11,7 +11,7 @@ from django.db.models import Count
 from django.db import transaction
 from django.forms import formset_factory
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from datasets.models import Dataset, DatasetRelease, Annotation, Vote
+from datasets.models import Dataset, DatasetRelease, Annotation, Vote, TaxonomyNode
 from datasets import utils
 from datasets.forms import DatasetReleaseForm, PresentNotPresentUnsureForm, CategoryCommentForm
 from pygments import highlight
@@ -198,6 +198,13 @@ def save_contribute_validate_annotations_category(request):
             error_response = {'errors': [count for count, value in enumerate(formset.errors) if value != {}]}
             return JsonResponse(error_response)
     return JsonResponse({'errors': False})
+
+
+def choose_category(request, short_name, node_id = ''):
+    dataset = get_object_or_404(Dataset, short_name=short_name)
+    nodes = TaxonomyNode.objects.all()
+    return render(request, 'dataset_taxonomy_table_choose.html',
+                  {'nodes': nodes, 'dataset': dataset})
 
 
 ########################
