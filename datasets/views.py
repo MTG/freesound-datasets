@@ -202,7 +202,10 @@ def save_contribute_validate_annotations_category(request):
 
 def choose_category(request, short_name, node_id = ''):
     dataset = get_object_or_404(Dataset, short_name=short_name)
-    nodes = TaxonomyNode.objects.all()
+    if node_id:
+        nodes = TaxonomyNode.objects.all()
+    else:
+        nodes = TaxonomyNode.objects.all()
     return render(request, 'dataset_taxonomy_table_choose.html',
                   {'nodes': nodes, 'dataset': dataset})
 

@@ -57,6 +57,24 @@ class Taxonomy(models.Model):
 
         return hierarchy_paths
 
+    def get_all_children(self, node_id):
+        """
+            Returns a list of all the children of the given node id
+        """
+        def get_children(node_id, cur=list()):
+            children = self.get_children(node_id)
+            if not children:
+                yield cur
+            else:
+                for node in children:
+                    for child in get_children(node.node_id, [node]):
+                        yield child
+        children_list = list()
+        for child in get_children(node_id):
+            children_list += child
+
+        return children_list
+
     def get_taxonomy_as_tree(self):
         """
             Returns a dictionary for the tree visualization
