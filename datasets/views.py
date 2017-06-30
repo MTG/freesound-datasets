@@ -214,8 +214,8 @@ def choose_category(request, short_name, node_id = ''):
                     + taxonomy.get_all_parents(node_id)
             end = True
             for node in nodes:
-                # TODO: CHOOSE THE HIERARCHY PATH THAT CONTAINS RELATED PARENT AND NOT THE 1st OF THE LIST
-                # SO FAR, THE PARENT IS SHOWN ONLY IF THERE IS ONLY ONE PATH
+                # TODO: CHOOSE THE HIERARCHY PATH THAT CONTAINS RELATED PARENT
+                # SO FAR, THE PARENT IS SHOWN ONLY IF THERE IS ONLY ONE PATH (NON AMBIGUOUS CASES)
                 if len(taxonomy.get_hierarchy_paths(node.node_id)) < 2:
                     node_and_parent = [taxonomy.get_element_at_id(n_id).name
                                    for n_id in taxonomy.get_hierarchy_paths(node.node_id)[0][-2:]]

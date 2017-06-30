@@ -88,9 +88,13 @@ class Taxonomy(models.Model):
                     for parent in get_parents(node.node_id, [node]):
                         yield parent
 
-        parents_list = list()
-        for parent in get_parents(node_id):
-            parents_list += parent
+        parents_list = list(self.get_parents(node_id))
+        # this double for loop is for checking if a parent is already in the list
+        # in this case, we do not append it to the list
+        for parents in get_parents(node_id):
+            for parent in parents:
+                if parent.node_id not in [n.node_id for n in parents_list]:
+                    parents_list.append(parent)
 
         return parents_list
 
