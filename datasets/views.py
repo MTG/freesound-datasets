@@ -226,8 +226,10 @@ def choose_category(request, short_name, node_id = ''):
     else:
         nodes = taxonomy.get_nodes_at_level(0)
     nodes = sorted(nodes, key=lambda n: n.nb_ground_truth)
+    priority_nodes = taxonomy.taxonomynode_set.order_by('nb_ground_truth')[:20]
     return render(request, 'dataset_taxonomy_table_choose.html',
-                  {'nodes': nodes, 'dataset': dataset, 'end': end, 'hierarchy_paths': hierarchy_paths})
+                  {'nodes': nodes, 'dataset': dataset, 'end': end, 'hierarchy_paths': hierarchy_paths,
+                   'priority_nodes': priority_nodes})
 
 
 ########################
