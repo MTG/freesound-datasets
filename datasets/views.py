@@ -215,9 +215,13 @@ def choose_category(request, short_name, node_id = ''):
             end = True
             for node in nodes:
                 # TODO: CHOOSE THE HIERARCHY PATH THAT CONTAINS RELATED PARENT AND NOT THE 1st OF THE LIST
-                node_and_parent = [taxonomy.get_element_at_id(n_id).name
+                # SO FAR, THE PARENT IS SHOWN ONLY IF THERE IS ONLY ONE PATH
+                if len(taxonomy.get_hierarchy_paths(node.node_id)) < 2:
+                    node_and_parent = [taxonomy.get_element_at_id(n_id).name
                                    for n_id in taxonomy.get_hierarchy_paths(node.node_id)[0][-2:]]
-                setattr(node, 'name_with_parent', ' > '.join(node_and_parent))
+                    setattr(node, 'name_with_parent', ' > '.join(node_and_parent))
+                else:
+                    setattr(node, 'name_with_parent', node.name)
         hierarchy_paths = dataset.taxonomy.get_hierarchy_paths(node_id)
     else:
         nodes = taxonomy.get_nodes_at_level(0)
