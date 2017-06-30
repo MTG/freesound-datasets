@@ -88,7 +88,7 @@ class Taxonomy(models.Model):
                     for parent in get_parents(node.node_id, [node]):
                         yield parent
 
-        parents_list = list(self.get_parents(node_id))
+        parents_list = list()
         for parent in get_parents(node_id):
             parents_list += parent
 

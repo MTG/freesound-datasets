@@ -204,8 +204,8 @@ def choose_category(request, short_name, node_id = ''):
     node_id = unquote(node_id)
     dataset = get_object_or_404(Dataset, short_name=short_name)
     taxonomy = dataset.taxonomy
+    hierarchy_paths = []
     end = False
-    print(node_id)
     if node_id:
         if node_id in [node.node_id for node in taxonomy.get_nodes_at_level(0)]:
             nodes = taxonomy.get_children(node_id)
@@ -213,10 +213,16 @@ def choose_category(request, short_name, node_id = ''):
             nodes = taxonomy.get_all_children(node_id) + [taxonomy.get_element_at_id(node_id)] \
                     + taxonomy.get_all_parents(node_id)
             end = True
+            for node in nodes:
+                # TODO: CHOOSE THE HIERARCHY PATH THAT CONTAINS RELATED PARENT AND NOT THE 1st OF THE LIST
+                node_and_parent = [taxonomy.get_element_at_id(n_id).name
+                                   for n_id in taxonomy.get_hierarchy_paths(node.node_id)[0][-2:]]
+                setattr(node, 'name_with_parent', ' > '.join(node_and_parent))
+        hierarchy_paths = dataset.taxonomy.get_hierarchy_paths(node_id)
     else:
         nodes = taxonomy.get_nodes_at_level(0)
     return render(request, 'dataset_taxonomy_table_choose.html',
-                  {'nodes': nodes, 'dataset': dataset, 'end': end})
+                  {'nodes': nodes, 'dataset': dataset, 'end': end, 'hierarchy_paths': hierarchy_paths})
 
 
 ########################
