@@ -70,8 +70,10 @@ class Taxonomy(models.Model):
                     for child in get_children(node.node_id, [node]):
                         yield child
         children_list = list(self.get_children(node_id))
-        for child in get_children(node_id):
-            children_list += child
+        for children in get_children(node_id):
+            for child in children:
+                if child.node_id not in [n.node_id for n in children_list]:
+                    children_list.append(child)
 
         return children_list
 

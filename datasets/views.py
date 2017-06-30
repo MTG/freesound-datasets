@@ -225,6 +225,7 @@ def choose_category(request, short_name, node_id = ''):
         hierarchy_paths = dataset.taxonomy.get_hierarchy_paths(node_id)
     else:
         nodes = taxonomy.get_nodes_at_level(0)
+    nodes = sorted(nodes, key=lambda n: n.nb_ground_truth)
     return render(request, 'dataset_taxonomy_table_choose.html',
                   {'nodes': nodes, 'dataset': dataset, 'end': end, 'hierarchy_paths': hierarchy_paths})
 
