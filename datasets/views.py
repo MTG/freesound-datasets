@@ -206,6 +206,20 @@ def choose_category(request, short_name, node_id = ''):
     taxonomy = dataset.taxonomy
     hierarchy_paths = []
     end = False
+
+    # priority nodes for Our priority table
+    priority_nodes = taxonomy.taxonomynode_set.order_by('nb_ground_truth')[:30]
+    for node in priority_nodes:
+        # TODO: CHOOSE THE HIERARCHY PATH THAT CONTAINS RELATED PARENT
+        # SO FAR, THE PARENT IS SHOWN ONLY IF THERE IS ONLY ONE PATH (NON AMBIGUOUS CASES)
+        if len(taxonomy.get_hierarchy_paths(node.node_id)) < 2:
+            node_and_parent = [taxonomy.get_element_at_id(n_id).name
+                               for n_id in taxonomy.get_hierarchy_paths(node.node_id)[0][-3:]]
+            setattr(node, 'name_with_parent', ' > '.join(node_and_parent))
+        else:
+            setattr(node, 'name_with_parent', ' - - - > ' + node.name)
+
+    # nodes for Free choose table
     if node_id:
         if node_id in [node.node_id for node in taxonomy.get_nodes_at_level(0)]:
             nodes = taxonomy.get_children(node_id)
@@ -221,12 +235,12 @@ def choose_category(request, short_name, node_id = ''):
                                    for n_id in taxonomy.get_hierarchy_paths(node.node_id)[0][-2:]]
                     setattr(node, 'name_with_parent', ' > '.join(node_and_parent))
                 else:
-                    setattr(node, 'name_with_parent', node.name)
+                    setattr(node, 'name_with_parent', ' - - - > ' + node.name)
         hierarchy_paths = dataset.taxonomy.get_hierarchy_paths(node_id)
     else:
         nodes = taxonomy.get_nodes_at_level(0)
     nodes = sorted(nodes, key=lambda n: n.nb_ground_truth)
-    priority_nodes = taxonomy.taxonomynode_set.order_by('nb_ground_truth')[:20]
+
     return render(request, 'dataset_taxonomy_table_choose.html',
                   {'nodes': nodes, 'dataset': dataset, 'end': end, 'hierarchy_paths': hierarchy_paths,
                    'priority_nodes': priority_nodes})

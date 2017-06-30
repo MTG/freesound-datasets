@@ -36,84 +36,84 @@
             <h4> Our priority </h4>
         </a>
     </div>
-        <div class="tabcontent" id="choose_table_placeholder">
-            {% ifequal end False %}
-                <div class="ui dividing header"> Which sort of category would you like to annotate? </div>
-            {% else %}
-                <div class="ui dividing header"> Which category would you like to annotate? </div>
-            {% endifequal %}
-            {% for hierarchy_path in hierarchy_paths %}
-                <div class="item">
-                    <div class="ui horizontal list">
-                        <div class="item">
-                            <a href="{% url 'choose_category' dataset.short_name %}"> Ontology </a>
-                        </div>
-                        {% for node_id in hierarchy_path %}
-                            {% taxonomy_node_minimal_data dataset node_id as sub_node_data  %}
-                            <div class="item" style="margin-left:3px;margin-right:5px;">
-                                >
-                                <a href="{% url 'choose_category' dataset.short_name sub_node_data.url_id %}">{{ sub_node_data.name }}</a>
-                            </div>
-                        {% endfor %}
+    <div class="tabcontent" id="choose_table_placeholder">
+        {% ifequal end False %}
+            <div class="ui dividing header"> Which sort of category would you like to annotate? </div>
+        {% else %}
+            <div class="ui dividing header"> Which category would you like to annotate? </div>
+        {% endifequal %}
+        {% for hierarchy_path in hierarchy_paths %}
+            <div class="item">
+                <div class="ui horizontal list">
+                    <div class="item">
+                        <a href="{% url 'choose_category' dataset.short_name %}"> Ontology </a>
                     </div>
-                </div>
-            {% empty %}
-                <div class="item">-</div>
-            {% endfor %}
-
-            <table class="ui unstackable table" width="100%">
-                <div class="two column row">
-                    <thead>
-                        <tr>
-                            <th>Category</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    {% for node in nodes %}
-                        {% ifequal end False %}
-                            <td>{{ node.name }}</td>
-                            <td class="right aligned">
-                                <a href= "{% url 'choose_category' dataset.short_name node.url_id %}" class="teal ui button right labeled icon"> Continue
-                                    <i class="right arrow icon"></i>
-                                </a>
-                            </td>
-                        {% else %}
-                            <tr {% if node.omitted %}class="negative"{% endif %}>
-                                <td>{{ node.name_with_parent }}</td>
-                                <td class="right aligned">
-                                    <a href= "{% url 'contribute-validate-annotations-category' dataset.short_name node.url_id %}" class="blue ui button right labeled icon"> Choose
-                                        <i class="right arrow icon"></i>
-                                    </a>
-                        {% endifequal %}
-                        </tr>
+                    {% for node_id in hierarchy_path %}
+                        {% taxonomy_node_minimal_data dataset node_id as sub_node_data  %}
+                        <div class="item" style="margin-left:3px;margin-right:5px;">
+                            >
+                            <a href="{% url 'choose_category' dataset.short_name sub_node_data.url_id %}">{{ sub_node_data.name }}</a>
+                        </div>
                     {% endfor %}
-                    </tbody>
                 </div>
-            </table>
-        </div>
-        <div class="tabcontent" id="priority_table_placeholder" style="display: none;">
-            <div class="ui dividing header"> </div>
-            <table class="ui unstackable table" width="100%">
-                <div class="two column row">
-                    <thead>
-                        <tr>
-                            <th>Category</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    {% for node in priority_nodes %}
+            </div>
+        {% empty %}
+            <div class="item">-</div>
+        {% endfor %}
+
+        <table class="ui unstackable table" width="100%">
+            <div class="two column row">
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for node in nodes %}
+                    {% ifequal end False %}
+                        <td>{{ node.name }}</td>
+                        <td class="right aligned">
+                            <a href= "{% url 'choose_category' dataset.short_name node.url_id %}" class="teal ui button right labeled icon"> Continue
+                                <i class="right arrow icon"></i>
+                            </a>
+                        </td>
+                    {% else %}
                         <tr {% if node.omitted %}class="negative"{% endif %}>
-                            <td>{{ node.name }}</td>
+                            <td>{{ node.name_with_parent }}</td>
                             <td class="right aligned">
                                 <a href= "{% url 'contribute-validate-annotations-category' dataset.short_name node.url_id %}" class="blue ui button right labeled icon"> Choose
                                     <i class="right arrow icon"></i>
                                 </a>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </div>
-            </table>
-        </div>
+                    {% endifequal %}
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </div>
+        </table>
+    </div>
+    <div class="tabcontent" id="priority_table_placeholder" style="display: none;">
+        <div class="ui dividing header"> </div>
+        <table class="ui unstackable table" width="100%">
+            <div class="two column row">
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for node in priority_nodes %}
+                    <tr {% if node.omitted %}class="negative"{% endif %}>
+                        <td>{{ node.name_with_parent }}</td>
+                        <td class="right aligned">
+                            <a href= "{% url 'contribute-validate-annotations-category' dataset.short_name node.url_id %}" class="blue ui button right labeled icon"> Choose
+                                <i class="right arrow icon"></i>
+                            </a>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </div>
+        </table>
+    </div>
 {% endblock %}
