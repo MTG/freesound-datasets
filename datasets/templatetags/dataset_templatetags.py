@@ -47,6 +47,7 @@ def calculate_taxonomy_node_stats(
         'hierarchy_paths': hierarchy_paths if hierarchy_paths is not None else [],
         'votes_stats': votes_stats if votes_stats is not None else {},
         'comments': comments,
+        'nb_ground_truth': node['nb_ground_truth'],
     }
 
 

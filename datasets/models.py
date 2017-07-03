@@ -173,16 +173,17 @@ class TaxonomyNode(models.Model):
     nb_ground_truth = models.IntegerField(default=0)
     
     def as_dict(self):
-        return {"name":self.name,
-                "node_id":self.node_id,
-                "id":self.id,
-                "description":self.description,
-                "citation_uri":self.citation_uri,
-                "abstract":self.abstract,
-                "omitted":self.omitted,
-                "freesound_examples":[example.freesound_id for example in self.freesound_examples.all()],
-                "parent_ids":[parent.node_id for parent in self.parents.all()],
-                "child_ids":[child.node_id for child in self.children.all()]}
+        return {"name": self.name,
+                "node_id": self.node_id,
+                "id": self.id,
+                "description": self.description,
+                "citation_uri": self.citation_uri,
+                "abstract": self.abstract,
+                "omitted": self.omitted,
+                "freesound_examples": [example.freesound_id for example in self.freesound_examples.all()],
+                "parent_ids": [parent.node_id for parent in self.parents.all()],
+                "child_ids": [child.node_id for child in self.children.all()],
+                "nb_ground_truth": self.nb_ground_truth}
 
     @property
     def url_id(self):
@@ -259,12 +260,12 @@ class Dataset(models.Model):
         return self.non_validated_annotations_per_taxonomy_node(node_id).count()
 
     def non_ground_truth_annotations_per_taxonomy_node(self, node_id):
-        all_annotations = self.annotations_per_taxonomy_node(node_id)
+        all_annotations = self.annotations_per_taxonomy_node(node_id).annotate(num_votes=Count('votes'))
         ground_truth_pk = []
         for vote_value in [-1, 0, 0.5, 1]:
             ground_truth_pk += [a.pk for a in
                                 all_annotations.filter(votes__vote=vote_value).annotate(num_votes=Count('votes')).filter(num_votes__gt=1)]
-        return all_annotations.exclude(pk__in=ground_truth_pk)
+        return all_annotations.exclude(pk__in=ground_truth_pk).order_by('-num_votes')
 
     def num_votes_with_value(self, node_id, vote_value):
         return Vote.objects.filter(
