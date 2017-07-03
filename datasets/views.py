@@ -147,9 +147,8 @@ def contribute_validate_annotations_category(request, short_name, node_id):
     node_id = unquote(node_id)
     node = dataset.taxonomy.get_element_at_id(node_id)
 
-    # Get non-validated annotations for this category
-    #annotations = dataset.non_validated_annotations_per_taxonomy_node(node_id)
-    annotations = dataset.non_ground_truth_annotations_per_taxonomy_node(node_id)
+    # Get annotation that are not ground truth and that have been never annotated by the user
+    annotations = dataset.non_ground_truth_annotations_per_taxonomy_node(node_id).exclude(votes__created_by=request.user)
     all_annotation_object_ids = annotations.values_list('id', flat=True)
 
     # Select 10 at random and return their Annotation objects
