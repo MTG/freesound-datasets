@@ -205,7 +205,9 @@ def compute_gt_taxonomy_node():
     for node_id in taxonomy.get_all_node_ids():
         taxonomy_node = TaxonomyNode.objects.get(node_id=node_id)
         nb_ground_truth = Annotation.objects.filter(taxonomy_node__node_id=node_id, votes__vote=1)\
-            .annotate(num_votes=Count('votes')).filter(num_votes__gte=2).count()
+            .annotate(num_votes=Count('votes')).filter(num_votes__gte=2).count() + \
+                          Annotation.objects.filter(taxonomy_node__node_id=node_id, votes__vote=0.5)\
+                              .annotate(num_votes=Count('votes')).filter(num_votes__gte=2).count()
         taxonomy_node.nb_ground_truth = nb_ground_truth
         taxonomy_node.save()
     logger.info('Finished computing number of ground truth annotation')

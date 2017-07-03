@@ -260,6 +260,9 @@ class Dataset(models.Model):
         return self.non_validated_annotations_per_taxonomy_node(node_id).count()
 
     def non_ground_truth_annotations_per_taxonomy_node(self, node_id):
+        """
+        Returns annotations that have no vote agreement
+        """
         all_annotations = self.annotations_per_taxonomy_node(node_id).annotate(num_votes=Count('votes'))
         ground_truth_pk = []
         for vote_value in [-1, 0, 0.5, 1]:
