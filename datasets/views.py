@@ -149,6 +149,7 @@ def contribute_validate_annotations_category(request, short_name, node_id):
 
     # Get annotation that are not ground truth and that have been never annotated by the user
     annotations = dataset.non_ground_truth_annotations_per_taxonomy_node(node_id).exclude(votes__created_by=request.user)
+    # Divide into voted and non voted ones
     annotation_with_vote = annotations.annotate(num_votes=Count('votes')).filter(num_votes__gt=0)
     annotation_with_no_vote = annotations.annotate(num_votes=Count('votes')).filter(num_votes=0)
 
@@ -156,6 +157,7 @@ def contribute_validate_annotations_category(request, short_name, node_id):
     annotation_with_no_vote_ids = annotation_with_no_vote.values_list('id', flat=True)
 
     # Select 12 annotations prioritizing annotations that have been already voted, randomize
+    # TODO: Maybe use weighted sampling to avoid this 2 step selection (will include more steps in the future...)
     N_ANNOTATIONS_TO_VALIDATE = 12
     N_with_vote = min(len(annotation_with_vote_ids), N_ANNOTATIONS_TO_VALIDATE)
     annotation_ids = random.sample(list(annotation_with_vote_ids), N_with_vote)
