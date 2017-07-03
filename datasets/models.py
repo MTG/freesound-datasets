@@ -255,6 +255,9 @@ class Dataset(models.Model):
     def non_validated_annotations_per_taxonomy_node(self, node_id):
         return self.annotations_per_taxonomy_node(node_id).annotate(num_votes=Count('votes')).filter(num_votes__lte=0)
 
+    def non_ground_truth_annotations_per_taxonomy_node(self, node_id):
+        pass
+
     def num_non_validated_annotations_per_taxonomy_node(self, node_id):
         return self.non_validated_annotations_per_taxonomy_node(node_id).count()
 
@@ -348,6 +351,24 @@ class Annotation(models.Model):
     @property
     def value(self):
         return self.taxonomy_node.node_id
+
+    @property
+    def ground_truth(self):
+        """
+        Returns the ground truth vote value of the annotation
+        Returns False if there is no ground truth value
+        """
+        vote_values = [v.vote for v in self.votes.all()]
+        if vote_values.count(1) > 1:
+            return 1
+        if vote_values.count(0.5) > 1:
+            return 0.5
+        if vote_values.count(0) > 1:
+            return 0
+        if vote_values.count(-1) > 1:
+            return -1
+        else:
+            return False
 
 
 class Vote(models.Model):
