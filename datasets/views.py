@@ -149,14 +149,24 @@ def contribute_validate_annotations_category(request, short_name, node_id):
 
     # Get annotation that are not ground truth and that have been never annotated by the user
     annotations = dataset.non_ground_truth_annotations_per_taxonomy_node(node_id).exclude(votes__created_by=request.user)
-    all_annotation_object_ids = annotations.values_list('id', flat=True)
+    annotation_with_vote = annotations.annotate(num_votes=Count('votes')).filter(num_votes__gt=0)
+    annotation_with_no_vote = annotations.annotate(num_votes=Count('votes')).filter(num_votes=0)
 
-    # Select 10 at random and return their Annotation objects
+    annotation_with_vote_ids = annotation_with_vote.values_list('id', flat=True)
+    annotation_with_no_vote_ids = annotation_with_no_vote.values_list('id', flat=True)
+
+    # Select 12 annotations prioritizing annotations that have been already voted, randomize
     N_ANNOTATIONS_TO_VALIDATE = 12
-    N = min(len(all_annotation_object_ids), N_ANNOTATIONS_TO_VALIDATE)
-    annotations = Annotation.objects\
-        .filter(id__in=random.sample(list(all_annotation_object_ids), N))\
-        .select_related('sound_dataset__sound')
+    N_with_vote = min(len(annotation_with_vote_ids), N_ANNOTATIONS_TO_VALIDATE)
+    annotation_ids = random.sample(list(annotation_with_vote_ids), N_with_vote)
+
+    # if there is not enough voted annotations (<12), fill the list with non voted annotations
+    N_with_no_vote = min(len(annotation_with_no_vote_ids), N_ANNOTATIONS_TO_VALIDATE - N_with_vote)
+    if N_with_no_vote:
+        annotation_ids += random.sample(list(annotation_with_no_vote_ids), N_with_no_vote)
+
+    N = N_with_vote + N_with_no_vote
+    annotations = Annotation.objects.filter(id__in=annotation_ids).select_related('sound_dataset__sound')
 
     formset = PresentNotPresentUnsureFormSet(
         initial=[{'annotation_id': annotation.id} for annotation in annotations])
