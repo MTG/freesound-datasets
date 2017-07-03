@@ -212,7 +212,7 @@ def save_contribute_validate_annotations_category(request):
     return JsonResponse({'errors': False})
 
 
-def choose_category(request, short_name, node_id = ''):
+def choose_category(request, short_name, node_id=''):
     node_id = unquote(node_id)
     dataset = get_object_or_404(Dataset, short_name=short_name)
     taxonomy = dataset.taxonomy
@@ -249,6 +249,8 @@ def choose_category(request, short_name, node_id = ''):
                 else:
                     setattr(node, 'name_with_parent', ' - - - > ' + node.name)
         hierarchy_paths = dataset.taxonomy.get_hierarchy_paths(node_id)
+
+    # start choosing category
     else:
         nodes = taxonomy.get_nodes_at_level(0)
     nodes = sorted(nodes, key=lambda n: n.nb_ground_truth)
