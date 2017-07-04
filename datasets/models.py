@@ -199,7 +199,6 @@ class Dataset(models.Model):
     taxonomy = models.ForeignKey(Taxonomy, null=True, blank=True, on_delete=models.SET_NULL)
     sounds = models.ManyToManyField(Sound, related_name='datasets', through='datasets.SoundDataset')
     maintainers = models.ManyToManyField(User, related_name='maintained_datasets')
-    
 
     def __str__(self):
         return 'Dataset {0}'.format(self.name)
@@ -266,9 +265,30 @@ class Dataset(models.Model):
         all_annotations = self.annotations_per_taxonomy_node(node_id).annotate(num_votes=Count('votes'))
         ground_truth_pk = []
         for vote_value in [-1, 0, 0.5, 1]:
-            ground_truth_pk += [a.pk for a in
-                                all_annotations.filter(votes__vote=vote_value).annotate(num_votes=Count('votes')).filter(num_votes__gt=1)]
+            ground_truth_pk += [a.pk for a in all_annotations.filter(votes__vote=vote_value).
+                                annotate(num_votes=Count('votes')).filter(num_votes__gt=1)]
         return all_annotations.exclude(pk__in=ground_truth_pk).order_by('-num_votes')
+
+    def get_categories_to_validate(self, user):
+        """
+        Returns a query set with the TaxonomyNode that can be validated by a user
+        Quite slow, should not be use often
+        """
+        nodes = self.taxonomy.taxonomynode_set.all()
+        nodes_to_remove = [node.node_id for node in nodes
+                           if self.non_ground_truth_annotations_per_taxonomy_node(node.node_id)
+                               .exclude(votes__created_by=user).count() < 1]
+        return nodes.exclude(node_id__in=nodes_to_remove)
+
+    def user_can_annotate(self, node_id, user):
+        """
+        Returns True if the user still have some annotation to validate for the category of id node_id
+        Returns False if the user has no no more annotation to validate
+        """
+        if self.non_ground_truth_annotations_per_taxonomy_node(node_id).exclude(votes__created_by=user).count() < 1:
+            return False
+        else:
+            return True
 
     def num_votes_with_value(self, node_id, vote_value):
         return Vote.objects.filter(

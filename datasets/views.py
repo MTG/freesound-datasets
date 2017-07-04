@@ -221,6 +221,9 @@ def choose_category(request, short_name, node_id=''):
 
     # priority nodes for Our priority table
     priority_nodes = taxonomy.taxonomynode_set.order_by('nb_ground_truth')[:30]
+    # remove the nodes that have no more annotations to validate for the user, or are omitted
+    # priority_nodes = [node for node in priority_nodes
+    #                   if dataset.user_can_annotate(node.node_id, request.user) and not node.omitted]
     for node in priority_nodes:
         # TODO: CHOOSE THE HIERARCHY PATH THAT CONTAINS RELATED PARENT
         # SO FAR, THE PARENT IS SHOWN ONLY IF THERE IS ONLY ONE PATH (NON AMBIGUOUS CASES)
@@ -233,12 +236,16 @@ def choose_category(request, short_name, node_id=''):
 
     # nodes for Free choose table
     if node_id:
-        if node_id in [node.node_id for node in taxonomy.get_nodes_at_level(0)]:
+        if node_id in taxonomy.get_nodes_at_level(0).values_list('node_id', flat=True):
             nodes = taxonomy.get_children(node_id)
         else:
-            nodes = taxonomy.get_all_children(node_id) + [taxonomy.get_element_at_id(node_id)] \
+            end = True  # end of continue, now the user will choose a category to annotate
+            nodes = taxonomy.get_all_children(node_id) + [taxonomy.get_element_at_id(node_id)]\
                     + taxonomy.get_all_parents(node_id)
-            end = True
+            # remove the nodes that have no more annotations to validate for the user, or are omitted
+            nodes = [node for node in nodes
+                     if dataset.user_can_annotate(node.node_id, request.user) and not node.omitted]
+            # add path to the nodes to show parent
             for node in nodes:
                 # TODO: CHOOSE THE HIERARCHY PATH THAT CONTAINS RELATED PARENT
                 # SO FAR, THE PARENT IS SHOWN ONLY IF THERE IS ONLY ONE PATH (NON AMBIGUOUS CASES)
