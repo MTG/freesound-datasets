@@ -12,12 +12,18 @@
         function loadDatasetTaxonomyTableChoose(node_id){
             $.ajax({url: "{% url 'dataset_taxonomy_table_choose' dataset.short_name %}",
                     type: "POST",
+                    beforeSend: function(){ timeoutID = setTimeout( function() {
+                        $( "#choose_table_placeholder" ).html('<div class="ui active centered inline text loader">Loading data...</div>')}, 500)
+                    },
                     data: {node_id: node_id, csrfmiddlewaretoken: "{{csrf_token}}"},
-                    success: function(result){$( "#choose_table_placeholder" ).html(result),
-                    $(".loadButton").on("click", function(e) {
-                        var thisId = $(this).data("node_id");
-                        loadDatasetTaxonomyTableChoose(thisId)
-                    })}
+                    success: function(result){
+                        clearTimeout(timeoutID);
+                        $( "#choose_table_placeholder" ).html(result);
+                        $(".loadButton").on("click", function(e) {
+                            var thisId = $(this).data("node_id");
+                            loadDatasetTaxonomyTableChoose(thisId)
+                        })
+                    }
             })
         }
         function loadDatasetTaxonomyTablePriority(){
