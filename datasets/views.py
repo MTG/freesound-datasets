@@ -248,6 +248,8 @@ def dataset_taxonomy_table_choose(request, short_name):
     else:
         end = True
         nodes = dataset.get_categories_to_validate(request.user)
+        # this takes a while because it has to check if the user can annotate the categories
+        # adding a "ground_truth" field to annotation would speed up the process
 
     # End of selection, add path to the nodes to show parent
     if end:
