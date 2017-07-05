@@ -247,7 +247,7 @@ def dataset_taxonomy_table_choose(request, short_name):
     # GET request, nodes for Our priority table
     else:
         end = True
-        nodes = dataset.get_categories_to_validate(request.user)
+        nodes = dataset.get_categories_to_validate(request.user).order_by('nb_ground_truth')
         # this takes a while because it has to check if the user can annotate the categories
         # adding a "ground_truth" field to annotation would speed up the process
 
