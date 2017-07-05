@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load humanize %}
+{% block title %}Validate category annotations{% endblock title %}
+{% block page_js %}
+    <script type="text/javascript">
+        $(document).ready(function() {
+            loadDatasetTaxonomyTableChoose(0);
+            loadDatasetTaxonomyTablePriority();
+        });
+
+        function loadDatasetTaxonomyTableChoose(node_id){
+            $.ajax({url: "{% url 'dataset_taxonomy_table_choose' dataset.short_name %}",
+                    type: "POST",
+                    data: {node_id: node_id, csrfmiddlewaretoken: "{{csrf_token}}"},
+                    success: function(result){$( "#choose_table_placeholder" ).html(result),
+                    $(".loadButton").on("click", function(e) {
+                        var thisId = $(this).data("node_id");
+                        loadDatasetTaxonomyTableChoose(thisId)
+                    })}
+            })
+        }
+        function loadDatasetTaxonomyTablePriority(){
+            $( "#priority_table_placeholder" ).load( "{% url 'dataset_taxonomy_table_choose' dataset.short_name %}", function() {});
+        }
+
+        function openTab(evt, contentName) {
+            // Declare all variables
+            var i, tabcontent, tablinks;
+
+            // Get all elements with class="tabcontent" and hide them
+            tabcontent = document.getElementsByClassName("tabcontent");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+
+            // Get all elements with class="item" and remove the class "active"
+            tablinks = document.getElementsByClassName("item");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+
+            // Show the current tab, and add an "active" class to the button that opened the tab
+            document.getElementById(contentName).style.display = "block";
+            evt.currentTarget.className += " active";
+        }
+    </script>
+{% endblock %}
+
+
+
+{% block content %}
+    <h1 class="ui header">Validate category annotations</h1>
+    <p>Please <b>choose one of the categories</b> below to continue.
+        <br>Read the <a href="{% url 'contribute-validate-annotations' dataset.short_name %}?help=1"> task instructions</a> if you're not sure how to proceed.</p>
+
+
+
+    <div class="ui olive two item inverted menu">
+        <a class="item active" onclick="openTab(event, 'choose_table_placeholder')">
+            <h4> Free choose </h4>
+        </a>
+        <a class="item" onclick="openTab(event, 'priority_table_placeholder')">
+            <h4> Our priority </h4>
+        </a>
+    </div>
+
+
+    <div class="tabcontent" id="choose_table_placeholder">
+        <div class="ui active centered inline text loader">Loading data...</div>
+    </div>
+
+    <div class="tabcontent" id="priority_table_placeholder" style="display: none;">
+        <div class="ui active centered inline text loader">Loading data...</div>
+    </div>
+{% endblock %}

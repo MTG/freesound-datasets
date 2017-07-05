@@ -29,7 +29,7 @@ urlpatterns = [
     url(r'^(?P<short_name>[^\/]+)/contribute/validate_annotations/$', contribute_validate_annotations, name='contribute-validate-annotations'),
     url(r'^(?P<short_name>[^\/]+)/contribute/validate_annotations/(?P<node_id>[^\/]+)/$', contribute_validate_annotations_category, name='contribute-validate-annotations-category'),
     url(r'^(?P<short_name>[^\/]+)/contribute/choose_category/$', choose_category, name='choose_category'),
-    url(r'^(?P<short_name>[^\/]+)/contribute/choose_category/(?P<node_id>[^\/]+)/$', choose_category, name='choose_category'),
+    url(r'^(?P<short_name>[^\/]+)/contribute/choose_category_table/$', dataset_taxonomy_table_choose, name='dataset_taxonomy_table_choose'),
 ]
 
 if settings.DEBUG:

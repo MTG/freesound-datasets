@@ -212,59 +212,57 @@ def save_contribute_validate_annotations_category(request):
     return JsonResponse({'errors': False})
 
 
-def choose_category(request, short_name, node_id=''):
-    node_id = unquote(node_id)
+def choose_category(request, short_name):
+    dataset = get_object_or_404(Dataset, short_name=short_name)
+    return render(request, 'dataset_taxonomy_choose_category.html', {'dataset': dataset})
+
+
+def dataset_taxonomy_table_choose(request, short_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
     taxonomy = dataset.taxonomy
     hierarchy_paths = []
     end = False
 
-    # priority nodes for Our priority table
-    priority_nodes = taxonomy.taxonomynode_set.order_by('nb_ground_truth')[:30]
-    # remove the nodes that have no more annotations to validate for the user, or are omitted
-    # priority_nodes = [node for node in priority_nodes
-    #                   if dataset.user_can_annotate(node.node_id, request.user) and not node.omitted]
-    for node in priority_nodes:
-        # TODO: CHOOSE THE HIERARCHY PATH THAT CONTAINS RELATED PARENT
-        # SO FAR, THE PARENT IS SHOWN ONLY IF THERE IS ONLY ONE PATH (NON AMBIGUOUS CASES)
-        if len(taxonomy.get_hierarchy_paths(node.node_id)) < 2:
-            node_and_parent = [taxonomy.get_element_at_id(n_id).name
-                               for n_id in taxonomy.get_hierarchy_paths(node.node_id)[0][-3:]]
-            setattr(node, 'name_with_parent', ' > '.join(node_and_parent))
-        else:
-            setattr(node, 'name_with_parent', ' - - - > ' + node.name)
-
     # nodes for Free choose table
-    if node_id:
-        if node_id in taxonomy.get_nodes_at_level(0).values_list('node_id', flat=True):
-            nodes = taxonomy.get_children(node_id)
+    if request.method == 'POST':
+        node_id = request.POST['node_id']
+
+        # choose a category at the given node_id level
+        if node_id != str(0):
+            if node_id in taxonomy.get_nodes_at_level(0).values_list('node_id', flat=True):
+                nodes = taxonomy.get_children(node_id)
+            else:
+                end = True  # end of continue, now the user will choose a category to annotate
+                nodes = taxonomy.get_all_children(node_id) + [taxonomy.get_element_at_id(node_id)] + taxonomy.get_all_parents(node_id)
+                # remove the nodes that have no more annotations to validate for the user, or are omitted
+                nodes = [node for node in nodes
+                         if dataset.user_can_annotate(node.node_id, request.user) and not node.omitted]
+            hierarchy_paths = dataset.taxonomy.get_hierarchy_paths(node_id)
+
+        # start choosing category
         else:
-            end = True  # end of continue, now the user will choose a category to annotate
-            nodes = taxonomy.get_all_children(node_id) + [taxonomy.get_element_at_id(node_id)]\
-                    + taxonomy.get_all_parents(node_id)
-            # remove the nodes that have no more annotations to validate for the user, or are omitted
-            nodes = [node for node in nodes
-                     if dataset.user_can_annotate(node.node_id, request.user) and not node.omitted]
-            # add path to the nodes to show parent
-            for node in nodes:
-                # TODO: CHOOSE THE HIERARCHY PATH THAT CONTAINS RELATED PARENT
-                # SO FAR, THE PARENT IS SHOWN ONLY IF THERE IS ONLY ONE PATH (NON AMBIGUOUS CASES)
-                if len(taxonomy.get_hierarchy_paths(node.node_id)) < 2:
-                    node_and_parent = [taxonomy.get_element_at_id(n_id).name
-                                   for n_id in taxonomy.get_hierarchy_paths(node.node_id)[0][-2:]]
-                    setattr(node, 'name_with_parent', ' > '.join(node_and_parent))
-                else:
-                    setattr(node, 'name_with_parent', ' - - - > ' + node.name)
-        hierarchy_paths = dataset.taxonomy.get_hierarchy_paths(node_id)
+            nodes = taxonomy.get_nodes_at_level(0)
+        nodes = sorted(nodes, key=lambda n: n.nb_ground_truth)
 
-    # start choosing category
+    # GET request, nodes for Our priority table
     else:
-        nodes = taxonomy.get_nodes_at_level(0)
-    nodes = sorted(nodes, key=lambda n: n.nb_ground_truth)
+        end = True
+        nodes = dataset.get_categories_to_validate(request.user)
 
-    return render(request, 'dataset_taxonomy_table_choose.html',
-                  {'nodes': nodes, 'dataset': dataset, 'end': end, 'hierarchy_paths': hierarchy_paths,
-                   'priority_nodes': priority_nodes})
+    # End of selection, add path to the nodes to show parent
+    if end:
+        for node in nodes:
+            # TODO: CHOOSE THE HIERARCHY PATH THAT CONTAINS RELATED PARENT
+            # SO FAR, THE PARENT IS SHOWN ONLY IF THERE IS ONLY ONE PATH (NON AMBIGUOUS CASES)
+            if len(taxonomy.get_hierarchy_paths(node.node_id)) < 2:
+                node_and_parent = [taxonomy.get_element_at_id(n_id).name
+                                   for n_id in taxonomy.get_hierarchy_paths(node.node_id)[0][-2:]]
+                setattr(node, 'name_with_parent', ' > '.join(node_and_parent))
+            else:
+                setattr(node, 'name_with_parent', ' - - - > ' + node.name)
+
+    return render(request, 'dataset_taxonomy_table_choose.html', {
+        'dataset': dataset, 'end': end, 'hierarchy_paths': hierarchy_paths, 'nodes': nodes})
 
 
 ########################
