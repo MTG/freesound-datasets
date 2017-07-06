@@ -4,7 +4,7 @@ import collections
 from django.db import models
 from django.db.models import Count
 from django.contrib.postgres.fields import JSONField
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
 from django.conf import settings
 import os
 import markdown
@@ -190,7 +190,12 @@ class TaxonomyNode(models.Model):
         # Used to return url for node ids
         return quote(self.node_id, safe='')
 
-    
+
+class User(AbstractUser):
+    pass
+    #is_trustable = models.BooleanField(default=False)
+
+
 class Dataset(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=200)
