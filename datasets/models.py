@@ -262,7 +262,7 @@ class Dataset(models.Model):
         """
         Returns annotations that have no vote agreement
         """
-        all_annotations = self.annotations_per_taxonomy_node(node_id).annotate(num_votes=Count('votes'))
+        all_annotations = self.annotations_per_taxonomy_node(node_id)#.annotate(num_votes=Count('votes'))
         # this commented code should work but is super slow... With ground_truth as a field it will be fast!
         #non_ground_truth_pk = [annotation.pk for annotation in all_annotations if annotation.ground_truth is False]
         ground_truth_pk = []

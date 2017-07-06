@@ -6,10 +6,10 @@ from django.db import migrations, models
 from django.db import transaction
 
 
-@transaction.atomic
 def add_ground_truth(apps, schema_editor):
     Annotation = apps.get_model('datasets', 'Annotation')
-    for annotation in Annotation.objects.all():
+    all_annotations = Annotation.objects.all()
+    for annotation in all_annotations:
         vote_values = [v.vote for v in annotation.votes.all()]
         if vote_values.count(1) > 1:
             annotation.ground_truth = 1
@@ -19,8 +19,7 @@ def add_ground_truth(apps, schema_editor):
             annotation.ground_truth = 0
         if vote_values.count(-1) > 1:
             annotation.ground_truth = -1
-        else:
-            annotation.ground_truth = None
+        annotation.save()
 
 
 class Migration(migrations.Migration):
