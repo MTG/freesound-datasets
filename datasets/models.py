@@ -387,7 +387,7 @@ class Annotation(models.Model):
     def ground_truth_state(self):
         """
         Returns the ground truth vote value of the annotation
-        Returns False if there is no ground truth value
+        Returns None if there is no ground truth value
         """
         vote_values = [v.vote for v in self.votes.all()]
         if vote_values.count(1) > 1:
@@ -399,7 +399,7 @@ class Annotation(models.Model):
         if vote_values.count(-1) > 1:
             return -1
         else:
-            return False
+            return None
 
 
 class Vote(models.Model):
@@ -416,6 +416,10 @@ class Vote(models.Model):
     def save(self, request=False, *args, **kwargs):
         models.Model.save(self, *args, **kwargs)
         # here calculate ground truth for vote.annotation
+        ground_truth_state = self.annotation.ground_truth_state
+        if ground_truth_state:
+            self.annotation.ground_truth = ground_truth_state
+            self.annotation.save()
 
 
 class CategoryComment(models.Model):
