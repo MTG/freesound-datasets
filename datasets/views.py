@@ -254,12 +254,13 @@ def dataset_taxonomy_table_choose(request, short_name):
     # End of selection, add path to the nodes to show parent
     if end:
         for node in nodes:
+            parents = taxonomy.get_parents(node.node_id)
             # TODO: CHOOSE THE HIERARCHY PATH THAT CONTAINS RELATED PARENT
             # SO FAR, THE PARENT IS SHOWN ONLY IF THERE IS ONLY ONE PATH (NON AMBIGUOUS CASES)
-            if len(taxonomy.get_hierarchy_paths(node.node_id)) < 2:
-                node_and_parent = [taxonomy.get_element_at_id(n_id).name
-                                   for n_id in taxonomy.get_hierarchy_paths(node.node_id)[0][-2:]]
-                setattr(node, 'name_with_parent', ' > '.join(node_and_parent))
+            if len(parents) == 0:
+                setattr(node, 'name_with_parent', node.name)
+            elif len(parents) < 2:
+                setattr(node, 'name_with_parent', ' > '.join([parents[0].name, node.name]))
             else:
                 setattr(node, 'name_with_parent', ' - - - > ' + node.name)
 
