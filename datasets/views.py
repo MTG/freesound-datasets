@@ -11,7 +11,7 @@ from django.db.models import Count
 from django.db import transaction
 from django.forms import formset_factory
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from datasets.models import Dataset, DatasetRelease, Annotation, Vote
+from datasets.models import Dataset, DatasetRelease, Annotation, Vote, TaxonomyNode
 from datasets import utils
 from datasets.forms import DatasetReleaseForm, PresentNotPresentUnsureForm, CategoryCommentForm
 from pygments import highlight
@@ -147,16 +147,28 @@ def contribute_validate_annotations_category(request, short_name, node_id):
     node_id = unquote(node_id)
     node = dataset.taxonomy.get_element_at_id(node_id)
 
-    # Get non-validated annotations for this category
-    annotations = dataset.non_validated_annotations_per_taxonomy_node(node_id)
-    all_annotation_object_ids = annotations.values_list('id', flat=True)
+    # Get annotation that are not ground truth and that have been never annotated by the user
+    annotations = dataset.non_ground_truth_annotations_per_taxonomy_node(node_id).exclude(votes__created_by=request.user)
+    # Divide into voted and non voted ones
+    annotation_with_vote = annotations.annotate(num_votes=Count('votes')).filter(num_votes__gt=0)
+    annotation_with_no_vote = annotations.annotate(num_votes=Count('votes')).filter(num_votes=0)
 
-    # Select 10 at random and return their Annotation objects
+    annotation_with_vote_ids = annotation_with_vote.values_list('id', flat=True)
+    annotation_with_no_vote_ids = annotation_with_no_vote.values_list('id', flat=True)
+
+    # Select 12 annotations prioritizing annotations that have been already voted, randomize
+    # TODO: Maybe use weighted sampling to avoid this 2 step selection (will include more steps in the future...)
     N_ANNOTATIONS_TO_VALIDATE = 12
-    N = min(len(all_annotation_object_ids), N_ANNOTATIONS_TO_VALIDATE)
-    annotations = Annotation.objects\
-        .filter(id__in=random.sample(list(all_annotation_object_ids), N))\
-        .select_related('sound_dataset__sound')
+    N_with_vote = min(len(annotation_with_vote_ids), N_ANNOTATIONS_TO_VALIDATE)
+    annotation_ids = random.sample(list(annotation_with_vote_ids), N_with_vote)
+
+    # if there is not enough voted annotations (<12), fill the list with non voted annotations
+    N_with_no_vote = min(len(annotation_with_no_vote_ids), N_ANNOTATIONS_TO_VALIDATE - N_with_vote)
+    if N_with_no_vote:
+        annotation_ids += random.sample(list(annotation_with_no_vote_ids), N_with_no_vote)
+
+    N = N_with_vote + N_with_no_vote
+    annotations = Annotation.objects.filter(id__in=annotation_ids).select_related('sound_dataset__sound')
 
     formset = PresentNotPresentUnsureFormSet(
         initial=[{'annotation_id': annotation.id} for annotation in annotations])
@@ -198,6 +210,61 @@ def save_contribute_validate_annotations_category(request):
             error_response = {'errors': [count for count, value in enumerate(formset.errors) if value != {}]}
             return JsonResponse(error_response)
     return JsonResponse({'errors': False})
+
+
+def choose_category(request, short_name):
+    dataset = get_object_or_404(Dataset, short_name=short_name)
+    return render(request, 'dataset_taxonomy_choose_category.html', {'dataset': dataset})
+
+
+def dataset_taxonomy_table_choose(request, short_name):
+    dataset = get_object_or_404(Dataset, short_name=short_name)
+    taxonomy = dataset.taxonomy
+    hierarchy_paths = []
+    end = False
+
+    # nodes for Free choose table
+    if request.method == 'POST':
+        node_id = request.POST['node_id']
+
+        # choose a category at the given node_id level
+        if node_id != str(0):
+            if node_id in taxonomy.get_nodes_at_level(0).values_list('node_id', flat=True):
+                nodes = taxonomy.get_children(node_id)
+            else:
+                end = True  # end of continue, now the user will choose a category to annotate
+                nodes = taxonomy.get_all_children(node_id) + [taxonomy.get_element_at_id(node_id)] + taxonomy.get_all_parents(node_id)
+                # remove the nodes that have no more annotations to validate for the user, or are omitted
+                nodes = [node for node in nodes
+                         if dataset.user_can_annotate(node.node_id, request.user) and not node.omitted]
+            hierarchy_paths = dataset.taxonomy.get_hierarchy_paths(node_id)
+
+        # start choosing category
+        else:
+            nodes = taxonomy.get_nodes_at_level(0)
+        nodes = sorted(nodes, key=lambda n: n.nb_ground_truth)
+
+    # GET request, nodes for Our priority table
+    else:
+        end = True
+        nodes = dataset.get_categories_to_validate(request.user).order_by('nb_ground_truth')
+        # this takes a while because it has to check if the user can annotate the categories
+        # adding a "ground_truth" field to annotation would speed up the process
+
+    # End of selection, add path to the nodes to show parent
+    if end:
+        for node in nodes:
+            # TODO: CHOOSE THE HIERARCHY PATH THAT CONTAINS RELATED PARENT
+            # SO FAR, THE PARENT IS SHOWN ONLY IF THERE IS ONLY ONE PATH (NON AMBIGUOUS CASES)
+            if len(taxonomy.get_hierarchy_paths(node.node_id)) < 2:
+                node_and_parent = [taxonomy.get_element_at_id(n_id).name
+                                   for n_id in taxonomy.get_hierarchy_paths(node.node_id)[0][-2:]]
+                setattr(node, 'name_with_parent', ' > '.join(node_and_parent))
+            else:
+                setattr(node, 'name_with_parent', ' - - - > ' + node.name)
+
+    return render(request, 'dataset_taxonomy_table_choose.html', {
+        'dataset': dataset, 'end': end, 'hierarchy_paths': hierarchy_paths, 'nodes': nodes})
 
 
 ########################

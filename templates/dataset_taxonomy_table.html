@@ -4,7 +4,8 @@
         <tr>
             <th>Category</th>
             <th># sounds</th>
-            <th>% validated annotations</th>
+            <!--<th>% validated annotations</th>-->
+            <th># validated annotations</th>
             <th>Quality estimate</th>
             <th></th>
         </tr>
@@ -14,7 +15,8 @@
         <tr {% if node.is_omitted %}class="negative"{% endif %}>
             <td>{{ node.name }}</td>
             <td>{{ node.num_sounds }}</td>
-            <td>{{ node.percentage_validated_annotations|floatformat:2 }}%</td>
+            <!--<td>{{ node.percentage_validated_annotations|floatformat:2 }}%</td>-->
+            <td>{{ node.nb_ground_truth }}</td>
             <td>{% if node.votes_stats.quality_estimate %}{{ node.votes_stats.quality_estimate|floatformat:2 }}%{% else %}-{% endif %}</td>
             <td class="right aligned"><a href="{% url category_link_to.0 dataset.short_name node.url_id %}" class="blue ui button right labeled icon">{{ category_link_to.1 }} <i class="right arrow icon"></i></a></td>
         </tr>

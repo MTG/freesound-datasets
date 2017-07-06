@@ -1,0 +1,58 @@
+{% load dataset_templatetags %}
+{% ifequal end False %}
+    <div class="ui dividing header"> Which sort of category would you like to annotate? </div>
+{% else %}
+    <div class="ui dividing header"> Which category would you like to annotate? </div>
+{% endifequal %}
+{% for hierarchy_path in hierarchy_paths %}
+    <div class="item">
+        <div class="ui horizontal list">
+            <div class="item">
+                <a data-node_id=0 class="loadButton"> Ontology </a>
+            </div>
+            {% for node_id in hierarchy_path %}
+                {% taxonomy_node_minimal_data dataset node_id as sub_node_data  %}
+                <div class="item" style="margin-left:3px;margin-right:5px;">
+                    >
+                    <a data-node_id={{ node_id }} class="loadButton" >{{ sub_node_data.name }}</a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% empty %}
+        <div class="item">-</div>
+{% endfor %}
+
+
+<table class="ui unstackable table" width="100%">
+    <thead>
+        <tr>
+            <th>Category</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    {% ifequal end False %}
+        {% for node in nodes %}
+            <tr>
+                <td>{{ node.name }}</td>
+                <td class="right aligned">
+                    <button data-node_id={{ node.node_id }} class="loadButton teal ui button right labeled icon" > Continue <i class="right arrow icon"></i> </button>
+                </td>
+            </tr>
+        {% endfor %}
+    {% else %}
+        {% for node in nodes %}
+            <tr>
+                <td>{{ node.name_with_parent }}</td>
+                <td class="right aligned">
+                    <a href= "{% url 'contribute-validate-annotations-category' dataset.short_name node.url_id %}" class="blue ui button right labeled icon"> Choose
+                        <i class="right arrow icon"></i>
+                    </a>
+                </td>
+            </tr>
+        {% endfor %}
+
+    {% endifequal %}
+    </tbody>
+</table>

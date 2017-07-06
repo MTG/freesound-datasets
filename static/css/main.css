@@ -138,3 +138,13 @@ ul {
     background-color: #FAFAFA;
 }
 
+/* CSS FOR CHOOSE CATEGORY TABLE */
+#priority_table_placeholder {
+    overflow-y: scroll;
+    height: 600px;
+}
+
+#choose_table_placeholder {
+    overflow-y: scroll;
+    height: 600px;
+}

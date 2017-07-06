@@ -11,6 +11,7 @@ import markdown
 import datetime
 from django.utils import timezone
 from django.core.validators import RegexValidator
+from urllib.parse import quote
 
 
 class Taxonomy(models.Model):
@@ -55,6 +56,62 @@ class Taxonomy(models.Model):
             hierarchy_paths.append(path + [self.get_element_at_id(node_id).node_id])
 
         return hierarchy_paths
+
+    def get_all_children(self, node_id):
+        """
+            Returns a list of all the children of the given node id
+        """
+        def get_children(node_id, cur=list()):
+            children = self.get_children(node_id)
+            if not children:
+                yield cur
+            else:
+                for node in children:
+                    for child in get_children(node.node_id, [node]):
+                        yield child
+        children_list = list(self.get_children(node_id))
+        for children in get_children(node_id):
+            for child in children:
+                if child.node_id not in [n.node_id for n in children_list]:
+                    children_list.append(child)
+
+        return children_list
+
+    def get_all_parents(self, node_id):
+        """
+            Returns a list of all the children of the given node id
+        """
+        def get_parents(node_id, cur=list()):
+            parents = self.get_parents(node_id)
+            if not parents:
+                yield cur
+            else:
+                for node in parents:
+                    for parent in get_parents(node.node_id, [node]):
+                        yield parent
+
+        parents_list = list(self.get_parents(node_id))
+        # this double for loop is for checking if a parent is already in the list
+        # in this case, we do not append it to the list
+        for parents in get_parents(node_id):
+            for parent in parents:
+                if parent.node_id not in [n.node_id for n in parents_list]:
+                    parents_list.append(parent)
+
+        return parents_list
+
+    def get_nodes_at_level(self, level):
+        """
+            Returns a list of all the nodes at a given level of the taxonomy
+        """
+        def flat_list(l):
+            return [item for sublist in l for item in sublist]
+
+        if level == 0:
+            return self.taxonomynode_set.filter(parents=None)
+        else:
+            parent_node_ids = self.get_nodes_at_level(level-1)
+            return flat_list([parent.children.all() for parent in parent_node_ids])
 
     def get_taxonomy_as_tree(self):
         """
@@ -116,17 +173,23 @@ class TaxonomyNode(models.Model):
     nb_ground_truth = models.IntegerField(default=0)
     
     def as_dict(self):
-        return {"name":self.name,
-                "node_id":self.node_id,
-                "id":self.id,
-                "description":self.description,
-                "citation_uri":self.citation_uri,
-                "abstract":self.abstract,
-                "omitted":self.omitted,
-                "freesound_examples":[example.freesound_id for example in self.freesound_examples.all()],
-                "parent_ids":[parent.node_id for parent in self.parents.all()],
-                "child_ids":[child.node_id for child in self.children.all()]}
-    
+        return {"name": self.name,
+                "node_id": self.node_id,
+                "id": self.id,
+                "description": self.description,
+                "citation_uri": self.citation_uri,
+                "abstract": self.abstract,
+                "omitted": self.omitted,
+                "freesound_examples": [example.freesound_id for example in self.freesound_examples.all()],
+                "parent_ids": [parent.node_id for parent in self.parents.all()],
+                "child_ids": [child.node_id for child in self.children.all()],
+                "nb_ground_truth": self.nb_ground_truth}
+
+    @property
+    def url_id(self):
+        # Used to return url for node ids
+        return quote(self.node_id, safe='')
+
     
 class Dataset(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
@@ -136,7 +199,6 @@ class Dataset(models.Model):
     taxonomy = models.ForeignKey(Taxonomy, null=True, blank=True, on_delete=models.SET_NULL)
     sounds = models.ManyToManyField(Sound, related_name='datasets', through='datasets.SoundDataset')
     maintainers = models.ManyToManyField(User, related_name='maintained_datasets')
-    
 
     def __str__(self):
         return 'Dataset {0}'.format(self.name)
@@ -195,6 +257,31 @@ class Dataset(models.Model):
 
     def num_non_validated_annotations_per_taxonomy_node(self, node_id):
         return self.non_validated_annotations_per_taxonomy_node(node_id).count()
+
+    def non_ground_truth_annotations_per_taxonomy_node(self, node_id):
+        """
+        Returns annotations that have no vote agreement
+        """
+        return self.annotations.filter(taxonomy_node__node_id=node_id).filter(ground_truth=None)
+
+    def get_categories_to_validate(self, user):
+        """
+        Returns a query set with the TaxonomyNode that can be validated by a user
+        Quite slow, should not be use often
+        """
+        nodes = self.taxonomy.taxonomynode_set.all()
+        nodes_to_keep = [node.node_id for node in nodes if self.user_can_annotate(node.node_id, user)]
+        return nodes.filter(node_id__in=nodes_to_keep)
+
+    def user_can_annotate(self, node_id, user):
+        """
+        Returns True if the user still have some annotation to validate for the category of id node_id
+        Returns False if the user has no no more annotation to validate
+        """
+        if self.non_ground_truth_annotations_per_taxonomy_node(node_id).exclude(votes__created_by=user).count() == 0:
+            return False
+        else:
+            return True
 
     def num_votes_with_value(self, node_id, vote_value):
         return Vote.objects.filter(
@@ -279,6 +366,7 @@ class Annotation(models.Model):
     taxonomy_node = models.ForeignKey(TaxonomyNode, blank=True, null=True)
     start_time = models.DecimalField(max_digits=6, decimal_places=3, blank=True, null=True)
     end_time = models.DecimalField(max_digits=6, decimal_places=3, blank=True, null=True)
+    ground_truth = models.FloatField(null=True, blank=True, default=None)
 
     def __str__(self):
         return 'Annotation for sound {0}'.format(self.sound_dataset.sound.id)
@@ -286,6 +374,24 @@ class Annotation(models.Model):
     @property
     def value(self):
         return self.taxonomy_node.node_id
+
+    @property
+    def ground_truth_state(self):
+        """
+        Returns the ground truth vote value of the annotation
+        Returns None if there is no ground truth value
+        """
+        vote_values = [v.vote for v in self.votes.all()]
+        if vote_values.count(1) > 1:
+            return 1
+        if vote_values.count(0.5) > 1:
+            return 0.5
+        if vote_values.count(0) > 1:
+            return 0
+        if vote_values.count(-1) > 1:
+            return -1
+        else:
+            return None
 
 
 class Vote(models.Model):
@@ -298,6 +404,14 @@ class Vote(models.Model):
 
     def __str__(self):
         return 'Vote for annotation {0}'.format(self.annotation.id)
+
+    def save(self, request=False, *args, **kwargs):
+        models.Model.save(self, *args, **kwargs)
+        # here calculate ground truth for vote.annotation
+        ground_truth_state = self.annotation.ground_truth_state
+        if ground_truth_state:
+            self.annotation.ground_truth = ground_truth_state
+            self.annotation.save()
 
 
 class CategoryComment(models.Model):
