@@ -263,11 +263,14 @@ class Dataset(models.Model):
         Returns annotations that have no vote agreement
         """
         all_annotations = self.annotations_per_taxonomy_node(node_id).annotate(num_votes=Count('votes'))
+        # this commented code should work but is super slow... With ground_truth as a field it will be fast!
+        #non_ground_truth_pk = [annotation.pk for annotation in all_annotations if annotation.ground_truth is False]
         ground_truth_pk = []
         for vote_value in [-1, 0, 0.5, 1]:
             ground_truth_pk += [a.pk for a in all_annotations.filter(votes__vote=vote_value).
                                 annotate(num_votes=Count('votes')).filter(num_votes__gt=1)]
         return all_annotations.exclude(pk__in=ground_truth_pk).order_by('-num_votes')
+        #return all_annotations.filter(pk__in=non_ground_truth_pk)
 
     def get_categories_to_validate(self, user):
         """
@@ -275,10 +278,8 @@ class Dataset(models.Model):
         Quite slow, should not be use often
         """
         nodes = self.taxonomy.taxonomynode_set.all()
-        nodes_to_remove = [node.node_id for node in nodes
-                           if self.non_ground_truth_annotations_per_taxonomy_node(node.node_id)
-                               .exclude(votes__created_by=user).count() < 1]
-        return nodes.exclude(node_id__in=nodes_to_remove)
+        nodes_to_keep = [node.node_id for node in nodes if self.user_can_annotate(node.node_id, user)]
+        return nodes.filter(node_id__in=nodes_to_keep)
 
     def user_can_annotate(self, node_id, user):
         """
