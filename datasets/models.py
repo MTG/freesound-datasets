@@ -374,6 +374,7 @@ class Annotation(models.Model):
     taxonomy_node = models.ForeignKey(TaxonomyNode, blank=True, null=True)
     start_time = models.DecimalField(max_digits=6, decimal_places=3, blank=True, null=True)
     end_time = models.DecimalField(max_digits=6, decimal_places=3, blank=True, null=True)
+    ground_truth = models.FloatField(null=True, blank=True, default=None)
 
     def __str__(self):
         return 'Annotation for sound {0}'.format(self.sound_dataset.sound.id)
@@ -383,7 +384,7 @@ class Annotation(models.Model):
         return self.taxonomy_node.node_id
 
     @property
-    def ground_truth(self):
+    def ground_truth_state(self):
         """
         Returns the ground truth vote value of the annotation
         Returns False if there is no ground truth value
@@ -411,6 +412,10 @@ class Vote(models.Model):
 
     def __str__(self):
         return 'Vote for annotation {0}'.format(self.annotation.id)
+
+    def save(self, request=False, *args, **kwargs):
+        models.Model.save(self, *args, **kwargs)
+        # here calculate ground truth for vote.annotation
 
 
 class CategoryComment(models.Model):
