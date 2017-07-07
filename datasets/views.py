@@ -286,7 +286,7 @@ def dataset_taxonomy_table_choose(request, short_name):
     # GET request, nodes for Our priority table
     else:
         end = True
-        nodes = dataset.get_categories_to_validate(request.user).order_by('nb_ground_truth')
+        nodes = dataset.get_categories_to_validate(request.user).exclude(omitted=True).order_by('nb_ground_truth')
 
     return render(request, 'dataset_taxonomy_table_choose.html', {
         'dataset': dataset, 'end': end, 'hierarchy_paths': hierarchy_paths, 'nodes': nodes})
