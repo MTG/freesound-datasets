@@ -180,7 +180,7 @@ def contribute_validate_annotations_category(request, short_name, node_id):
     if N_with_no_vote:
         annotation_ids += random.sample(list(annotation_with_no_vote_ids), N_with_no_vote)
 
-    N = N_with_vote + N_with_no_vote + len(annotation_ids)
+    N = len(annotation_ids)
     annotations = Annotation.objects.filter(id__in=annotation_ids).select_related('sound_dataset__sound')
 
     formset = PresentNotPresentUnsureFormSet(
