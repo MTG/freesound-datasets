@@ -190,14 +190,12 @@ class TaxonomyNode(models.Model):
         # Used to return url for node ids
         return quote(self.node_id, safe='')
 
-<<<<<<< HEAD
 
 class User(AbstractUser):
     pass
     #is_trustable = models.BooleanField(default=False)
 
 
-=======
     @property
     def name_with_parent(self):
         """ Used for printing the category name (with parent) in the choose table"""
@@ -210,8 +208,7 @@ class User(AbstractUser):
         else:  # several parents
             return ' - - - > ' + self.name
 
-    
->>>>>>> b68b0db38e20c4812755f0b27eadddc05a8620b5
+
 class Dataset(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=200)
