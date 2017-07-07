@@ -4,8 +4,10 @@ import collections
 from django.db import models
 from django.db.models import Count
 from django.contrib.postgres.fields import JSONField
-from django.contrib.auth.models import User, AbstractUser
+from django.contrib.auth.models import User
 from django.conf import settings
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 import os
 import markdown
 import datetime
@@ -189,13 +191,6 @@ class TaxonomyNode(models.Model):
     def url_id(self):
         # Used to return url for node ids
         return quote(self.node_id, safe='')
-
-
-# class User(AbstractUser):
-#     class Meta:
-#         db_table = 'auth_user'
-#     #is_trustable = models.BooleanField(default=False)
-
 
     @property
     def name_with_parent(self):
@@ -442,3 +437,18 @@ class CategoryComment(models.Model):
     # as used in other parts of the application. At some point categories should be stored as db objects and this
     # should refer to the db object id.
 
+
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    is_trustable = models.BooleanField(default=False)
+
+
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        Profile.objects.create(user=instance)
+
+
+@receiver(post_save, sender=User)
+def save_user_profile(sender, instance, **kwargs):
+    instance.profile.save()
