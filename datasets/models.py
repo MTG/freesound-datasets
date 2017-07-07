@@ -190,6 +190,18 @@ class TaxonomyNode(models.Model):
         # Used to return url for node ids
         return quote(self.node_id, safe='')
 
+    @property
+    def name_with_parent(self):
+        """ Used for printing the category name (with parent) in the choose table"""
+        parents = self.parents.all()
+        print(parents)
+        if len(parents) == 0:  # no parent
+            return self.name
+        elif len(parents) < 2:  # one parent
+            return ' > '.join([parents[0].name, self.name])
+        else:  # several parents
+            return ' - - - > ' + self.name
+
     
 class Dataset(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
