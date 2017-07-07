@@ -180,7 +180,7 @@ def contribute_validate_annotations_category(request, short_name, node_id):
     if N_with_no_vote:
         annotation_ids += random.sample(list(annotation_with_no_vote_ids), N_with_no_vote)
 
-    N = N_with_vote + N_with_no_vote
+    N = N_with_vote + N_with_no_vote + len(annotation_ids)
     annotations = Annotation.objects.filter(id__in=annotation_ids).select_related('sound_dataset__sound')
 
     formset = PresentNotPresentUnsureFormSet(
@@ -215,6 +215,14 @@ def save_contribute_validate_annotations_category(request):
                                          if 'vote' in form.cleaned_data
                                          if form.cleaned_data['annotation_id'] in test_annotations_id]
                 request.user.profile.is_trustable = all(v == '1' for v in vote_test_annotations)
+                request.user.profile.countdown_trustable = 5
+                request.user.save()
+            else:  # check the countdown and decrement it if needed
+                if request.user.profile.countdown_trustable < 2:  # user is no longer trustable
+                    request.user.profile.is_trustable = False
+                else:
+                    # -1 to the countdown
+                    request.user.profile.countdown_trustable -= 1
                 request.user.save()
 
             for form in formset:
@@ -232,6 +240,7 @@ def save_contribute_validate_annotations_category(request):
                                 annotation_id=annotation_id,
                                 is_trustable=request.user.profile.is_trustable,
                             )
+
             if comment_form.cleaned_data['comment'].strip():  # If there is a comment
                 comment = comment_form.save(commit=False)
                 comment.created_by = request.user

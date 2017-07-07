@@ -442,6 +442,7 @@ class CategoryComment(models.Model):
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     is_trustable = models.BooleanField(default=False)
+    countdown_trustable = models.IntegerField(default=0)
 
 
 @receiver(post_save, sender=User)
