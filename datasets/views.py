@@ -228,6 +228,7 @@ def save_contribute_validate_annotations_category(request):
                             vote=float(form.cleaned_data['vote']),
                             visited_sound=form.cleaned_data['visited_sound'],
                             annotation_id=annotation_id,
+                            is_trustable=request.user.profile.is_trustable,
                         )
             if comment_form.cleaned_data['comment'].strip():  # If there is a comment
                 comment = comment_form.save(commit=False)
