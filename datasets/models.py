@@ -190,12 +190,28 @@ class TaxonomyNode(models.Model):
         # Used to return url for node ids
         return quote(self.node_id, safe='')
 
+<<<<<<< HEAD
 
 class User(AbstractUser):
     pass
     #is_trustable = models.BooleanField(default=False)
 
 
+=======
+    @property
+    def name_with_parent(self):
+        """ Used for printing the category name (with parent) in the choose table"""
+        parents = self.parents.all()
+        print(parents)
+        if len(parents) == 0:  # no parent
+            return self.name
+        elif len(parents) < 2:  # one parent
+            return ' > '.join([parents[0].name, self.name])
+        else:  # several parents
+            return ' - - - > ' + self.name
+
+    
+>>>>>>> b68b0db38e20c4812755f0b27eadddc05a8620b5
 class Dataset(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=200)
@@ -274,9 +290,9 @@ class Dataset(models.Model):
         Returns a query set with the TaxonomyNode that can be validated by a user
         Quite slow, should not be use often
         """
-        nodes = self.taxonomy.taxonomynode_set.all()
-        nodes_to_keep = [node.node_id for node in nodes if self.user_can_annotate(node.node_id, user)]
-        return nodes.filter(node_id__in=nodes_to_keep)
+        taxonomy_node_pk = [a[0] for a in self.annotations.exclude(votes__created_by=user)
+                            .select_related('taxonomy_node').values_list('taxonomy_node').distinct()]
+        return self.taxonomy.taxonomynode_set.filter(pk__in=taxonomy_node_pk)
 
     def user_can_annotate(self, node_id, user):
         """

@@ -248,20 +248,6 @@ def dataset_taxonomy_table_choose(request, short_name):
     else:
         end = True
         nodes = dataset.get_categories_to_validate(request.user).order_by('nb_ground_truth')
-        # this takes a while because it has to check if the user can annotate the categories
-        # adding a "ground_truth" field to annotation would speed up the process
-
-    # End of selection, add path to the nodes to show parent
-    if end:
-        for node in nodes:
-            # TODO: CHOOSE THE HIERARCHY PATH THAT CONTAINS RELATED PARENT
-            # SO FAR, THE PARENT IS SHOWN ONLY IF THERE IS ONLY ONE PATH (NON AMBIGUOUS CASES)
-            if len(taxonomy.get_hierarchy_paths(node.node_id)) < 2:
-                node_and_parent = [taxonomy.get_element_at_id(n_id).name
-                                   for n_id in taxonomy.get_hierarchy_paths(node.node_id)[0][-2:]]
-                setattr(node, 'name_with_parent', ' > '.join(node_and_parent))
-            else:
-                setattr(node, 'name_with_parent', ' - - - > ' + node.name)
 
     return render(request, 'dataset_taxonomy_table_choose.html', {
         'dataset': dataset, 'end': end, 'hierarchy_paths': hierarchy_paths, 'nodes': nodes})
