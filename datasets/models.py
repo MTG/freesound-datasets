@@ -4,7 +4,7 @@ import collections
 from django.db import models
 from django.db.models import Count
 from django.contrib.postgres.fields import JSONField
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import User, AbstractUser
 from django.conf import settings
 import os
 import markdown
@@ -191,16 +191,16 @@ class TaxonomyNode(models.Model):
         return quote(self.node_id, safe='')
 
 
-class User(AbstractUser):
-    pass
-    #is_trustable = models.BooleanField(default=False)
+# class User(AbstractUser):
+#     class Meta:
+#         db_table = 'auth_user'
+#     #is_trustable = models.BooleanField(default=False)
 
 
     @property
     def name_with_parent(self):
         """ Used for printing the category name (with parent) in the choose table"""
         parents = self.parents.all()
-        print(parents)
         if len(parents) == 0:  # no parent
             return self.name
         elif len(parents) < 2:  # one parent
