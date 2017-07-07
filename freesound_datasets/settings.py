@@ -121,7 +121,8 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Social auth settings
 SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/'
-SOCIAL_AUTH_USER_MODEL = 'auth.User'
+SOCIAL_AUTH_USER_MODEL = 'datasets.User'
+AUTH_USER_MODEL = 'datasets.User'
 LOGIN_URL = '/login/'
 
 AUTHENTICATION_BACKENDS = (
