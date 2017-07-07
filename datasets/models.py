@@ -282,8 +282,8 @@ class Dataset(models.Model):
         Returns a query set with the TaxonomyNode that can be validated by a user
         Quite slow, should not be use often
         """
-        taxonomy_node_pk = [a[0] for a in self.annotations.exclude(votes__created_by=user)
-                            .select_related('taxonomy_node').values_list('taxonomy_node').distinct()]
+        taxonomy_node_pk = self.annotations.exclude(votes__created_by=user)\
+            .select_related('taxonomy_node').values_list('taxonomy_node', flat=True).distinct()
         return self.taxonomy.taxonomynode_set.filter(pk__in=taxonomy_node_pk)
 
     def user_can_annotate(self, node_id, user):
