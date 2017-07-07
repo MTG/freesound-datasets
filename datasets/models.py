@@ -394,7 +394,7 @@ class Annotation(models.Model):
         Returns the ground truth vote value of the annotation
         Returns None if there is no ground truth value
         """
-        vote_values = [v.vote for v in self.votes.all()]
+        vote_values = [v.vote for v in self.votes.all() if v.is_trustable is not False]
         if vote_values.count(1) > 1:
             return 1
         if vote_values.count(0.5) > 1:
