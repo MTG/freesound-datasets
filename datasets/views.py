@@ -202,6 +202,7 @@ def save_contribute_validate_annotations_category(request):
         comment_form = CategoryCommentForm(request.POST)
         formset = PresentNotPresentUnsureFormSet(request.POST)
         if formset.is_valid() and comment_form.is_valid():
+            test_annotations_id = [] # initiate it
             # extract test examples if user is not trustable (POSITIVE EXAMPLES ONLY FOR NOW)
             if not request.user.profile.is_trustable:
                 annotations_id = [form.cleaned_data['annotation_id'] for form in formset if 'vote' in form.cleaned_data]
@@ -219,17 +220,18 @@ def save_contribute_validate_annotations_category(request):
             for form in formset:
                 if 'vote' in form.cleaned_data:  # This is to skip last element of formset which is empty
                     annotation_id = form.cleaned_data['annotation_id']
-                    check = Vote.objects.filter(created_by=request.user,
-                                                annotation_id=annotation_id)
-                    if not check.exists():
-                        # Save votes for annotations
-                        Vote.objects.create(
-                            created_by=request.user,
-                            vote=float(form.cleaned_data['vote']),
-                            visited_sound=form.cleaned_data['visited_sound'],
-                            annotation_id=annotation_id,
-                            is_trustable=request.user.profile.is_trustable,
-                        )
+                    if annotation_id not in test_annotations_id:  # store only the votes for non test annotations
+                        check = Vote.objects.filter(created_by=request.user,
+                                                    annotation_id=annotation_id)
+                        if not check.exists():
+                            # Save votes for annotations
+                            Vote.objects.create(
+                                created_by=request.user,
+                                vote=float(form.cleaned_data['vote']),
+                                visited_sound=form.cleaned_data['visited_sound'],
+                                annotation_id=annotation_id,
+                                is_trustable=request.user.profile.is_trustable,
+                            )
             if comment_form.cleaned_data['comment'].strip():  # If there is a comment
                 comment = comment_form.save(commit=False)
                 comment.created_by = request.user
