@@ -414,6 +414,7 @@ class Vote(models.Model):
     annotation = models.ForeignKey(Annotation, related_name='votes')
     visited_sound = models.NullBooleanField(null=True, blank=True, default=None)
     # 'visited_sound' is to store whether the user needed to open the sound in Freesound to perform this vote
+    is_trustable = models.NullBooleanField(null=True, blank=True) # store if the user was trustable when he voted
 
     def __str__(self):
         return 'Vote for annotation {0}'.format(self.annotation.id)
