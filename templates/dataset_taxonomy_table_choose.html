@@ -1,9 +1,9 @@
 {% load dataset_templatetags %}
-{% ifequal end False %}
+{% if not end_of_table %}
     <div class="ui dividing header"> Which sort of category would you like to annotate? </div>
 {% else %}
     <div class="ui dividing header"> Which category would you like to annotate? </div>
-{% endifequal %}
+{% endif %}
 {% for hierarchy_path in hierarchy_paths %}
     <div class="item">
         <div class="ui horizontal list">
@@ -13,7 +13,7 @@
             {% for node_id in hierarchy_path %}
                 {% taxonomy_node_minimal_data dataset node_id as sub_node_data  %}
                 <div class="item" style="margin-left:3px;margin-right:5px;">
-                    >
+                    &gt;
                     <a data-node_id={{ node_id }} class="loadButton" >{{ sub_node_data.name }}</a>
                 </div>
             {% endfor %}
@@ -32,7 +32,7 @@
         </tr>
     </thead>
     <tbody>
-    {% ifequal end False %}
+    {% if not end_of_table %}
         {% for node in nodes %}
             <tr>
                 <td>{{ node.name }}</td>
@@ -52,7 +52,6 @@
                 </td>
             </tr>
         {% endfor %}
-
-    {% endifequal %}
+    {% endif %}
     </tbody>
 </table>

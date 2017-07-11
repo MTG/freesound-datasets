@@ -144,11 +144,24 @@ PresentNotPresentUnsureFormSet = formset_factory(PresentNotPresentUnsureForm)
 def contribute_validate_annotations_category(request, short_name, node_id):
     dataset = get_object_or_404(Dataset, short_name=short_name)
     user_is_maintainer = dataset.user_is_maintainer(request.user)
+    user_is_trustable = request.user.profile.is_trustable
     node_id = unquote(node_id)
     node = dataset.taxonomy.get_element_at_id(node_id)
 
-    # Get annotation that are not ground truth and that have been never annotated by the user
-    annotations = dataset.non_ground_truth_annotations_per_taxonomy_node(node_id).exclude(votes__created_by=request.user)
+    annotation_ids = []
+    # Check if user is trustable to know if it is needed to add test examples to the form
+    if not user_is_trustable:
+        sound_examples = node.freesound_examples.all()
+        annotation_examples = dataset.annotations.filter(sound_dataset__sound__in=sound_examples, taxonomy_node=node)
+        annotation_ids += annotation_examples.values_list('id', flat=True)[:2]  # add 2 test examples TODO:select random
+        # Get annotation that are not ground truth and that have been never annotated by the user, exclude test examples
+        annotations = dataset.non_ground_truth_annotations_per_taxonomy_node(node_id) \
+            .exclude(votes__created_by=request.user, id__in=annotation_examples.values_list('id', flat=True))
+    else:
+        # Get annotation that are not ground truth and that have been never annotated by the user
+        annotations = dataset.non_ground_truth_annotations_per_taxonomy_node(node_id)\
+            .exclude(votes__created_by=request.user)
+
     # Divide into voted and non voted ones
     annotation_with_vote = annotations.annotate(num_votes=Count('votes')).filter(num_votes__gt=0)
     annotation_with_no_vote = annotations.annotate(num_votes=Count('votes')).filter(num_votes=0)
@@ -156,18 +169,18 @@ def contribute_validate_annotations_category(request, short_name, node_id):
     annotation_with_vote_ids = annotation_with_vote.values_list('id', flat=True)
     annotation_with_no_vote_ids = annotation_with_no_vote.values_list('id', flat=True)
 
-    # Select 12 annotations prioritizing annotations that have been already voted, randomize
-    # TODO: Maybe use weighted sampling to avoid this 2 step selection (will include more steps in the future...)
-    N_ANNOTATIONS_TO_VALIDATE = 12
+    # Select 12 (- num of test examples) annotations prioritizing annotations that have been already voted, randomize
+    # TODO: Maybe use weighted sampling to avoid this 2 step selection (may include more steps in the future...)
+    N_ANNOTATIONS_TO_VALIDATE = 12 - len(annotation_ids)
     N_with_vote = min(len(annotation_with_vote_ids), N_ANNOTATIONS_TO_VALIDATE)
-    annotation_ids = random.sample(list(annotation_with_vote_ids), N_with_vote)
+    annotation_ids += random.sample(list(annotation_with_vote_ids), N_with_vote)
 
     # if there is not enough voted annotations (<12), fill the list with non voted annotations
     N_with_no_vote = min(len(annotation_with_no_vote_ids), N_ANNOTATIONS_TO_VALIDATE - N_with_vote)
     if N_with_no_vote:
         annotation_ids += random.sample(list(annotation_with_no_vote_ids), N_with_no_vote)
 
-    N = N_with_vote + N_with_no_vote
+    N = len(annotation_ids)
     annotations = Annotation.objects.filter(id__in=annotation_ids).select_related('sound_dataset__sound')
 
     formset = PresentNotPresentUnsureFormSet(
@@ -189,19 +202,45 @@ def save_contribute_validate_annotations_category(request):
         comment_form = CategoryCommentForm(request.POST)
         formset = PresentNotPresentUnsureFormSet(request.POST)
         if formset.is_valid() and comment_form.is_valid():
+            test_annotations_id = []
+            # extract test examples if user is not trustable (POSITIVE EXAMPLES ONLY FOR NOW)
+            if not request.user.profile.is_trustable:
+                annotations_id = [form.cleaned_data['annotation_id'] for form in formset if 'vote' in form.cleaned_data]
+                node = TaxonomyNode.objects.get(node_id=Annotation.objects.get(id=annotations_id[0]).
+                                                taxonomy_node.node_id)
+                test_annotations_id = Annotation.objects.filter(taxonomy_node=node,
+                                                                sound_dataset__sound__in=node.freesound_examples.all())\
+                    .values_list('id', flat=True)
+                vote_test_annotations = [form.cleaned_data['vote'] for form in formset
+                                         if 'vote' in form.cleaned_data
+                                         if form.cleaned_data['annotation_id'] in test_annotations_id]
+                request.user.profile.is_trustable = all(v == '1' for v in vote_test_annotations)
+                request.user.profile.countdown_trustable = 5
+                request.user.save()
+            else:  # check the countdown and decrement it if needed
+                if request.user.profile.countdown_trustable < 2:  # user is no longer trustable
+                    request.user.profile.is_trustable = False
+                else:
+                    # -1 to the countdown
+                    request.user.profile.countdown_trustable -= 1
+                request.user.save()
+
             for form in formset:
                 if 'vote' in form.cleaned_data:  # This is to skip last element of formset which is empty
                     annotation_id = form.cleaned_data['annotation_id']
-                    check = Vote.objects.filter(created_by=request.user,
-                                               annotation_id=annotation_id)
-                    if not check.exists():
-                        # Save votes for annotations
-                        Vote.objects.create(
-                            created_by=request.user,
-                            vote=float(form.cleaned_data['vote']),
-                            visited_sound=form.cleaned_data['visited_sound'],
-                            annotation_id=annotation_id,
-                        )
+                    if annotation_id not in test_annotations_id:  # store only the votes for non test annotations
+                        check = Vote.objects.filter(created_by=request.user,
+                                                    annotation_id=annotation_id)
+                        if not check.exists():
+                            # Save votes for annotations
+                            Vote.objects.create(
+                                created_by=request.user,
+                                vote=float(form.cleaned_data['vote']),
+                                visited_sound=form.cleaned_data['visited_sound'],
+                                annotation_id=annotation_id,
+                                is_trustable=request.user.profile.is_trustable,
+                            )
+
             if comment_form.cleaned_data['comment'].strip():  # If there is a comment
                 comment = comment_form.save(commit=False)
                 comment.created_by = request.user
@@ -221,7 +260,7 @@ def dataset_taxonomy_table_choose(request, short_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
     taxonomy = dataset.taxonomy
     hierarchy_paths = []
-    end = False
+    end_of_table = False
 
     # nodes for Free choose table
     if request.method == 'POST':
@@ -232,7 +271,7 @@ def dataset_taxonomy_table_choose(request, short_name):
             if node_id in taxonomy.get_nodes_at_level(0).values_list('node_id', flat=True):
                 nodes = taxonomy.get_children(node_id)
             else:
-                end = True  # end of continue, now the user will choose a category to annotate
+                end_of_table = True  # end of continue, now the user will choose a category to annotate
                 nodes = taxonomy.get_all_children(node_id) + [taxonomy.get_element_at_id(node_id)] + taxonomy.get_all_parents(node_id)
                 # remove the nodes that have no more annotations to validate for the user, or are omitted
                 nodes = [node for node in nodes
@@ -246,11 +285,11 @@ def dataset_taxonomy_table_choose(request, short_name):
 
     # GET request, nodes for Our priority table
     else:
-        end = True
-        nodes = dataset.get_categories_to_validate(request.user).order_by('nb_ground_truth')
+        end_of_table = True
+        nodes = dataset.get_categories_to_validate(request.user).exclude(omitted=True).order_by('nb_ground_truth')
 
     return render(request, 'dataset_taxonomy_table_choose.html', {
-        'dataset': dataset, 'end': end, 'hierarchy_paths': hierarchy_paths, 'nodes': nodes})
+        'dataset': dataset, 'end_of_table': end_of_table, 'hierarchy_paths': hierarchy_paths, 'nodes': nodes})
 
 
 ########################

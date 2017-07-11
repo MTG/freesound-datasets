@@ -6,6 +6,8 @@ from django.db.models import Count
 from django.contrib.postgres.fields import JSONField
 from django.contrib.auth.models import User
 from django.conf import settings
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 import os
 import markdown
 import datetime
@@ -194,15 +196,15 @@ class TaxonomyNode(models.Model):
     def name_with_parent(self):
         """ Used for printing the category name (with parent) in the choose table"""
         parents = self.parents.all()
-        print(parents)
-        if len(parents) == 0:  # no parent
+        num_parents = parents.count()
+        if num_parents == 0:  # no parent
             return self.name
-        elif len(parents) < 2:  # one parent
-            return ' > '.join([parents[0].name, self.name])
+        elif num_parents < 2:  # one parent
+            return '{} > {}'.format(parents[0].name, self.name)
         else:  # several parents
-            return ' - - - > ' + self.name
+            return ' (many parents) > {}'.format(self.name)
 
-    
+
 class Dataset(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=200)
@@ -281,8 +283,8 @@ class Dataset(models.Model):
         Returns a query set with the TaxonomyNode that can be validated by a user
         Quite slow, should not be use often
         """
-        taxonomy_node_pk = [a[0] for a in self.annotations.exclude(votes__created_by=user)
-                            .select_related('taxonomy_node').values_list('taxonomy_node').distinct()]
+        taxonomy_node_pk = self.annotations.exclude(votes__created_by=user)\
+            .select_related('taxonomy_node').values_list('taxonomy_node', flat=True).distinct()
         return self.taxonomy.taxonomynode_set.filter(pk__in=taxonomy_node_pk)
 
     def user_can_annotate(self, node_id, user):
@@ -393,7 +395,7 @@ class Annotation(models.Model):
         Returns the ground truth vote value of the annotation
         Returns None if there is no ground truth value
         """
-        vote_values = [v.vote for v in self.votes.all()]
+        vote_values = [v.vote for v in self.votes.all() if v.is_trustable is not False]  # null case is trustable
         if vote_values.count(1) > 1:
             return 1
         if vote_values.count(0.5) > 1:
@@ -413,6 +415,8 @@ class Vote(models.Model):
     annotation = models.ForeignKey(Annotation, related_name='votes')
     visited_sound = models.NullBooleanField(null=True, blank=True, default=None)
     # 'visited_sound' is to store whether the user needed to open the sound in Freesound to perform this vote
+    is_trustable = models.NullBooleanField(null=True, blank=True)  # store if the user was trustable when he voted
+    # null values are used for old votes for the which we did not have the quality control implemented
 
     def __str__(self):
         return 'Vote for annotation {0}'.format(self.annotation.id)
@@ -436,3 +440,19 @@ class CategoryComment(models.Model):
     # as used in other parts of the application. At some point categories should be stored as db objects and this
     # should refer to the db object id.
 
+
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    is_trustable = models.BooleanField(default=False)  # store if the user passed the quality control test
+    countdown_trustable = models.IntegerField(default=0)  # count for make the user pass the test again
+
+
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        Profile.objects.create(user=instance)
+
+
+@receiver(post_save, sender=User)
+def save_user_profile(sender, instance, **kwargs):
+    instance.profile.save()
