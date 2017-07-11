@@ -14,4 +14,4 @@ def generate_download_script(dataset):
         'dataset_url': dataset_url,
         'get_code_url': settings.FS_CLIENT_ID
     }
-    return render_to_string('download_script.py', tvars)
+    return render_to_string('datasets/download_script.py', tvars)
