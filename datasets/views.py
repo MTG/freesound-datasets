@@ -251,6 +251,7 @@ def save_contribute_validate_annotations_category(request):
     return JsonResponse({'errors': False})
 
 
+@login_required
 def choose_category(request, short_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
     return render(request, 'dataset_taxonomy_choose_category.html', {'dataset': dataset})
