@@ -202,7 +202,7 @@ def save_contribute_validate_annotations_category(request):
         comment_form = CategoryCommentForm(request.POST)
         formset = PresentNotPresentUnsureFormSet(request.POST)
         if formset.is_valid() and comment_form.is_valid():
-            test_annotations_id = [] # initiate it
+            test_annotations_id = []
             # extract test examples if user is not trustable (POSITIVE EXAMPLES ONLY FOR NOW)
             if not request.user.profile.is_trustable:
                 annotations_id = [form.cleaned_data['annotation_id'] for form in formset if 'vote' in form.cleaned_data]
