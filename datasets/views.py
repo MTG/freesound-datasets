@@ -260,7 +260,7 @@ def dataset_taxonomy_table_choose(request, short_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
     taxonomy = dataset.taxonomy
     hierarchy_paths = []
-    end = False
+    end_of_table = False
 
     # nodes for Free choose table
     if request.method == 'POST':
@@ -271,7 +271,7 @@ def dataset_taxonomy_table_choose(request, short_name):
             if node_id in taxonomy.get_nodes_at_level(0).values_list('node_id', flat=True):
                 nodes = taxonomy.get_children(node_id)
             else:
-                end = True  # end of continue, now the user will choose a category to annotate
+                end_of_table = True  # end of continue, now the user will choose a category to annotate
                 nodes = taxonomy.get_all_children(node_id) + [taxonomy.get_element_at_id(node_id)] + taxonomy.get_all_parents(node_id)
                 # remove the nodes that have no more annotations to validate for the user, or are omitted
                 nodes = [node for node in nodes
@@ -285,11 +285,11 @@ def dataset_taxonomy_table_choose(request, short_name):
 
     # GET request, nodes for Our priority table
     else:
-        end = True
+        end_of_table = True
         nodes = dataset.get_categories_to_validate(request.user).exclude(omitted=True).order_by('nb_ground_truth')
 
     return render(request, 'dataset_taxonomy_table_choose.html', {
-        'dataset': dataset, 'end': end, 'hierarchy_paths': hierarchy_paths, 'nodes': nodes})
+        'dataset': dataset, 'end_of_table': end_of_table, 'hierarchy_paths': hierarchy_paths, 'nodes': nodes})
 
 
 ########################
