@@ -1,0 +1,26 @@
+from django.conf.urls import url, include
+from datasets.views import *
+
+
+urlpatterns = [
+    url(r'^save_contribute_validate_annotations_category/$', save_contribute_validate_annotations_category,
+        name='save-contribute-validate-annotations-per-category'),
+    url(r'^(?P<short_name>[^\/]+)/$', dataset, name='dataset'),
+    url(r'^(?P<short_name>[^\/]+)/download-script/$', download_script, name='download-script'),
+    url(r'^(?P<short_name>[^\/]+)/dataset-sounds/$', dataset_sounds, name='dataset-sounds'),
+    url(r'^(?P<short_name>[^\/]+)/check_release_progresses/$', check_release_progresses, name='check-release-progresses'),
+    url(r'^(?P<short_name>[^\/]+)/release/(?P<release_tag>[^\/]+)/$', change_release_type, name='change-release-type'),
+    url(r'^(?P<short_name>[^\/]+)/release/(?P<release_tag>[^\/]+)/download/$', download_release, name='download-release'),
+    url(r'^(?P<short_name>[^\/]+)/release/(?P<release_tag>[^\/]+)/delete/$', delete_release, name='delete-release'),
+    url(r'^(?P<short_name>[^\/]+)/taxonomy_table/$', dataset_taxonomy_table, name='taxonomy-table'),
+    url(r'^(?P<short_name>[^\/]+)/releases_table/$', dataset_releases_table, name='releases-table'),
+    url(r'^(?P<short_name>[^\/]+)/explore/(?P<node_id>[^\/]+)/$', taxonomy_node, name='dataset-explore-taxonomy-node'),
+    url(r'^(?P<short_name>[^\/]+)/contribute/$', contribute, name='contribute'),
+    url(r'^(?P<short_name>[^\/]+)/contribute/validate_annotations/$', contribute_validate_annotations,
+        name='contribute-validate-annotations'),
+    url(r'^(?P<short_name>[^\/]+)/contribute/validate_annotations/(?P<node_id>[^\/]+)/$',
+        contribute_validate_annotations_category, name='contribute-validate-annotations-category'),
+    url(r'^(?P<short_name>[^\/]+)/contribute/choose_category/$', choose_category, name='choose_category'),
+    url(r'^(?P<short_name>[^\/]+)/contribute/choose_category_table/$', dataset_taxonomy_table_choose,
+        name='dataset_taxonomy_table_choose'),
+]
