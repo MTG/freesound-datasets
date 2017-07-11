@@ -196,12 +196,13 @@ class TaxonomyNode(models.Model):
     def name_with_parent(self):
         """ Used for printing the category name (with parent) in the choose table"""
         parents = self.parents.all()
-        if len(parents) == 0:  # no parent
+        num_parents = parents.count()
+        if num_parents == 0:  # no parent
             return self.name
-        elif len(parents) < 2:  # one parent
-            return ' > '.join([parents[0].name, self.name])
+        elif num_parents < 2:  # one parent
+            return '{} > {}'.format(parents[0].name, self.name)
         else:  # several parents
-            return ' - - - > ' + self.name
+            return ' (many parents) > {}'.format(self.name)
 
 
 class Dataset(models.Model):
