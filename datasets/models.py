@@ -395,7 +395,7 @@ class Annotation(models.Model):
         Returns the ground truth vote value of the annotation
         Returns None if there is no ground truth value
         """
-        vote_values = [v.vote for v in self.votes.all() if v.is_trustable is not False]
+        vote_values = [v.vote for v in self.votes.all() if v.is_trustable is not False]  # null case is trustable
         if vote_values.count(1) > 1:
             return 1
         if vote_values.count(0.5) > 1:
@@ -416,6 +416,7 @@ class Vote(models.Model):
     visited_sound = models.NullBooleanField(null=True, blank=True, default=None)
     # 'visited_sound' is to store whether the user needed to open the sound in Freesound to perform this vote
     is_trustable = models.NullBooleanField(null=True, blank=True)  # store if the user was trustable when he voted
+    # null values are used for old votes for the which we did not have the quality control implemented
 
     def __str__(self):
         return 'Vote for annotation {0}'.format(self.annotation.id)
@@ -442,8 +443,8 @@ class CategoryComment(models.Model):
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    is_trustable = models.BooleanField(default=False)
-    countdown_trustable = models.IntegerField(default=0)
+    is_trustable = models.BooleanField(default=False)  # store if the user passed the quality control test
+    countdown_trustable = models.IntegerField(default=0)  # count for make the user pass the test again
 
 
 @receiver(post_save, sender=User)
