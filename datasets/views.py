@@ -49,7 +49,7 @@ def dataset(request, short_name):
     else:
         form = DatasetReleaseForm()
         
-    return render(request, 'dataset.html', {
+    return render(request, 'datasets/dataset.html', {
         'dataset': dataset,
         'user_is_maintainer': user_is_maintainer,
         'dataset_release_form': form, 'dataset_release_form_errors': form_errors,
@@ -70,7 +70,7 @@ def dataset_taxonomy_table(request, short_name):
     dataset_taxonomy_stats = data_from_async_task(compute_dataset_taxonomy_stats, [dataset.id], {},
                                                   DATASET_TAXONOMY_STATS_KEY_TEMPLATE.format(dataset.id), 60)
 
-    return render(request, 'dataset_taxonomy_table.html', {
+    return render(request, 'datasets/dataset_taxonomy_table.html', {
         'dataset': dataset,
         'category_link_to': category_link_to,
         'dataset_taxonomy_stats': dataset_taxonomy_stats})
@@ -88,7 +88,7 @@ def dataset_releases_table(request, short_name):
     dataset_basic_stats = data_from_async_task(compute_dataset_basic_stats, [dataset.id], {},
                                                DATASET_BASIC_STATS_KEY_TEMPLATE.format(dataset.id), 60)
 
-    return render(request, 'dataset_releases_table.html', {
+    return render(request, 'datasets/dataset_releases_table.html', {
         'dataset': dataset,
         'dataset_basic_stats': dataset_basic_stats,
         'user_is_maintainer': user_is_maintainer,
@@ -112,7 +112,7 @@ def taxonomy_node(request, short_name, node_id):
         # If page is out of range (e.g. 9999), deliver last page of results.
         sounds = paginator.page(paginator.num_pages)
         
-    return render(request, 'taxonomy_node.html', {'dataset': dataset, 'node': node, 'sounds':sounds})
+    return render(request, 'datasets/taxonomy_node.html', {'dataset': dataset, 'node': node, 'sounds':sounds})
 
 #############################
 # CONTRIBUTE TO DATASET VIEWS
@@ -125,17 +125,17 @@ def contribute(request, short_name):
     annotators_ranking = data_from_async_task(compute_annotators_ranking, [dataset.id], {},
                                               DATASET_ANNOTATORS_RANKING_TEMPLATE.format(dataset.id), 60 * 1)
 
-    return render(request, 'contribute.html', {'dataset': dataset, 'annotators_ranking': annotators_ranking})
+    return render(request, 'datasets/contribute.html', {'dataset': dataset, 'annotators_ranking': annotators_ranking})
 
 
 def contribute_validate_annotations(request, short_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
     if request.GET.get('help', False):
-        return render(request, 'contribute_validate_annotations_help.html', {'dataset': dataset})
+        return render(request, 'datasets/contribute_validate_annotations_help.html', {'dataset': dataset})
     if not request.user.is_authenticated():
         return HttpResponseRedirect(reverse('login') + '?next={0}'.format(
             reverse('contribute-validate-annotations', args=[dataset.short_name])))
-    return render(request, 'contribute_validate_annotations.html', {'dataset': dataset})
+    return render(request, 'datasets/contribute_validate_annotations.html', {'dataset': dataset})
 
 
 PresentNotPresentUnsureFormSet = formset_factory(PresentNotPresentUnsureForm)
@@ -189,7 +189,7 @@ def contribute_validate_annotations_category(request, short_name, node_id):
 
     category_comment_form = CategoryCommentForm()
 
-    return render(request, 'contribute_validate_annotations_category.html',
+    return render(request, 'datasets/contribute_validate_annotations_category.html',
                   {'dataset': dataset, 'node': node, 'annotations_forms': annotations_forms,
                    'formset': formset, 'N': N, 'user_is_maintainer': user_is_maintainer,
                    'category_comment_form': category_comment_form})
@@ -254,7 +254,7 @@ def save_contribute_validate_annotations_category(request):
 @login_required
 def choose_category(request, short_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
-    return render(request, 'dataset_taxonomy_choose_category.html', {'dataset': dataset})
+    return render(request, 'datasets/dataset_taxonomy_choose_category.html', {'dataset': dataset})
 
 
 def dataset_taxonomy_table_choose(request, short_name):
@@ -289,7 +289,7 @@ def dataset_taxonomy_table_choose(request, short_name):
         end_of_table = True
         nodes = dataset.get_categories_to_validate(request.user).exclude(omitted=True).order_by('nb_ground_truth')
 
-    return render(request, 'dataset_taxonomy_table_choose.html', {
+    return render(request, 'datasets/dataset_taxonomy_table_choose.html', {
         'dataset': dataset, 'end_of_table': end_of_table, 'hierarchy_paths': hierarchy_paths, 'nodes': nodes})
 
 
@@ -352,7 +352,7 @@ def download_release(request, short_name, release_tag):
     script = utils.generate_download_script(dataset)
     formatted_script = highlight(script, PythonLexer(), HtmlFormatter())
     highlighting_styles = HtmlFormatter().get_style_defs('.highlight')
-    return render(request, 'download.html', {'dataset': dataset,
+    return render(request, 'datasets/download.html', {'dataset': dataset,
                                              'release': release,
                                              'formatted_script': formatted_script,
                                              'highlighting_styles': highlighting_styles})
