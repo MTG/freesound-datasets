@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('datasets', '0026_auto_20170706_1942'),
+        ('datasets', '0024_annotation_ground_truth'),
     ]
 
     operations = [
