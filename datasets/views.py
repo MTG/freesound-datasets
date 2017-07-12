@@ -251,12 +251,15 @@ def save_contribute_validate_annotations_category(request):
     return JsonResponse({'errors': False})
 
 
+@login_required
 def choose_category(request, short_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
     return render(request, 'datasets/dataset_taxonomy_choose_category.html', {'dataset': dataset})
 
 
 def dataset_taxonomy_table_choose(request, short_name):
+    if not request.user.is_authenticated:
+        return HttpResponse('Unauthorized', status=401)
     dataset = get_object_or_404(Dataset, short_name=short_name)
     taxonomy = dataset.taxonomy
     hierarchy_paths = []
