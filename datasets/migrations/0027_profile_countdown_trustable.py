@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('datasets', '0028_vote_is_trustable'),
+        ('datasets', '0026_vote_is_trustable'),
     ]
 
     operations = [
