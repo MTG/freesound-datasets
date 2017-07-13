@@ -143,18 +143,20 @@ PresentNotPresentUnsureFormSet = formset_factory(PresentNotPresentUnsureForm)
 @login_required
 def contribute_validate_annotations_category(request, short_name, node_id):
     dataset = get_object_or_404(Dataset, short_name=short_name)
-    user_is_maintainer = dataset.user_is_maintainer(request.user)
-    user_last_category = request.user.profile.last_category_annotated
+    user = request.user
+    user_is_maintainer = dataset.user_is_maintainer(user)
+    user_last_category = user.profile.last_category_annotated
     node_id = unquote(node_id)
     node = dataset.taxonomy.get_element_at_id(node_id)
 
     annotation_ids = []
-    # check if user annotate a new category, make him not trustable and reset countdown
-    if user_last_category != node:
-        request.user.profile.is_trustable = False
-        request.user.profile.refresh_countdown()
+    # check if user annotate a new category or has not annotate for a long time
+    # make him not trustable and reset countdown
+    if user_last_category != node or not user.profile.contributed_recently:
+        user.profile.is_trustable = False
+        user.profile.refresh_countdown()
 
-    user_is_trustable = request.user.profile.is_trustable
+    user_is_trustable = user.profile.is_trustable
     sound_examples = node.freesound_examples.all()
     annotation_examples = dataset.annotations.filter(sound_dataset__sound__in=sound_examples, taxonomy_node=node)
     # Check if user is trustable to know if it is needed to add test examples to the form
@@ -163,7 +165,7 @@ def contribute_validate_annotations_category(request, short_name, node_id):
 
     # Get annotation that are not ground truth and that have been never annotated by the user, exclude test examples
     annotations = dataset.non_ground_truth_annotations_per_taxonomy_node(node_id) \
-        .exclude(votes__created_by=request.user, id__in=annotation_examples.values_list('id', flat=True))
+        .exclude(votes__created_by=user, id__in=annotation_examples.values_list('id', flat=True))
 
     # Divide into voted and non voted ones
     annotation_with_vote = annotations.annotate(num_votes=Count('votes')).filter(num_votes__gt=0)

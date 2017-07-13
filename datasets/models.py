@@ -452,6 +452,12 @@ class Profile(models.Model):
         self.countdown_trustable = 5
         self.save()
 
+    @property
+    def contributed_recently(self):
+        last_contribution_date = self.user.votes.order_by('-created_at')[0].created_at
+        three_days_ago = timezone.now() - datetime.timedelta(days=3)
+        return last_contribution_date > three_days_ago
+
 
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
