@@ -445,6 +445,8 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     is_trustable = models.BooleanField(default=False)  # store if the user passed the quality control test
     countdown_trustable = models.IntegerField(default=0)  # count for make the user pass the test again
+    last_category_annotated = models.OneToOneField(TaxonomyNode, null=True, blank=True, default=None)
+    # this store the last category the user contributed to
 
 
 @receiver(post_save, sender=User)
