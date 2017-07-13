@@ -448,6 +448,10 @@ class Profile(models.Model):
     last_category_annotated = models.OneToOneField(TaxonomyNode, null=True, blank=True, default=None)
     # this store the last category the user contributed to
 
+    def refresh_countdown(self):
+        self.countdown_trustable = 5
+        self.save()
+
 
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):

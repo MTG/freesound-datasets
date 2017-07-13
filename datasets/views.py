@@ -152,8 +152,7 @@ def contribute_validate_annotations_category(request, short_name, node_id):
     # check if user annotate a new category, make him not trustable and reset countdown
     if user_last_category != node:
         request.user.profile.is_trustable = False
-        request.user.profile.countdown_trustable = 5
-        request.user.save()
+        request.user.profile.refresh_countdown()
 
     user_is_trustable = request.user.profile.is_trustable
     sound_examples = node.freesound_examples.all()
@@ -219,7 +218,7 @@ def save_contribute_validate_annotations_category(request):
                                          if 'vote' in form.cleaned_data
                                          if form.cleaned_data['annotation_id'] in test_annotations_id]
                 request.user.profile.is_trustable = all(v == '1' for v in vote_test_annotations)
-                request.user.profile.countdown_trustable = 5
+                request.user.profile.refresh_countdown()
             else:  # check the countdown and decrement it if needed
                 if request.user.profile.countdown_trustable < 2:  # user is no longer trustable
                     request.user.profile.is_trustable = False
