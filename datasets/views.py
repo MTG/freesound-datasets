@@ -35,7 +35,6 @@ def dataset(request, short_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
     user_is_maintainer = dataset.user_is_maintainer(request.user)
     form_errors = False
-    taxonomy_tree = dataset.taxonomy.get_taxonomy_as_tree()
     if request.method == 'POST':
         form = DatasetReleaseForm(request.POST)
         if form.is_valid():
@@ -53,8 +52,13 @@ def dataset(request, short_name):
         'dataset': dataset,
         'user_is_maintainer': user_is_maintainer,
         'dataset_release_form': form, 'dataset_release_form_errors': form_errors,
-        'ontology': json.dumps(taxonomy_tree),
     })
+
+
+def dataset_taxonomy_tree(request, short_name):
+    dataset = get_object_or_404(Dataset, short_name=short_name)
+    taxonomy_tree = dataset.taxonomy.get_taxonomy_as_tree()
+    return JsonResponse(taxonomy_tree)
 
 
 def dataset_taxonomy_table(request, short_name):
