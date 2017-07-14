@@ -445,6 +445,18 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     is_trustable = models.BooleanField(default=False)  # store if the user passed the quality control test
     countdown_trustable = models.IntegerField(default=0)  # count for make the user pass the test again
+    last_category_annotated = models.OneToOneField(TaxonomyNode, null=True, blank=True, default=None)
+    # this store the last category the user contributed to
+
+    def refresh_countdown(self):
+        self.countdown_trustable = 5
+        self.save()
+
+    @property
+    def contributed_recently(self):
+        last_contribution_date = self.user.votes.order_by('-created_at')[0].created_at
+        three_days_ago = timezone.now() - datetime.timedelta(days=3)
+        return last_contribution_date > three_days_ago
 
 
 @receiver(post_save, sender=User)

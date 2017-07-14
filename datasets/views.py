@@ -143,24 +143,29 @@ PresentNotPresentUnsureFormSet = formset_factory(PresentNotPresentUnsureForm)
 @login_required
 def contribute_validate_annotations_category(request, short_name, node_id):
     dataset = get_object_or_404(Dataset, short_name=short_name)
-    user_is_maintainer = dataset.user_is_maintainer(request.user)
-    user_is_trustable = request.user.profile.is_trustable
+    user = request.user
+    user_is_maintainer = dataset.user_is_maintainer(user)
+    user_last_category = user.profile.last_category_annotated
     node_id = unquote(node_id)
     node = dataset.taxonomy.get_element_at_id(node_id)
 
     annotation_ids = []
+    # check if user annotate a new category or has not annotate for a long time
+    # make him not trustable and reset countdown
+    if user_last_category != node or not user.profile.contributed_recently:
+        user.profile.is_trustable = False
+        user.profile.refresh_countdown()
+
+    user_is_trustable = user.profile.is_trustable
+    sound_examples = node.freesound_examples.all()
+    annotation_examples = dataset.annotations.filter(sound_dataset__sound__in=sound_examples, taxonomy_node=node)
     # Check if user is trustable to know if it is needed to add test examples to the form
     if not user_is_trustable:
-        sound_examples = node.freesound_examples.all()
-        annotation_examples = dataset.annotations.filter(sound_dataset__sound__in=sound_examples, taxonomy_node=node)
         annotation_ids += annotation_examples.values_list('id', flat=True)[:2]  # add 2 test examples TODO:select random
-        # Get annotation that are not ground truth and that have been never annotated by the user, exclude test examples
-        annotations = dataset.non_ground_truth_annotations_per_taxonomy_node(node_id) \
-            .exclude(votes__created_by=request.user, id__in=annotation_examples.values_list('id', flat=True))
-    else:
-        # Get annotation that are not ground truth and that have been never annotated by the user
-        annotations = dataset.non_ground_truth_annotations_per_taxonomy_node(node_id)\
-            .exclude(votes__created_by=request.user)
+
+    # Get annotation that are not ground truth and that have been never annotated by the user, exclude test examples
+    annotations = dataset.non_ground_truth_annotations_per_taxonomy_node(node_id) \
+        .exclude(votes__created_by=user, id__in=annotation_examples.values_list('id', flat=True))
 
     # Divide into voted and non voted ones
     annotation_with_vote = annotations.annotate(num_votes=Count('votes')).filter(num_votes__gt=0)
@@ -203,9 +208,9 @@ def save_contribute_validate_annotations_category(request):
         formset = PresentNotPresentUnsureFormSet(request.POST)
         if formset.is_valid() and comment_form.is_valid():
             test_annotations_id = []
+            annotations_id = [form.cleaned_data['annotation_id'] for form in formset if 'vote' in form.cleaned_data]
             # extract test examples if user is not trustable (POSITIVE EXAMPLES ONLY FOR NOW)
             if not request.user.profile.is_trustable:
-                annotations_id = [form.cleaned_data['annotation_id'] for form in formset if 'vote' in form.cleaned_data]
                 node = TaxonomyNode.objects.get(node_id=Annotation.objects.get(id=annotations_id[0]).
                                                 taxonomy_node.node_id)
                 test_annotations_id = Annotation.objects.filter(taxonomy_node=node,
@@ -215,15 +220,16 @@ def save_contribute_validate_annotations_category(request):
                                          if 'vote' in form.cleaned_data
                                          if form.cleaned_data['annotation_id'] in test_annotations_id]
                 request.user.profile.is_trustable = all(v == '1' for v in vote_test_annotations)
-                request.user.profile.countdown_trustable = 5
-                request.user.save()
+                request.user.profile.refresh_countdown()
             else:  # check the countdown and decrement it if needed
                 if request.user.profile.countdown_trustable < 2:  # user is no longer trustable
                     request.user.profile.is_trustable = False
                 else:
                     # -1 to the countdown
                     request.user.profile.countdown_trustable -= 1
-                request.user.save()
+            request.user.profile.last_category_annotated = TaxonomyNode.objects.get(
+                node_id=Annotation.objects.get(id=annotations_id[0]).taxonomy_node.node_id)
+            request.user.save()
 
             for form in formset:
                 if 'vote' in form.cleaned_data:  # This is to skip last element of formset which is empty
