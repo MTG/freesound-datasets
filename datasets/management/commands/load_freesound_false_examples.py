@@ -1,7 +1,6 @@
 from django.core.management.base import BaseCommand
-from datasets.models import *
 import json
-from datasets.models import Taxonomy, Dataset, Sound, TaxonomyNode
+from datasets.models import Dataset, Sound
 
 
 class Command(BaseCommand):
