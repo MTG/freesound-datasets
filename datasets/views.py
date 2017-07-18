@@ -167,6 +167,14 @@ def contribute_validate_annotations_category(request, short_name, node_id):
     if not user_is_trustable:
         annotation_ids += annotation_examples.values_list('id', flat=True)[:2]  # add 2 test examples TODO:select random
 
+    # Get negative examples and add one if user is not trustable
+    if not user_is_trustable:
+        negative_sound_examples = node.freesound_false_examples.all()
+        negative_annotation_examples = dataset.annotations.filter(sound_dataset__sound__in=negative_sound_examples,
+                                                                  taxonomy_node=node)
+        if negative_annotation_examples:
+            annotation_ids += random.sample(negative_annotation_examples.values_list('id', flat=True), 1)
+
     # Get annotation that are not ground truth and that have been never annotated by the user, exclude test examples
     annotations = dataset.non_ground_truth_annotations_per_taxonomy_node(node_id) \
         .exclude(votes__created_by=user, id__in=annotation_examples.values_list('id', flat=True))
@@ -182,7 +190,8 @@ def contribute_validate_annotations_category(request, short_name, node_id):
     # TODO: Maybe use weighted sampling to avoid this 2 step selection (may include more steps in the future...)
     N_ANNOTATIONS_TO_VALIDATE = 12 - len(annotation_ids)
     N_with_vote = min(len(annotation_with_vote_ids), N_ANNOTATIONS_TO_VALIDATE)
-    annotation_ids += random.sample(list(annotation_with_vote_ids), N_with_vote)
+    if N_with_vote:
+        annotation_ids += random.sample(list(annotation_with_vote_ids), N_with_vote)
 
     # if there is not enough voted annotations (<12), fill the list with non voted annotations
     N_with_no_vote = min(len(annotation_with_no_vote_ids), N_ANNOTATIONS_TO_VALIDATE - N_with_vote)
