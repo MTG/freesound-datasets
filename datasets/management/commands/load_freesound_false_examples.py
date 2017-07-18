@@ -22,7 +22,7 @@ class Command(BaseCommand):
 
         for d in data:
             node = taxonomy.get_element_at_id(d['id'])
-            for ex_id in d['FS_false_examples']:
+            for ex_id in d['negative_examples_FS']:
                 sound = Sound.objects.get(freesound_id=ex_id)
                 node.freesound_false_examples.add(sound)
             node.save()
