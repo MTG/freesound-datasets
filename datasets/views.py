@@ -169,7 +169,7 @@ def contribute_validate_annotations_category(request, short_name, node_id):
 
     # Get annotation that are not ground truth and that have been never annotated by the user, exclude test examples
     annotations = dataset.non_ground_truth_annotations_per_taxonomy_node(node_id) \
-        .exclude(votes__created_by=user, id__in=annotation_examples.values_list('id', flat=True))
+        .exclude(votes__created_by=user).exclude(id__in=annotation_examples.values_list('id', flat=True))
 
     # Divide into voted and non voted ones
     annotation_with_vote = annotations.annotate(num_votes=Count('votes')).filter(num_votes__gt=0)
