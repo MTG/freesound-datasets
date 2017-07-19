@@ -241,7 +241,7 @@ def save_contribute_validate_annotations_category(request):
                 vote_false_test_annotations = [form.cleaned_data['vote'] for form in formset
                                                if 'vote' in form.cleaned_data
                                                if form.cleaned_data['annotation_id'] in false_test_annotations_id]
-                print(vote_false_test_annotations)
+
                 # check answers and make user trustable if he succeed
                 request.user.profile.is_trustable = all(v == '1' for v in vote_test_annotations) \
                                                 and all(v == '-1' for v in vote_false_test_annotations)
