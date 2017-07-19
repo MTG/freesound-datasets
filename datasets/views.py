@@ -222,23 +222,35 @@ def save_contribute_validate_annotations_category(request):
         if formset.is_valid() and comment_form.is_valid():
             test_annotations_id = []
             annotations_id = [form.cleaned_data['annotation_id'] for form in formset if 'vote' in form.cleaned_data]
-            # extract test examples if user is not trustable (POSITIVE EXAMPLES ONLY FOR NOW)
+            # extract test examples if the user is not trustable
             if not request.user.profile.is_trustable:
                 node = TaxonomyNode.objects.get(node_id=Annotation.objects.get(id=annotations_id[0]).
                                                 taxonomy_node.node_id)
+                # positive examples
                 test_annotations_id = Annotation.objects.filter(taxonomy_node=node,
                                                                 sound_dataset__sound__in=node.freesound_examples.all())\
                     .values_list('id', flat=True)
                 vote_test_annotations = [form.cleaned_data['vote'] for form in formset
                                          if 'vote' in form.cleaned_data
                                          if form.cleaned_data['annotation_id'] in test_annotations_id]
-                request.user.profile.is_trustable = all(v == '1' for v in vote_test_annotations)
+
+                # false examples
+                false_test_annotations_id = Annotation.objects.filter(taxonomy_node=node,
+                                                                      sound_dataset__sound__in=node.freesound_false_examples.all())\
+                    .values_list('id', flat=True)
+                vote_false_test_annotations = [form.cleaned_data['vote'] for form in formset
+                                               if 'vote' in form.cleaned_data
+                                               if form.cleaned_data['annotation_id'] in false_test_annotations_id]
+                print(vote_false_test_annotations)
+                # check answers and make user trustable if he succeed
+                request.user.profile.is_trustable = all(v == '1' for v in vote_test_annotations) \
+                                                and all(v == '-1' for v in vote_false_test_annotations)
                 request.user.profile.refresh_countdown()
-            else:  # check the countdown and decrement it if needed
+
+            else:  # user is trustable: check the countdown and decrement it if needed
                 if request.user.profile.countdown_trustable < 2:  # user is no longer trustable
                     request.user.profile.is_trustable = False
-                else:
-                    # -1 to the countdown
+                else:  # decrement to the countdown
                     request.user.profile.countdown_trustable -= 1
             request.user.profile.last_category_annotated = TaxonomyNode.objects.get(
                 node_id=Annotation.objects.get(id=annotations_id[0]).taxonomy_node.node_id)
