@@ -205,6 +205,12 @@ class TaxonomyNode(models.Model):
         else:  # several parents
             return ' (many parents) > {}'.format(self.name)
 
+    @property
+    def self_and_children_omitted(self):
+        """ Returns True if the node and all its children are omitted """
+        all_children = self.taxonomy.get_all_children(self.node_id)
+        return all(omitted for omitted in [child.omitted for child in all_children] + [self.omitted])
+
 
 class Dataset(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)

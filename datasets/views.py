@@ -303,7 +303,8 @@ def dataset_taxonomy_table_choose(request, short_name):
         # choose a category at the given node_id level
         if node_id != str(0):
             if node_id in taxonomy.get_nodes_at_level(0).values_list('node_id', flat=True):
-                nodes = taxonomy.get_children(node_id)
+                # remove node that them and all their children are omitted
+                nodes = [node for node in taxonomy.get_children(node_id) if not node.self_and_children_omitted]
             else:
                 end_of_table = True  # end of continue, now the user will choose a category to annotate
                 nodes = taxonomy.get_all_children(node_id) + [taxonomy.get_element_at_id(node_id)] + taxonomy.get_all_parents(node_id)
