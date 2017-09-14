@@ -167,6 +167,14 @@ def contribute_validate_annotations_category(request, short_name, node_id):
     if not user_is_trustable:
         annotation_ids += annotation_examples.values_list('id', flat=True)[:2]  # add 2 test examples TODO:select random
 
+    # Get negative examples and add one if user is not trustable
+    if not user_is_trustable:
+        negative_sound_examples = node.freesound_false_examples.all()
+        negative_annotation_examples = dataset.annotations.filter(sound_dataset__sound__in=negative_sound_examples,
+                                                                  taxonomy_node=node)
+        if negative_annotation_examples:
+            annotation_ids += random.sample(negative_annotation_examples.values_list('id', flat=True), 1)
+
     # Get annotation that are not ground truth and that have been never annotated by the user, exclude test examples
     annotations = dataset.non_ground_truth_annotations_per_taxonomy_node(node_id) \
         .exclude(votes__created_by=user).exclude(id__in=annotation_examples.values_list('id', flat=True))
@@ -182,7 +190,8 @@ def contribute_validate_annotations_category(request, short_name, node_id):
     # TODO: Maybe use weighted sampling to avoid this 2 step selection (may include more steps in the future...)
     N_ANNOTATIONS_TO_VALIDATE = 12 - len(annotation_ids)
     N_with_vote = min(len(annotation_with_vote_ids), N_ANNOTATIONS_TO_VALIDATE)
-    annotation_ids += random.sample(list(annotation_with_vote_ids), N_with_vote)
+    if N_with_vote:
+        annotation_ids += random.sample(list(annotation_with_vote_ids), N_with_vote)
 
     # if there is not enough voted annotations (<12), fill the list with non voted annotations
     N_with_no_vote = min(len(annotation_with_no_vote_ids), N_ANNOTATIONS_TO_VALIDATE - N_with_vote)
@@ -213,23 +222,35 @@ def save_contribute_validate_annotations_category(request):
         if formset.is_valid() and comment_form.is_valid():
             test_annotations_id = []
             annotations_id = [form.cleaned_data['annotation_id'] for form in formset if 'vote' in form.cleaned_data]
-            # extract test examples if user is not trustable (POSITIVE EXAMPLES ONLY FOR NOW)
+            # extract test examples if the user is not trustable
             if not request.user.profile.is_trustable:
                 node = TaxonomyNode.objects.get(node_id=Annotation.objects.get(id=annotations_id[0]).
                                                 taxonomy_node.node_id)
+                # positive examples
                 test_annotations_id = Annotation.objects.filter(taxonomy_node=node,
                                                                 sound_dataset__sound__in=node.freesound_examples.all())\
                     .values_list('id', flat=True)
                 vote_test_annotations = [form.cleaned_data['vote'] for form in formset
                                          if 'vote' in form.cleaned_data
                                          if form.cleaned_data['annotation_id'] in test_annotations_id]
-                request.user.profile.is_trustable = all(v == '1' for v in vote_test_annotations)
+
+                # false examples
+                false_test_annotations_id = Annotation.objects.filter(taxonomy_node=node,
+                                                                      sound_dataset__sound__in=node.freesound_false_examples.all())\
+                    .values_list('id', flat=True)
+                vote_false_test_annotations = [form.cleaned_data['vote'] for form in formset
+                                               if 'vote' in form.cleaned_data
+                                               if form.cleaned_data['annotation_id'] in false_test_annotations_id]
+
+                # check answers and make user trustable if he succeed
+                request.user.profile.is_trustable = all(v == '1' for v in vote_test_annotations) \
+                                                and all(v == '-1' for v in vote_false_test_annotations)
                 request.user.profile.refresh_countdown()
-            else:  # check the countdown and decrement it if needed
+
+            else:  # user is trustable: check the countdown and decrement it if needed
                 if request.user.profile.countdown_trustable < 2:  # user is no longer trustable
                     request.user.profile.is_trustable = False
-                else:
-                    # -1 to the countdown
+                else:  # decrement to the countdown
                     request.user.profile.countdown_trustable -= 1
             request.user.profile.last_category_annotated = TaxonomyNode.objects.get(
                 node_id=Annotation.objects.get(id=annotations_id[0]).taxonomy_node.node_id)
