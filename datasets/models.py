@@ -252,6 +252,11 @@ class Dataset(models.Model):
         return self.num_validated_annotations * 100.0 / self.num_annotations
 
     @property
+    def num_ground_truth_annotations(self):
+        # This is the number of annotations that have ground truth state PP (1) or PNP (0.5)
+        return self.annotations.filter(ground_truth__gt=0).count()
+
+    @property
     def releases(self):
         return self.datasetrelease_set.all().order_by('-release_date')
 

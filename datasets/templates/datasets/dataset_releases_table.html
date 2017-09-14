@@ -9,6 +9,7 @@
             <th class="one wide">Num annotations</th>
             <th class="one wide">Avg annotations per sound</th>
             <th class="one wide">% validated annotations</th>
+            <th class="one wide">Num ground truth annotations</th>
             <th class="one wide"></th>
         </tr>
     </thead>
@@ -20,6 +21,7 @@
             <td>{{ dataset_basic_stats.num_annotations }}</td>
             <td>{{ dataset_basic_stats.avg_annotations_per_sound|floatformat:2 }}</td>
             <td>{{ dataset_basic_stats.percentage_validated_annotations|floatformat:2 }}%</td>
+            <td>{{ dataset_basic_stats.num_ground_truth_annotations }}</td>
             <td></td>
         </tr>
         {% for release in dataset_releases_for_user %}
