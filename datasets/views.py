@@ -162,7 +162,8 @@ def contribute_validate_annotations_category(request, short_name, node_id):
 
     user_is_trustable = user.profile.is_trustable
     sound_examples = node.freesound_examples.all()
-    annotation_examples = dataset.annotations.filter(sound_dataset__sound__in=sound_examples, taxonomy_node=node)
+    annotation_examples = dataset.annotations.filter(sound_dataset__sound__in=sound_examples, taxonomy_node=node,
+                                                     sound_dataset__sound__deleted_in_freesound=False)
     # Check if user is trustable to know if it is needed to add test examples to the form
     if not user_is_trustable:
         annotation_ids += annotation_examples.values_list('id', flat=True)[:2]  # add 2 test examples TODO:select random
@@ -171,13 +172,15 @@ def contribute_validate_annotations_category(request, short_name, node_id):
     if not user_is_trustable:
         negative_sound_examples = node.freesound_false_examples.all()
         negative_annotation_examples = dataset.annotations.filter(sound_dataset__sound__in=negative_sound_examples,
-                                                                  taxonomy_node=node)
+                                                                  taxonomy_node=node,
+                                                                  sound_dataset__sound__deleted_in_freesound=False)
         if negative_annotation_examples:
             annotation_ids += random.sample(negative_annotation_examples.values_list('id', flat=True), 1)
 
     # Get annotation that are not ground truth and that have been never annotated by the user, exclude test examples
     annotations = dataset.non_ground_truth_annotations_per_taxonomy_node(node_id) \
-        .exclude(votes__created_by=user).exclude(id__in=annotation_examples.values_list('id', flat=True))
+        .exclude(votes__created_by=user).exclude(id__in=annotation_examples.values_list('id', flat=True)) \
+        .filter(sound_dataset__sound__deleted_in_freesound=False)
 
     # Divide into voted and non voted ones
     annotation_with_vote = annotations.annotate(num_votes=Count('votes')).filter(num_votes__gt=0)
