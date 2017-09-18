@@ -1,10 +1,12 @@
-from datasets.models import Dataset, DatasetRelease, Annotation, Vote, TaxonomyNode
+from datasets.models import Dataset, DatasetRelease, Annotation, Vote, TaxonomyNode, Sound
 from django.db.models import Count
 from django.contrib.auth.models import User
+from django.db import transaction
 from celery import shared_task
 from django.utils import timezone
 from utils.redis_store import store
 from datasets.templatetags.dataset_templatetags import calculate_taxonomy_node_stats
+from datasets.utils import query_freesound_by_id
 import json
 import math
 import logging
@@ -208,3 +210,17 @@ def compute_gt_taxonomy_node():
         taxonomy_node.nb_ground_truth = taxonomy_node.annotation_set.filter(ground_truth__in=(0.5, 1)).count()
         taxonomy_node.save()
     logger.info('Finished computing number of ground truth annotation')
+
+
+@shared_task
+def refresh_sound_deleted_state():
+    logger.info('Start refreshing freesound sound deleted state')
+    sound_ids = Sound.objects.all().values_list('freesound_id', flat=True)
+    results = query_freesound_by_id(sound_ids)
+    deleted_sound_ids = set(sound_ids) - set([s.id for s in results])
+    with transaction.atomic():
+        for fs_sound_id in deleted_sound_ids:
+            sound = Sound.objects.get(freesound_id=fs_sound_id)
+            sound.deleted_in_freesound = True
+            sound.save()
+    logger.info('Finished refreshing freesound sound deleted state')

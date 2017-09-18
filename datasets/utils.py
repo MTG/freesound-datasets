@@ -26,11 +26,13 @@ def chunks(l, n):
 
 
 def query_freesound_by_id(list_ids):
+    """ Query Freesound by chunk of 50 sounds
+        Retrieves only id of sounds """
     client = fs.FreesoundClient()
     client.set_token(settings.FS_CLIENT_SECRET)
     results = []
     for sub_list_ids in chunks(list_ids, 50):
         filter_str = 'id:(' + ' OR '.join([str(i) for i in sub_list_ids]) + ')'
-        page_result = client.text_search(query="", page_size=50, filter=filter_str)
+        page_result = client.text_search(query="", fields="id", page_size=50, filter=filter_str)
         results += [s for s in page_result]
     return results
