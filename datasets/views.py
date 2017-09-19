@@ -233,7 +233,7 @@ def save_contribute_validate_annotations_category(request):
                 node = TaxonomyNode.objects.get(node_id=Annotation.objects.get(id=annotations_id[0]).
                                                 taxonomy_node.node_id)
                 # positive examples
-                positive_test = None
+                positive_test = None  # count as deactivated
                 if node.positive_verification_examples_activated:
                     test_annotations_id = Annotation.objects.filter(taxonomy_node=node,
                                                                     sound_dataset__sound__in=node.freesound_examples.all())\
@@ -241,10 +241,11 @@ def save_contribute_validate_annotations_category(request):
                     vote_test_annotations = [form.cleaned_data['vote'] for form in formset
                                              if 'vote' in form.cleaned_data
                                              if form.cleaned_data['annotation_id'] in test_annotations_id]
-                    positive_test = all(v == '1' for v in vote_test_annotations)
+                    if len(vote_test_annotations) > 0:  # if there is not test annotation, test is considered deactivated
+                        positive_test = all(v == '1' for v in vote_test_annotations)
 
                 # false examples
-                negative_test = None
+                negative_test = None  # count as deactivated
                 if node.negative_verification_examples_activated:
                     false_test_annotations_id = Annotation.objects.filter(taxonomy_node=node,
                                                                           sound_dataset__sound__in=node.freesound_false_examples.all())\
@@ -252,7 +253,8 @@ def save_contribute_validate_annotations_category(request):
                     vote_false_test_annotations = [form.cleaned_data['vote'] for form in formset
                                                    if 'vote' in form.cleaned_data
                                                    if form.cleaned_data['annotation_id'] in false_test_annotations_id]
-                    negative_test = all(v == '-1' for v in vote_false_test_annotations)
+                    if len(vote_false_test_annotations) > 0:  # if there is not test annotation, test test is considered deactivated
+                        negative_test = all(v == '-1' for v in vote_false_test_annotations)
 
                 # check answers and update user test field
                 if positive_test is True and negative_test is True:  # both test activated, both succeed

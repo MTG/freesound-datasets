@@ -410,7 +410,8 @@ class Annotation(models.Model):
         Returns the ground truth vote value of the annotation
         Returns None if there is no ground truth value
         """
-        vote_values = [v.vote for v in self.votes.all() if v.is_trustable is not False]  # null case is trustable
+        vote_values = [v.vote for v in self.votes.all() if v.test is not 'FA']
+        # all the test cases are considered valid except the Failed one
         if vote_values.count(1) > 1:
             return 1
         if vote_values.count(0.5) > 1:
@@ -430,7 +431,7 @@ TEST_CHOICES = (
     ('PP', 'Positive Passed'),  # Only positive examples test activated and passed
     ('NP', 'Negative Passed'),  # Only negative examples test activated and passed
     ('NA', 'None Activated'),  # No examples test activated
-    ('FA', 'Failed'),  # One of the test failed
+    ('FA', 'Failed'),  # One of the test failed, or not tested yet
 )
 
 
