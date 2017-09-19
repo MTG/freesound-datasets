@@ -166,12 +166,12 @@ def contribute_validate_annotations_category(request, short_name, node_id):
                                                      sound_dataset__sound__deleted_in_freesound=False)
 
     if node.positive_verification_examples_activated:
-        # Check if user is trustable to know if it is needed to add test examples to the form
+        # Check if user has passed the test to know if it is needed to add test examples to the form
         if user_test == 'FA':
             annotation_ids += annotation_examples.values_list('id', flat=True)[:2]  # add 2 test examples TODO:select random
 
     if node.negative_verification_examples_activated:
-        # Get negative examples and add one if user is not trustable
+        # Get negative examples and add one if user has failed the test
         if user_test == 'FA':
             negative_sound_examples = node.freesound_false_examples.all()
             negative_annotation_examples = dataset.annotations.filter(sound_dataset__sound__in=negative_sound_examples,
@@ -263,8 +263,8 @@ def save_contribute_validate_annotations_category(request):
                     request.user.profile.test = 'PP'
                 elif positive_test is None and negative_test is True:  # negative test activated and succeed
                     request.user.profile.test = 'NP'
-                elif positive_test is None and negative_test is None:  # both tests deactivated
-                    request.user.profile.test = 'UN'
+                elif positive_test is None and negative_test is None:  # both tests deactivated or no test examples available for the category
+                    request.user.profile.test = 'NA'
                 elif positive_test is False or negative_test is False:  # one of the test failed
                     request.user.profile.test = 'FA'
                 request.user.profile.refresh_countdown()
