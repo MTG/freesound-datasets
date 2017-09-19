@@ -423,6 +423,17 @@ class Annotation(models.Model):
             return None
 
 
+# choices for quality control test used in Vote and User Profile
+TEST_CHOICES = (
+    ('UN', 'Unknown'),  # Test was not implemented when user contributed
+    ('AP', 'All Passed'),  # All test successfully passed
+    ('PP', 'Positive Passed'),  # Only positive examples test activated and passed
+    ('NP', 'Negative Passed'),  # Only negative examples test activated and passed
+    ('NA', 'None Activated'),  # No examples test activated
+    ('FA', 'Failed'),  # One of the test failed
+)
+
+
 class Vote(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(User, related_name='votes', null=True, on_delete=models.SET_NULL)
@@ -432,6 +443,7 @@ class Vote(models.Model):
     # 'visited_sound' is to store whether the user needed to open the sound in Freesound to perform this vote
     is_trustable = models.NullBooleanField(null=True, blank=True)  # store if the user was trustable when he voted
     # null values are used for old votes for the which we did not have the quality control implemented
+    test = models.CharField(max_length=2, choices=TEST_CHOICES, default='UN')  # Store test result
 
     def __str__(self):
         return 'Vote for annotation {0}'.format(self.annotation.id)
@@ -459,6 +471,7 @@ class CategoryComment(models.Model):
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     is_trustable = models.BooleanField(default=False)  # store if the user passed the quality control test
+    test = models.CharField(max_length=2, choices=TEST_CHOICES, default='UN')  # Store test result
     countdown_trustable = models.IntegerField(default=0)  # count for make the user pass the test again
     last_category_annotated = models.OneToOneField(TaxonomyNode, null=True, blank=True, default=None)
     # this store the last category the user contributed to
