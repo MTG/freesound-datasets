@@ -155,24 +155,24 @@ def contribute_validate_annotations_category(request, short_name, node_id):
 
     annotation_ids = []
     # check if user annotate a new category or has not annotate for a long time
-    # make him not trustable and reset countdown
+    # make him fail the test and reset countdown
     if user_last_category != node or not user.profile.contributed_recently:
-        user.profile.is_trustable = False
+        user.profile.test = 'FA'
         user.profile.refresh_countdown()
 
-    user_is_trustable = user.profile.is_trustable
+    user_test = user.profile.test
     sound_examples = node.freesound_examples.all()
     annotation_examples = dataset.annotations.filter(sound_dataset__sound__in=sound_examples, taxonomy_node=node,
                                                      sound_dataset__sound__deleted_in_freesound=False)
 
     if node.positive_verification_examples_activated:
         # Check if user is trustable to know if it is needed to add test examples to the form
-        if not user_is_trustable:
+        if user_test == 'FA':
             annotation_ids += annotation_examples.values_list('id', flat=True)[:2]  # add 2 test examples TODO:select random
 
     if node.negative_verification_examples_activated:
         # Get negative examples and add one if user is not trustable
-        if not user_is_trustable:
+        if user_test == 'FA':
             negative_sound_examples = node.freesound_false_examples.all()
             negative_annotation_examples = dataset.annotations.filter(sound_dataset__sound__in=negative_sound_examples,
                                                                       taxonomy_node=node,
@@ -228,34 +228,48 @@ def save_contribute_validate_annotations_category(request):
         if formset.is_valid() and comment_form.is_valid():
             test_annotations_id = []
             annotations_id = [form.cleaned_data['annotation_id'] for form in formset if 'vote' in form.cleaned_data]
-            # extract test examples if the user is not trustable
-            if not request.user.profile.is_trustable:
+            # extract test examples if the user test is fail
+            if request.user.profile.test == 'FA':
                 node = TaxonomyNode.objects.get(node_id=Annotation.objects.get(id=annotations_id[0]).
                                                 taxonomy_node.node_id)
                 # positive examples
-                test_annotations_id = Annotation.objects.filter(taxonomy_node=node,
-                                                                sound_dataset__sound__in=node.freesound_examples.all())\
-                    .values_list('id', flat=True)
-                vote_test_annotations = [form.cleaned_data['vote'] for form in formset
-                                         if 'vote' in form.cleaned_data
-                                         if form.cleaned_data['annotation_id'] in test_annotations_id]
+                positive_test = None
+                if node.positive_verification_examples_activated:
+                    test_annotations_id = Annotation.objects.filter(taxonomy_node=node,
+                                                                    sound_dataset__sound__in=node.freesound_examples.all())\
+                        .values_list('id', flat=True)
+                    vote_test_annotations = [form.cleaned_data['vote'] for form in formset
+                                             if 'vote' in form.cleaned_data
+                                             if form.cleaned_data['annotation_id'] in test_annotations_id]
+                    positive_test = all(v == '1' for v in vote_test_annotations)
 
                 # false examples
-                false_test_annotations_id = Annotation.objects.filter(taxonomy_node=node,
-                                                                      sound_dataset__sound__in=node.freesound_false_examples.all())\
-                    .values_list('id', flat=True)
-                vote_false_test_annotations = [form.cleaned_data['vote'] for form in formset
-                                               if 'vote' in form.cleaned_data
-                                               if form.cleaned_data['annotation_id'] in false_test_annotations_id]
+                negative_test = None
+                if node.negative_verification_examples_activated:
+                    false_test_annotations_id = Annotation.objects.filter(taxonomy_node=node,
+                                                                          sound_dataset__sound__in=node.freesound_false_examples.all())\
+                        .values_list('id', flat=True)
+                    vote_false_test_annotations = [form.cleaned_data['vote'] for form in formset
+                                                   if 'vote' in form.cleaned_data
+                                                   if form.cleaned_data['annotation_id'] in false_test_annotations_id]
+                    negative_test = all(v == '-1' for v in vote_false_test_annotations)
 
-                # check answers and make user trustable if he succeed
-                request.user.profile.is_trustable = all(v == '1' for v in vote_test_annotations) \
-                                                and all(v == '-1' for v in vote_false_test_annotations)
+                # check answers and update user test field
+                if positive_test is True and negative_test is True:  # both test activated, both succeed
+                    request.user.profile.test = 'AP'
+                elif positive_test is True and negative_test is None:  # positive test activated and succeed
+                    request.user.profile.test = 'PP'
+                elif positive_test is None and negative_test is True:  # negative test activated and succeed
+                    request.user.profile.test = 'NP'
+                elif positive_test is None and negative_test is None:  # both tests deactivated
+                    request.user.profile.test = 'UN'
+                elif positive_test is False or negative_test is False:  # one of the test failed
+                    request.user.profile.test = 'FA'
                 request.user.profile.refresh_countdown()
 
-            else:  # user is trustable: check the countdown and decrement it if needed
-                if request.user.profile.countdown_trustable < 2:  # user is no longer trustable
-                    request.user.profile.is_trustable = False
+            else:  # user passed the test: check the countdown and decrement it if needed
+                if request.user.profile.countdown_trustable < 2:  # user test is now in failed state
+                    request.user.profile.test = 'FA'
                 else:  # decrement to the countdown
                     request.user.profile.countdown_trustable -= 1
             request.user.profile.last_category_annotated = TaxonomyNode.objects.get(
@@ -275,7 +289,7 @@ def save_contribute_validate_annotations_category(request):
                                 vote=float(form.cleaned_data['vote']),
                                 visited_sound=form.cleaned_data['visited_sound'],
                                 annotation_id=annotation_id,
-                                is_trustable=request.user.profile.is_trustable,
+                                test=request.user.profile.test,
                             )
 
             if comment_form.cleaned_data['comment'].strip():  # If there is a comment
