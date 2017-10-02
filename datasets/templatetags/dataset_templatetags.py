@@ -49,7 +49,7 @@ def calculate_taxonomy_node_stats(
         'comments': comments,
         'nb_ground_truth': node['nb_ground_truth'],
         'num_verified_annotations': None,
-        'num_user_contributions': None,
+        'num_user_contributions': node['nb_user_contributions'],
     }
 
 
