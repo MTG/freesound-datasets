@@ -4,12 +4,12 @@
     <thead>
         <tr>
             <th class="one wide">Release</th>
-            <th class="one wide">Num labels</th>
-            <th class="one wide">Num sounds</th>
-            <th class="one wide">Num annotations</th>
-            <th class="one wide">Avg annotations per sound</th>
-            <th class="one wide">% validated annotations</th>
-            <th class="one wide">Num ground truth annotations</th>
+            <th class="one wide"># classes</th>
+            <th class="one wide"># sounds</th>
+            <th class="one wide"># ground truth annotations</th>
+            <th class="one wide"># verified annotations</th>
+            <th class="one wide"># user contributions</th>
+            <th class="one wide"># candidate annotations</th>
             <th class="one wide"></th>
         </tr>
     </thead>
@@ -18,10 +18,10 @@
             <td>current<br><span class="small_gray_text">{{ dataset_basic_stats.redis_timestamp | timestamp_to_datetime | timesince  }} ago</span></td>
             <td>{{ dataset_basic_stats.num_taxonomy_nodes }}</td>
             <td>{{ dataset_basic_stats.num_sounds }}</td>
-            <td>{{ dataset_basic_stats.num_annotations }}</td>
-            <td>{{ dataset_basic_stats.avg_annotations_per_sound|floatformat:2 }}</td>
-            <td>{{ dataset_basic_stats.percentage_validated_annotations|floatformat:2 }}%</td>
             <td>{{ dataset_basic_stats.num_ground_truth_annotations }}</td>
+            <td>{{ dataset_basic_stats.num_verified_annotations}}</td>
+            <td>{{ dataset_basic_stats.num_user_contributions }}</td>
+            <td>{{ dataset_basic_stats.num_annotations }}</td>
             <td></td>
         </tr>
         {% for release in dataset_releases_for_user %}

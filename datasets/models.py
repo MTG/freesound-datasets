@@ -266,6 +266,14 @@ class Dataset(models.Model):
         return self.annotations.filter(ground_truth__gt=0).count()
 
     @property
+    def num_verified_annotations(self):
+        return self.annotations.exclude(ground_truth__isnull=True).count()
+
+    @property
+    def num_user_contributions(self):
+        return Vote.objects.filter(annotation__sound_dataset__dataset=self).count()
+
+    @property
     def releases(self):
         return self.datasetrelease_set.all().order_by('-release_date')
 

@@ -48,6 +48,8 @@ def calculate_taxonomy_node_stats(
         'votes_stats': votes_stats if votes_stats is not None else {},
         'comments': comments,
         'nb_ground_truth': node['nb_ground_truth'],
+        'num_verified_annotations': None,
+        'num_user_contributions': None,
     }
 
 
