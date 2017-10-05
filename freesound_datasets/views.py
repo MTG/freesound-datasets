@@ -13,8 +13,7 @@ def crash_me(request):
 
 
 def index(request):
-    default_dataset = get_object_or_404(Dataset, name=settings.DEFAULT_DATASET_NAME)
-    return HttpResponseRedirect(reverse('dataset', args=[default_dataset.short_name]))
+    return render(request, 'index.html', {})
 
 
 def login(request):
