@@ -8,17 +8,21 @@
     The goal of Freesound Datasets is to have a website to host and create datasets based on
     Freesound content. The website should allow collaborative creation of public datasets and
     should provide a way for researchers to explore the dataset and to download it. By “exploring
-    the dataset” we mean something like Google AudioSet’s site: https://research.google.com/audioset/.
+    the dataset” we mean something like Google <a href="https://research.google.com/audioset/">AudioSet’s site.</a>
     Although the project should be generic enough to support several datasets, the most important
-    dataset will be called FreesoundDataset, and will be basically a classification of Freesound
-    content into the “ontology” that Google use in AudioSet (https://github.com/audioset/ontology,
-    also see paper: https://static.googleusercontent.com/media/research.google.com/en//pubs/archive/45857.pdf).
-    Therefore, the priority now should be to make the site work for the FreesoundDataset case.
-    As a suggestion, Freesound Datasets could be accessed at datasets.freesound.org.
+    dataset is called FreesoundDataset. <br> <br>
+    You can find more information in our <a href="">ISMIR 2017 paper</a>.
   </p>
 
 <h2 class="ui header">The Dataset:</h2>
-<a title="go to Freesound Dataset"class="fluid ui button red" href="{% url 'dataset' 'fsd' %}">
-  <img style="padding: 5px;width: 240px;max-height:140px;" src="{% static "img/freesound_dataset_logo_a.svg" %}">
-</a>
+<div class="ui raised segment">
+  <h3 class="ui header"> FreesoundDataset </h3>
+  <p>
+    FreesoundDataset is basically a classification of <a href="http://freesound.org/">Freesound</a> content into the
+    <a href="https://github.com/audioset/ontology">ontology</a> that Google use in AudioSet.
+  </p>
+  <a title="go to Freesound Dataset"class="fluid ui button red" href="{% url 'dataset' 'fsd' %}">
+    <img style="padding: 5px;width: 240px;max-height:140px;" src="{% static "img/freesound_dataset_logo_a.svg" %}">
+  </a>
+</div>
 {% endblock %}
