@@ -97,8 +97,10 @@ def display_taxonomy_node_info(context, dataset, node_id, category_link_to='e'):
 
 @register.inclusion_tag('datasets/taxonomy_node_mini_info.html')
 def display_taxonomy_node_mini_info(dataset, node_id):
-    node_data = taxonomy_node_data(dataset, node_id)
-    return {'dataset': dataset, 'node': node_data}
+    node = dataset.taxonomy.get_element_at_id(node_id).as_dict()
+    hierarchy_paths = dataset.taxonomy.get_hierarchy_paths(node['node_id'])
+    node['hierarchy_paths'] = hierarchy_paths if hierarchy_paths is not None else []
+    return {'dataset': dataset, 'node': node}
 
 
 @register.simple_tag(takes_context=False)
