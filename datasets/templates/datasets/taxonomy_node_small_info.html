@@ -1,13 +1,13 @@
 {% load dataset_templatetags %}
 {% block page_js %}
     <script type="text/javascript">
-    window.onload = function() {
+    $('.my-pop').ready(function() {
         $('.my-pop')
           .popup({
             on: 'click',
           })
         ;
-    };
+    });
     </script>
 {% endblock %}
 <table class="ui unstackable table" width="100%">
