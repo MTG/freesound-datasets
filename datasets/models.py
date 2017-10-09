@@ -189,7 +189,8 @@ class TaxonomyNode(models.Model):
                 "freesound_examples": [example.freesound_id for example in self.freesound_examples.all()],
                 "parent_ids": [parent.node_id for parent in self.parents.all()],
                 "child_ids": [child.node_id for child in self.children.all()],
-                "nb_ground_truth": self.nb_ground_truth}
+                "nb_ground_truth": self.nb_ground_truth,
+                "nb_user_contributions": self.num_user_contributions}
 
     @property
     def url_id(self):
@@ -213,6 +214,10 @@ class TaxonomyNode(models.Model):
         """ Returns True if the node and all its children are omitted """
         all_children = self.taxonomy.get_all_children(self.node_id)
         return all(omitted for omitted in [child.omitted for child in all_children] + [self.omitted])
+
+    @property
+    def num_user_contributions(self):
+        return Vote.objects.filter(annotation__taxonomy_node=self).count()
 
 
 class Dataset(models.Model):
@@ -264,6 +269,14 @@ class Dataset(models.Model):
     def num_ground_truth_annotations(self):
         # This is the number of annotations that have ground truth state PP (1) or PNP (0.5)
         return self.annotations.filter(ground_truth__gt=0).count()
+
+    @property
+    def num_verified_annotations(self):
+        return self.annotations.exclude(ground_truth__isnull=True).count()
+
+    @property
+    def num_user_contributions(self):
+        return Vote.objects.filter(annotation__sound_dataset__dataset=self).count()
 
     @property
     def releases(self):
