@@ -1,0 +1,44 @@
+{% load dataset_templatetags %}
+<table class="ui unstackable table" width="100%">
+    <tbody>
+            <td>Hierarchy</td>
+            <td>
+                <div class="ui list">
+                    {% for hierarchy_path in node.hierarchy_paths %}
+                        <div class="item">
+                            <div class="ui horizontal list">
+                                <div class="item">
+                                    <i class="tree icon"></i>
+                                </div>
+                                {% for node_id in hierarchy_path %}
+                                    {% taxonomy_node_minimal_data dataset node_id as sub_node_data  %}
+                                    <div class="item" style="margin-left:0px;margin-right:5px;">
+                                        >
+                                        <a href="" target="_blank">{{ sub_node_data.name }}</a>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="item">-</div>
+                    {% endfor %}
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td class="three wide">Description</td>
+            <td>{{ node.description }}</td>
+        </tr>
+        {% if node.freesound_examples %}
+            <tr><td>Examples</td>
+                <td>
+                    {% for fsid in node.freesound_examples %}
+                        {{ fsid| fs_embed | safe }}
+                    {% endfor %}
+                </td>
+            </tr>
+        {% endif %}
+                </div>
+            </div>
+    </tbody>
+</table>

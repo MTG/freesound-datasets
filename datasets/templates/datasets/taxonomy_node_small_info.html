@@ -1,4 +1,15 @@
 {% load dataset_templatetags %}
+{% block page_js %}
+    <script type="text/javascript">
+    window.onload = function() {
+        $('.my-pop')
+          .popup({
+            on: 'click',
+          })
+        ;
+    };
+    </script>
+{% endblock %}
 <table class="ui unstackable table" width="100%">
     <tbody>
         <tr>
@@ -15,7 +26,7 @@
                                     {% taxonomy_node_minimal_data dataset node_id as sub_node_data  %}
                                     <div class="item" style="margin-left:0px;margin-right:5px;">
                                         >
-                                        <a href="{% url category_link_to dataset.short_name sub_node_data.url_id %}" target="_blank">{{ sub_node_data.name }}</a>
+                                        <a class="my-pop" data-html='{% display_taxonomy_node_mini_info dataset sub_node_data.node_id %}'>{{ sub_node_data.name }}</a>
                                     </div>
                                 {% endfor %}
                             </div>
@@ -33,7 +44,7 @@
                     {% for node_id in node.sibling_ids %}
                         {% taxonomy_node_minimal_data dataset node_id as sub_node_data %}
                         <div class="item" style="margin-left:0px;margin-right:5px;">
-                            <a href="{% url category_link_to dataset.short_name sub_node_data.url_id %}" target="_blank" class="ui label">{{ sub_node_data.name }}</a>
+                            <a class="my-pop ui label" data-html='{% display_taxonomy_node_mini_info dataset sub_node_data.node_id %}'>{{ sub_node_data.name }}</a>
                         </div>
                     {% endfor %}
                 </div></td>
@@ -46,7 +57,7 @@
                     {% for node_id in node.child_ids %}
                         {% taxonomy_node_minimal_data dataset node_id as sub_node_data %}
                         <div class="item" style="margin-left:0px;margin-right:5px;">
-                            <a href="{% url category_link_to dataset.short_name sub_node_data.url_id %}" target="_blank" class="ui label">{{ sub_node_data.name }}</a>
+                            <a class="my-pop ui label" data-html='{% display_taxonomy_node_mini_info dataset sub_node_data.node_id %}'>{{ sub_node_data.name }}</a>
                         </div>
                     {% endfor %}
                 </div></td>

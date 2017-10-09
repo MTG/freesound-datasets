@@ -95,6 +95,12 @@ def display_taxonomy_node_info(context, dataset, node_id, category_link_to='e'):
             'user_is_maintainer': user_is_maintainer}
 
 
+@register.inclusion_tag('datasets/taxonomy_node_mini_info.html')
+def display_taxonomy_node_mini_info(dataset, node_id):
+    node_data = taxonomy_node_data(dataset, node_id)
+    return {'dataset': dataset, 'node': node_data}
+
+
 @register.simple_tag(takes_context=False)
 def sounds_per_taxonomy_node(dataset, node_id, N):
     return dataset.sounds_per_taxonomy_node(node_id)[0:N]
