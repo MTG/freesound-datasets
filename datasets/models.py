@@ -219,6 +219,17 @@ class TaxonomyNode(models.Model):
     def num_user_contributions(self):
         return Vote.objects.filter(annotation__taxonomy_node=self).count()
 
+    def get_parents(self):
+        return self.parents.all()
+
+    def get_children(self):
+        return self.children.all()
+
+    def get_siblings(self, parents=None):
+        if not parents:
+            parents = self.get_parents()
+        return TaxonomyNode.objects.filter(parents__in=parents)
+
 
 class Dataset(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
