@@ -3,9 +3,12 @@
     <thead>
         <tr>
             <th>Class</th>
-            <th title="number of sound samples coming from the initial mapping from Freesound to AudioSet"># sounds samples</th>
-            <th title="annotations that have been validated by several users, until reaching agreement on the presence of the sound class"># ground truth annotations</th>
-            <th title="quality of the initial mapping from Freesound to AudioSet, expressing the proportion of correct candidate annotations">Quality estimate</th>
+            <th><div data-tooltip="number of sound samples coming from the initial mapping from Freesound to AudioSet">
+                # sounds samples</div></th>
+            <th><div data-tooltip="annotations that have been validated by several users, until reaching agreement on the presence of the sound class">
+            # ground truth annotations</div></th>
+            <th><div data-tooltip="quality of the initial mapping from Freesound to AudioSet, expressing the proportion of correct candidate annotations">
+                Quality estimate</div></th>
             <th></th>
         </tr>
     </thead>
@@ -13,9 +16,9 @@
     {% for node in dataset_taxonomy_stats.nodes_data %}
         <tr {% if node.is_omitted %}class="negative"{% endif %}>
             <td>{{ node.name }}</td>
-            <td title="number of sound samples coming from the initial mapping from Freesound to AudioSet">{{ node.num_sounds }}</td>
-            <td title="annotations that have been validated by several users, until reaching agreement on the presence of the sound class">{{ node.num_ground_truth }}</td>
-            <td title="quality of the initial mapping from Freesound to AudioSet, expressing the proportion of correct candidate annotations">{% if node.votes_stats.quality_estimate %}{{ node.votes_stats.quality_estimate|floatformat:2 }}%{% else %}-{% endif %}</td>
+            <td>{{ node.num_sounds }}</td>
+            <td>{{ node.num_ground_truth }}</td>
+            <td>{% if node.votes_stats.quality_estimate %}{{ node.votes_stats.quality_estimate|floatformat:2 }}%{% else %}-{% endif %}</td>
             <td class="right aligned"><a href="{% url category_link_to.0 dataset.short_name node.url_id %}" class="blue ui button right labeled icon">{{ category_link_to.1 }} <i class="right arrow icon"></i></a></td>
         </tr>
     {% endfor %}
