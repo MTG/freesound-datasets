@@ -2,11 +2,13 @@
 {% block page_js %}
     <script type="text/javascript">
     $('.my-pop').ready(function() {
-        $('.my-pop')
-          .popup({
+        $('.my-pop').popup({
             on: 'click',
-          })
-        ;
+            closable: false,
+            onShow: function(){
+                $('.my-pop').popup('hide');
+            }
+        });
     });
     </script>
 {% endblock %}
