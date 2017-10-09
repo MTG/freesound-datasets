@@ -179,6 +179,7 @@ class TaxonomyNode(models.Model):
     nb_ground_truth = models.IntegerField(default=0)
     
     def as_dict(self):
+        parents = self.get_parents()
         return {"name": self.name,
                 "node_id": self.node_id,
                 "id": self.id,
@@ -187,8 +188,9 @@ class TaxonomyNode(models.Model):
                 "abstract": self.abstract,
                 "omitted": self.omitted,
                 "freesound_examples": [example.freesound_id for example in self.freesound_examples.all()],
-                "parent_ids": [parent.node_id for parent in self.parents.all()],
-                "child_ids": [child.node_id for child in self.children.all()],
+                "parent_ids": [parent.node_id for parent in parents],
+                "child_ids": [child.node_id for child in self.get_children()],
+                "sibling_ids": [sibling.node_id for sibling in self.get_siblings(parents)],
                 "nb_ground_truth": self.nb_ground_truth,
                 "nb_user_contributions": self.num_user_contributions}
 
