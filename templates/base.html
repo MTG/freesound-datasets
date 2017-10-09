@@ -47,6 +47,7 @@
                 {% else %}
                     <a class="item" href="{% url 'login' %}"><i class="user icon"></i>Login</a>
                 {% endif %}
+                <a class="item" href="{% url 'index' %}"><i class="home icon"></i>Home</a>
             </div>
           </div>
         </div>
@@ -63,7 +64,6 @@
         <div class="ui inverted vertical footer segment">
             <div class="ui center aligned container">
                 <div class="ui horizontal inverted small link list">
-                    A website by:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     <a class="item" href="http://mtg.upf.edu/" target="_blank">
                         <img class="ui image" style="width: 200px;" src="{% static "img/mtg_upf_logo.svg" %}">
                     </a>
