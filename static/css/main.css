@@ -148,3 +148,7 @@ ul {
     overflow-y: scroll;
     height: 600px;
 }
+
+.medium.text {
+   font-size: 16px;
+}

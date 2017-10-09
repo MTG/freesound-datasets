@@ -14,15 +14,19 @@
     You can find more information in our <a href="">ISMIR 2017 paper</a>.
   </p>
 
-<h2 class="ui header">The Dataset:</h2>
 <div class="ui raised segment">
-  <h3 class="ui header"> FreesoundDataset </h3>
-  <p>
-    FreesoundDataset is basically a classification of <a href="http://freesound.org/">Freesound</a> content into the
-    <a href="https://github.com/audioset/ontology">ontology</a> that Google use in AudioSet.
-  </p>
-  <a title="go to Freesound Dataset"class="fluid ui button red" href="{% url 'dataset' 'fsd' %}">
-    <img style="padding: 5px;width: 240px;max-height:140px;" src="{% static "img/freesound_dataset_logo_a.svg" %}">
-  </a>
+  <div class="ui two column middle aligned very relaxed stackable grid">
+    <div class="column">
+      <p class="medium text">
+        <b>FreesoundDataset</b> is basically a classification of <a href="http://freesound.org/">Freesound</a> content into the
+        <a href="https://github.com/audioset/ontology">ontology</a> that Google uses in AudioSet.
+      </p>
+    </div>
+    <div class="column">
+      <a title="go to Freesound Dataset"class="fluid ui button red" href="{% url 'dataset' 'fsd' %}">
+        <img style="padding: 0px;width: 180px;max-height:100px;" src="{% static "img/freesound_dataset_logo_a.svg" %}">
+      </a>
+    </div>
+  </div>
 </div>
 {% endblock %}
