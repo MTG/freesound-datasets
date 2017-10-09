@@ -230,7 +230,7 @@ class TaxonomyNode(models.Model):
     def get_siblings(self, parents=None):
         if not parents:
             parents = self.get_parents()
-        return TaxonomyNode.objects.filter(parents__in=parents)
+        return TaxonomyNode.objects.filter(parents__in=parents).exclude(node_id=self.node_id)
 
 
 class Dataset(models.Model):
