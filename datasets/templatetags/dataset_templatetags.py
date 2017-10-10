@@ -83,7 +83,7 @@ def taxonomy_node_minimal_data(dataset, node_id):
     return node
 
 
-@register.inclusion_tag('datasets/taxonomy_node_info.html', takes_context=True)
+@register.inclusion_tag('datasets/taxonomy_node_small_info.html', takes_context=True)
 def display_taxonomy_node_info(context, dataset, node_id, category_link_to='e'):
     user_is_maintainer = dataset.user_is_maintainer(context['request'].user)
     category_link_to = {
@@ -93,6 +93,14 @@ def display_taxonomy_node_info(context, dataset, node_id, category_link_to='e'):
     node_data = taxonomy_node_data(dataset, node_id)
     return {'dataset': dataset, 'node': node_data, 'category_link_to': category_link_to,
             'user_is_maintainer': user_is_maintainer}
+
+
+@register.inclusion_tag('datasets/taxonomy_node_mini_info.html')
+def display_taxonomy_node_mini_info(dataset, node_id):
+    node = dataset.taxonomy.get_element_at_id(node_id).as_dict()
+    hierarchy_paths = dataset.taxonomy.get_hierarchy_paths(node['node_id'])
+    node['hierarchy_paths'] = hierarchy_paths if hierarchy_paths is not None else []
+    return {'dataset': dataset, 'node': node}
 
 
 @register.simple_tag(takes_context=False)

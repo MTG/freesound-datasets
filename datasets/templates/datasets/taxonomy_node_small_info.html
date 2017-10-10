@@ -1,0 +1,115 @@
+{% load dataset_templatetags %}
+{% block page_js %}
+    <script type="text/javascript">
+    $('.my-pop').ready(function() {
+        $('.my-pop').popup({
+            on: 'click',
+            <!--closable: false,-->
+            <!--onShow: function(){-->
+                <!--$('.my-pop').popup('hide');-->
+            <!--}-->
+        });
+    });
+    </script>
+{% endblock %}
+<table class="ui unstackable table" width="100%">
+    <tbody>
+        <tr>
+            <td>Hierarchy</td>
+            <td>
+                <div class="ui list">
+                    {% for hierarchy_path in node.hierarchy_paths %}
+                        <div class="item">
+                            <div class="ui horizontal list">
+                                <div class="item">
+                                    <i class="tree icon"></i>
+                                </div>
+                                {% for node_id in hierarchy_path %}
+                                    {% taxonomy_node_minimal_data dataset node_id as sub_node_data  %}
+                                    <div class="item" style="margin-left:0px;margin-right:5px;">
+                                        >
+                                        <a class="my-pop" data-html='{% display_taxonomy_node_mini_info dataset sub_node_data.node_id %}'>{{ sub_node_data.name }}</a>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="item">-</div>
+                    {% endfor %}
+                </div>
+            </td>
+        </tr>
+        {% if node.sibling_ids %}
+            <tr>
+                <td>Siblings</td>
+                <td><div class="ui horizontal list">
+                    {% for node_id in node.sibling_ids %}
+                        {% taxonomy_node_minimal_data dataset node_id as sub_node_data %}
+                        <div class="item" style="margin-left:0px;margin-right:5px;">
+                            <a class="my-pop ui label" data-html='{% display_taxonomy_node_mini_info dataset sub_node_data.node_id %}'>{{ sub_node_data.name }}</a>
+                        </div>
+                    {% endfor %}
+                </div></td>
+            </tr>
+        {% endif %}
+        {% if node.child_ids %}
+            <tr>
+                <td>Direct children</td>
+                <td><div class="ui horizontal list">
+                    {% for node_id in node.child_ids %}
+                        {% taxonomy_node_minimal_data dataset node_id as sub_node_data %}
+                        <div class="item" style="margin-left:0px;margin-right:5px;">
+                            <a class="my-pop ui label" data-html='{% display_taxonomy_node_mini_info dataset sub_node_data.node_id %}'>{{ sub_node_data.name }}</a>
+                        </div>
+                    {% endfor %}
+                </div></td>
+            </tr>
+        {% endif %}
+        <tr>
+            <td class="three wide">Description</td>
+            <td>{{ node.description }}</td>
+        </tr>
+        {% if node.freesound_examples %}
+            <tr><td>Examples</td>
+                <td>
+                    {% for fsid in node.freesound_examples %}
+                        {{ fsid| fs_embed | safe }}
+                    {% endfor %}
+                </td>
+            </tr>
+        {% endif %}
+        {% if user_is_maintainer %}
+            {% if node.comments %}
+                <tr>
+                    <td>User comments</td><td>
+                    <div class="ui segments">
+                        {% for comment in node.comments %}
+                            <div class="ui segment">{{ comment.comment | linebreaksbr }}</div>
+                        {% endfor %}
+                    </div>
+                    </td>
+                </tr>
+            {% endif %}
+            {% if node.votes_stats %}
+                <tr><td colspan="2" style="padding:0;">
+                    <div class="category_quality_bars" style="text-align: center">
+                        <div class="element" style="width:{{ node.votes_stats.percentage_present_and_predominant|floatformat:2 }}%;background-color:#21ba45;" data-tooltip="Present and predominant">
+                            {{ node.votes_stats.percentage_present_and_predominant|floatformat:2 }}{% if node.votes_stats.num_present_and_predominant %}%{% endif %}
+                        </div><div class="element" style="width:{{ node.votes_stats.percentage_present_not_predominant|floatformat:2 }}%;background-color:#b5cc18;" data-tooltip="Present but not predominant">
+                            {{ node.votes_stats.percentage_present_not_predominant|floatformat:2 }}{% if node.votes_stats.num_present_not_predominant %}%{% endif %}
+                        </div><div class="element" style="width:{{ node.votes_stats.percentage_unsure|floatformat:2 }}%;background-color:#eaae00;" data-tooltip="Unsure">
+                            {{ node.votes_stats.percentage_unsure|floatformat:2 }}{% if node.votes_stats.num_unsure %}%{% endif %}
+                        </div><div class="element" style="width:{{ node.votes_stats.percentage_not_present|floatformat:2 }}%;background-color:#f26202;" data-tooltip="Not present">
+                            {{ node.votes_stats.percentage_not_present|floatformat:2 }}{% if node.votes_stats.num_not_present %}%{% endif %}
+                        </div>
+                    </div>
+                </td></tr>
+            {% endif %}
+        {% endif %}
+        {% if node.is_omitted %}
+            <tr class="negative">
+                <td colspan="2">This node is labeled as <b>omitted</b> and its annotations should not be validated</td>
+            </tr>
+        {% endif %}
+    </tbody>
+</table>

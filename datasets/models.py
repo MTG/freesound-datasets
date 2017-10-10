@@ -179,6 +179,7 @@ class TaxonomyNode(models.Model):
     nb_ground_truth = models.IntegerField(default=0)
     
     def as_dict(self):
+        parents = self.get_parents()
         return {"name": self.name,
                 "node_id": self.node_id,
                 "id": self.id,
@@ -187,8 +188,9 @@ class TaxonomyNode(models.Model):
                 "abstract": self.abstract,
                 "omitted": self.omitted,
                 "freesound_examples": [example.freesound_id for example in self.freesound_examples.all()],
-                "parent_ids": [parent.node_id for parent in self.parents.all()],
-                "child_ids": [child.node_id for child in self.children.all()],
+                "parent_ids": [parent.node_id for parent in parents],
+                "child_ids": [child.node_id for child in self.get_children()],
+                "sibling_ids": [sibling.node_id for sibling in self.get_siblings(parents)],
                 "nb_ground_truth": self.nb_ground_truth,
                 "nb_user_contributions": self.num_user_contributions}
 
@@ -218,6 +220,17 @@ class TaxonomyNode(models.Model):
     @property
     def num_user_contributions(self):
         return Vote.objects.filter(annotation__taxonomy_node=self).count()
+
+    def get_parents(self):
+        return self.parents.all()
+
+    def get_children(self):
+        return self.children.all()
+
+    def get_siblings(self, parents=None):
+        if not parents:
+            parents = self.get_parents()
+        return TaxonomyNode.objects.filter(parents__in=parents).exclude(node_id=self.node_id)
 
 
 class Dataset(models.Model):
@@ -493,9 +506,16 @@ class Profile(models.Model):
 
     @property
     def contributed_recently(self):
+        return self.contributed_before(3)
+
+    @property
+    def contributed_two_weeks_ago(self):
+        return self.contributed_before(14)
+
+    def contributed_before(self, days_ago):
         last_contribution_date = self.user.votes.order_by('-created_at')[0].created_at
-        three_days_ago = timezone.now() - datetime.timedelta(days=3)
-        return last_contribution_date > three_days_ago
+        past_date = timezone.now() - datetime.timedelta(days=days_ago)
+        return last_contribution_date > past_date
 
 
 @receiver(post_save, sender=User)

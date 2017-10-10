@@ -2,6 +2,18 @@
 {% load staticfiles %}
 {% load humanize %}
 {% block title %}Validate category annotations{% endblock title %}
+{% block page_js %}
+    <script type="text/javascript">
+        function enable_button() {
+            $('#start_annotating_button').removeClass('disabled');
+            $('#start_annotating_button_div').removeAttr("data-tooltip");
+        }
+        $(document).ready(function() {
+            setTimeout(function() {enable_button();}, 20000);
+            if ('{{skip_tempo}}'=='True'){enable_button();}
+        });
+    </script>
+{% endblock %}
 {% block content %}
     <h1 class="ui header">Task instructions</h1>
 
@@ -195,8 +207,8 @@
     </table>
 
     <br><br>
-    <div class="ui center aligned grid">
-        <a href="{% url 'contribute-validate-annotations' dataset.short_name %}" class="ui big right labeled icon blue button"><i class="checkmark box icon"></i>I can't wait anymore, let's start!</a>
+    <div id="start_annotating_button_div" class="ui center aligned grid" data-tooltip="Take your time to read the instructions carefully before starting...">
+        <a id="start_annotating_button" href="{% url 'choose_category' dataset.short_name %}" class="ui big right labeled icon blue button disabled"><i class="checkmark box icon"></i>I can't wait anymore, let's start!</a>
     </div>
 
 {% endblock %}

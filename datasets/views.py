@@ -135,7 +135,10 @@ def contribute(request, short_name):
 def contribute_validate_annotations(request, short_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
     if request.GET.get('help', False):
-        return render(request, 'datasets/contribute_validate_annotations_help.html', {'dataset': dataset})
+        if request.session.get('read_instructions', False) or request.user.profile.contributed_two_weeks_ago:
+            return render(request, 'datasets/contribute_validate_annotations_help.html', {'dataset': dataset, 'skip_tempo': True})
+        else:
+            return render(request, 'datasets/contribute_validate_annotations_help.html', {'dataset': dataset, 'skip_tempo': False})
     if not request.user.is_authenticated():
         return HttpResponseRedirect(reverse('login') + '?next={0}'.format(
             reverse('contribute-validate-annotations', args=[dataset.short_name])))
@@ -153,6 +156,8 @@ def contribute_validate_annotations_category(request, short_name, node_id):
     user_last_category = user.profile.last_category_annotated
     node_id = unquote(node_id)
     node = dataset.taxonomy.get_element_at_id(node_id)
+    skip_tempo = True if user_last_category == node and user.profile.contributed_recently or \
+                         request.GET.get(settings.SKIP_TEMPO_PARAMETER, False) else False
 
     annotation_ids = []
     # check if user annotate a new category or has not annotate for a long time
@@ -226,7 +231,8 @@ def contribute_validate_annotations_category(request, short_name, node_id):
     return render(request, 'datasets/contribute_validate_annotations_category.html',
                   {'dataset': dataset, 'node': node, 'annotations_forms': annotations_forms,
                    'formset': formset, 'N': N, 'user_is_maintainer': user_is_maintainer,
-                   'category_comment_form': category_comment_form})
+                   'category_comment_form': category_comment_form, 'skip_tempo': skip_tempo,
+                   'skip_tempo_parameter': settings.SKIP_TEMPO_PARAMETER})
 
 
 @login_required
@@ -317,6 +323,7 @@ def save_contribute_validate_annotations_category(request):
 @login_required
 def choose_category(request, short_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
+    request.session['read_instructions'] = True
     return render(request, 'datasets/dataset_taxonomy_choose_category.html', {'dataset': dataset})
 
 
