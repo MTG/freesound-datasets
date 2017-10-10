@@ -37,11 +37,12 @@
             $('#form_container').css("visibility", "visible");
         }
 
-        $( document ).ready(function() {
+        $(document).ready(function() {
             setTimeout(function(){
                 $('#start_annotating_button').removeClass('disabled');
                 $('#start_annotating_button_div').removeAttr("data-tooltip");
             }, 10000);
+            if ('{{skip_tempo}}'=='True'){show_form();}
         });
     </script>
 {% endblock %}
@@ -70,7 +71,7 @@
                 <div class="six wide column right aligned">
                     {% if annotations_forms %}
                         <a href="javascript:void(0);" onclick="$('#help_modal').modal('show');" class="ui orange button right labeled icon">Help <i class="help icon"></i></a>
-                        <a href="{% url 'contribute-validate-annotations-category' dataset.short_name main_node_data.url_id %}" class="ui button right labeled teal icon">Choose other sounds <i class="refresh icon"></i></a>
+                        <a href="{% url 'contribute-validate-annotations-category' dataset.short_name main_node_data.url_id %}?new_sounds=True" class="ui button right labeled teal icon">Choose other sounds <i class="refresh icon"></i></a>
                     {% endif %}
                 </div>
             </div>
@@ -134,7 +135,7 @@
             </p>
         </div>
         <div class="actions">
-            <a href="{% url 'contribute-validate-annotations-category' dataset.short_name main_node_data.url_id %}" class="green ui inverted right labeled button icon"><i class="plus icon"></i> Give me more sounds from this category</a>
+            <a href="{% url 'contribute-validate-annotations-category' dataset.short_name main_node_data.url_id %}?new_sounds=True" class="green ui inverted right labeled button icon"><i class="plus icon"></i> Give me more sounds from this category</a>
             <a href="{% url 'choose_category' dataset.short_name %}" class="blue ui inverted button right labeled icon"><i class="refresh icon"></i> Choose another category</a>
         </div>
     </div>

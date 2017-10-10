@@ -153,6 +153,8 @@ def contribute_validate_annotations_category(request, short_name, node_id):
     user_last_category = user.profile.last_category_annotated
     node_id = unquote(node_id)
     node = dataset.taxonomy.get_element_at_id(node_id)
+    skip_tempo = True if user_last_category == node and user.profile.contributed_recently or \
+                         request.GET.get('new_sounds', False) else False
 
     annotation_ids = []
     # check if user annotate a new category or has not annotate for a long time
@@ -226,7 +228,7 @@ def contribute_validate_annotations_category(request, short_name, node_id):
     return render(request, 'datasets/contribute_validate_annotations_category.html',
                   {'dataset': dataset, 'node': node, 'annotations_forms': annotations_forms,
                    'formset': formset, 'N': N, 'user_is_maintainer': user_is_maintainer,
-                   'category_comment_form': category_comment_form})
+                   'category_comment_form': category_comment_form, 'skip_tempo': skip_tempo})
 
 
 @login_required
