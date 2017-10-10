@@ -34,7 +34,7 @@
 
         function show_form() {
             $('#start_annotating_button').hide();
-            $('#form_container').show();
+            $('#form_container').css("visibility", "visible");
         }
     </script>
 {% endblock %}
@@ -52,10 +52,10 @@
     {% taxonomy_node_minimal_data dataset node.node_id as main_node_data %}
     <br>
     {% if not main_node_data.is_omitted %}
-        <div id="start_annotating_button" class="ui center aligned segment">
+        <div id="start_annotating_button" class="ui center aligned basic segment">
             <button class="red ui button center" onclick="show_form();">Start annotating</button>
         </div>
-        <div id="form_container" hidden>
+        <div id="form_container" style="visibility: hidden">
             <div class="ui grid">
                 <div class="ten wide column">
                     <h2>Is <div class="ui big label">{{ node.name }}</div> present in the following sounds?</h2>
