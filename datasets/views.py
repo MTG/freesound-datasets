@@ -366,6 +366,15 @@ def dataset_taxonomy_table_choose(request, short_name):
         'dataset': dataset, 'end_of_table': end_of_table, 'hierarchy_paths': hierarchy_paths, 'nodes': nodes})
 
 
+def get_mini_node_info(request, short_name, node_id):
+    node_id = unquote(node_id)
+    dataset = get_object_or_404(Dataset, short_name=short_name)
+    node = dataset.taxonomy.get_element_at_id(node_id).as_dict()
+    hierarchy_paths = dataset.taxonomy.get_hierarchy_paths(node['node_id'])
+    node['hierarchy_paths'] = hierarchy_paths if hierarchy_paths is not None else []
+    return render(request, 'datasets/taxonomy_node_mini_info.html', {'dataset': dataset, 'node': node})
+
+
 ########################
 # DOWNLOAD DATASET VIEWS
 ########################

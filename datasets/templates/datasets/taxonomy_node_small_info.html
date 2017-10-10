@@ -1,13 +1,27 @@
 {% load dataset_templatetags %}
 {% block page_js %}
     <script type="text/javascript">
+    var popupLoading = '<div class="ui loading segment">Loading</div>';
     $('.my-pop').ready(function() {
         $('.my-pop').popup({
             on: 'click',
-            <!--closable: false,-->
-            <!--onShow: function(){-->
-                <!--$('.my-pop').popup('hide');-->
-            <!--}-->
+            html: popupLoading,
+            onShow: function(el){
+                var ajax_done = el.getAttribute('ajax_done')
+                if (ajax_done == 0) {
+                    var popup = this
+                    var ajax_url = el.getAttribute('ajax_url')
+                    $.ajax({
+                        url: ajax_url
+                    }).done(function(result) {
+                        popup.html(result);
+                        el.setAttribute("data-html", result);
+                        el.setAttribute("ajax_done", 1);
+                    }).fail(function() {
+                        popup.html('error')
+                    });
+                }
+            }
         });
     });
     </script>
@@ -28,7 +42,7 @@
                                     {% taxonomy_node_minimal_data dataset node_id as sub_node_data  %}
                                     <div class="item" style="margin-left:0px;margin-right:5px;">
                                         >
-                                        <a class="my-pop" data-html='{% display_taxonomy_node_mini_info dataset sub_node_data.node_id %}'>{{ sub_node_data.name }}</a>
+                                        <a class="my-pop" data-html='' ajax_done=0 ajax_url="{% url 'get-mini-node-info' dataset.short_name sub_node_data.url_id %}">{{ sub_node_data.name }}</a>
                                     </div>
                                 {% endfor %}
                             </div>
@@ -46,7 +60,7 @@
                     {% for node_id in node.sibling_ids %}
                         {% taxonomy_node_minimal_data dataset node_id as sub_node_data %}
                         <div class="item" style="margin-left:0px;margin-right:5px;">
-                            <a class="my-pop ui label" data-html='{% display_taxonomy_node_mini_info dataset sub_node_data.node_id %}'>{{ sub_node_data.name }}</a>
+                            <a class="my-pop ui label" data-html='' ajax_done=0 ajax_url = "{% url 'get-mini-node-info' dataset.short_name sub_node_data.url_id %}">{{ sub_node_data.name }}</a>
                         </div>
                     {% endfor %}
                 </div></td>
@@ -59,7 +73,7 @@
                     {% for node_id in node.child_ids %}
                         {% taxonomy_node_minimal_data dataset node_id as sub_node_data %}
                         <div class="item" style="margin-left:0px;margin-right:5px;">
-                            <a class="my-pop ui label" data-html='{% display_taxonomy_node_mini_info dataset sub_node_data.node_id %}'>{{ sub_node_data.name }}</a>
+                            <a class="my-pop ui label" data-html='' ajax_done=0 ajax_url = "{% url 'get-mini-node-info' dataset.short_name sub_node_data.url_id %}">{{ sub_node_data.name }}</a>
                         </div>
                     {% endfor %}
                 </div></td>
