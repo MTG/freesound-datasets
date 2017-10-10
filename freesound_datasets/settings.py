@@ -207,7 +207,7 @@ LOGGING = {
 }
 
 # Parameter strings
-SKIP_TEMPO_PARAMETER = 'n'
+SKIP_TEMPO_PARAMETER = 'skt'
 
 # Import local settings
 from freesound_datasets.local_settings import *
