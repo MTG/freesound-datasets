@@ -135,7 +135,10 @@ def contribute(request, short_name):
 def contribute_validate_annotations(request, short_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
     if request.GET.get('help', False):
-        return render(request, 'datasets/contribute_validate_annotations_help.html', {'dataset': dataset})
+        if request.session.get('read_instructions', False) or request.user.profile.contributed_two_weeks_ago:
+            return render(request, 'datasets/contribute_validate_annotations_help.html', {'dataset': dataset, 'skip_tempo': True})
+        else:
+            return render(request, 'datasets/contribute_validate_annotations_help.html', {'dataset': dataset, 'skip_tempo': False})
     if not request.user.is_authenticated():
         return HttpResponseRedirect(reverse('login') + '?next={0}'.format(
             reverse('contribute-validate-annotations', args=[dataset.short_name])))
@@ -320,6 +323,7 @@ def save_contribute_validate_annotations_category(request):
 @login_required
 def choose_category(request, short_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
+    request.session['read_instructions'] = True
     return render(request, 'datasets/dataset_taxonomy_choose_category.html', {'dataset': dataset})
 
 

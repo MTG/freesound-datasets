@@ -506,9 +506,16 @@ class Profile(models.Model):
 
     @property
     def contributed_recently(self):
+        return self.contributed_before(3)
+
+    @property
+    def contributed_two_weeks_ago(self):
+        return self.contributed_before(14)
+
+    def contributed_before(self, days_ago):
         last_contribution_date = self.user.votes.order_by('-created_at')[0].created_at
-        three_days_ago = timezone.now() - datetime.timedelta(days=3)
-        return last_contribution_date > three_days_ago
+        past_date = timezone.now() - datetime.timedelta(days=days_ago)
+        return last_contribution_date > past_date
 
 
 @receiver(post_save, sender=User)
