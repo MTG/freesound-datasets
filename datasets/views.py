@@ -131,7 +131,7 @@ def contribute(request, short_name):
 
     return render(request, 'datasets/contribute.html', {'dataset': dataset, 'annotators_ranking': annotators_ranking})
 
-
+@login_required
 def contribute_validate_annotations(request, short_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
     if request.GET.get('help', False):
