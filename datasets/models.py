@@ -513,11 +513,11 @@ class Profile(models.Model):
         return self.contributed_before(14)
 
     def contributed_before(self, days_ago):
-        last_contribution_date = self.user.votes.order_by('-created_at')[0].created_at
-        if last_contribution_date:
+        try:
+            last_contribution_date = self.user.votes.order_by('-created_at')[0].created_at
             past_date = timezone.now() - datetime.timedelta(days=days_ago)
             return last_contribution_date > past_date
-        else:
+        except IndexError:
             return False
 
 
