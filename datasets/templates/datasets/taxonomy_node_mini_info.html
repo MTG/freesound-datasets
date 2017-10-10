@@ -14,7 +14,7 @@
                                     {% taxonomy_node_minimal_data dataset node_id as sub_node_data  %}
                                     <div class="item" style="margin-left:0px;margin-right:5px;">
                                         >
-                                        <a href="" target="_blank">{{ sub_node_data.name }}</a>
+                                        <a href="{% url 'dataset-explore-taxonomy-node' dataset.short_name sub_node_data.url_id %}" target="_blank">{{ sub_node_data.name }}</a>
                                     </div>
                                 {% endfor %}
                             </div>
