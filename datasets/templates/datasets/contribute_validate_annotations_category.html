@@ -33,9 +33,16 @@
         }
 
         function show_form() {
-            $('#start_annotating_button').hide();
+            $('#start_annotating_button_div').hide();
             $('#form_container').css("visibility", "visible");
         }
+
+        $( document ).ready(function() {
+            setTimeout(function(){
+                $('#start_annotating_button').removeClass('disabled');
+                $('#start_annotating_button_div').removeAttr("data-tooltip");
+            }, 10000);
+        });
     </script>
 {% endblock %}
 {% block content %}
@@ -52,8 +59,8 @@
     {% taxonomy_node_minimal_data dataset node.node_id as main_node_data %}
     <br>
     {% if not main_node_data.is_omitted %}
-        <div id="start_annotating_button" class="ui center aligned basic segment">
-            <button class="red ui button center" onclick="show_form();">Start annotating</button>
+        <div id="start_annotating_button_div" class="ui center aligned basic segment" data-tooltip="Take your time to look at the category and the related ones before starting to annotate...">
+            <button id="start_annotating_button" class="red ui button disabled" onclick="show_form();">Start annotating</button>
         </div>
         <div id="form_container" style="visibility: hidden">
             <div class="ui grid">
