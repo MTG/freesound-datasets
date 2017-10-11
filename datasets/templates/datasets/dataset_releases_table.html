@@ -24,13 +24,10 @@
             <td>current state<br><span class="small_gray_text">{{ dataset_basic_stats.redis_timestamp | timestamp_to_datetime | timesince  }} ago</span></td>
             <td>{{ dataset_basic_stats.num_taxonomy_nodes }}</td>
             <td>{{ dataset_basic_stats.num_sounds }}</td>
-            <td><div data-tooltip="annotations that have been validated by several users,
-            until reaching agreement on the presence of the sound class">{{ dataset_basic_stats.num_ground_truth_annotations }}</div></td>
-            <td><div data-tooltip="annotations that have been validated by several users,
-            until reaching agreement on either presence or absence of the sound class">{{ dataset_basic_stats.num_verified_annotations}}</div></td>
-            <td><div data-tooltip="generated automatically by the initial mapping from Freesound to AudioSet,
-            expressing the presence of a sound class in an audio sample">{{ dataset_basic_stats.num_annotations }}</div></td>
-            <td><div data-tooltip="number of contributions or validations made by users">{{ dataset_basic_stats.num_user_contributions }}</div></td>
+            <td>{{ dataset_basic_stats.num_ground_truth_annotations }}</td>
+            <td>{{ dataset_basic_stats.num_verified_annotations}}</td>
+            <td>{{ dataset_basic_stats.num_annotations }}</td>
+            <td>{{ dataset_basic_stats.num_user_contributions }}</td>
             <td></td>
         </tr>
         {% for release in dataset_releases_for_user %}
