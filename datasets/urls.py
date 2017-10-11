@@ -24,5 +24,7 @@ urlpatterns = [
     url(r'^(?P<short_name>[^\/]+)/contribute/choose_category/$', choose_category, name='choose_category'),
     url(r'^(?P<short_name>[^\/]+)/contribute/choose_category_table/$', dataset_taxonomy_table_choose,
         name='dataset_taxonomy_table_choose'),
+    url(r'^(?P<short_name>[^\/]+)/contribute/choose_category_table_search/$', dataset_taxonomy_table_search,
+        name= 'taxonomy-table-search'),
     url(r'^(?P<short_name>[^\/]+)/mini-node-info/(?P<node_id>[^\/]+)/$', get_mini_node_info, name='get-mini-node-info'),
 ]

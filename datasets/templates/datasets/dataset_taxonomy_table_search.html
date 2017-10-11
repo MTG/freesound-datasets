@@ -1,0 +1,19 @@
+<div class="ui dividing header"> Which category would you like to annotate? </div>
+
+<table id="dataset_contents" class="ui unstackable table" width="100%">
+    <thead>
+        <tr>
+            <th>Categories </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for node in nodes %}
+        <tr>
+            <td>{{ node.name_with_parent }}</td>
+            <td class="right aligned"><a href="{% url 'contribute-validate-annotations-category' dataset.short_name node.url_id %}"
+                                         class="blue ui button right labeled icon"> Choose <i class="right arrow icon"></i></a></td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
