@@ -40,6 +40,8 @@
                 {% else %}
                     <a href="#" class="item disabled">Download</a>
                 {% endif %}
+            {% else %}
+                <img style="padding: 5px;width: 300px;height:67.113px;" src="{% static "img/freesound_datasets_logo.svg" %}">
             {% endif %}
             <div class="right menu">
                 {% if request.user.is_authenticated %}

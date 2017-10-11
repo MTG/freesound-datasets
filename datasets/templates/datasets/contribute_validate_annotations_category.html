@@ -56,11 +56,11 @@
                 <a href="{% url 'choose_category' dataset.short_name %}" class="blue ui button right labeled icon">Choose another category <i class="refresh icon"></i></a>
         </div>
     </div>
-    {% display_taxonomy_node_info dataset node.node_id 'cva' %}
+    {% display_taxonomy_node_small_info dataset node.node_id 'cva' %}
     {% taxonomy_node_minimal_data dataset node.node_id as main_node_data %}
     <br>
     {% if not main_node_data.is_omitted %}
-        <div id="start_annotating_button_div" class="ui center aligned basic segment" data-tooltip="Take your time to look at the category and the related ones before starting to annotate...">
+        <div id="start_annotating_button_div" class="ui center aligned basic segment" data-tooltip="Please take your time to look at the category and the related ones before starting to annotate :)">
             <button id="start_annotating_button" class="red ui button disabled" onclick="show_form();">Start annotating</button>
         </div>
         <div id="form_container" style="visibility: hidden">

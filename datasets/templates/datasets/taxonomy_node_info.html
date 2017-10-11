@@ -53,12 +53,13 @@
                 </td>
             </tr>
         {% endif %}
-        <tr><td># sounds</td><td>{{ node.num_sounds }}</td></tr>
-        <tr><td>% validated</td><td>{{ node.percentage_validated_annotations|floatformat:2 }}% ({{ node.num_validated_annotations }} out of {{ node.num_annotations }} annotations)</td></tr>
-        <tr><td># ground truth</td><td>{{ node.nb_ground_truth }}</td></tr>
-        {% if node.votes_stats %}
-            <tr><td>Quality estimate</td><td>{{ node.votes_stats.quality_estimate|floatformat:2 }}%</td></tr>
-        {% endif %}
+        <tr><td><div data-tooltip="Number of sound samples coming from the initial mapping from Freesound to AudioSet.">
+                # sounds samples</div></td><td>{{ node.num_sounds }}</td></tr>
+        <tr><td><div data-tooltip="Annotations that have been validated by several users, until reaching agreement on the presence of the sound class.">
+            # ground truth annotations</div></td><td>{{ node.nb_ground_truth }}</td></tr>
+        <tr><td><div data-tooltip="Annotations that have been validated by several users,
+            until reaching agreement on either presence or absence of the sound class.">
+                # verified annotations</div></td><td>{{ node.num_verified_annotations }}</td></tr>
         {% if user_is_maintainer %}
             {% if node.comments %}
                 <tr>

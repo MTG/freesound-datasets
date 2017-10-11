@@ -139,14 +139,9 @@ ul {
 }
 
 /* CSS FOR CHOOSE CATEGORY TABLE */
-#priority_table_placeholder {
+.choose_table_placeholder {
     overflow-y: scroll;
-    height: 600px;
-}
-
-#choose_table_placeholder {
-    overflow-y: scroll;
-    height: 600px;
+    height: 500px;
 }
 
 .medium.text {

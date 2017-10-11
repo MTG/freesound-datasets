@@ -7,6 +7,7 @@
         $(document).ready(function() {
             loadDatasetTaxonomyTableChoose(0);
             loadDatasetTaxonomyTablePriority();
+            loadDatasetTaxonomyTableSearch();
         });
 
         function loadDatasetTaxonomyTableChoose(node_id){
@@ -26,8 +27,21 @@
                     }
             })
         }
+
         function loadDatasetTaxonomyTablePriority(){
             $( "#priority_table_placeholder" ).load( "{% url 'dataset_taxonomy_table_choose' dataset.short_name %}", function() {});
+        }
+
+        function loadDatasetTaxonomyTableSearch(){
+            $( "#search_table_placeholder" ).load( "{% url 'taxonomy-table-search' dataset.short_name %}", function() {
+                $('#dataset_contents').DataTable({
+                    'paging': true,
+                    'info': true,
+                    'ordering': false,
+                    'scrollY': 360,
+                    'fixedHeader': true,
+                });
+            });
         }
 
         function openTab(evt, contentName) {
@@ -61,12 +75,15 @@
         <br>Read the <a href="{% url 'contribute-validate-annotations' dataset.short_name %}?help=1"> task instructions</a> if you're not sure how to proceed.</p>
 
 
-    <div class="ui olive two item inverted menu">
+    <div class="ui red three item inverted menu">
         <a class="item active" onclick="openTab(event, 'choose_table_placeholder')">
-            <h4> Free choice </h4>
+            <h4> Explore </h4>
         </a>
         <a class="item" onclick="openTab(event, 'priority_table_placeholder')">
             <h4> Our priority </h4>
+        </a>
+        <a class="item" onclick="openTab(event, 'search_table_placeholder')">
+            <h4> Search </h4>
         </a>
     </div>
 
@@ -76,6 +93,10 @@
     </div>
 
     <div class="tabcontent" id="priority_table_placeholder" style="display: none;">
+        <div class="ui active centered inline text loader">Loading data...</div>
+    </div>
+
+    <div class="tabcontent" id="search_table_placeholder" style="display: none;">
         <div class="ui active centered inline text loader">Loading data...</div>
     </div>
 {% endblock %}

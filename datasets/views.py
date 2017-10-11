@@ -366,6 +366,15 @@ def dataset_taxonomy_table_choose(request, short_name):
         'dataset': dataset, 'end_of_table': end_of_table, 'hierarchy_paths': hierarchy_paths, 'nodes': nodes})
 
 
+def dataset_taxonomy_table_search(request, short_name):
+    if not request.user.is_authenticated:
+        return HttpResponse('Unauthorized', status=401)
+    dataset = get_object_or_404(Dataset, short_name=short_name)
+    taxonomy = dataset.taxonomy
+    nodes = dataset.get_categories_to_validate(request.user).exclude(omitted=True)
+    return render(request, 'datasets/dataset_taxonomy_table_search.html', {'dataset': dataset, 'nodes': nodes})
+
+
 def get_mini_node_info(request, short_name, node_id):
     node_id = unquote(node_id)
     dataset = get_object_or_404(Dataset, short_name=short_name)
