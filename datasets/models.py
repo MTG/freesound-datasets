@@ -192,7 +192,8 @@ class TaxonomyNode(models.Model):
                 "child_ids": [child.node_id for child in self.get_children()],
                 "sibling_ids": [sibling.node_id for sibling in self.get_siblings(parents)],
                 "nb_ground_truth": self.nb_ground_truth,
-                "nb_user_contributions": self.num_user_contributions}
+                "nb_user_contributions": self.num_user_contributions,
+                "nb_verified_annotations": self.num_verified_annotations}
 
     @property
     def url_id(self):
@@ -220,6 +221,10 @@ class TaxonomyNode(models.Model):
     @property
     def num_user_contributions(self):
         return Vote.objects.filter(annotation__taxonomy_node=self).count()
+
+    @property
+    def num_verified_annotations(self):
+        return Annotation.objects.filter(taxonomy_node=self).exclude(ground_truth__isnull=True).count()
 
     def get_parents(self):
         return self.parents.all()
