@@ -50,6 +50,7 @@ def calculate_taxonomy_node_stats(
         'num_ground_truth': node['nb_ground_truth'],
         'num_verified_annotations': node['nb_verified_annotations'],
         'num_user_contributions': node['nb_user_contributions'],
+        'faq': node['faq'],
     }
 
 
@@ -98,13 +99,8 @@ def display_taxonomy_node_info(context, dataset, node_id, category_link_to='e'):
 @register.inclusion_tag('datasets/taxonomy_node_small_info.html', takes_context=True)
 def display_taxonomy_node_small_info(context, dataset, node_id, category_link_to='e'):
     user_is_maintainer = dataset.user_is_maintainer(context['request'].user)
-    category_link_to = {
-        'e': 'dataset-explore-taxonomy-node',
-        'cva': 'contribute-validate-annotations-category',
-    }[category_link_to]
     node_data = taxonomy_node_data(dataset, node_id)
-    return {'dataset': dataset, 'node': node_data, 'category_link_to': category_link_to,
-            'user_is_maintainer': user_is_maintainer}
+    return {'dataset': dataset, 'node': node_data, 'user_is_maintainer': user_is_maintainer}
 
 
 @register.inclusion_tag('datasets/taxonomy_node_mini_info.html')

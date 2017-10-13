@@ -194,7 +194,8 @@ class TaxonomyNode(models.Model):
                 "sibling_ids": [sibling.node_id for sibling in self.get_siblings(parents)],
                 "nb_ground_truth": self.nb_ground_truth,
                 "nb_user_contributions": self.num_user_contributions,
-                "nb_verified_annotations": self.num_verified_annotations}
+                "nb_verified_annotations": self.num_verified_annotations,
+                "faq": self.faq}
 
     @property
     def url_id(self):
