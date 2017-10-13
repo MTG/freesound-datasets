@@ -209,5 +209,9 @@ LOGGING = {
 # Parameter strings
 SKIP_TEMPO_PARAMETER = 'skt'
 
+# Session cookie
+SESSION_COOKIE_AGE = 24*60*60
+SESSION_SAVE_EVERY_REQUEST = True
+
 # Import local settings
 from freesound_datasets.local_settings import *

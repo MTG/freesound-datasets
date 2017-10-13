@@ -23,6 +23,9 @@
                         $('#on_success_modal').modal({closable: false}).modal('show');
                     }
                 },
+                error: function() {
+                    $('#on_request_error_modal').modal({closable: false}).modal('show');
+                },
                 dataType: 'json'
             });
         }
@@ -221,5 +224,17 @@
     </div>
     <!-- end help modal -->
 
+    <!-- error modal, cookie expired for instance -->
+    <div id="on_request_error_modal" class="ui basic modal">
+        <div class="ui icon header"><i class="meh icon"></i>
+            Meh!
+        </div>
+        <div class="content">
+            <p>
+                We can't submit yet your votes because your submission may have expired. <br>
+                Please <a href="{% url 'login' %}">login</a>.
+            </p>
+        </div>
+    </div>
 
 {% endblock %}
