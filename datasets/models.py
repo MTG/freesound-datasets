@@ -176,6 +176,7 @@ class TaxonomyNode(models.Model):
     negative_verification_examples_activated = models.BooleanField(default=True)
     taxonomy = models.ForeignKey(Taxonomy, null=True, blank=True, on_delete=models.SET_NULL)
     parents = models.ManyToManyField('self', symmetrical=False, related_name='children')
+    faq = models.TextField(blank=True)
     nb_ground_truth = models.IntegerField(default=0)
     
     def as_dict(self):
