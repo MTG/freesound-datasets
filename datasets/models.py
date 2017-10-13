@@ -237,6 +237,9 @@ class TaxonomyNode(models.Model):
             parents = self.get_parents()
         return TaxonomyNode.objects.filter(parents__in=parents).exclude(node_id=self.node_id)
 
+    def __str__(self):
+        return '{0} ({1})'.format(self.name, self.node_id)
+
 
 class Dataset(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
