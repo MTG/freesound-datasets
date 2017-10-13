@@ -6,18 +6,25 @@
 {% block content %}
     <h1 class="ui header">Contribute to {{ dataset.name }}</h1>
     <p>This is your entry point for helping making the world a batter place by contributing to the {{ dataset.name }} :)
-    <br>Please choose one of the available tasks below for contributing to the dataset:
-    <table class="ui very basic collapsing celled table">
+    <br>Please choose one of the available tasks below for contributing to the dataset:</p>
+    <table class="ui very basic table">
         <tbody>
             <tr>
                 <td>
-                    <a href="{% url 'contribute-validate-annotations' dataset.short_name %}?help=1" class="ui big right labeled icon blue button"><i class="checkmark box icon"></i>Validate category annotations</a>
+                    <div class="ui raised segment">
+                        <div class="ui two column middle aligned very relaxed stackable grid">
+                            <div class="column"><p class="medium text"><b>Task 1</b></p></div>
+                            <div class="column">
+                            <a href="{% url 'contribute-validate-annotations' dataset.short_name %}?help=1" class="ui big right labeled icon blue button">
+                                <i class="checkmark box icon"></i>Validate category annotations</a>
+                            </div>
+                        </div>
+                    </div>
                 </td>
             </tr>
         </tbody>
     </table>
     <br>
-    </p>
 
     <div class="ui grid">
         <div class="two column row">

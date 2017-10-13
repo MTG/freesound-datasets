@@ -167,7 +167,7 @@ class TaxonomyNode(models.Model):
     node_id = models.CharField(max_length=20)
     name = models.CharField(max_length=100)
     description = models.CharField(max_length=500)
-    citation_uri = models.CharField(max_length=100)
+    citation_uri = models.CharField(max_length=100, null=True, blank=True)
     abstract = models.BooleanField(default=False)
     omitted = models.BooleanField(default=False)
     freesound_examples = models.ManyToManyField(Sound, related_name='taxonomy_node')
