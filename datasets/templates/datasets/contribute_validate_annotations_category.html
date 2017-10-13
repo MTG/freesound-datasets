@@ -50,7 +50,11 @@
 
     <div class="ui grid">
         <div class="eight wide column">
-            <h1 class="ui header">{{ node.name }}</h1>
+            <h1 class="ui header" style="display: inline-block;">{{ node.name }}</h1>
+            {% if user_is_maintainer %}
+                {% load admin_urls %}
+                &nbsp;<a title="Edit in administration page" href="{% url node|admin_urlname:'change' node.pk %}" target="_blank"><i class="edit icon"></i></a>
+        {% endif %}
         </div>
         <div class="eight wide column right aligned">
                 <a href="{% url 'choose_category' dataset.short_name %}" class="blue ui button right labeled icon">Choose another category <i class="refresh icon"></i></a>
