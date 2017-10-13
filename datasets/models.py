@@ -176,7 +176,11 @@ class TaxonomyNode(models.Model):
     negative_verification_examples_activated = models.BooleanField(default=True)
     taxonomy = models.ForeignKey(Taxonomy, null=True, blank=True, on_delete=models.SET_NULL)
     parents = models.ManyToManyField('self', symmetrical=False, related_name='children')
+    faq = models.TextField(blank=True)
     nb_ground_truth = models.IntegerField(default=0)
+
+    app_label = 'datasets'
+    model_name = 'taxonomynode'
     
     def as_dict(self):
         parents = self.get_parents()
@@ -193,7 +197,8 @@ class TaxonomyNode(models.Model):
                 "sibling_ids": [sibling.node_id for sibling in self.get_siblings(parents)],
                 "nb_ground_truth": self.nb_ground_truth,
                 "nb_user_contributions": self.num_user_contributions,
-                "nb_verified_annotations": self.num_verified_annotations}
+                "nb_verified_annotations": self.num_verified_annotations,
+                "faq": self.faq}
 
     @property
     def url_id(self):
@@ -236,6 +241,9 @@ class TaxonomyNode(models.Model):
         if not parents:
             parents = self.get_parents()
         return TaxonomyNode.objects.filter(parents__in=parents).exclude(node_id=self.node_id)
+
+    def __str__(self):
+        return '{0} ({1})'.format(self.name, self.node_id)
 
 
 class Dataset(models.Model):

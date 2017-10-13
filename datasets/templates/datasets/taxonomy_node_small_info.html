@@ -92,6 +92,12 @@
                 </td>
             </tr>
         {% endif %}
+        {% if node.faq %}
+            <tr>
+                <td>FAQ</td>
+                <td>{{ node.faq|safe }}</td>
+            </tr>
+        {% endif %}
         {% if user_is_maintainer %}
             {% if node.comments %}
                 <tr>
