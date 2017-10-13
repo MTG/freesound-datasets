@@ -178,6 +178,9 @@ class TaxonomyNode(models.Model):
     parents = models.ManyToManyField('self', symmetrical=False, related_name='children')
     faq = models.TextField(blank=True)
     nb_ground_truth = models.IntegerField(default=0)
+
+    app_label = 'datasets'
+    model_name = 'taxonomynode'
     
     def as_dict(self):
         parents = self.get_parents()

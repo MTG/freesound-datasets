@@ -102,6 +102,7 @@ def dataset_releases_table(request, short_name):
 
 def taxonomy_node(request, short_name, node_id):
     dataset = get_object_or_404(Dataset, short_name=short_name)
+    user_is_maintainer = dataset.user_is_maintainer(request.user)
     node_id = unquote(node_id)
     node = dataset.taxonomy.get_element_at_id(node_id)
     sound_list = dataset.sounds_per_taxonomy_node(node_id)
@@ -116,7 +117,8 @@ def taxonomy_node(request, short_name, node_id):
         # If page is out of range (e.g. 9999), deliver last page of results.
         sounds = paginator.page(paginator.num_pages)
         
-    return render(request, 'datasets/taxonomy_node.html', {'dataset': dataset, 'node': node, 'sounds':sounds})
+    return render(request, 'datasets/taxonomy_node.html', {'dataset': dataset, 'node': node, 'sounds': sounds,
+                                                           'user_is_maintainer': user_is_maintainer})
 
 #############################
 # CONTRIBUTE TO DATASET VIEWS
