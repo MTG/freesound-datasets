@@ -112,7 +112,36 @@
 {% endblock %}
 {% block content %}
     <h1 class="ui header">About the {{ dataset.name }} ({{dataset.short_name|upper}})</h1>
-    {{ dataset.description_html|safe }}
+    <p>
+        {{ dataset.name }} ({{ dataset.short_name|upper }}) is a large-scale, general-purpose audio dataset.
+        It consists of audio samples from <a target="_blank" href="http://freesound.org/">Freesound</a> organised in
+        the hierarchy of <a target="_blank" href="https://research.google.com/audioset/">Google's AudioSet</a> Ontology,
+        which includes {{dataset.taxonomy.get_num_nodes}} classes. We have mapped a total of <b>{{ dataset.num_sounds|intcomma }}
+        samples</b> to the AudioSet Ontology. The mapping generated <b>{{ dataset.num_annotations|intcomma }} annotations</b>
+        which express the potential presence of a sound source in an audio sample. You can find more information in our
+        <a target="_blank" href="https://ismir2017.smcnus.org/wp-content/uploads/2017/10/161_Paper.pdf">ISMIR 2017 paper</a>
+        and you can contact us via <a target="_top" href="mailto:mtg@upf.edu">mail</a> for issues related to
+        {{ dataset.short_name|upper}}.
+    </p>
+    <p>
+        In order to make {{ dataset.short_name|upper }} reliable enough for research, we need to <b>validate these
+        automatically generated annotations</b> and we aim to achieve it through <b>crowdsourcing</b>. If you wish to
+        contribute by validating annotations and <i>make the world a better place</i>, please visit our
+        <a target="_blank" href="{% url 'contribute' dataset.short_name %}">Annotate</a> page.
+    </p>
+    <p>
+        Thanks to the community, we intend to improve {{ dataset.short_name|upper}} over time in terms of quality
+        (better ground truth annotations), and quantity (larger amounts of data). Therefore, there will be consecutive
+        <b>releases</b> of {{ dataset.short_name|upper}}. We are now in the process of gathering annotations to build
+        the first {{ dataset.short_name|upper}} release. Releases (including waveforms, pre-computed features and
+        metadata) will be available for download from our <a href="/" onclick="return false;">Download</a> page under
+        Creative Commons licenses.
+    </p>
+    <p>
+        The following Table shows the current annotation state of the mapped data, which will be updated with the
+        consecutive releases when available. Please hover your mouse over the Table header to see the definitions of
+        some parameters.
+    </p>
     <p>
         <div id="dataset_releases_table_placeholder">
             <div class="ui active centered inline text loader">Loading data...</div>
@@ -141,7 +170,7 @@
         state of the mapped data. You can also explore the audio samples by clicking Explore. In the Tree tab we provide
         an interactive tree for visualization of the <a target="_blank" href="https://research.google.com/audioset/ontology/">
         AudioSet Ontology</a>. Categories shaded in red are AudioSet categories that are not considered for the next
-        release of FSD. See our <a target="_blank" href="https://ismir2017.smcnus.org/wp-content/uploads/2017/10/161_Paper.pdf">
+        release of {{ dataset.short_name|upper }}. See our <a target="_blank" href="https://ismir2017.smcnus.org/wp-content/uploads/2017/10/161_Paper.pdf">
         ISMIR2017 paper</a> for more details.
         <!--Want to share something with us? Go to our Discussion page.-->
     </p>
