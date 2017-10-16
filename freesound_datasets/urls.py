@@ -15,6 +15,7 @@ urlpatterns = [
     url(r'^social/', include('social_django.urls', namespace='social')),
     url(r'^get-access-token/$', get_access_token, name='get_access_token'),
     url(r'^faq/', faq, name='faq'),
+    url(r'^discussion/', discussion, name='discussion'),
     url(r'', include('datasets.urls')),
 ]
 

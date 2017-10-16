@@ -20,6 +20,10 @@ def faq(request):
     return render(request, 'faq.html', {})
 
 
+def discussion(request):
+    return render(request, 'discussion.html', {})
+
+
 def login(request):
     next_url = request.GET.get('next', '')
     show_freesound = bool(settings.SOCIAL_AUTH_FREESOUND_KEY)
