@@ -5,21 +5,55 @@
 {% block content %}
   <h1 class="ui header">Welcome to the Freesound Datasets platform</h1>
   <p>
-    The goal of Freesound Datasets is to have a website to host and create datasets based on
-    Freesound content. The website should allow collaborative creation of public datasets and
-    should provide a way for researchers to explore the dataset and to download it. By “exploring
-    the dataset” we mean something like Google <a target="_blank" href="https://research.google.com/audioset/">AudioSet’s site.</a>
-    Although the project should be generic enough to support several datasets, the most important
-    dataset is called FreesoundDataset. <br> <br>
-    You can find more information in our <a target="_blank" href="https://ismir2017.smcnus.org/wp-content/uploads/2017/10/161_Paper.pdf">ISMIR 2017 paper</a>.
+    Freesound Datasets is a platform for the collaborative creation of open audio datasets based on
+    Freesound content.
+    We believe that datasets can have a greater impact if they are created and maintained according to some principles.
+    In our view, datasets should be <b>transparent</b> in their creation process, should be released under
+    <b>open licenses</b> to allow their free distribution, and should be <b>dynamic</b> in the sense that they can evolve
+    over time in quality and quantity. Freesound Datasets facilitates the creation and maintenance of audio datasets which
+    are built with these principles in mind.
+  </p>
+
+  <h3 class="ui header">How?</h3>
+  <p>
+    We rely on the community to make this project sustainable. We leverage
+    <a target="_blank" href="http://freesound.org/">Freesound.org</a> as source of <b>open audio content</b>
+    for the creation of datasets. We plan to gather sound annotations through <b>crowdsourcing</b> using
+    Freesound Datasets in order to construct ground truth for the datasets.
+  </p>
+
+  <h3 class="ui header">What can be done in this platform?</h3>
+  <p>
+    You can <b>explore</b> the content of the hosted datasets and you can also <b>download</b> them.
+    But even more importantly, you can contribute to their creation in different ways.
+    Currently, you can annotate sound in order to generate ground truth and you can <b>discuss</b> the datasets as well
+    as the platform. In the future we plan to enable more functionalities, such as the <b>reporting</b> of mislabeled
+    or faulty audio samples.
+  </p>
+
+  <p>
+    You can find more information in our <a target="_blank" href="https://ismir2017.smcnus.org/wp-content/uploads/2017/10/161_Paper.pdf">
+    ISMIR 2017 paper</a>. You can also visit our <a target="_blank" href="">FAQ</a> page. If you wish to share
+    comments or suggestions, please visit our <a target="_blank" href="">Discussion</a> page, or subscribe to our
+    Google Group: <a target="_blank" href="">FreesoundDatasets</a> to stay up-to-date about this platform and hosted
+    datasets. If you use this platform or any of the hosted datasets in academic work please cite: <br>
+    E. Fonseca, J. Pons, X. Favory, F. Font, D. Bogdanov, A. Ferraro, S. Oramas, A. Porter and X. Serra.
+    “Freesound Datasets: A Platform for the Creation of Open Audio Datasets” In Proceedings of the 18th International
+    Society for Music Information Retrieval Conference, Suzhou, China, 2017.
+  </p>
+
+  <p>
+    We plan to host several open audio datasets built out of Freesound content. The first and most important dataset
+    is called FreesoundDataset (FSD).
   </p>
 
 <div class="ui raised segment">
   <div class="ui two column middle aligned very relaxed stackable grid">
     <div class="column">
       <p class="medium text">
-        <b>FreesoundDataset</b> is basically a classification of <a target="_blank" href="http://freesound.org/">Freesound</a> content into the
-        <a target="_blank" href="https://github.com/audioset/ontology">ontology</a> that Google uses in AudioSet.
+        <b>FreesoundDataset (FSD)</b> is a large-scale, general-purpose dataset composed of
+        <a target="_blank" href="http://freesound.org/">Freesound</a> content organised into the ontology of
+        <a target="_blank" href="https://research.google.com/audioset/">Google's AudioSet</a>.
       </p>
     </div>
     <div class="column">
