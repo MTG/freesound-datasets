@@ -1,7 +1,7 @@
 from django.conf.urls import url, include
 from django.contrib import admin
 from django.contrib.auth.views import logout
-from freesound_datasets.views import index, crash_me, login
+from freesound_datasets.views import *
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from datasets.views import *
 
@@ -14,6 +14,7 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^social/', include('social_django.urls', namespace='social')),
     url(r'^get-access-token/$', get_access_token, name='get_access_token'),
+    url(r'^faq/', faq, name='faq'),
     url(r'', include('datasets.urls')),
 ]
 
