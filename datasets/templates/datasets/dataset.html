@@ -111,7 +111,7 @@
 
 {% endblock %}
 {% block content %}
-    <h1 class="ui header">About the {{ dataset.name }}</h1>
+    <h1 class="ui header">About the {{ dataset.name }} ({{dataset.short_name|upper}})</h1>
     {{ dataset.description_html|safe }}
     <p>
         <div id="dataset_releases_table_placeholder">
@@ -136,6 +136,15 @@
     {% endif %}
     <br>
     <h2>Explore the categories</h2>
+    <p>
+        In the Table below you can browse the different sound categories of the dataset, and see the current annotation
+        state of the mapped data. You can also explore the audio samples by clicking Explore. In the Tree tab we provide
+        an interactive tree for visualization of the <a target="_blank" href="https://research.google.com/audioset/ontology/">
+        AudioSet Ontology</a>. Categories shaded in red are AudioSet categories that are not considered for the next
+        release of FSD. See our <a target="_blank" href="https://ismir2017.smcnus.org/wp-content/uploads/2017/10/161_Paper.pdf">
+        ISMIR2017 paper</a> for more details.
+        <!--Want to share something with us? Go to our Discussion page.-->
+    </p>
     <!-- MENU -->
     <div class="ui inverted menu">
         <a class="item active" onclick="openTab(event, 'dataset_taxonomy_table_placeholder')">
