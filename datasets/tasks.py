@@ -174,27 +174,27 @@ def compute_annotators_ranking(store_key, dataset_id, N=15):
     logger.info('Start computing data for {0}'.format(store_key))
     try:
         dataset = Dataset.objects.get(id=dataset_id)
-        reference_date = datetime.datetime.today() - datetime.timedelta(days=1)
+        reference_date = datetime.datetime.today() - datetime.timedelta(days=7)
         ranking = list()
-        ranking_24h = list()
+        ranking_last_week = list()
         for user in User.objects.all():
             n_annotations = Annotation.objects.filter(created_by=user, sound_dataset__dataset=dataset).count()
             n_votes = Vote.objects.filter(created_by=user, annotation__sound_dataset__dataset=dataset).count()
             ranking.append(
                 (user.username, n_annotations + n_votes)
             )
-            n_annotations_24h = Annotation.objects.filter(
+            n_annotations_last_week = Annotation.objects.filter(
                 created_at__gt=reference_date, created_by=user, sound_dataset__dataset=dataset).count()
-            n_votes_24h = Vote.objects.filter(
+            n_votes_last_week = Vote.objects.filter(
                 created_at__gt=reference_date, created_by=user, annotation__sound_dataset__dataset=dataset).count()
-            ranking_24h.append(
-                (user.username, n_annotations_24h + n_votes_24h)
+            ranking_last_week.append(
+                (user.username, n_annotations_last_week + n_votes_last_week)
             )
 
         ranking = sorted(ranking, key=lambda x: x[1], reverse=True)  # Sort by number of annotations
-        ranking_24h = sorted(ranking_24h, key=lambda x: x[1], reverse=True)  # Sort by number of annotations
+        ranking_last_week = sorted(ranking_last_week, key=lambda x: x[1], reverse=True)  # Sort by number of annotations
 
-        store.set(store_key, {'ranking': ranking[:N], 'ranking_24h': ranking_24h[:N]})
+        store.set(store_key, {'ranking': ranking[:N], 'ranking_last_week': ranking_last_week[:N]})
         logger.info('Finished computing data for {0}'.format(store_key))
     except Dataset.DoesNotExist:
         pass
