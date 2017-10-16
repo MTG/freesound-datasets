@@ -20,8 +20,12 @@ def faq(request):
     return render(request, 'faq.html', {})
 
 
-def discussion(request):
-    return render(request, 'discussion.html', {})
+def discussion(request, short_name=None):
+    if short_name:
+        dataset = get_object_or_404(Dataset, short_name=short_name)
+    else:
+        dataset = None
+    return render(request, 'discussion.html', {'dataset': dataset})
 
 
 def login(request):

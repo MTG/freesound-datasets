@@ -35,6 +35,7 @@
                 {% endif %}
                 <a href="{% url 'dataset' dataset.short_name %}" class="{% active_if_current 'dataset' %}item">Explore</a>
                 <a href="{% url 'contribute' dataset.short_name %}" class="{% active_if_current 'contribute' %}item">Annotate</a>
+                <a href="{% url 'discussion' dataset.short_name %}" class="{% active_if_current 'discussion' %}item">Discussion</a>
                 {% if dataset.last_release_tag %}
                     <a href="{% url 'download-release' dataset.short_name dataset.last_release_tag %}" class="{% active_if_current 'download' %}item">Download</a>
                 {% else %}
