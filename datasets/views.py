@@ -11,7 +11,7 @@ from django.db.models import Count
 from django.db import transaction
 from django.forms import formset_factory
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from datasets.models import Dataset, DatasetRelease, Annotation, Vote, TaxonomyNode
+from datasets.models import Dataset, DatasetRelease, Annotation, Vote, TaxonomyNode, SoundDataset, Sound
 from datasets import utils
 from datasets.forms import DatasetReleaseForm, PresentNotPresentUnsureForm, CategoryCommentForm
 from pygments import highlight
@@ -178,15 +178,18 @@ def contribute_validate_annotations_category(request, short_name, node_id):
         if user_test == 'FA':
             annotation_ids += annotation_examples.values_list('id', flat=True)[:2]  # add 2 test examples TODO:select random
 
+    negative_annotation_example = False
     if node.negative_verification_examples_activated:
         # Get negative examples and add one if user has failed the test
         if user_test == 'FA':
-            negative_sound_examples = node.freesound_false_examples.all()
-            negative_annotation_examples = dataset.annotations.filter(sound_dataset__sound__in=negative_sound_examples,
-                                                                      taxonomy_node=node,
-                                                                      sound_dataset__sound__deleted_in_freesound=False)
-            if negative_annotation_examples:
-                annotation_ids += random.sample(negative_annotation_examples.values_list('id', flat=True), 1)
+            negative_sound_example = node.freesound_false_examples.filter(deleted_in_freesound=False).order_by('?')[0]
+            if negative_sound_example:
+                # create "dummy" annotation example for the false example of id 0 (the corresponding annotation does
+                # not exist in the Annotation table because it is a false irrelevant example)
+                negative_annotation_example = Annotation(sound_dataset=SoundDataset(
+                    sound=negative_sound_example, dataset=dataset), id=0)
+                annotation_ids += [None]  # count as an added annotation but does not retrieve any annotation later,
+                #  the false annotation "negative_annotation_example" is added manually
 
     # Get annotation that are not ground truth and that have been never annotated by the user, exclude test examples
     annotations = dataset.non_ground_truth_annotations_per_taxonomy_node(node_id) \
@@ -222,7 +225,9 @@ def contribute_validate_annotations_category(request, short_name, node_id):
                 annotation_ids += random.sample(list(annotation_with_no_vote_ids), N_with_no_vote)
 
     N = len(annotation_ids)
-    annotations = Annotation.objects.filter(id__in=annotation_ids).select_related('sound_dataset__sound')
+    annotations = list(Annotation.objects.filter(id__in=annotation_ids).select_related('sound_dataset__sound'))
+    if negative_annotation_example:  # add the "dummy" negative example annotation if it exists
+        annotations.append(negative_annotation_example)
 
     formset = PresentNotPresentUnsureFormSet(
         initial=[{'annotation_id': annotation.id} for annotation in annotations])
@@ -265,14 +270,12 @@ def save_contribute_validate_annotations_category(request):
                 # false examples
                 negative_test = None  # count as deactivated
                 if node.negative_verification_examples_activated:
-                    false_test_annotations_id = Annotation.objects.filter(taxonomy_node=node,
-                                                                          sound_dataset__sound__in=node.freesound_false_examples.all())\
-                        .values_list('id', flat=True)
                     vote_false_test_annotations = [form.cleaned_data['vote'] for form in formset
                                                    if 'vote' in form.cleaned_data
-                                                   if form.cleaned_data['annotation_id'] in false_test_annotations_id]
+                                                   if form.cleaned_data['annotation_id'] == 0]  # take false example form
                     if len(vote_false_test_annotations) > 0:  # if there is not test annotation, test test is considered deactivated
                         negative_test = all(v == '-1' for v in vote_false_test_annotations)
+                        print('oh yeah!')
 
                 # check answers and update user test field
                 if positive_test is True and negative_test is True:  # both test activated, both succeed
@@ -299,7 +302,7 @@ def save_contribute_validate_annotations_category(request):
             for form in formset:
                 if 'vote' in form.cleaned_data:  # This is to skip last element of formset which is empty
                     annotation_id = form.cleaned_data['annotation_id']
-                    if annotation_id not in test_annotations_id:  # store only the votes for non test annotations
+                    if annotation_id not in test_annotations_id and annotation_id != 0:  # store only the votes for non test annotations
                         check = Vote.objects.filter(created_by=request.user,
                                                     annotation_id=annotation_id)
                         if not check.exists():
@@ -317,6 +320,7 @@ def save_contribute_validate_annotations_category(request):
                 comment.created_by = request.user
                 comment.save()
         else:
+            print(formset.errors)
             error_response = {'errors': [count for count, value in enumerate(formset.errors) if value != {}]}
             return JsonResponse(error_response)
     return JsonResponse({'errors': False})
