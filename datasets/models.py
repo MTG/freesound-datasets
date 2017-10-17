@@ -192,7 +192,7 @@ class TaxonomyNode(models.Model):
                 "citation_uri": self.citation_uri,
                 "abstract": self.abstract,
                 "omitted": self.omitted,
-                "freesound_examples": [example.freesound_id for example in self.freesound_examples.all()],
+                "freesound_examples": self.valid_examples.all(),
                 "parent_ids": [parent.node_id for parent in parents],
                 "child_ids": [child.node_id for child in self.get_children()],
                 "sibling_ids": [sibling.node_id for sibling in self.get_siblings(parents)],
@@ -245,7 +245,7 @@ class TaxonomyNode(models.Model):
 
     @property
     def valid_examples(self):
-        return self.freesound_examples.filter(deleted_in_freesound=False)
+        return self.freesound_examples.filter(deleted_in_freesound=False).values_list('freesound_id', flat=True)
 
     def __str__(self):
         return '{0} ({1})'.format(self.name, self.node_id)

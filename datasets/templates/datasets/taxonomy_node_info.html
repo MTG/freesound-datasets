@@ -44,10 +44,10 @@
             <td>{{ node.description }}</td>
         </tr>
         <tr><td>URI</td><td>{% if node.citation_uri %}<a href="{{ node.citation_uri }}" target="_blank">{{ node.citation_uri }}</a>{% else %}-{% endif %}</td></tr>
-        {% if node.valid_examples %}
+        {% if node.freesound_examples %}
             <tr><td>Examples</td>
                 <td>
-                    {% for fsid in node.valid_examples %}
+                    {% for fsid in node.freesound_examples %}
                         {{ fsid| fs_embed | safe }}
                     {% endfor %}
                 </td>

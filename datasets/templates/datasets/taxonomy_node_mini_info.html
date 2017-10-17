@@ -29,10 +29,10 @@
             <td class="three wide">Description</td>
             <td>{{ node.description }}</td>
         </tr>
-        {% if node.valid_examples %}
+        {% if node.freesound_examples %}
             <tr><td>Examples</td>
                 <td>
-                    {% for fsid in node.valid_examples %}
+                    {% for fsid in node.freesound_examples %}
                         {{ fsid| fs_embed | safe }}
                     {% endfor %}
                 </td>
