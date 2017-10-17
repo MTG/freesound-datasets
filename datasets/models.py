@@ -171,6 +171,7 @@ class TaxonomyNode(models.Model):
     abstract = models.BooleanField(default=False)
     omitted = models.BooleanField(default=False)
     freesound_examples = models.ManyToManyField(Sound, related_name='taxonomy_node')
+    freesound_examples_verification = models.ManyToManyField(Sound, related_name='taxonomy_node_verification')
     positive_verification_examples_activated = models.BooleanField(default=True)
     freesound_false_examples = models.ManyToManyField(Sound)
     negative_verification_examples_activated = models.BooleanField(default=True)
