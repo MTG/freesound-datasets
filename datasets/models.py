@@ -245,7 +245,7 @@ class TaxonomyNode(models.Model):
 
     @property
     def valid_examples(self):
-        return self.freesound_examples.filter(sound_deleted_in_freesound=False)
+        return self.freesound_examples.filter(deleted_in_freesound=False)
 
     def __str__(self):
         return '{0} ({1})'.format(self.name, self.node_id)
