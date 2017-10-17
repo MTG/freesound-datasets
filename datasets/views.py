@@ -257,10 +257,12 @@ def save_contribute_validate_annotations_category(request):
         comment_form = CategoryCommentForm(request.POST)
         formset = PresentNotPresentUnsureFormSet(request.POST)
         if formset.is_valid() and comment_form.is_valid():
+            from_test_page = False
             test_annotations_id = []
             annotations_id = [form.cleaned_data['annotation_id'] for form in formset if 'vote' in form.cleaned_data]
             # extract test examples if the user test is fail
             if request.user.profile.test == 'FA':
+                from_test_page = True
                 node = TaxonomyNode.objects.get(node_id=Annotation.objects.get(id=annotations_id[0]).
                                                 taxonomy_node.node_id)
                 # positive examples
@@ -283,7 +285,6 @@ def save_contribute_validate_annotations_category(request):
                                                    if form.cleaned_data['annotation_id'] == 0]  # take false example form
                     if len(vote_false_test_annotations) > 0:  # if there is not test annotation, test test is considered deactivated
                         negative_test = all(v == '-1' for v in vote_false_test_annotations)
-                        print('oh yeah!')
 
                 # check answers and update user test field
                 if positive_test is True and negative_test is True:  # both test activated, both succeed
@@ -321,6 +322,7 @@ def save_contribute_validate_annotations_category(request):
                                 visited_sound=form.cleaned_data['visited_sound'],
                                 annotation_id=annotation_id,
                                 test=request.user.profile.test,
+                                from_test_page=from_test_page,
                             )
 
             if comment_form.cleaned_data['comment'].strip():  # If there is a comment
@@ -328,7 +330,6 @@ def save_contribute_validate_annotations_category(request):
                 comment.created_by = request.user
                 comment.save()
         else:
-            print(formset.errors)
             error_response = {'errors': [count for count, value in enumerate(formset.errors) if value != {}]}
             return JsonResponse(error_response)
     return JsonResponse({'errors': False})
