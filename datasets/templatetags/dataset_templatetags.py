@@ -124,6 +124,6 @@ def fs_embed_small(value):
 
 @register.filter()
 def fs_embed(value):
-    embed_code = '<iframe frameborder="0" scrolling="no" src="https://www.freesound.org/embed/sound/iframe/{0}/simple/medium_no_info/" width="130" height="80"></iframe>'
+    embed_code = '<iframe frameborder="0" scrolling="no" src="https://www.freesound.org/embed/sound/iframe/{0}/simple/medium_no_info/?spec=1&td=1" width="130" height="80"></iframe>'
     return embed_code.format(str(value))
 
