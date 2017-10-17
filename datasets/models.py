@@ -243,6 +243,10 @@ class TaxonomyNode(models.Model):
             parents = self.get_parents()
         return TaxonomyNode.objects.filter(parents__in=parents).exclude(node_id=self.node_id)
 
+    @property
+    def valid_examples(self):
+        return self.freesound_examples.filter(sound_deleted_in_freesound=False)
+
     def __str__(self):
         return '{0} ({1})'.format(self.name, self.node_id)
 
