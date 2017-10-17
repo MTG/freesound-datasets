@@ -487,6 +487,7 @@ class Vote(models.Model):
     visited_sound = models.NullBooleanField(null=True, blank=True, default=None)
     # 'visited_sound' is to store whether the user needed to open the sound in Freesound to perform this vote
     test = models.CharField(max_length=2, choices=TEST_CHOICES, default='UN')  # Store test result
+    from_test_page = models.NullBooleanField(null=True, blank=True, default=None)  # Store if votes are from a test page
 
     def __str__(self):
         return 'Vote for annotation {0}'.format(self.annotation.id)
