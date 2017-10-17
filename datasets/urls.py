@@ -1,5 +1,6 @@
 from django.conf.urls import url, include
 from datasets.views import *
+from freesound_datasets.views import discussion
 
 
 urlpatterns = [
@@ -7,6 +8,7 @@ urlpatterns = [
         name='save-contribute-validate-annotations-per-category'),
     url(r'^(?P<short_name>[^\/]+)/$', dataset, name='dataset'),
     url(r'^(?P<short_name>[^\/]+)/download-script/$', download_script, name='download-script'),
+    url(r'^(?P<short_name>[^\/]+)/discussion/', discussion, name='discussion'),
     url(r'^(?P<short_name>[^\/]+)/dataset-sounds/$', dataset_sounds, name='dataset-sounds'),
     url(r'^(?P<short_name>[^\/]+)/check_release_progresses/$', check_release_progresses, name='check-release-progresses'),
     url(r'^(?P<short_name>[^\/]+)/release/(?P<release_tag>[^\/]+)/$', change_release_type, name='change-release-type'),

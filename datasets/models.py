@@ -171,6 +171,7 @@ class TaxonomyNode(models.Model):
     abstract = models.BooleanField(default=False)
     omitted = models.BooleanField(default=False)
     freesound_examples = models.ManyToManyField(Sound, related_name='taxonomy_node')
+    freesound_examples_verification = models.ManyToManyField(Sound, related_name='taxonomy_node_verification')
     positive_verification_examples_activated = models.BooleanField(default=True)
     freesound_false_examples = models.ManyToManyField(Sound)
     negative_verification_examples_activated = models.BooleanField(default=True)
@@ -191,7 +192,7 @@ class TaxonomyNode(models.Model):
                 "citation_uri": self.citation_uri,
                 "abstract": self.abstract,
                 "omitted": self.omitted,
-                "freesound_examples": [example.freesound_id for example in self.freesound_examples.all()],
+                "freesound_examples": self.valid_examples.all(),
                 "parent_ids": [parent.node_id for parent in parents],
                 "child_ids": [child.node_id for child in self.get_children()],
                 "sibling_ids": [sibling.node_id for sibling in self.get_siblings(parents)],
@@ -241,6 +242,10 @@ class TaxonomyNode(models.Model):
         if not parents:
             parents = self.get_parents()
         return TaxonomyNode.objects.filter(parents__in=parents).exclude(node_id=self.node_id)
+
+    @property
+    def valid_examples(self):
+        return self.freesound_examples.filter(deleted_in_freesound=False).values_list('freesound_id', flat=True)
 
     def __str__(self):
         return '{0} ({1})'.format(self.name, self.node_id)
@@ -482,6 +487,7 @@ class Vote(models.Model):
     visited_sound = models.NullBooleanField(null=True, blank=True, default=None)
     # 'visited_sound' is to store whether the user needed to open the sound in Freesound to perform this vote
     test = models.CharField(max_length=2, choices=TEST_CHOICES, default='UN')  # Store test result
+    from_test_page = models.NullBooleanField(null=True, blank=True, default=None)  # Store if votes are from a test page
 
     def __str__(self):
         return 'Vote for annotation {0}'.format(self.annotation.id)

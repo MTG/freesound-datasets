@@ -19,9 +19,22 @@ class Command(BaseCommand):
         taxonomy = ds.taxonomy
         data = json.load(open(file_location))
 
+        failed_count = 0
+
         for d in data:
             node = taxonomy.get_element_at_id(d['id'])
-            for ex_id in d['positive_examples_FS']:
-                sound = Sound.objects.get(freesound_id=ex_id)
-                node.freesound_examples.add(sound)
+            for ex_id in d['positive_examples_FS'][:2]:
+                try:
+                    sound = Sound.objects.get(freesound_id=ex_id)
+                    node.freesound_examples.add(sound)
+                except:
+                    failed_count += 1
+            for ex_id in d['positive_examples_FS'][2:]:
+                try:
+                    sound = Sound.objects.get(freesound_id=ex_id)
+                    node.freesound_examples_verification.add(sound)
+                except:
+                    failed_count += 1
             node.save()
+
+        print('{0} sounds did not exist'.format(failed_count))

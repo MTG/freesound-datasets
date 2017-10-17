@@ -45,6 +45,7 @@
                 $('#start_annotating_button').removeClass('disabled');
                 $('#start_annotating_button_div').removeAttr("data-tooltip");
             }, 10000);
+            console.log('{{skip_tempo}}')
             if ('{{skip_tempo}}'=='True'){show_form();}
         });
     </script>
@@ -67,8 +68,17 @@
     {% taxonomy_node_minimal_data dataset node.node_id as main_node_data %}
     <br>
     {% if not main_node_data.is_omitted %}
-        <div id="start_annotating_button_div" class="ui center aligned basic segment" data-tooltip="Please take your time to look at the category and the related ones before starting to annotate :)">
-            <button id="start_annotating_button" class="red ui button disabled" onclick="show_form();">Start annotating</button>
+        <div id="start_annotating_button_div" class="ui aligned basic segment">
+            <p>
+                <b>Before annotating, please take some time to acclimatise yourself with your category <span class="ui label">{{node.name}}</span> and its related categories:</b>
+            </p>
+            <div class="ui bulleted list">
+                 <div class="item">Read the description and listen to the examples of {{node.name}}.</div>
+                 <div class="item">You will find description and examples of its siblings and/or children by clicking them.</div>
+            </div>
+            <br>
+            <div class="ui center aligned basic segment" data-tooltip="Please take your time to look at the category and the related ones before starting to annotate :)" data-position="bottom center">
+                <button id="start_annotating_button" class="red ui button disabled" onclick="show_form();">Start annotating</button></div>
         </div>
         <div id="form_container" style="visibility: hidden">
             <div class="ui grid">
@@ -202,16 +212,13 @@
                     </p>
                 </div>
                 <div class="item">
-                    Please consider check categories' <b>Hierarchy</b>, <b>Direct children</b> and <b>Description</b> fields before annotating
+                    Please consider check categories' <b>Hierarchy</b>, <b>Description</b> and related categories (siblings and/or direct children) before annotating
                 </div>
                 <div class="item">
                     Check the sound’s <b>tags and description in Freesound</b> if you can’t make up your mind (click on the &nbsp;<i class="external icon"></i> icons)
                 </div>
                 <div class="item">
                     You can add general <b>comments about a category</b> at the bottom of the page
-                </div>
-                <div class="item">
-                    You <b><u>should</u> validate</b> until the number of validated annotations reaches 72
                 </div>
                 <div class="item">
                     Check the <a href="{% url 'contribute-validate-annotations' dataset.short_name %}?help=1" target="_blank">full instructions</a> if you have any doubts

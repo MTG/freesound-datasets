@@ -70,9 +70,14 @@
 
 
 {% block content %}
-    <h1 class="ui header">Validate category annotations</h1>
-    <p>Use one of the table below to <b>choose a category</b>.
-        <br>Read the <a href="{% url 'contribute-validate-annotations' dataset.short_name %}?help=1"> task instructions</a> if you're not sure how to proceed.</p>
+    <h1 class="ui header">Validate category annotations for {{dataset.short_name|upper}}</h1>
+    <p>Use one of the table below to <b>choose a category</b>:</p>
+    <div class="ui bulleted list">
+        <div class="item">You can <b>explore</b> the AudioSet Ontology to choose one category</div>
+        <div class="item">You can choose a category among <b>our priorities</b> for the creation of FSD.</div>
+        <div class="item">You can <b>search</b> a category by its name.</div>
+    </div>
+    <br>Read the <a href="{% url 'contribute-validate-annotations' dataset.short_name %}?help=1"> task instructions</a> if you're not sure how to proceed.
 
 
     <div class="ui red three item inverted menu">

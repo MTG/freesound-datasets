@@ -16,6 +16,18 @@ def index(request):
     return render(request, 'index.html', {})
 
 
+def faq(request):
+    return render(request, 'faq.html', {})
+
+
+def discussion(request, short_name=None):
+    if short_name:
+        dataset = get_object_or_404(Dataset, short_name=short_name)
+    else:
+        dataset = None
+    return render(request, 'discussion.html', {'dataset': dataset})
+
+
 def login(request):
     next_url = request.GET.get('next', '')
     show_freesound = bool(settings.SOCIAL_AUTH_FREESOUND_KEY)

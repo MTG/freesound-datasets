@@ -4,16 +4,19 @@
 {% block title %}Contribute{% endblock title %}
 
 {% block content %}
-    <h1 class="ui header">Contribute to {{ dataset.name }}</h1>
-    <p>This is your entry point for helping making the world a batter place by contributing to the {{ dataset.name }} :)
-    <br>Please choose one of the available tasks below for contributing to the dataset:</p>
+    <h1 class="ui header">Contribute to {{ dataset.short_name|upper }} by annotating sounds</h1>
+    <p>This is your entry point for helping making the world a batter place by contributing to
+        {{ dataset.short_name|upper }} :)
+    <br>At the moment, we have one available task for contributing to the dataset.</p>
     <table class="ui very basic table">
         <tbody>
             <tr>
                 <td>
                     <div class="ui raised segment">
                         <div class="ui two column middle aligned very relaxed stackable grid">
-                            <div class="column"><p class="medium text"><b>Task 1</b></p></div>
+                            <div class="column"><p class="medium text"><b>Task 1:</b> This task consists of validating
+                                automatically generated annotations that express the presence of a sound category in
+                                an audio sample.</p></div>
                             <div class="column">
                             <a href="{% url 'contribute-validate-annotations' dataset.short_name %}?help=1" class="ui big right labeled icon blue button">
                                 <i class="checkmark box icon"></i>Validate category annotations</a>
@@ -59,7 +62,7 @@
                 </table>
             </div>
             <div class="column">
-                <h2>Last 24h top contributors</h2>
+                <h2>Last week top contributors</h2>
                 <table class="ui unstackable table" width="100%">
                     <thead>
                         <tr>
@@ -69,7 +72,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                    {% for username, n_annotations in annotators_ranking.ranking_24h %}
+                    {% for username, n_annotations in annotators_ranking.ranking_last_week %}
                         <tr>
                             <td>{{ forloop.counter }}</td>
                             <td class="center aligned">
