@@ -267,7 +267,7 @@ def save_contribute_validate_annotations_category(request):
                 positive_test = None  # count as deactivated
                 if node.positive_verification_examples_activated:
                     test_annotations_id = Annotation.objects.filter(taxonomy_node=node,
-                                                                    sound_dataset__sound__in=node.freesound_examples.all())\
+                                                                    sound_dataset__sound__in=node.freesound_examples_verification.all())\
                         .values_list('id', flat=True)
                     vote_test_annotations = [form.cleaned_data['vote'] for form in formset
                                              if 'vote' in form.cleaned_data
