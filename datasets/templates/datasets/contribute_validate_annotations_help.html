@@ -16,195 +16,167 @@
 {% endblock %}
 {% block content %}
     <h1 class="ui header">Instructions for task Validate category annotations for {{ dataset.short_name|upper}}</h1>
-
     <p>
-        Thank you for participating in the Tagathon’s first edition! <b>Please read these guidelines carefully</b> before annotating.
-        If you have any questions, do not hesitate to ask an organizer.
+        This task consist of assessing the presence of an acoustic event in audio files taken from Freesound.
     </p>
-    <p>
-        <b>A bit of context:</b> We are trying to build a dataset with sounds from Freesound following
-        the <a href="https://research.google.com/audioset/ontology/index.html" target="_blank">AudioSet Ontology</a>.
-        As starting point, we have populated the AudioSet sound categories with Freesound clips based on tag matching
-        (manually assigning Freesound tags to each category).
-    </p>
-
-    <h3>Why are we doing this Tagathon?</h3>
-    <p>
-        The <b>main goal</b> is to validate annotations obtained from the tag matching process, which will allow us to:
-        <ul class="ui list" style="margin-top:-20px;margin-left:40px;font-weight: 100;">
-            <li>Estimate the quality of the sound categories coming from that process</li>
-            <li>Take the first step towards building a Freesound Dataset</li>
-            <li>Gather feedback on the ontology, the audio content and the annotation procedure</li>
-            <li>Test the annotation tool and think of improvements</li>
-        </ul>
-    </p>
-
-    <h3>Tagathon guidelines</h3>
-    <p>
-        To organize the Tagathon, we have split the sound categories of the
-        <a href="https://research.google.com/audioset/ontology/index.html" target="_blank">AudioSet Ontology</a> into
-        several groups that can be seen in this <a href="https://drive.google.com/open?id=1ol4V5kzMrVeuIY5PKL63qESlftJrzeNsqvpQQFDRTcE"
-        target="_blank">spreadsheet</a> (surrounded by red boxes). Categories in each group should be validated by one person.
-        These groups vary in size, so that you can choose one based on how much time you think that you have available to help.
-        For each category you will be presented with pages of 12 sounds. <b>For each sound clip, you will be asked if this
-        sound contains the item described by the category</b>. You will find more detailed description below, in the section
-        <a onclick="$(document.body).scrollTop($('#how-to-validate-a-category').offset().top - 70);" href="javascript:void(0);">How to validate a category</a>.
-    </p>
-    <p>
-        You <b><u>should</u> validate until the number of validated annotations reaches 72</b>. You can see this number in the table at the top of a validation page, after choosing a category.
-        Some categories may contain fewer sounds (&lt; 72). In this case, just validate all annotations (the interface will tell you whenever it is the case).
-    </p>
-        
-    <h3>How to proceed</h3>
-    <table class="ui celled padded definition table">
-        <tr><td>1</td><td><p>
-            <b>Log in</b> to <a href="https://datasets.freesound.org/fsd/" target="_blank">https://datasets.freesound.org/fsd/</a>
-        </p></td></tr>
-        <tr><td>2</td><td><p>
-            Go to the <a href="https://drive.google.com/open?id=1ol4V5kzMrVeuIY5PKL63qESlftJrzeNsqvpQQFDRTcE"
-            target="_blank">spreadsheet</a> and <b>choose a group to validate</b> (please write your name next to it). Understand the type of
-            categories that you are about to validate.
-        </p></td></tr>
-        <tr><td>3</td><td><p>
-            Use the hyperlinks in the spreadsheet to access the validation page for each category or browse the categories
-            in the main <a href="{% url 'contribute-validate-annotations' dataset.short_name %}" target="_blank">Validate category annotations</a> page.
-        </p></td></tr>
-        <tr><td>4</td><td><p>
-            Start listening and validating the annotations!
-        </p></td></tr>
-    </table>
 
     <a id="how-to-validate-a-category"></a>
-    <h3>How to validate a category</h3>
     <table class="ui celled padded definition table">
         <tr><td>1</td>
-            <td>
-                <p><b>Acclimatise yourself with your category and its related categories</b>.
-                    The section at the top of the page gives you an overview of the category and its meaning.</p>
-                <table class="ui celled table">
-                    <tr><td><p>Hierarchy</p></td><td><p>
-                            A path that tells you where you are in the ontology, for example
-                            <i>Animal  > Domestic animals, pets > Cat</i>.
-                            Note that in some cases there may be several paths, ie, several parents for your category. For example, <a href="https://datasets.freesound.org/fsd/explore/%252Fm%252F07rjwbb/" target="_blank">Hiss</a>:
-                            <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Animal > Domestic animals, pets > Cat > Hiss</i>
-                            <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Animal > Wild animals > Snake > Hiss</i>
-                            <br>Please consider all the parents of your category when annotating.
-                    </p></td></tr>
-                    <tr><td><p>Direct children</p></td><td><p>
-                            Children of the category you are seeing. Useful for understanding the context of the category
-                            that you are in, and navigating through children. This section will not appear if you are on
-                            a final leaf category.
-                    </p></td></tr>
-                    <tr><td><p>Description</p></td><td><p>
-                            An explanation of the meaning and limits of the category. <b>Please read and understand the description of the category before annotating.</b>
-
-                    </p></td></tr>
-                </table>
-                <p>Note that some categories are highlighted in red. You should not validate them!
-                    <br>Feel free to also check <a href="https://research.google.com/audioset/ontology/index.html" target="_blank">AudioSet website</a> to explore the Ontology
+            <td><p>
+                    First you will have to <b>choose a category</b> of acoustic event from the AudioSet Ontology.
+                    Please choose a category of sound you feel familiar with.
+                    Three tables are available in order to provide you different ways for selecting your category:
                 </p>
-        </td></tr>
+                <table class="ui celled table">
+                    <tr><td><p><i>Explore</i></p></td><td><p>With the Explore option, you will first navigate through the first two
+                        levels of the ontology and finally choose the category you will focus on.</p>
+                    <tr><td><p><i>Our priorities</i></p></td><td><p>With the second table, you can see what are the categories
+                        which are priorities following our needs.</p>
+                    <tr><td><p><i>Search</i></p></td><td><p>With the Search option, you can enter directly the category you are
+                        interested in.</p>
+                </table>
+            </td>
         <tr><td>2</td>
             <td>
-                <p><b>Put your headphones, adjust sound level comfortably and rate sounds in the category</b> according to the formulated question: <b>Is &#60;sound category&#62;
-                    present in the following sounds?</b> For some categories, a few examples are provided (please note they
-                    don’t necessarily cover all the possible cases). There are 4 possible answers:</p>
+                <p><b>Familiarise yourself with your category and its related categories</b>.
+                    The section at the top of the page gives you an overview of the category and its meaning.</p>
                 <table class="ui celled table">
-                    <tr><td><p>Present and predominant</p></td><td><p>
-                        The type of sound described is clearly present in the audio clip and it is predominant, either
-                        isolated from other types of sound or with low/mild background noise.
+                    <tr><td><p><i>Hierarchy</i></p></td><td><p>
+                            A path that tells you where you are in the ontology, e.g.
+                            <i>Animal  > Domestic animals, pets > Cat</i>.
+                            <br>Note that in some cases there may be several paths, i.e., several parents for your category.
+                            For example, <a href="https://datasets.freesound.org/fsd/explore/%252Fm%252F07rjwbb/" target="_blank">Hiss</a>:
+                            <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Animal > Domestic animals, pets > Cat > Hiss</i>
+                            <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Animal > Wild animals > Snake > Hiss</i>
+                            <br>Please consider all the parent contexts of your category when annotating.
+                            <br>Clicking on a parent category name will display some information.
                     </p></td></tr>
-                    <tr><td><p>Present but not predominant</p></td><td><p>
-                        The type of sound described is present, but the audio clip also contains other salient types of
-                        sound and/or strong background noise.
+                    <tr><td><p><i>Siblings and Direct Children</i></p></td><td><p>
+                            Siblings of the category you are seeing. Useful for understanding the context of the category
+                            that you are in. Clicking on a category name will display some information.
                     </p></td></tr>
-                    <tr><td><p>Not Present</p></td><td><p>
-                        The type of sound described is not present in the audio clip.
+                    <tr><td><p><i>Description</i></p></td><td><p>
+                            An explanation of the meaning and limits of the category. <b>Please read and understand the
+                            description of the category before annotating.</b>
                     </p></td></tr>
-                    <tr><td><p>Unsure</p></td><td><p>
-                        I am not sure whether the type of sound described is present or not.
+                    <tr><td><p><i>Examples</i></p></td><td><p>
+                            Listen to some examples for helping you understanding the category you are in.
                     </p></td></tr>
                 </table>
-        </td></tr>
+                <p><b>If you don't feel comfortable</b> with the category you are in, please <b>consider changing</b>
+                    by going back to the last step.</p>
+            </td>
         <tr><td>3</td>
+            <td>
+               <p><b>Put your headphones, adjust sound level comfortably and rate sounds in the category</b> according to the formulated question: <b>Is &#60;sound category&#62;
+                    present in the following sounds?</b> There are 4 possible answers:</p>
+                <table class="ui celled table">
+                    <tr><td><p><i>Present and predominant</i></p></td><td><p>
+                        The type of sound described is <b>clearly present</b> in the audio clip and it is <b>predominant</b>,
+                        either isolated from other types of sound or with low/mild background noise.
+                    </p></td></tr>
+                    <tr><td><p><i>Present but not predominant</i></p></td><td><p>
+                        The type of sound described is <b>present</b>, but the audio clip also <b>contains other salient
+                        types of sound and/or strong background noise</b>.
+                    </p></td></tr>
+                    <tr><td><p><i>Not Present</i></p></td><td><p>
+                        The type of sound described is <b>not present</b> in the audio clip.
+                    </p></td></tr>
+                    <tr><td><p><i>Unsure</i></p></td><td><p>
+                        <b>I am not sure</b> whether the type of sound described is present or not.
+                    </p></td></tr>
+                </table>
+            </td>
+        </tr>
+        <tr><td>4</td>
+            <td>
+                <p><b>Annotate and submit ratings for the page</b> and either:</p>
+                <div class="ui bulleted list" style="margin-top:-20px;margin-left:40px;font-weight: 100;">
+                    <div class="item">continue with the next page in this category or...</div>
+                    <div class="item">move to another category :)</div>
+                </div>
+            </td>
+        </tr>
+    </table>
+
+    <table class="ui celled padded definition table">
+        <tr><td></td>
             <td>
                 <p><b>Are you finding it difficult?</b> Feel free to access Freesound through the link at the top
                     right corner of every sound (<i class="external icon"></i>) to check the sound’s metadata (description and tags).</p>
         </td></tr>
-        <tr><td>4</td>
+        <tr><td></td>
             <td><p><b>Do you have any feedback about the category?</b> You can add comments in the text box at the bottom of the page.</p>
         </td></tr>
-        <tr><td>5</td>
-            <td><p><b>Submit your ratings for this page</b> and either:
-                <ul class="ui list" style="margin-top:-20px;margin-left:40px;font-weight: 100;">
-                    <li>continue with the next page in this category (until 72 validated) or...</li>
-                    <li>move to your next category :)</li>
-                </ul>
-            </p>
-        </td></tr>
-        <tr><td>6</td>
+        <tr><td></td>
             <td><p>
-                Please take a <b>10-minute break each hour</b>, and take a longer break to rest if you reach 3 hours.
+                Please take a break every now and then.
             </p>
         </td></tr>
+        <tr><td></td>
+            <td><p>
+                <b><u>You can click the help button</u></b> next to the formulated question to see a short version of these guidelines.
+                If you have any general comments - e.g., annotation tool improvements, annotation process, ontology
+                aspects, etc. Do not hesitate to share your opinion with us, your feedback is very valuable!
+            </p>
+        </td></tr>
+
     </table>
     <p>
-        <b><u>You can click the help button</u></b> next to the formulated question to see a short version of these guidelines.
-        If you have any general comments - e.g., annotation tool improvements, annotation process, ontology aspects, etc. Do not hesitate to share your opinion with us, your feedback is very valuable!
-    </p>
-    <p>
-        <b>Thanks a lot</b> for helping out and happy annotating! Take a rest every now and then and don’t forget there
-        are food and drinks!
+        <b>Thanks a lot</b> for helping out and happy annotating!
     </p>
 
-    <h3>FAQ</h3>
-    <table class="ui celled padded table">
-        <tr><td>
-            How should I rate human imitations?
-            <p>If they sound like the original source, they should be rated as one type of <i>Present</i>.<br> 
-            Bad imitations should be rated as <i>Not Present</i>.</p>
-        </td></tr>
-        <tr><td>
-            How should I rate synthesized sounds?
-            <p>If they sound like the original source, they should be rated as one type of <i>Present</i>.<br> 
-            Bad synthetic sounds should be rated as <i>Not Present</i>.</p>
-        </td></tr>
-        <tr><td>
-            How should I rate heavily processed sounds (e.g., using effects)?
-            <p>Easily recognizable sounds should be rated as as one type of <i>Present</i>. <br>
-            Sounds that are difficult to be recognized should be rated as <i>Not Present</i>.</p>
-        </td></tr>
-        <tr><td>
-            How should I rate badly recorded sounds (e.g., clipping and/or strong noise)?
-            <p>Easily recognizable sounds should be rated as as one type of <i>Present</i>. <br>
-            Sounds that are very different from the original source should be rated as <i>Not Present</i>.</p>
-        </td></tr>         
-        <tr><td>
-            How should I rate reversed sounds?
-            <p>Easily recognizable sounds should be rated as as one type of <i>Present</i>.<br>
-            Sounds that are difficult to be recognized should be rated as <i>Not Present</i>.</p>
-        </td></tr>         
-        <tr><td>
-            In the context of the <div class="ui label">Vehicle</div> category: how should I rate announcements of flights/bus?
-            <p>Rate it as <i>Not Present</i>.</p>
-        </td></tr>     
-        
-        <tr><td>
-            <div class="ui label">Clatter</div> sounds need to be repetitive?
-            <p>Yes, but is not necessary that it repeats during the whole clip. 
-                <br>Considering the definition: "An <i>irregular</i> rattling noise, often produced by rapid movement, consisting of a cluster of transient sounds". <br><i>Irregular</i> suggests that the noise is repetitive.</p>
-        </td></tr>       
-        <tr><td>
-            How should I rate any sound generated by an <div class="ui label">Animal</div>?
-            <br><i>Example 1: The sound of a horse walking should be rated as horse?</i>
-            <br><i>Example 2: The sound of a cat/dog eating should be rated as cat/dog?</i>
-            <p>Sounds generated by an animal should be rated as as one type of <i>Present</i>. Please be sure it corresponds to the specific animal class by accessing Freesound through the link (<i class="external icon"></i>).</p>
-        </td></tr>         
-        <tr><td>
-            How should I rate the sound produced by the retracting of the <div class="ui label">vacuum cleaner</div>'s cable?
-            <p>Rate it as <i>Present</i>.</p>
-        </td></tr>
-    </table>
+    <div hidden>
+        <h3>FAQ</h3>
+        <table class="ui celled padded table">
+            <tr><td>
+                How should I rate human imitations?
+                <p>If they sound like the original source, they should be rated as one type of <i>Present</i>.<br>
+                Bad imitations should be rated as <i>Not Present</i>.</p>
+            </td></tr>
+            <tr><td>
+                How should I rate synthesized sounds?
+                <p>If they sound like the original source, they should be rated as one type of <i>Present</i>.<br>
+                Bad synthetic sounds should be rated as <i>Not Present</i>.</p>
+            </td></tr>
+            <tr><td>
+                How should I rate heavily processed sounds (e.g., using effects)?
+                <p>Easily recognizable sounds should be rated as as one type of <i>Present</i>. <br>
+                Sounds that are difficult to be recognized should be rated as <i>Not Present</i>.</p>
+            </td></tr>
+            <tr><td>
+                How should I rate badly recorded sounds (e.g., clipping and/or strong noise)?
+                <p>Easily recognizable sounds should be rated as as one type of <i>Present</i>. <br>
+                Sounds that are very different from the original source should be rated as <i>Not Present</i>.</p>
+            </td></tr>
+            <tr><td>
+                How should I rate reversed sounds?
+                <p>Easily recognizable sounds should be rated as as one type of <i>Present</i>.<br>
+                Sounds that are difficult to be recognized should be rated as <i>Not Present</i>.</p>
+            </td></tr>
+            <tr><td>
+                In the context of the <div class="ui label">Vehicle</div> category: how should I rate announcements of flights/bus?
+                <p>Rate it as <i>Not Present</i>.</p>
+            </td></tr>
+
+            <tr><td>
+                <div class="ui label">Clatter</div> sounds need to be repetitive?
+                <p>Yes, but is not necessary that it repeats during the whole clip.
+                    <br>Considering the definition: "An <i>irregular</i> rattling noise, often produced by rapid movement, consisting of a cluster of transient sounds". <br><i>Irregular</i> suggests that the noise is repetitive.</p>
+            </td></tr>
+            <tr><td>
+                How should I rate any sound generated by an <div class="ui label">Animal</div>?
+                <br><i>Example 1: The sound of a horse walking should be rated as horse?</i>
+                <br><i>Example 2: The sound of a cat/dog eating should be rated as cat/dog?</i>
+                <p>Sounds generated by an animal should be rated as as one type of <i>Present</i>. Please be sure it corresponds to the specific animal class by accessing Freesound through the link (<i class="external icon"></i>).</p>
+            </td></tr>
+            <tr><td>
+                How should I rate the sound produced by the retracting of the <div class="ui label">vacuum cleaner</div>'s cable?
+                <p>Rate it as <i>Present</i>.</p>
+            </td></tr>
+        </table>
+    </div>
 
     <br><br>
     <div id="start_annotating_button_div" class="ui center aligned grid" data-tooltip="Please take your time to read the instructions carefully before starting :)">
