@@ -38,7 +38,6 @@
                     'paging': true,
                     'info': true,
                     'ordering': false,
-                    'scrollY': 360,
                     'fixedHeader': true,
                 });
             });
@@ -127,16 +126,17 @@
         </a>
     </div>
 
+    <div id="choose-table-container">
+        <div class="tabcontent" id="choose_table_placeholder">
+            <div class="ui active centered inline text loader">Loading data...</div>
+        </div>
 
-    <div class="tabcontent" id="choose_table_placeholder">
-        <div class="ui active centered inline text loader">Loading data...</div>
-    </div>
+        <div class="tabcontent" id="priority_table_placeholder" style="display: none;">
+            <div class="ui active centered inline text loader">Loading data...</div>
+        </div>
 
-    <div class="tabcontent" id="priority_table_placeholder" style="display: none;">
-        <div class="ui active centered inline text loader">Loading data...</div>
-    </div>
-
-    <div class="tabcontent" id="search_table_placeholder" style="display: none;">
-        <div class="ui active centered inline text loader">Loading data...</div>
+        <div class="tabcontent" id="search_table_placeholder" style="display: none;">
+            <div class="ui active centered inline text loader">Loading data...</div>
+        </div>
     </div>
 {% endblock %}
