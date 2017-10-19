@@ -69,7 +69,7 @@ class Taxonomy(models.Model):
                 yield cur
             else:
                 for node in children:
-                    for child in get_children(node.node_id, [node]):
+                    for child in get_children(node.node_id, [node] + cur):
                         yield child
         children_list = list(self.get_children(node_id))
         for children in get_children(node_id):
@@ -89,7 +89,7 @@ class Taxonomy(models.Model):
                 yield cur
             else:
                 for node in parents:
-                    for parent in get_parents(node.node_id, [node]):
+                    for parent in get_parents(node.node_id, [node] + cur):
                         yield parent
 
         parents_list = list(self.get_parents(node_id))
