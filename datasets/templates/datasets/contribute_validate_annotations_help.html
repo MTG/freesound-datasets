@@ -15,14 +15,48 @@
     </script>
 {% endblock %}
 {% block content %}
-    <h1 class="ui header">Instructions for task Validate category annotations for {{ dataset.short_name|upper}}</h1>
+<center>
+<div class="ui small steps">
+  <div class="step">
+    <div class="content">
+      <div class="title">FSD</div>
+    </div>
+  </div>
+  <div class="step">
+    <div class="content">
+      <div class="title">Task1: validate category annotations</div>
+    </div>
+  </div>
+  <div class="enabled step">
+    <div class="content">
+      <div class="title">Instructions</div>
+    </div>
+  </div>
+  <div class="disabled step">
+    <div class="content">
+      <div class="title">Choose category</div>
+    </div>
+  </div>
+  <div class="disabled step">
+    <div class="content">
+      <div class="title">Training</div>
+    </div>
+  </div>
+  <div class="disabled step">
+    <div class="content">
+      <div class="title">Validate</div>
+    </div>
+  </div>
+</div>
+</center>
+    <h1 class="ui header">Instructions</h1>
     <p>
-        This task consist of assessing the presence of an acoustic event in audio files taken from Freesound.
+        This task consists of validating the presence of an acoustic event in audio files.
     </p>
 
     <a id="how-to-validate-a-category"></a>
     <table class="ui celled padded definition table">
-        <tr><td>1</td>
+        <tr><td>Choose category</td>
             <td>
                 <img class="ui bordered right floated large image" src="{% static 'img/screen_choose_table.png' %}"/>
                 <span>
@@ -32,81 +66,83 @@
                         Three tables are available in order to provide you different ways for selecting your category:
                     </p>
                 </span>
-                <table class="ui celled table">
-                    <tr><td><p><i>Explore</i></p></td><td><p>With the Explore option, you will first navigate through the first two
-                        levels of the ontology and finally choose the category you will focus on.</p>
-                    <tr><td><p><i>Our priorities</i></p></td><td><p>With the second table, you can see what are the categories
-                        which are priorities following our needs.</p>
-                    <tr><td><p><i>Search</i></p></td><td><p>With the Search option, you can enter directly the category you are
-                        interested in.</p>
-                </table>
             </td>
-        <tr><td>2</td>
+        <tr><td>Understand selected category</td>
             <td>
                 <img class="ui bordered right floated large image" src="{% static 'img/screen_explicit_training.png' %}"/>
                 <span>
                     <p><b>Familiarise yourself with your category and its related categories</b>.
                         The section at the top of the page gives you an overview of the category and its meaning.</p>
                 </span>
-                <table class="ui celled table">
-                    <tr><td><p><i>Hierarchy</i></p></td><td><p>
-                            A path that tells you where you are in the ontology, e.g.
-                            <i>Animal  > Domestic animals, pets > Cat</i>.
-                            <br>Note that in some cases there may be several paths, i.e., several parents for your category.
-                            For example, <a href="https://datasets.freesound.org/fsd/explore/%252Fm%252F07rjwbb/" target="_blank">Hiss</a>:
-                            <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Animal > Domestic animals, pets > Cat > Hiss</i>
-                            <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>Animal > Wild animals > Snake > Hiss</i>
-                            <br>Please consider all the parent contexts of your category when annotating.
-                            <br>Clicking on a parent category name will display some information.
-                    </p></td></tr>
-                    <tr><td><p><i>Siblings and Direct Children</i></p></td><td><p>
-                            Siblings of the category you are seeing. Useful for understanding the context of the category
-                            that you are in. Clicking on a category name will display some information.
-                    </p></td></tr>
-                    <tr><td><p><i>Description</i></p></td><td><p>
-                            An explanation of the meaning and limits of the category. <b>Please read and understand the
-                            description of the category before annotating.</b>
-                    </p></td></tr>
-                    <tr><td><p><i>Examples</i></p></td><td><p>
-                            Listen to some examples for helping you understanding the category you are in.
-                    </p></td></tr>
-                </table>
+                <div class="ui list">
+                  <div class="item">
+                    <div class="content">
+                      <div class="header">Hierarchy</div>
+                      <div class="description">A path that tells you where you are in the ontology.
+                          Clicking on a parent category name will display some information.</div>
+                    </div>
+                  </div>
+                  <div class="item">
+                    <div class="content">
+                      <div class="header">Siblings and Direct Children</div>
+                      <div class="description">Siblings of the category you are seeing. Useful for understanding the context of the category
+                            that you are in. Clicking on a category name will display some information.</div>
+                    </div>
+                  </div>
+                  <div class="item">
+                    <div class="content">
+                      <div class="header">Description</div>
+                      <div class="description">An explanation of the meaning and limits of the category. <b>Please read and understand the
+                            description of the category before annotating.</b></div>
+                    </div>
+                  </div>
+                  <div class="item">
+                    <div class="content">
+                      <div class="header">Examples</div>
+                      <div class="description">Listen to some examples for helping you understanding the category you are in.</div>
+                    </div>
+                  </div>
+                </div>
+
                 <p><b>If you don't feel comfortable</b> with the category you are in, please <b>consider changing</b>
                     by going back to the last step.</p>
             </td>
-        <tr><td>3</td>
+        <tr><td>Validate</td>
             <td>
                 <img class="ui bordered right floated large image" src="{% static 'img/screen_votes.png' %}"/>
                 <span>
                     <p><b>Put your headphones, adjust sound level comfortably and rate sounds in the category</b>
-                        according to the formulated question: <b>Is &#60;sound category&#62;
-                        present in the following sounds?</b> There are 4 possible answers:</p>
+                        according to the formulated question. <br>There are 4 possible answers:</p>
                 </span>
-                <table class="ui celled table">
-                    <tr><td><p><i>Present and predominant</i></p></td><td><p>
-                        The type of sound described is <b>clearly present</b> in the audio clip and it is <b>predominant</b>,
-                        either isolated from other types of sound or with low/mild background noise.
-                    </p></td></tr>
-                    <tr><td><p><i>Present but not predominant</i></p></td><td><p>
-                        The type of sound described is <b>present</b>, but the audio clip also <b>contains other salient
-                        types of sound and/or strong background noise</b>.
-                    </p></td></tr>
-                    <tr><td><p><i>Not Present</i></p></td><td><p>
-                        The type of sound described is <b>not present</b> in the audio clip.
-                    </p></td></tr>
-                    <tr><td><p><i>Unsure</i></p></td><td><p>
-                        <b>I am not sure</b> whether the type of sound described is present or not.
-                    </p></td></tr>
-                </table>
-            </td>
-        </tr>
-        <tr><td>4</td>
-            <td>
-                <p><b>Annotate and submit ratings for the page</b> and either:</p>
-                <div class="ui bulleted list" style="margin-top:-20px;margin-left:40px;font-weight: 100;">
-                    <div class="item">continue with the next page in this category or...</div>
-                    <div class="item">move to another category :)</div>
+                <div class="ui list">
+                  <div class="item">
+                    <div class="content">
+                      <div class="header">Present and predominant</div>
+                      <div class="description">The type of sound described is <b>clearly present</b> in the audio clip and it is <b>predominant</b>,
+                        either isolated from other types of sound or with low/mild background noise.</div>
+                    </div>
+                  </div>
+                  <div class="item">
+                    <div class="content">
+                      <div class="header">Present but not predominant</div>
+                      <div class="description">The type of sound described is <b>present</b>, but the audio clip also <b>contains other salient
+                        types of sound and/or strong background noise</b>.</div>
+                    </div>
+                  </div>
+                  <div class="item">
+                    <div class="content">
+                      <div class="header">Not Present</div>
+                      <div class="description">The type of sound described is <b>not present</b> in the audio clip.</div>
+                    </div>
+                  </div>
+                  <div class="item">
+                    <div class="content">
+                      <div class="header">Unsure</div>
+                      <div class="description"><b>I am not sure</b> whether the type of sound described is present or not.</div>
+                    </div>
+                  </div>
                 </div>
+
             </td>
         </tr>
     </table>
@@ -118,25 +154,16 @@
                     right corner of every sound (<i class="external icon"></i>) to check the sound’s metadata (description and tags).</p>
         </td></tr>
         <tr><td></td>
-            <td><p><b>Do you have any feedback about the category?</b> You can add comments in the text box at the bottom of the page.</p>
-        </td></tr>
-        <tr><td></td>
             <td><p>
-                Please take a break every now and then.
+                If you annotate for an hour please take a <b>10 minutes break</b>.
             </p>
         </td></tr>
         <tr><td></td>
             <td><p>
-                <b><u>You can click the help button</u></b> next to the formulated question to see a short version of these guidelines.
-                If you have any general comments - e.g., annotation tool improvements, annotation process, ontology
-                aspects, etc. Do not hesitate to share your opinion with us, your feedback is very valuable!
+                <b>You can click the help button</b> next to the formulated question to see a short version of these guidelines.
             </p>
         </td></tr>
-
     </table>
-    <p>
-        <b>Thanks a lot</b> for helping out and happy annotating!
-    </p>
 
     <div hidden>
         <h3>FAQ</h3>
