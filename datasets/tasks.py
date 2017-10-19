@@ -160,7 +160,7 @@ def compute_dataset_taxonomy_stats(store_key, dataset_id):
                 'name': node.name,
             })
             nodes_data.append(node_stats)
-
+        print(nodes_data)
         store.set(store_key, {
             'nodes_data': nodes_data,
         })
