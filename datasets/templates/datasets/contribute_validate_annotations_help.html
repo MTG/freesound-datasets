@@ -55,7 +55,7 @@
     </p>
 
     <a id="how-to-validate-a-category"></a>
-    <table class="ui celled padded definition table">
+    <table class="ui celled very compact definition table">
         <tr><td>Choose category</td>
             <td>
                 <img class="ui bordered right floated large image" src="{% static 'img/screen_choose_table.png' %}"/>
@@ -67,43 +67,15 @@
                     </p>
                 </span>
             </td>
-        <tr><td>Train</td>
+        <tr><td>Training</td>
             <td>
                 <img class="ui bordered right floated large image" src="{% static 'img/screen_explicit_training.png' %}"/>
                 <span>
                     <p><b>Familiarise yourself with your category and its related categories</b>.
-                        The section at the top of the page gives you an overview of the category and its meaning.</p>
+                        The section at the top of the page gives you an overview of the category and its meaning:
+                        hierarchy (siblings and direct children) in the ontology, definition, examples and
+                        frequently asked questions. Click on a category name to display some more information.</p>
                 </span>
-                <div class="ui list">
-                  <div class="item">
-                    <div class="content">
-                      <div class="header">Hierarchy</div>
-                      <div class="description">A path that tells you where you are in the ontology.
-                          Clicking on a parent category name will display some information.</div>
-                    </div>
-                  </div>
-                  <div class="item">
-                    <div class="content">
-                      <div class="header">Siblings and Direct Children</div>
-                      <div class="description">Siblings of the category you are seeing. Useful for understanding the context of the category
-                            that you are in. Clicking on a category name will display some information.</div>
-                    </div>
-                  </div>
-                  <div class="item">
-                    <div class="content">
-                      <div class="header">Description</div>
-                      <div class="description">An explanation of the meaning and limits of the category. <b>Please read and understand the
-                            description of the category before annotating.</b></div>
-                    </div>
-                  </div>
-                  <div class="item">
-                    <div class="content">
-                      <div class="header">Examples</div>
-                      <div class="description">Listen to some examples for helping you understanding the category you are in.</div>
-                    </div>
-                  </div>
-                </div>
-
                 <p><b>If you don't feel comfortable</b> with the category you are in, please <b>consider changing</b>
                     by going back to the last step.</p>
             </td>
@@ -114,40 +86,27 @@
                     <p><b>Put your headphones, adjust sound level comfortably and rate sounds in the category</b>
                         according to the formulated question. <br>There are 4 possible answers:</p>
                 </span>
-                <div class="ui list">
-                  <div class="item">
-                    <div class="content">
-                      <div class="header">Present and predominant</div>
-                      <div class="description">The type of sound described is <b>clearly present</b> in the audio clip and it is <b>predominant</b>,
-                        either isolated from other types of sound or with low/mild background noise.</div>
-                    </div>
-                  </div>
-                  <div class="item">
-                    <div class="content">
-                      <div class="header">Present but not predominant</div>
-                      <div class="description">The type of sound described is <b>present</b>, but the audio clip also <b>contains other salient
-                        types of sound and/or strong background noise</b>.</div>
-                    </div>
-                  </div>
-                  <div class="item">
-                    <div class="content">
-                      <div class="header">Not Present</div>
-                      <div class="description">The type of sound described is <b>not present</b> in the audio clip.</div>
-                    </div>
-                  </div>
-                  <div class="item">
-                    <div class="content">
-                      <div class="header">Unsure</div>
-                      <div class="description"><b>I am not sure</b> whether the type of sound described is present or not.</div>
-                    </div>
-                  </div>
-                </div>
-
+                <table class="ui compact table">
+                    <tr><td><p><i>Present and predominant</i></p></td><td><p>
+                        The type of sound described is <b>clearly present</b> in the audio clip and it is <b>predominant</b>,
+                        either isolated from other types of sound or with low/mild background noise.
+                    </p></td></tr>
+                    <tr><td><p><i>Present but not predominant</i></p></td><td><p>
+                        The type of sound described is <b>present</b>, but the audio clip also <b>contains other salient
+                        types of sound and/or strong background noise</b>.
+                    </p></td></tr>
+                    <tr><td><p><i>Not Present</i></p></td><td><p>
+                        The type of sound described is <b>not present</b> in the audio clip.
+                    </p></td></tr>
+                    <tr><td><p><i>Unsure</i></p></td><td><p>
+                        <b>I am not sure</b> whether the type of sound described is present or not.
+                    </p></td></tr>
+                </table>
             </td>
         </tr>
     </table>
 
-    <table class="ui celled padded definition table">
+    <table class="ui very compact definition table">
         <tr><td></td>
             <td>
                 <p><b>Are you finding it difficult?</b> Feel free to access Freesound through the link at the top
