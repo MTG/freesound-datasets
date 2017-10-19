@@ -139,16 +139,15 @@ ul {
 }
 
 /* CSS FOR CHOOSE CATEGORY TABLE */
-.choose_table_placeholder {
+#choose-table-container {
     overflow-y: scroll;
-    height: 500px;
+    height: 600px;
+    width: 100% !important;
 }
 
+.tabcontent {
+    width: 98%!important;
+}
 .medium.text {
    font-size: 16px;
-}
-
-/* FAQ */
-.faq {
-margin: 3px;
 }

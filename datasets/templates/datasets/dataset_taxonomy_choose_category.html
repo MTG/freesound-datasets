@@ -38,7 +38,6 @@
                     'paging': true,
                     'info': true,
                     'ordering': false,
-                    'scrollY': 360,
                     'fixedHeader': true,
                 });
             });
@@ -70,7 +69,40 @@
 
 
 {% block content %}
-    <h1 class="ui header">Validate category annotations for {{dataset.short_name|upper}}</h1>
+<div style="margin-top:-20px;" class="ui mini steps">
+  <div class="step">
+    <div class="content">
+      <div class="title">FSD</div>
+    </div>
+  </div>
+  <div class="step">
+    <div class="content">
+      <div class="title">Task1: validate category annotations</div>
+    </div>
+  </div>
+  <div class="step">
+    <div class="content">
+      <div class="title">Instructions</div>
+    </div>
+  </div>
+  <div class="active step">
+    <div class="content">
+      <div class="title">Choose category</div>
+    </div>
+  </div>
+  <div class="disabled step">
+    <div class="content">
+      <div class="title">Training</div>
+    </div>
+  </div>
+  <div class="disabled step">
+    <div class="content">
+      <div class="title">Validate</div>
+    </div>
+  </div>
+</div>
+
+    <h1 class="ui header">Choose category</h1>
     <p>Use one of the table below to <b>choose a category</b>:</p>
     <div class="ui bulleted list">
         <div class="item">You can <b>explore</b> the AudioSet Ontology to choose one category</div>
@@ -92,16 +124,17 @@
         </a>
     </div>
 
+    <div id="choose-table-container">
+        <div class="tabcontent" id="choose_table_placeholder">
+            <div class="ui active centered inline text loader">Loading data...</div>
+        </div>
 
-    <div class="tabcontent" id="choose_table_placeholder">
-        <div class="ui active centered inline text loader">Loading data...</div>
-    </div>
+        <div class="tabcontent" id="priority_table_placeholder" style="display: none;">
+            <div class="ui active centered inline text loader">Loading data...</div>
+        </div>
 
-    <div class="tabcontent" id="priority_table_placeholder" style="display: none;">
-        <div class="ui active centered inline text loader">Loading data...</div>
-    </div>
-
-    <div class="tabcontent" id="search_table_placeholder" style="display: none;">
-        <div class="ui active centered inline text loader">Loading data...</div>
+        <div class="tabcontent" id="search_table_placeholder" style="display: none;">
+            <div class="ui active centered inline text loader">Loading data...</div>
+        </div>
     </div>
 {% endblock %}
