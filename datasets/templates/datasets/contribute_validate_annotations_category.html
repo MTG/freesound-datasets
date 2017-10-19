@@ -38,6 +38,9 @@
         function show_form() {
             $('#start_annotating_info_div').hide();
             $('#form_container').css("visibility", "visible");
+            $('#step-training').removeClass("active");
+            $('#step-validate').removeClass("disabled step");
+            $('#step-validate').addClass("active step");
         }
 
         $(document).ready(function() {
@@ -50,7 +53,41 @@
     </script>
 {% endblock %}
 {% block content %}
-
+<center>
+<div style="margin-top:-20px;" class="ui small steps float">
+  <div class="step">
+    <div class="content">
+      <div class="title">FSD</div>
+    </div>
+  </div>
+  <div class="step">
+    <div class="content">
+      <div class="title">Task1: validate category annotations</div>
+    </div>
+  </div>
+  <div class="step">
+    <div class="content">
+      <div class="title">Instructions</div>
+    </div>
+  </div>
+  <div class="step">
+    <div class="content">
+      <div class="title">Choose category</div>
+    </div>
+  </div>
+  <div id="step-training" class="active step">
+    <div class="content">
+      <div class="title">Training</div>
+    </div>
+  </div>
+  <div id="step-validate" class="disabled step">
+    <div class="content">
+      <div class="title">Validate</div>
+    </div>
+  </div>
+</div>
+</center>
+<br>
     <div class="ui grid">
         <div class="eight wide column">
             <h1 class="ui header" style="display: inline-block;">{{ node.name }}</h1>
