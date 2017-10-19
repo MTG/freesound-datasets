@@ -192,7 +192,7 @@ class TaxonomyNode(models.Model):
                 "citation_uri": self.citation_uri,
                 "abstract": self.abstract,
                 "omitted": self.omitted,
-                "freesound_examples": self.valid_examples.all(),
+                "freesound_examples": list(self.valid_examples),
                 "parent_ids": [parent.node_id for parent in parents],
                 "child_ids": [child.node_id for child in self.get_children()],
                 "sibling_ids": [sibling.node_id for sibling in self.get_siblings(parents)],
