@@ -36,7 +36,7 @@
         }
 
         function show_form() {
-            $('#start_annotating_button_div').hide();
+            $('#start_annotating_info_div').hide();
             $('#form_container').css("visibility", "visible");
         }
 
@@ -45,7 +45,6 @@
                 $('#start_annotating_button').removeClass('disabled');
                 $('#start_annotating_button_div').removeAttr("data-tooltip");
             }, 10000);
-            console.log('{{skip_tempo}}')
             if ('{{skip_tempo}}'=='True'){show_form();}
         });
     </script>
@@ -68,7 +67,7 @@
     {% taxonomy_node_minimal_data dataset node.node_id as main_node_data %}
     <br>
     {% if not main_node_data.is_omitted %}
-        <div id="start_annotating_button_div" class="ui aligned basic segment">
+        <div id="start_annotating_info_div" class="ui aligned basic segment">
             <p>
                 <b>Before annotating, please take some time to acclimatise yourself with your category <span class="ui label">{{node.name}}</span> and its related categories:</b>
             </p>
@@ -77,7 +76,7 @@
                  <div class="item">You will find description and examples of its siblings and/or children by clicking them.</div>
             </div>
             <br>
-            <div class="ui center aligned basic segment" data-tooltip="Please take your time to look at the category and the related ones before starting to annotate :)" data-position="bottom center">
+            <div id="start_annotating_button_div" class="ui center aligned basic segment" data-tooltip="Please take your time to look at the category and the related ones before starting to annotate :)" data-position="bottom center">
                 <button id="start_annotating_button" class="red ui button disabled" onclick="show_form();">Start annotating</button></div>
         </div>
         <div id="form_container" style="visibility: hidden">

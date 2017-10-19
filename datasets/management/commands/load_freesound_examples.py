@@ -28,12 +28,14 @@ class Command(BaseCommand):
                     sound = Sound.objects.get(freesound_id=ex_id)
                     node.freesound_examples.add(sound)
                 except:
+                    print('Sound with ID {0} for category {1} does not exist'.format(ex_id, node.name))
                     failed_count += 1
             for ex_id in d['positive_examples_FS'][2:]:
                 try:
                     sound = Sound.objects.get(freesound_id=ex_id)
                     node.freesound_examples_verification.add(sound)
                 except:
+                    print('Sound with ID {0} for category {1} does not exist'.format(ex_id, node.name))
                     failed_count += 1
             node.save()
 
