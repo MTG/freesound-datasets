@@ -186,7 +186,35 @@ class TaxonomyNode(models.Model):
 
     app_label = 'datasets'
     model_name = 'taxonomynode'
-    
+
+    # override save for sync examples and list_examples (easy admin editing of FS examples)
+    def save(self, *args, **kwargs):
+        old = TaxonomyNode.objects.filter(pk=getattr(self, 'pk', None)).first()
+        if old:
+            if old.list_freesound_examples != self.list_freesound_examples:
+                self.freesound_examples.clear()
+                for fsid in self.list_freesound_examples.split(','):
+                    try:
+                        sound = Sound.objects.get(freesound_id=fsid)
+                        self.freesound_examples.add(sound)
+                    except ObjectDoesNotExist:
+                        pass
+            if old.list_freesound_examples_verification != self.list_freesound_examples_verification:
+                self.freesound_examples_verification.clear()
+                for fsid in self.list_freesound_examples_verification.split(','):
+                    try:
+                        sound = Sound.objects.get(freesound_id=fsid)
+                        self.freesound_examples_verification.add(sound)
+                    except ObjectDoesNotExist:
+                        pass
+            if old.freesound_examples != self.freesound_examples:
+                self.list_freesound_examples = ','.join(
+                    [str(fsid) for fsid in list(self.freesound_examples.values_list('freesound_id', flat=True))])
+            if old.freesound_examples_verification != self.freesound_examples_verification:
+                self.list_freesound_examples_verification = ','.join(
+                    [str(fsid) for fsid in list(self.freesound_examples_verification.values_list('freesound_id', flat=True))])
+        models.Model.save(self, *args, **kwargs)
+
     def as_dict(self):
         parents = self.get_parents()
         return {"name": self.name,
@@ -502,7 +530,7 @@ class Vote(models.Model):
         ground_truth_state = self.annotation.ground_truth_state
         if ground_truth_state:
             self.annotation.ground_truth = ground_truth_state
-            self.annotation.save()
+            models.Model.save(self, *args, **kwargs)
 
 
 class CategoryComment(models.Model):
