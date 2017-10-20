@@ -1,9 +1,4 @@
 {% load dataset_templatetags %}
-{% if not end_of_table %}
-    <div class="ui dividing header"> Which sort of category would you like to annotate? </div>
-{% else %}
-    <div class="ui dividing header"> Which category would you like to annotate? </div>
-{% endif %}
 {% for hierarchy_path in hierarchy_paths %}
     <div class="item">
         <div class="ui horizontal list">
@@ -22,9 +17,10 @@
 {% empty %}
         <div class="item">&nbsp;</div>
 {% endfor %}
-
+<br>
 <div class="choose_table_placeholder">
     <table class="ui unstackable table explore_choose" width="100%">
+        {% if end_of_table %}
         <thead>
             <tr>
                 <th>Category</th>
@@ -32,12 +28,13 @@
             </tr>
         </thead>
         <tbody>
+        {% endif %}
         {% if not end_of_table %}
             {% for node in nodes %}
                 <tr>
                     <td>{{ node.name }}</td>
                     <td class="right aligned">
-                        <button data-node_id={{ node.node_id }} class="loadButton blue ui button right labeled icon" > Continue <i class="right arrow icon"></i> </button>
+                        <button data-node_id={{ node.node_id }} class="loadButton teal ui button right labeled icon" > Continue <i class="right arrow icon"></i> </button>
                     </td>
                 </tr>
             {% endfor %}
