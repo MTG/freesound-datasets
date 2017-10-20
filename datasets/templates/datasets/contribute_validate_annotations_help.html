@@ -15,6 +15,7 @@
     </script>
 {% endblock %}
 {% block content %}
+<center>
     <div style="margin-top:-20px;" class="ui mini steps">
       <div class="step">
         <div class="content">
@@ -47,7 +48,7 @@
         </div>
       </div>
     </div>
-
+</center>
     <h1 class="ui header">Instructions</h1>
     <p>
         This task consists of validating the presence of an acoustic event in audio files.
@@ -57,12 +58,12 @@
     <table class="ui celled compact definition table">
         <tr><td>Choose category</td>
             <td>
-                <img class="ui bordered right floated large image" src="{% static 'img/screen_choose_table.png' %}"/>
+                <!--<img class="ui bordered right floated large image" src="{% static 'img/screen_choose_table.png' %}"/>-->
                 <span>
                     <p>
                         First you will have to <b>choose a category</b> of acoustic event from the AudioSet Ontology.
                         Please choose a category of sound you feel familiar with.
-                        Three tables are available in order to provide you different ways for selecting your category:
+                        Three tables are available in order to provide you different ways for selecting your category.
                     </p>
                 </span>
             </td>
@@ -73,10 +74,11 @@
                     <p><b>Familiarise yourself with your category and its related categories</b>.
                         The section at the top of the page gives you an overview of the category and its meaning:
                         hierarchy (siblings and direct children) in the ontology, definition, examples and
-                        frequently asked questions. Click on a category name to display some more information.</p>
-                </span>
-                <p><b>If you don't feel comfortable</b> with the category you are in, please <b>consider changing</b>
+                        frequently asked questions. Click on a category name to display some more information.
+
+                <b>If you don't feel comfortable</b> with the category you are in, please <b>consider changing</b>
                     by going back to the last step.</p>
+                </span>
             </td>
         <tr><td>Validate</td>
             <td>
@@ -106,18 +108,15 @@
     </table>
 
     <table class="ui very compact definition table">
-        <tr><td></td>
-            <td>
-                <p><b>Are you finding it difficult?</b> Feel free to access Freesound through the link at the top
-                    right corner of every sound (<span><small>see in </small><img class="ui inline image" style="width:80px;" src="{% static 'img/freesound_logo_color.png' %}"></span>) to check the sound’s metadata (description and tags).</p>
+        <tr><td>
+            <p><b>Are you finding it difficult?</b> Feel free to access Freesound through the link at the top
+                right corner of every sound (<span><small>see in </small><img class="ui inline image" style="width:80px;" src="{% static 'img/freesound_logo_color.png' %}"></span>) to check the sound’s metadata (description and tags).</p>
         </td></tr>
-        <tr><td></td>
-            <td><p>
-                If you annotate for an hour please take a <b>10 minutes break</b>.
-            </p>
+        <tr><td>
+            <p>If you annotate for an hour please take a <b>10 minutes break</b>.</p>
         </td></tr>
-        <tr><td></td>
-            <td><p>
+        <tr><td>
+            <p>
                 <b>You can click the help button</b> next to the formulated question to see a short version of these guidelines.
             </p>
         </td></tr>

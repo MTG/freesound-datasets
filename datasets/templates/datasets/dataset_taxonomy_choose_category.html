@@ -69,49 +69,49 @@
 
 
 {% block content %}
-<div style="margin-top:-20px;" class="ui mini steps">
-  <div class="step">
-    <div class="content">
-      <div class="title">FSD</div>
+<center>
+    <div style="margin-top:-20px;" class="ui mini steps">
+      <div class="step">
+        <div class="content">
+          <div class="title">FSD</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="content">
+          <div class="title">Task1: validate category annotations</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="content">
+          <div class="title">Instructions</div>
+        </div>
+      </div>
+      <div class="active step">
+        <div class="content">
+          <div class="title">Choose category</div>
+        </div>
+      </div>
+      <div class="disabled step">
+        <div class="content">
+          <div class="title">Training</div>
+        </div>
+      </div>
+      <div class="disabled step">
+        <div class="content">
+          <div class="title">Validate</div>
+        </div>
+      </div>
     </div>
-  </div>
-  <div class="step">
-    <div class="content">
-      <div class="title">Task1: validate category annotations</div>
-    </div>
-  </div>
-  <div class="step">
-    <div class="content">
-      <div class="title">Instructions</div>
-    </div>
-  </div>
-  <div class="active step">
-    <div class="content">
-      <div class="title">Choose category</div>
-    </div>
-  </div>
-  <div class="disabled step">
-    <div class="content">
-      <div class="title">Training</div>
-    </div>
-  </div>
-  <div class="disabled step">
-    <div class="content">
-      <div class="title">Validate</div>
-    </div>
-  </div>
-</div>
-
+</center>
     <h1 class="ui header">Choose category</h1>
     <p>Use one of the table below to <b>choose a category</b>:</p>
     <div class="ui bulleted list">
-        <div class="item">You can <b>explore</b> the AudioSet Ontology to choose one category</div>
+        <div class="item">With the <b>explore table</b>, navigate through the first two levels of the ontology and
+            finally choose the category you will focus on.</div>
         <div class="item">You can choose a category among <b>our priorities</b> for the creation of FSD.</div>
         <div class="item">You can <b>search</b> a category by its name.</div>
     </div>
-    <br>Read the <a href="{% url 'contribute-validate-annotations' dataset.short_name %}?help=1"> task instructions</a> if you're not sure how to proceed.
-
-
+    <br>
     <div class="ui red three item inverted menu">
         <a class="item active" onclick="openTab(event, 'choose_table_placeholder')">
             <h4> Explore </h4>
@@ -124,7 +124,7 @@
         </a>
     </div>
 
-    <div id="choose-table-container">
+    <div class="ui raised text container segment" id="choose-table-container">
         <div class="tabcontent" id="choose_table_placeholder">
             <div class="ui active centered inline text loader">Loading data...</div>
         </div>
