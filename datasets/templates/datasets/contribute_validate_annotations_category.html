@@ -102,9 +102,8 @@
         </div>
     </div>
     {% display_taxonomy_node_small_info dataset node.node_id 'cva' %}
-    {% taxonomy_node_minimal_data dataset node.node_id as main_node_data %}
     <br>
-    {% if not main_node_data.is_omitted %}
+    {% if not node.omitted %}
         <div id="start_annotating_info_div" class="ui aligned basic segment">
             <p>
                 <b>Before annotating, please take some time to acclimatise yourself with your category <span class="ui label">{{node.name}}</span> and its related categories:</b>
@@ -125,7 +124,7 @@
                 <div class="six wide column right aligned">
                     {% if annotations_forms %}
                         <a href="javascript:void(0);" onclick="$('#help_modal').modal('show');" class="ui orange button right labeled icon">Help <i class="help icon"></i></a>
-                        <a href="{% url 'contribute-validate-annotations-category' dataset.short_name main_node_data.url_id %}?{{skip_tempo_parameter}}=True" class="ui button right labeled blue icon">Try other sounds <i class="refresh icon"></i></a>
+                        <a href="{% url 'contribute-validate-annotations-category' dataset.short_name node.url_id %}?{{skip_tempo_parameter}}=True" class="ui button right labeled blue icon">Try other sounds <i class="refresh icon"></i></a>
                     {% endif %}
                 </div>
             </div>
@@ -190,7 +189,7 @@
             </p>
         </div>
         <div class="actions">
-            <a href="{% url 'contribute-validate-annotations-category' dataset.short_name main_node_data.url_id %}?{{skip_tempo_parameter}}=True" class="green ui inverted right labeled button icon"><i class="plus icon"></i> Give me more sounds from this category</a>
+            <a href="{% url 'contribute-validate-annotations-category' dataset.short_name node.url_id %}?{{skip_tempo_parameter}}=True" class="green ui inverted right labeled button icon"><i class="plus icon"></i> Give me more sounds from this category</a>
             <a href="{% url 'choose_category' dataset.short_name %}" class="blue ui inverted button right labeled icon"><i class="refresh icon"></i> Choose another category</a>
         </div>
     </div>

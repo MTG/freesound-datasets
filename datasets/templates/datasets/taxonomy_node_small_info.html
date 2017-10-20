@@ -39,7 +39,7 @@
                                     <i class="tree icon"></i>
                                 </div>
                                 {% for node_id in hierarchy_path %}
-                                    {% taxonomy_node_minimal_data dataset node_id as sub_node_data  %}
+                                    {% taxonomy_node dataset node_id as sub_node_data  %}
                                     <div class="item" style="margin-left:0px;margin-right:5px;">
                                         >
                                         <a class="my-pop" data-html='' ajax_done=0 ajax_url="{% url 'get-mini-node-info' dataset.short_name sub_node_data.url_id %}">{{ sub_node_data.name }}</a>
@@ -58,7 +58,7 @@
                 <td>Siblings</td>
                 <td><div class="ui horizontal list">
                     {% for node_id in node.sibling_ids %}
-                        {% taxonomy_node_minimal_data dataset node_id as sub_node_data %}
+                        {% taxonomy_node dataset node_id as sub_node_data %}
                         <div class="item" style="margin-left:0px;margin-right:5px;">
                             <a class="my-pop ui label" data-html='' ajax_done=0 ajax_url = "{% url 'get-mini-node-info' dataset.short_name sub_node_data.url_id %}">{{ sub_node_data.name }}</a>
                         </div>
@@ -71,7 +71,7 @@
                 <td>Direct children</td>
                 <td><div class="ui horizontal list">
                     {% for node_id in node.child_ids %}
-                        {% taxonomy_node_minimal_data dataset node_id as sub_node_data %}
+                        {% taxonomy_node dataset node_id as sub_node_data %}
                         <div class="item" style="margin-left:0px;margin-right:5px;">
                             <a class="my-pop ui label" data-html='' ajax_done=0 ajax_url = "{% url 'get-mini-node-info' dataset.short_name sub_node_data.url_id %}">{{ sub_node_data.name }}</a>
                         </div>
