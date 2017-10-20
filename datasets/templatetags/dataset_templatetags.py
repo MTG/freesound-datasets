@@ -84,6 +84,12 @@ def taxonomy_node_minimal_data(dataset, node_id):
     return node
 
 
+@register.simple_tag(takes_context=False)
+def taxonomy_node(dataset, node_id):
+    node = dataset.taxonomy.get_element_at_id(node_id)
+    return node
+
+
 @register.inclusion_tag('datasets/taxonomy_node_info.html', takes_context=True)
 def display_taxonomy_node_info(context, dataset, node_id, category_link_to='e'):
     user_is_maintainer = dataset.user_is_maintainer(context['request'].user)
