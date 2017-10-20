@@ -6,13 +6,14 @@ from django.db.models import Count
 from django.contrib.postgres.fields import JSONField
 from django.contrib.auth.models import User
 from django.conf import settings
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 import os
 import markdown
 import datetime
 from django.utils import timezone
 from django.core.validators import RegexValidator
+from django.core.exceptions import ObjectDoesNotExist
 from urllib.parse import quote
 
 
@@ -179,6 +180,9 @@ class TaxonomyNode(models.Model):
     parents = models.ManyToManyField('self', symmetrical=False, related_name='children')
     faq = models.TextField(blank=True)
     nb_ground_truth = models.IntegerField(default=0)
+    # for easy admin example change:
+    list_freesound_examples = models.CharField(max_length=100, null=True, blank=True)
+    list_freesound_examples_verification = models.CharField(max_length=100, null=True, blank=True)
 
     app_label = 'datasets'
     model_name = 'taxonomynode'
