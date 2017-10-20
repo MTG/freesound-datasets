@@ -3,7 +3,8 @@ from datasets.models import Dataset, Sound, Annotation, Vote, Taxonomy, DatasetR
 
 
 class TaxonomyNodeAdmin(admin.ModelAdmin):
-    fields = ('node_id', 'name', 'description', 'citation_uri', 'faq', 'omitted')
+    fields = ('node_id', 'name', 'description', 'citation_uri', 'faq', 'omitted', 'list_freesound_examples',
+              'list_freesound_examples_verification')
 
 
 admin.site.register(Dataset)

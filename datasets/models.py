@@ -6,13 +6,14 @@ from django.db.models import Count
 from django.contrib.postgres.fields import JSONField
 from django.contrib.auth.models import User
 from django.conf import settings
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 import os
 import markdown
 import datetime
 from django.utils import timezone
 from django.core.validators import RegexValidator
+from django.core.exceptions import ObjectDoesNotExist
 from urllib.parse import quote
 
 
@@ -163,6 +164,8 @@ class Sound(models.Model):
         return 'Sound {0} (freesound {1})'.format(self.id, self.freesound_id)
 
 
+validator_list_examples = RegexValidator('^([0-9]+(?:,[0-9]+)*)*$', message='Enter a list of comma separated Freesound IDs.')
+
 class TaxonomyNode(models.Model):
     node_id = models.CharField(max_length=20)
     name = models.CharField(max_length=100)
@@ -179,10 +182,41 @@ class TaxonomyNode(models.Model):
     parents = models.ManyToManyField('self', symmetrical=False, related_name='children')
     faq = models.TextField(blank=True)
     nb_ground_truth = models.IntegerField(default=0)
+    # for easy admin example change:
+    list_freesound_examples = models.CharField(max_length=100, null=True, blank=True, validators=[validator_list_examples])
+    list_freesound_examples_verification = models.CharField(max_length=100, null=True, blank=True, validators=[validator_list_examples])
 
     app_label = 'datasets'
     model_name = 'taxonomynode'
-    
+
+    # override save for sync examples and list_examples (easy admin editing of FS examples)
+    def save(self, *args, **kwargs):
+        old = TaxonomyNode.objects.filter(pk=getattr(self, 'pk', None)).first()
+        if old:
+            if old.list_freesound_examples != self.list_freesound_examples:
+                self.freesound_examples.clear()
+                for fsid in self.list_freesound_examples.split(','):
+                    try:
+                        sound = Sound.objects.get(freesound_id=fsid)
+                        self.freesound_examples.add(sound)
+                    except ObjectDoesNotExist:
+                        pass
+            if old.list_freesound_examples_verification != self.list_freesound_examples_verification:
+                self.freesound_examples_verification.clear()
+                for fsid in self.list_freesound_examples_verification.split(','):
+                    try:
+                        sound = Sound.objects.get(freesound_id=fsid)
+                        self.freesound_examples_verification.add(sound)
+                    except ObjectDoesNotExist:
+                        pass
+            if old.freesound_examples != self.freesound_examples:
+                self.list_freesound_examples = ','.join(
+                    [str(fsid) for fsid in list(self.freesound_examples.values_list('freesound_id', flat=True))])
+            if old.freesound_examples_verification != self.freesound_examples_verification:
+                self.list_freesound_examples_verification = ','.join(
+                    [str(fsid) for fsid in list(self.freesound_examples_verification.values_list('freesound_id', flat=True))])
+        super(TaxonomyNode, self).save(*args, **kwargs)
+
     def as_dict(self):
         parents = self.get_parents()
         return {"name": self.name,
@@ -493,7 +527,7 @@ class Vote(models.Model):
         return 'Vote for annotation {0}'.format(self.annotation.id)
 
     def save(self, request=False, *args, **kwargs):
-        models.Model.save(self, *args, **kwargs)
+        super(Vote, self).save(*args, **kwargs)
         # here calculate ground truth for vote.annotation
         ground_truth_state = self.annotation.ground_truth_state
         if ground_truth_state:
