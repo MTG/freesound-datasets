@@ -164,6 +164,8 @@ class Sound(models.Model):
         return 'Sound {0} (freesound {1})'.format(self.id, self.freesound_id)
 
 
+validator_list_examples = RegexValidator('^([0-9]+(?:,[0-9]+)*)*$', message='Enter a list of comma separated Freesound IDs.')
+
 class TaxonomyNode(models.Model):
     node_id = models.CharField(max_length=20)
     name = models.CharField(max_length=100)
@@ -181,8 +183,8 @@ class TaxonomyNode(models.Model):
     faq = models.TextField(blank=True)
     nb_ground_truth = models.IntegerField(default=0)
     # for easy admin example change:
-    list_freesound_examples = models.CharField(max_length=100, null=True, blank=True)
-    list_freesound_examples_verification = models.CharField(max_length=100, null=True, blank=True)
+    list_freesound_examples = models.CharField(max_length=100, null=True, blank=True, validators=[validator_list_examples])
+    list_freesound_examples_verification = models.CharField(max_length=100, null=True, blank=True, validators=[validator_list_examples])
 
     app_label = 'datasets'
     model_name = 'taxonomynode'
