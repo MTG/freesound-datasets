@@ -215,7 +215,7 @@ class TaxonomyNode(models.Model):
             if old.freesound_examples_verification != self.freesound_examples_verification:
                 self.list_freesound_examples_verification = ','.join(
                     [str(fsid) for fsid in list(self.freesound_examples_verification.values_list('freesound_id', flat=True))])
-        models.Model.save(self, *args, **kwargs)
+        super(TaxonomyNode, self).save(*args, **kwargs)
 
     def as_dict(self):
         parents = self.get_parents()
@@ -527,12 +527,12 @@ class Vote(models.Model):
         return 'Vote for annotation {0}'.format(self.annotation.id)
 
     def save(self, request=False, *args, **kwargs):
-        models.Model.save(self, *args, **kwargs)
+        super(Vote, self).save(*args, **kwargs)
         # here calculate ground truth for vote.annotation
         ground_truth_state = self.annotation.ground_truth_state
         if ground_truth_state:
             self.annotation.ground_truth = ground_truth_state
-            models.Model.save(self, *args, **kwargs)
+            self.annotation.save()
 
 
 class CategoryComment(models.Model):
