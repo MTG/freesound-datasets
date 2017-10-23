@@ -275,7 +275,7 @@ def save_contribute_validate_annotations_category(request):
                                              if 'vote' in form.cleaned_data
                                              if form.cleaned_data['annotation_id'] in test_annotations_id]
                     if len(vote_test_annotations) > 0:  # if there is not test annotation, test is considered deactivated
-                        positive_test = all(v == '1' for v in vote_test_annotations)
+                        positive_test = all(v in ('0', '1') for v in vote_test_annotations)
 
                 # false examples
                 negative_test = None  # count as deactivated
