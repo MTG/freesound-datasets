@@ -112,8 +112,15 @@
         (better ground truth annotations), and quantity (larger amounts of data). Therefore, there will be consecutive
         <b>releases</b> of {{ dataset.short_name|upper}}. We are now in the process of gathering annotations to build
         the first {{ dataset.short_name|upper}} release. Releases (including waveforms, pre-computed features and
-        metadata) will be available for download from our <a href="/" onclick="return false;">Download</a> page under
-        Creative Commons licenses.
+        metadata) will be available for download from our
+        {% if dataset.last_release_tag %}
+            <a href="{% url 'download-release' dataset.short_name dataset.last_release_tag %}">Download</a>
+        {% else %}
+            <a href="#" onclick="return false;" style="color:#888888;">Download</a>
+        {% endif %}
+
+
+        page under Creative Commons licenses.
     </p>
     <p>
         The following Table shows the current annotation state of the mapped data, which will be updated with the
