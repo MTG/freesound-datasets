@@ -135,12 +135,10 @@ ul {
 #ontology_placeholder {
     overflow-x: scroll;
     width: 100%;
-    background-color: #FAFAFA;
 }
 
 /* CSS FOR CHOOSE CATEGORY TABLE */
 #choose-table-container {
-    background-color: #FAFAFA!important;
     overflow-y: scroll;
     height: 600px;
     width: 100% !important;

@@ -19,6 +19,7 @@
                     'paging': true,
                     'info': true,
                 });
+                $('#dataset_contents_paginate').parent().attr('style', 'width: 100% !important');
             });
         }
 
@@ -175,7 +176,7 @@
         <!--Want to share something with us? Go to our Discussion page.-->
     </p>
     <!-- MENU -->
-    <div class="ui inverted menu">
+    <div class="ui red two item inverted menu">
         <a class="item active" onclick="openTab(event, 'dataset_taxonomy_table_placeholder')">
             <i class="list layout icon"></i> Table
         </a>
@@ -185,8 +186,11 @@
     </div>
 
     <!-- Content -->
-    <div id="dataset_taxonomy_table_placeholder" class="tabcontent">
-        <div class="ui active centered inline text loader">Loading data...</div>
-    </div>
+    <div class="ui raised container segment">
+        <div id="dataset_taxonomy_table_placeholder" class="tabcontent">
+            <div class="ui active centered inline text loader">Loading data...</div>
+        </div>
         {% include "datasets/ontology_tree.html" %}
+    </div>
+
 {% endblock %}
