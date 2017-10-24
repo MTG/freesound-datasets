@@ -138,7 +138,7 @@ ul {
 }
 
 /* CSS FOR CHOOSE CATEGORY TABLE */
-#choose-table-container {
+#choose_table_placeholder, #priority_table_placeholder, #search_table_placeholder{
     overflow-y: scroll;
     height: 600px;
     width: 100% !important;

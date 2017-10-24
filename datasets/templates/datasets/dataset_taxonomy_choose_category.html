@@ -8,6 +8,7 @@
             loadDatasetTaxonomyTableChoose(0);
             loadDatasetTaxonomyTablePriority();
             loadDatasetTaxonomyTableSearch();
+            $('.menu .item').tab();
         });
 
         function loadDatasetTaxonomyTableChoose(node_id){
@@ -38,31 +39,9 @@
                     'paging': true,
                     'info': true,
                     'ordering': false,
-                    'fixedHeader': true,
                 });
                 $('#dataset_contents_paginate').parent().attr('style', 'width: 100% !important');
             });
-        }
-
-        function openTab(evt, contentName) {
-            // Declare all variables
-            var i, tabcontent, tablinks;
-
-            // Get all elements with class="tabcontent" and hide them
-            tabcontent = document.getElementsByClassName("tabcontent");
-            for (i = 0; i < tabcontent.length; i++) {
-                tabcontent[i].style.display = "none";
-            }
-
-            // Get all elements with class="item" and remove the class "active"
-            tablinks = document.getElementsByClassName("item");
-            for (i = 0; i < tablinks.length; i++) {
-                tablinks[i].className = tablinks[i].className.replace(" active", "");
-            }
-
-            // Show the current tab, and add an "active" class to the button that opened the tab
-            document.getElementById(contentName).style.display = "block";
-            evt.currentTarget.className += " active";
         }
     </script>
 {% endblock %}
@@ -113,29 +92,26 @@
         <div class="item">You can <b>search</b> a category by its name.</div>
     </div>
     <br>
-    <div class="ui red three item inverted menu">
-        <a class="item active" onclick="openTab(event, 'choose_table_placeholder')">
-            <h4> Explore </h4>
-        </a>
-        <a class="item" onclick="openTab(event, 'priority_table_placeholder')">
-            <h4> Our priorities </h4>
-        </a>
-        <a class="item" onclick="openTab(event, 'search_table_placeholder')">
-            <h4> Search </h4>
-        </a>
+
+    <div class="ui three two item top attached tabular inverted menu">
+      <a class="item active" data-tab="first">
+          <h4> Explore </h4>
+      </a>
+      <a class="item" data-tab="second">
+          <h4> Our priorities </h4>
+      </a>
+      <a class="item" data-tab="third">
+          <h4> Search </h4>
+      </a>
     </div>
 
-    <div class="ui raised text container segment" id="choose-table-container">
-        <div class="tabcontent" id="choose_table_placeholder">
-            <div class="ui active centered inline text loader">Loading data...</div>
-        </div>
-
-        <div class="tabcontent" id="priority_table_placeholder" style="display: none;">
-            <div class="ui active centered inline text loader">Loading data...</div>
-        </div>
-
-        <div class="tabcontent" id="search_table_placeholder" style="display: none;">
-            <div class="ui active centered inline text loader">Loading data...</div>
-        </div>
+    <div class="ui bottom attached tab segment active" data-tab="first" id="choose_table_placeholder">
+        <div class="ui active centered inline text loader">Loading data...</div>
+    </div>
+    <div class="ui bottom attached tab segment" data-tab="second" id="priority_table_placeholder">
+        <div class="ui active centered inline text loader">Loading data...</div>
+    </div>
+    <div class="ui bottom attached tab segment" data-tab="third" id="search_table_placeholder">
+        <div class="ui active centered inline text loader">Loading data...</div>
     </div>
 {% endblock %}

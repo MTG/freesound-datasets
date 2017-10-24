@@ -11,6 +11,7 @@
             {% if dataset_release_form_errors %}
                 $('#make_release_modal').modal('show');
             {% endif %}
+            $('.menu .item').tab();
         });
 
         function loadDatasetTaxonomyTable(){
@@ -86,30 +87,6 @@
             }
         }
     </script>
-
-    <script type="text/javascript">
-        function openTab(evt, contentName) {
-            // Declare all variables
-            var i, tabcontent, tablinks;
-
-            // Get all elements with class="tabcontent" and hide them
-            tabcontent = document.getElementsByClassName("tabcontent");
-            for (i = 0; i < tabcontent.length; i++) {
-                tabcontent[i].style.display = "none";
-            }
-
-            // Get all elements with class="item" and remove the class "active"
-            tablinks = document.getElementsByClassName("item");
-            for (i = 0; i < tablinks.length; i++) {
-                tablinks[i].className = tablinks[i].className.replace(" active", "");
-            }
-
-            // Show the current tab, and add an "active" class to the button that opened the tab
-            document.getElementById(contentName).style.display = "block";
-            evt.currentTarget.className += " active";
-        }  
-    </script>
-
 {% endblock %}
 {% block content %}
     <h1 class="ui header">About the {{ dataset.name }} ({{dataset.short_name|upper}})</h1>
@@ -175,22 +152,23 @@
         ISMIR2017 paper</a> for more details.
         <!--Want to share something with us? Go to our Discussion page.-->
     </p>
-    <!-- MENU -->
-    <div class="ui red two item inverted menu">
-        <a class="item active" onclick="openTab(event, 'dataset_taxonomy_table_placeholder')">
-            <i class="list layout icon"></i> Table
-        </a>
-        <a class="item" onclick="openTab(event, 'dataset_taxonomy_tree_placeholder')">
-            <i class="tree icon"></i> Tree
-        </a>
-    </div>
 
-    <!-- Content -->
-    <div class="ui raised container segment">
-        <div id="dataset_taxonomy_table_placeholder" class="tabcontent">
-            <div class="ui active centered inline text loader">Loading data...</div>
-        </div>
-        {% include "datasets/ontology_tree.html" %}
+<div class="ui red two item top attached tabular inverted menu">
+  <a class="item active" data-tab="first">
+      <i class="list layout icon"></i> Table
+  </a>
+  <a class="item" data-tab="second">
+      <i class="tree icon"></i> Tree
+  </a>
+</div>
+<div class="ui bottom attached tab segment active" data-tab="first">
+    <div id="dataset_taxonomy_table_placeholder" class="tabcontent">
+        <div class="ui active centered inline text loader">Loading data...</div>
     </div>
+</div>
+<div class="ui bottom attached tab segment" data-tab="second">
+    {% include "datasets/ontology_tree.html" %}
+</div>
+
 
 {% endblock %}
