@@ -14,6 +14,27 @@ function loadOntologyTree(){
         type: "GET",
         success: function(result){
             show_ontology(result);
+            var down=false;
+            var scrollLeft=0;
+            var x = 0;
+
+            $('#ontology_placeholder').mousedown(function(e) {
+                down = true;
+                scrollLeft = this.scrollLeft;
+                x = e.clientX;
+                $(document.body).css( 'cursor', 'move' );
+            }).mouseup(function() {
+                $(document.body).css( 'cursor', 'auto' );
+                down = false;
+            }).mousemove(function(e) {
+                if (down) {
+                   this.scrollLeft = scrollLeft + x - e.clientX;
+                   console.log(scrollLeft + x - e.clientX);
+                }
+            }).mouseleave(function() {
+                down = false;
+                $(document.body).css( 'cursor', 'auto' );
+            });
         }
     })
 }

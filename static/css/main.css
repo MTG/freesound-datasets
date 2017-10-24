@@ -133,7 +133,7 @@ ul {
   stroke-width: 1px;
 }
 #ontology_placeholder {
-    overflow-x: scroll;
+    overflow-x: hidden;
     width: 100%;
 }
 
