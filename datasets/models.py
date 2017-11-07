@@ -550,7 +550,7 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     test = models.CharField(max_length=2, choices=TEST_CHOICES, default='UN')  # Store test result
     countdown_trustable = models.IntegerField(default=0)  # count for make the user pass the test again
-    last_category_annotated = models.OneToOneField(TaxonomyNode, null=True, blank=True, default=None)
+    last_category_annotated = models.ForeignKey(TaxonomyNode, null=True, blank=True, default=None)
     # this store the last category the user contributed to
 
     def refresh_countdown(self):
