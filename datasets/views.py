@@ -260,11 +260,13 @@ def save_contribute_validate_annotations_category(request):
             from_test_page = False
             test_annotations_id = []
             annotations_id = [form.cleaned_data['annotation_id'] for form in formset if 'vote' in form.cleaned_data]
+            # filter out the annotation id = 0 corresponding to dummy annotations for false example
+            one_real_annotation_id = [annotation_id for annotation_id in annotations_id if annotation_id != 0][0]
+            node_id = Annotation.objects.get(id=one_real_annotation_id).taxonomy_node.node_id
+            node = TaxonomyNode.objects.get(node_id=node_id)
             # extract test examples if the user test is fail
             if request.user.profile.test == 'FA':
                 from_test_page = True
-                node = TaxonomyNode.objects.get(node_id=Annotation.objects.get(id=annotations_id[0]).
-                                                taxonomy_node.node_id)
                 # positive examples
                 positive_test = None  # count as deactivated
                 if node.positive_verification_examples_activated:
@@ -304,8 +306,7 @@ def save_contribute_validate_annotations_category(request):
                     request.user.profile.test = 'FA'
                 else:  # decrement to the countdown
                     request.user.profile.countdown_trustable -= 1
-            request.user.profile.last_category_annotated = TaxonomyNode.objects.get(
-                node_id=Annotation.objects.get(id=annotations_id[0]).taxonomy_node.node_id)
+            request.user.profile.last_category_annotated = node
             request.user.save()
 
             for form in formset:
