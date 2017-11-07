@@ -243,11 +243,17 @@ def contribute_validate_annotations_category(request, short_name, node_id):
 
     category_comment_form = CategoryCommentForm()
 
+    nb_task1_pages = request.session.get('nb_task1_pages', False)
+    if not nb_task1_pages:
+        request.session['nb_task1_pages'] = 0
+        nb_task1_pages = 0
+
     return render(request, 'datasets/contribute_validate_annotations_category.html',
                   {'dataset': dataset, 'node': node, 'annotations_forms': annotations_forms,
                    'formset': formset, 'N': N, 'user_is_maintainer': user_is_maintainer,
                    'category_comment_form': category_comment_form, 'skip_tempo': skip_tempo,
-                   'skip_tempo_parameter': settings.SKIP_TEMPO_PARAMETER})
+                   'skip_tempo_parameter': settings.SKIP_TEMPO_PARAMETER,
+                   'nb_task1_pages': nb_task1_pages})
 
 
 @login_required
@@ -330,6 +336,8 @@ def save_contribute_validate_annotations_category(request):
                 comment = comment_form.save(commit=False)
                 comment.created_by = request.user
                 comment.save()
+
+            request.session['nb_task1_pages'] += 1
         else:
             error_response = {'errors': [count for count, value in enumerate(formset.errors) if value != {}]}
             return JsonResponse(error_response)
@@ -378,6 +386,7 @@ def dataset_taxonomy_table_choose(request, short_name):
         end_of_table = True
         nodes = dataset.get_categories_to_validate(request.user).exclude(omitted=True).order_by('nb_ground_truth')[:20]
 
+    request.session['nb_task1_pages'] = 0
     return render(request, 'datasets/dataset_taxonomy_table_choose.html', {
         'dataset': dataset, 'end_of_table': end_of_table, 'hierarchy_paths': hierarchy_paths, 'nodes': nodes})
 
