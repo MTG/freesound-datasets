@@ -245,8 +245,8 @@ def contribute_validate_annotations_category(request, short_name, node_id):
 
     nb_task1_pages = request.session.get('nb_task1_pages', False)
     if not nb_task1_pages:
-        request.session['nb_task1_pages'] = 0
-        nb_task1_pages = 0
+        request.session['nb_task1_pages'] = 1
+        nb_task1_pages = 1
 
     return render(request, 'datasets/contribute_validate_annotations_category.html',
                   {'dataset': dataset, 'node': node, 'annotations_forms': annotations_forms,
@@ -348,6 +348,7 @@ def save_contribute_validate_annotations_category(request):
 def choose_category(request, short_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
     request.session['read_instructions'] = True
+    request.session['nb_task1_pages'] = 0
     return render(request, 'datasets/dataset_taxonomy_choose_category.html', {'dataset': dataset})
 
 
@@ -386,7 +387,6 @@ def dataset_taxonomy_table_choose(request, short_name):
         end_of_table = True
         nodes = dataset.get_categories_to_validate(request.user).exclude(omitted=True).order_by('nb_ground_truth')[:20]
 
-    request.session['nb_task1_pages'] = 0
     return render(request, 'datasets/dataset_taxonomy_table_choose.html', {
         'dataset': dataset, 'end_of_table': end_of_table, 'hierarchy_paths': hierarchy_paths, 'nodes': nodes})
 
