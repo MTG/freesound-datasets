@@ -243,11 +243,17 @@ def contribute_validate_annotations_category(request, short_name, node_id):
 
     category_comment_form = CategoryCommentForm()
 
+    nb_task1_pages = request.session.get('nb_task1_pages', False)
+    if not nb_task1_pages:
+        request.session['nb_task1_pages'] = 1
+        nb_task1_pages = 1
+
     return render(request, 'datasets/contribute_validate_annotations_category.html',
                   {'dataset': dataset, 'node': node, 'annotations_forms': annotations_forms,
                    'formset': formset, 'N': N, 'user_is_maintainer': user_is_maintainer,
                    'category_comment_form': category_comment_form, 'skip_tempo': skip_tempo,
-                   'skip_tempo_parameter': settings.SKIP_TEMPO_PARAMETER})
+                   'skip_tempo_parameter': settings.SKIP_TEMPO_PARAMETER,
+                   'nb_task1_pages': nb_task1_pages})
 
 
 @login_required
@@ -300,6 +306,7 @@ def save_contribute_validate_annotations_category(request):
                 elif positive_test is False or negative_test is False:  # one of the test failed
                     request.user.profile.test = 'FA'
                 request.user.profile.refresh_countdown()
+                request.user.profile.countdown_trustable -= 1
 
             else:  # user passed the test: check the countdown and decrement it if needed
                 if request.user.profile.countdown_trustable < 2:  # user test is now in failed state
@@ -330,6 +337,8 @@ def save_contribute_validate_annotations_category(request):
                 comment = comment_form.save(commit=False)
                 comment.created_by = request.user
                 comment.save()
+
+            request.session['nb_task1_pages'] += 1
         else:
             error_response = {'errors': [count for count, value in enumerate(formset.errors) if value != {}]}
             return JsonResponse(error_response)
@@ -340,6 +349,7 @@ def save_contribute_validate_annotations_category(request):
 def choose_category(request, short_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
     request.session['read_instructions'] = True
+    request.session['nb_task1_pages'] = 0
     return render(request, 'datasets/dataset_taxonomy_choose_category.html', {'dataset': dataset})
 
 
