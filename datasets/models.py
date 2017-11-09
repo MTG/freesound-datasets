@@ -554,7 +554,7 @@ class Profile(models.Model):
     # this store the last category the user contributed to
 
     def refresh_countdown(self):
-        self.countdown_trustable = 5
+        self.countdown_trustable = 3
         self.save()
 
     @property

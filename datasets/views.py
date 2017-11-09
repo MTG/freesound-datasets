@@ -306,6 +306,7 @@ def save_contribute_validate_annotations_category(request):
                 elif positive_test is False or negative_test is False:  # one of the test failed
                     request.user.profile.test = 'FA'
                 request.user.profile.refresh_countdown()
+                request.user.profile.countdown_trustable -= 1
 
             else:  # user passed the test: check the countdown and decrement it if needed
                 if request.user.profile.countdown_trustable < 2:  # user test is now in failed state
