@@ -263,6 +263,7 @@ def save_contribute_validate_annotations_category(request):
         comment_form = CategoryCommentForm(request.POST)
         formset = PresentNotPresentUnsureFormSet(request.POST)
         if formset.is_valid() and comment_form.is_valid():
+            update_test_state = False
             from_test_page = False
             test_annotations_id = []
             annotations_id = [form.cleaned_data['annotation_id'] for form in formset if 'vote' in form.cleaned_data]
@@ -309,8 +310,8 @@ def save_contribute_validate_annotations_category(request):
                 request.user.profile.countdown_trustable -= 1
 
             else:  # user passed the test: check the countdown and decrement it if needed
-                if request.user.profile.countdown_trustable < 2:  # user test is now in failed state
-                    request.user.profile.test = 'FA'
+                if request.user.profile.countdown_trustable < 2:  # change user test to failed after storing votes
+                    update_test_state = True
                 else:  # decrement to the countdown
                     request.user.profile.countdown_trustable -= 1
             request.user.profile.last_category_annotated = node
@@ -339,6 +340,10 @@ def save_contribute_validate_annotations_category(request):
                 comment.save()
 
             request.session['nb_task1_pages'] += 1
+
+            if update_test_state:
+                request.user.profile.test = 'FA'
+                request.user.save()
         else:
             error_response = {'errors': [count for count, value in enumerate(formset.errors) if value != {}]}
             return JsonResponse(error_response)
