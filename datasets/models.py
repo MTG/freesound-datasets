@@ -30,6 +30,9 @@ class Taxonomy(models.Model):
     def get_children(self, node_id):
         return self.get_element_at_id(node_id).children.all()
 
+    def get_propagate_from_children(self, node_id):
+        return self.get_element_at_id(node_id).propagate_from.all()
+
     def get_element_at_id(self, node_id):
         return self.taxonomynode_set.get(node_id=node_id)
 
@@ -74,6 +77,26 @@ class Taxonomy(models.Model):
                         yield child
         children_list = list(self.get_children(node_id))
         for children in get_children(node_id):
+            for child in children:
+                if child.node_id not in [n.node_id for n in children_list]:
+                    children_list.append(child)
+
+        return children_list
+
+    def get_all_propagate_from_children(self, node_id):
+        """
+            Returns a list of all the children of the given node id that propagate to the parent
+        """
+        def get_propagate_from_children(node_id, cur=list()):
+            children = self.get_propagate_from_children(node_id)
+            if not children:
+                yield cur
+            else:
+                for node in children:
+                    for child in get_propagate_from_children(node.node_id, [node] + cur):
+                        yield child
+        children_list = list(self.get_propagate_from_children(node_id))
+        for children in get_propagate_from_children(node_id):
             for child in children:
                 if child.node_id not in [n.node_id for n in children_list]:
                     children_list.append(child)
