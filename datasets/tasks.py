@@ -1,4 +1,4 @@
-from datasets.models import Dataset, DatasetRelease, Annotation, Vote, TaxonomyNode, Sound
+from datasets.models import Dataset, DatasetRelease, CandidateAnnotation, Vote, TaxonomyNode, Sound
 from django.db.models import Count
 from django.contrib.auth.models import User
 from django.db import transaction
@@ -28,7 +28,7 @@ def generate_release_index(dataset_id, release_id, max_sounds=None):
     node_set = set()
     sounds = dataset.sounds.all()[:max_sounds]
     for count, sound in enumerate(sounds):
-        annotations = sound.get_annotations(dataset)
+        annotations = sound.get_candidate_annotations(dataset)
         if annotations:
             annotation_values = [item.value for item in annotations]
             sounds_info.append((
@@ -101,15 +101,15 @@ def compute_dataset_taxonomy_stats(store_key, dataset_id):
         with connection.cursor() as cursor:
             cursor.execute("""
                     SELECT taxonomynode.node_id
-                           , COUNT(annotation.id)
+                           , COUNT(candidateannotation.id)
                            , COUNT(DISTINCT(sound.id))
-                        FROM datasets_annotation annotation
+                        FROM datasets_candidateannotation candidateannotation
                   INNER JOIN datasets_sounddataset sounddataset
-                          ON annotation.sound_dataset_id = sounddataset.id
+                          ON candidateannotation.sound_dataset_id = sounddataset.id
                   INNER JOIN datasets_sound sound
                           ON sound.id = sounddataset.sound_id
                   INNER JOIN datasets_taxonomynode taxonomynode
-                          ON taxonomynode.id = annotation.taxonomy_node_id
+                          ON taxonomynode.id = candidateannotation.taxonomy_node_id
                        WHERE taxonomynode.node_id IN %s
                          AND sounddataset.dataset_id = %s
                     GROUP BY taxonomynode.node_id
@@ -178,15 +178,15 @@ def compute_annotators_ranking(store_key, dataset_id, N=15):
         ranking = list()
         ranking_last_week = list()
         for user in User.objects.all():
-            n_annotations = Annotation.objects.filter(created_by=user, sound_dataset__dataset=dataset).count()
-            n_votes = Vote.objects.filter(created_by=user, annotation__sound_dataset__dataset=dataset).count()
+            n_annotations = CandidateAnnotation.objects.filter(created_by=user, sound_dataset__dataset=dataset).count()
+            n_votes = Vote.objects.filter(created_by=user, candidate_annotation__sound_dataset__dataset=dataset).count()
             ranking.append(
                 (user.username, n_annotations + n_votes)
             )
-            n_annotations_last_week = Annotation.objects.filter(
+            n_annotations_last_week = CandidateAnnotation.objects.filter(
                 created_at__gt=reference_date, created_by=user, sound_dataset__dataset=dataset).count()
             n_votes_last_week = Vote.objects.filter(
-                created_at__gt=reference_date, created_by=user, annotation__sound_dataset__dataset=dataset).count()
+                created_at__gt=reference_date, created_by=user, candidate_annotation__sound_dataset__dataset=dataset).count()
             ranking_last_week.append(
                 (user.username, n_annotations_last_week + n_votes_last_week)
             )
@@ -209,7 +209,7 @@ def compute_gt_taxonomy_node():
     taxonomy = dataset.taxonomy
     for node_id in taxonomy.get_all_node_ids():
         taxonomy_node = taxonomy.get_element_at_id(node_id)
-        taxonomy_node.nb_ground_truth = taxonomy_node.annotation_set.filter(ground_truth__in=(0.5, 1)).count()
+        taxonomy_node.nb_ground_truth = taxonomy_node.candidate_annotations.filter(ground_truth__in=(0.5, 1)).count()
         taxonomy_node.save()
     logger.info('Finished computing number of ground truth annotation')
 

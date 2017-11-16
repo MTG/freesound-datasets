@@ -18,7 +18,7 @@ class ContributeTest(TestCase):
         dataset = Dataset.objects.get(short_name='fsd')
         
         # get a node id with at least one annotation
-        node_id = Annotation.objects.filter(sound_dataset__gt=0)[0].value
+        node_id = CandidateAnnotation.objects.filter(sound_dataset__gt=0)[0].value
         annotations = dataset.non_validated_annotations_per_taxonomy_node(node_id)
         annotation_object_id = annotations.values_list('id', flat=True)[0]
         

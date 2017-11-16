@@ -180,8 +180,8 @@ class Sound(models.Model):
     deleted_in_freesound = models.BooleanField(default=False, db_index=True)
     extra_data = JSONField(default={})
 
-    def get_annotations(self, dataset):
-        return Annotation.objects.filter(sound_dataset__in=self.sounddataset_set.filter(dataset=dataset))
+    def get_candidate_annotations(self, dataset):
+        return CandidateAnnotation.objects.filter(sound_dataset__in=self.sounddataset_set.filter(dataset=dataset))
 
     def __str__(self):
         return 'Sound {0} (freesound {1})'.format(self.id, self.freesound_id)
@@ -284,11 +284,11 @@ class TaxonomyNode(models.Model):
 
     @property
     def num_user_contributions(self):
-        return Vote.objects.filter(annotation__taxonomy_node=self).count()
+        return Vote.objects.filter(candidate_annotation__taxonomy_node=self).count()
 
     @property
     def num_verified_annotations(self):
-        return Annotation.objects.filter(taxonomy_node=self).exclude(ground_truth__isnull=True).count()
+        return CandidateAnnotation.objects.filter(taxonomy_node=self).exclude(ground_truth__isnull=True).count()
 
     def get_parents(self):
         return self.parents.all()
@@ -327,7 +327,7 @@ class Dataset(models.Model):
 
     @property
     def annotations(self):
-        return Annotation.objects.filter(sound_dataset__dataset=self)
+        return CandidateAnnotation.objects.filter(sound_dataset__dataset=self)
 
     @property
     def num_sounds(self):
@@ -365,14 +365,14 @@ class Dataset(models.Model):
 
     @property
     def num_user_contributions(self):
-        return Vote.objects.filter(annotation__sound_dataset__dataset=self).count()
+        return Vote.objects.filter(candidate_annotation__sound_dataset__dataset=self).count()
 
     @property
     def releases(self):
         return self.datasetrelease_set.all().order_by('-release_date')
 
     def sounds_per_taxonomy_node(self, node_id):
-        return Sound.objects.filter(datasets=self, sounddataset__annotations__taxonomy_node__node_id=node_id)
+        return Sound.objects.filter(datasets=self, sounddataset__candidate_annotations__taxonomy_node__node_id=node_id)
 
     def num_sounds_per_taxonomy_node(self, node_id):
         return self.sounds_per_taxonomy_node(node_id=node_id).count()
@@ -416,7 +416,7 @@ class Dataset(models.Model):
 
     def num_votes_with_value(self, node_id, vote_value):
         return Vote.objects.filter(
-            annotation__sound_dataset__dataset=self, annotation__taxonomy_node__node_id=node_id, vote=vote_value).count()
+            candidate_annotation__sound_dataset__dataset=self, candidate_annotation__taxonomy_node__node_id=node_id, vote=vote_value).count()
 
     def get_comments_per_taxonomy_node(self, node_id):
         return CategoryComment.objects.filter(dataset=self, category_id=node_id)
@@ -483,10 +483,8 @@ class SoundDataset(models.Model):
     dataset = models.ForeignKey(Dataset)
 
 
-class Annotation(models.Model):
+class CandidateAnnotation(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
-    created_by = models.ForeignKey(User, related_name='annotations', null=True, on_delete=models.SET_NULL)
-    sound_dataset = models.ForeignKey(SoundDataset, related_name='annotations')
     TYPE_CHOICES = (
         ('MA', 'Manual'),
         ('AU', 'Automatic'),
@@ -494,14 +492,16 @@ class Annotation(models.Model):
     )
     type = models.CharField(max_length=2, choices=TYPE_CHOICES, default='UK')
     algorithm = models.CharField(max_length=200, blank=True, null=True)
-    taxonomy_node = models.ForeignKey(TaxonomyNode, blank=True, null=True)
     start_time = models.DecimalField(max_digits=6, decimal_places=3, blank=True, null=True)
     end_time = models.DecimalField(max_digits=6, decimal_places=3, blank=True, null=True)
     ground_truth = models.FloatField(null=True, blank=True, default=None)
+    created_by = models.ForeignKey(User, related_name='candidate_annotations', null=True, on_delete=models.SET_NULL)
+    sound_dataset = models.ForeignKey(SoundDataset, related_name='candidate_annotations')
+    taxonomy_node = models.ForeignKey(TaxonomyNode, blank=True, null=True, related_name='candidate_annotations')
 
     def __str__(self):
         return 'Annotation for sound {0}'.format(self.sound_dataset.sound.id)
-    
+
     @property
     def value(self):
         return self.taxonomy_node.node_id
@@ -526,6 +526,31 @@ class Annotation(models.Model):
             return None
 
 
+class GroundTruthAnnotation(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    TYPE_CHOICES = (
+        ('MA', 'Manual'),
+        ('AU', 'Automatic'),
+        ('UK', 'Unknown'),
+    )
+    type = models.CharField(max_length=2, choices=TYPE_CHOICES, default='UK')
+    algorithm = models.CharField(max_length=200, blank=True, null=True)
+    start_time = models.DecimalField(max_digits=6, decimal_places=3, blank=True, null=True)
+    end_time = models.DecimalField(max_digits=6, decimal_places=3, blank=True, null=True)
+    ground_truth = models.FloatField(null=True, blank=True, default=None)
+    created_by = models.ForeignKey(User, related_name='ground_truth_annotations', null=True, on_delete=models.SET_NULL)
+    sound_dataset = models.ForeignKey(SoundDataset, related_name='ground_truth_annotations')
+    taxonomy_node = models.ForeignKey(TaxonomyNode, blank=True, null=True, related_name='ground_truth_annotations')
+    from_candidate_annotation = models.ForeignKey(CandidateAnnotation, blank=True, null=True)
+
+    @property
+    def value(self):
+        return self.taxonomy_node.node_id
+
+    def __str__(self):
+        return 'Annotation for sound {0}'.format(self.sound_dataset.sound.id)
+
+
 # choices for quality control test used in Vote and User Profile
 TEST_CHOICES = (
     ('UN', 'Unknown'),  # Test was not implemented when user contributed
@@ -541,7 +566,7 @@ class Vote(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(User, related_name='votes', null=True, on_delete=models.SET_NULL)
     vote = models.FloatField()
-    annotation = models.ForeignKey(Annotation, related_name='votes')
+    candidate_annotation = models.ForeignKey(CandidateAnnotation, related_name='votes', null=True)
     visited_sound = models.NullBooleanField(null=True, blank=True, default=None)
     # 'visited_sound' is to store whether the user needed to open the sound in Freesound to perform this vote
     test = models.CharField(max_length=2, choices=TEST_CHOICES, default='UN')  # Store test result
@@ -553,10 +578,10 @@ class Vote(models.Model):
     def save(self, request=False, *args, **kwargs):
         super(Vote, self).save(*args, **kwargs)
         # here calculate ground truth for vote.annotation
-        ground_truth_state = self.annotation.ground_truth_state
+        ground_truth_state = self.candidate_annotation.ground_truth_state
         if ground_truth_state:
-            self.annotation.ground_truth = ground_truth_state
-            self.annotation.save()
+            self.candidate_annotation.ground_truth = ground_truth_state
+            self.candidate_annotation.save()
 
 
 class CategoryComment(models.Model):

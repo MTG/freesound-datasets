@@ -11,7 +11,7 @@ from django.db.models import Count
 from django.db import transaction
 from django.forms import formset_factory
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from datasets.models import Dataset, DatasetRelease, Annotation, Vote, TaxonomyNode, SoundDataset, Sound
+from datasets.models import Dataset, DatasetRelease, CandidateAnnotation, Vote, TaxonomyNode, SoundDataset, Sound
 from datasets import utils
 from datasets.forms import DatasetReleaseForm, PresentNotPresentUnsureForm, CategoryCommentForm
 from pygments import highlight
@@ -192,7 +192,7 @@ def contribute_validate_annotations_category(request, short_name, node_id):
                 negative_sound_example = negative_sound_examples[0]
                 # create "dummy" annotation example for the false example of id 0 (the corresponding annotation does
                 # not exist in the Annotation table because it is a false irrelevant example)
-                negative_annotation_example = Annotation(sound_dataset=SoundDataset(
+                negative_annotation_example = CandidateAnnotation(sound_dataset=SoundDataset(
                     sound=negative_sound_example, dataset=dataset), id=0)
                 annotation_ids += [None]  # count as an added annotation but does not retrieve any annotation later,
                 #  the false annotation "negative_annotation_example" is added manually
@@ -232,7 +232,7 @@ def contribute_validate_annotations_category(request, short_name, node_id):
                 annotation_ids += random.sample(list(annotation_with_no_vote_ids), N_with_no_vote)
 
     N = len(annotation_ids)
-    annotations = list(Annotation.objects.filter(id__in=annotation_ids).select_related('sound_dataset__sound'))
+    annotations = list(CandidateAnnotation.objects.filter(id__in=annotation_ids).select_related('sound_dataset__sound'))
     if negative_annotation_example:  # add the "dummy" negative example annotation if it exists
         annotations.append(negative_annotation_example)
     random.shuffle(annotations)
@@ -269,7 +269,7 @@ def save_contribute_validate_annotations_category(request):
             annotations_id = [form.cleaned_data['annotation_id'] for form in formset if 'vote' in form.cleaned_data]
             # filter out the annotation id = 0 corresponding to dummy annotations for false example
             one_real_annotation_id = [annotation_id for annotation_id in annotations_id if annotation_id != 0][0]
-            node_id = Annotation.objects.get(id=one_real_annotation_id).taxonomy_node.node_id
+            node_id = CandidateAnnotation.objects.get(id=one_real_annotation_id).taxonomy_node.node_id
             node = TaxonomyNode.objects.get(node_id=node_id)
             # extract test examples if the user test is fail
             if request.user.profile.test == 'FA':
@@ -277,7 +277,7 @@ def save_contribute_validate_annotations_category(request):
                 # positive examples
                 positive_test = None  # count as deactivated
                 if node.positive_verification_examples_activated:
-                    test_annotations_id = Annotation.objects.filter(taxonomy_node=node,
+                    test_annotations_id = CandidateAnnotation.objects.filter(taxonomy_node=node,
                                                                     sound_dataset__sound__in=node.freesound_examples_verification.all())\
                         .values_list('id', flat=True)
                     vote_test_annotations = [form.cleaned_data['vote'] for form in formset
@@ -322,14 +322,14 @@ def save_contribute_validate_annotations_category(request):
                     annotation_id = form.cleaned_data['annotation_id']
                     if annotation_id not in test_annotations_id and annotation_id != 0:  # store only the votes for non test annotations
                         check = Vote.objects.filter(created_by=request.user,
-                                                    annotation_id=annotation_id)
+                                                    candidate_annotation_id=annotation_id)
                         if not check.exists():
                             # Save votes for annotations
                             Vote.objects.create(
                                 created_by=request.user,
                                 vote=float(form.cleaned_data['vote']),
                                 visited_sound=form.cleaned_data['visited_sound'],
-                                annotation_id=annotation_id,
+                                candidate_annotation_id=annotation_id,
                                 test=request.user.profile.test,
                                 from_test_page=from_test_page,
                             )

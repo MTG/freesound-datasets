@@ -84,7 +84,7 @@ def create_annotations(dataset_short_name, num_annotations):
     possible_fake_annotation_values = dataset.taxonomy.get_all_node_ids()#[node['node_id'] for node in dataset.taxonomy.get_all_nodes()]
     with transaction.atomic():
         for i in range(0, num_annotations):
-            Annotation.objects.create(
+            CandidateAnnotation.objects.create(
                 sound_dataset_id=random.choice(all_sounddataset_object_ids),
                 type='AU',
                 algorithm='Fake algorithm name',
@@ -102,7 +102,7 @@ def create_votes(num_votes):
         num_votes: An integer corresponding to the number of fake votes to create.
     """
     # Get annotation object ids, user object ids
-    all_annotation_object_ids = Annotation.objects.all().values_list('id', flat=True)
+    all_annotation_object_ids = CandidateAnnotation.objects.all().values_list('id', flat=True)
     all_user_object_ids = User.objects.all().values_list('id', flat=True)
 
     # Add votes for annotations

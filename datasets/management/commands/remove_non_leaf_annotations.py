@@ -1,7 +1,6 @@
 from django.core.management.base import BaseCommand
 from datasets.models import *
 import json
-from datasets.models import Annotation, Dataset
 
 
 class Command(BaseCommand):
@@ -51,14 +50,14 @@ class Command(BaseCommand):
         for idx, node in enumerate(taxonomy_nodes):
             bar.update(idx+1)
             children_node = taxonomy.get_all_propagate_from_children(node.node_id)
-            for annotation in Annotation.objects.filter(taxonomy_node=node):
-                if Annotation.objects.filter(taxonomy_node__in=children_node,
+            for annotation in CandidateAnnotation.objects.filter(taxonomy_node=node):
+                if CandidateAnnotation.objects.filter(taxonomy_node__in=children_node,
                                              sound_dataset__sound=annotation.sound_dataset.sound).count() > 0:
                     annotations_to_remove.append(annotation)
 
         # remove only the annotations that have no vote
         annotations_id_to_remove = [a.id for a in annotations_to_remove if a.votes.all().count() == 0]
-        Annotation.objects.filter(id__in=annotations_id_to_remove).delete()
+        CandidateAnnotation.objects.filter(id__in=annotations_id_to_remove).delete()
 
         print('\n')
         print('{0} annotations where deleted'.format(len(annotations_id_to_remove)))
