@@ -209,7 +209,7 @@ def compute_gt_taxonomy_node():
     taxonomy = dataset.taxonomy
     for node_id in taxonomy.get_all_node_ids():
         taxonomy_node = taxonomy.get_element_at_id(node_id)
-        taxonomy_node.nb_ground_truth = taxonomy_node.candidate_annotations.filter(ground_truth__in=(0.5, 1)).count()
+        taxonomy_node.nb_ground_truth = taxonomy_node.num_ground_truth_annotations
         taxonomy_node.save()
     logger.info('Finished computing number of ground truth annotation')
 

@@ -316,6 +316,10 @@ class TaxonomyNode(models.Model):
     def num_verified_annotations(self):
         return CandidateAnnotation.objects.filter(taxonomy_node=self).exclude(ground_truth__isnull=True).count()
 
+    @property
+    def num_ground_truth_annotations(self):
+        return GroundTruthAnnotation.objects.filter(taxonomy_node=self).count()
+
     def get_parents(self):
         return self.parents.all()
 
