@@ -573,7 +573,7 @@ class Vote(models.Model):
     from_test_page = models.NullBooleanField(null=True, blank=True, default=None)  # Store if votes are from a test page
 
     def __str__(self):
-        return 'Vote for annotation {0}'.format(self.annotation.id)
+        return 'Vote for annotation {0}'.format(self.candidate_annotation.id)
 
     def save(self, request=False, *args, **kwargs):
         super(Vote, self).save(*args, **kwargs)
