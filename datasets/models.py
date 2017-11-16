@@ -27,6 +27,9 @@ class Taxonomy(models.Model):
     def get_parents(self, node_id):
         return self.get_element_at_id(node_id).parents.all()
 
+    def get_propagate_to_parents(self, node_id):
+        return self.get_element_at_id(node_id).propagate_to_parents.all()
+
     def get_children(self, node_id):
         return self.get_element_at_id(node_id).children.all()
 
@@ -120,6 +123,29 @@ class Taxonomy(models.Model):
         # this double for loop is for checking if a parent is already in the list
         # in this case, we do not append it to the list
         for parents in get_parents(node_id):
+            for parent in parents:
+                if parent.node_id not in [n.node_id for n in parents_list]:
+                    parents_list.append(parent)
+
+        return parents_list
+
+    def get_all_propagate_to_parents(self, node_id):
+        """
+            Returns a list of all the children of the given node id
+        """
+        def get_propagate_to_parents(node_id, cur=list()):
+            parents = self.get_propagate_to_parents(node_id)
+            if not parents:
+                yield cur
+            else:
+                for node in parents:
+                    for parent in get_propagate_to_parents(node.node_id, [node] + cur):
+                        yield parent
+
+        parents_list = list(self.get_propagate_to_parents(node_id))
+        # this double for loop is for checking if a parent is already in the list
+        # in this case, we do not append it to the list
+        for parents in get_propagate_to_parents(node_id):
             for parent in parents:
                 if parent.node_id not in [n.node_id for n in parents_list]:
                     parents_list.append(parent)
@@ -528,13 +554,6 @@ class CandidateAnnotation(models.Model):
 
 class GroundTruthAnnotation(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
-    TYPE_CHOICES = (
-        ('MA', 'Manual'),
-        ('AU', 'Automatic'),
-        ('UK', 'Unknown'),
-    )
-    type = models.CharField(max_length=2, choices=TYPE_CHOICES, default='UK')
-    algorithm = models.CharField(max_length=200, blank=True, null=True)
     start_time = models.DecimalField(max_digits=6, decimal_places=3, blank=True, null=True)
     end_time = models.DecimalField(max_digits=6, decimal_places=3, blank=True, null=True)
     ground_truth = models.FloatField(null=True, blank=True, default=None)
@@ -542,6 +561,7 @@ class GroundTruthAnnotation(models.Model):
     sound_dataset = models.ForeignKey(SoundDataset, related_name='ground_truth_annotations')
     taxonomy_node = models.ForeignKey(TaxonomyNode, blank=True, null=True, related_name='ground_truth_annotations')
     from_candidate_annotation = models.ForeignKey(CandidateAnnotation, blank=True, null=True)
+    from_propagation = models.BooleanField(default=False)
 
     @property
     def value(self):
@@ -549,6 +569,18 @@ class GroundTruthAnnotation(models.Model):
 
     def __str__(self):
         return 'Annotation for sound {0}'.format(self.sound_dataset.sound.id)
+
+    def propagate_annotation(self):
+        propagate_to_parents = self.taxonomy_node.taxonomy.get_all_propagate_to_parents(self.taxonomy_node.node_id)
+        for parent in propagate_to_parents:
+            GroundTruthAnnotation.objects.get_or_create(start_time=self.start_time,
+                                                        end_time=self.end_time,
+                                                        ground_truth=self.ground_truth,
+                                                        created_by=self.created_by,
+                                                        sound_dataset=self.sound_dataset,
+                                                        taxonomy_node=parent,
+                                                        from_candidate_annotation=self.from_candidate_annotation,
+                                                        from_propagation=True)
 
 
 # choices for quality control test used in Vote and User Profile
@@ -578,10 +610,22 @@ class Vote(models.Model):
     def save(self, request=False, *args, **kwargs):
         super(Vote, self).save(*args, **kwargs)
         # here calculate ground truth for vote.annotation
-        ground_truth_state = self.candidate_annotation.ground_truth_state
+        candidate_annotation = self.candidate_annotation
+        ground_truth_state = candidate_annotation.ground_truth_state
         if ground_truth_state:
-            self.candidate_annotation.ground_truth = ground_truth_state
-            self.candidate_annotation.save()
+            candidate_annotation.ground_truth = ground_truth_state
+            candidate_annotation.save()
+            ground_truth_annotation, created = GroundTruthAnnotation.objects.get_or_create(
+                start_time=candidate_annotation.start_time,
+                end_time=candidate_annotation.end_time,
+                ground_truth=candidate_annotation.ground_truth,
+                created_by=candidate_annotation.created_by,
+                sound_dataset=candidate_annotation.sound_dataset,
+                taxonomy_node=candidate_annotation.taxonomy_node,
+                from_candidate_annotation=candidate_annotation,
+                from_propagation=False)
+            if created:
+                ground_truth_annotation.propagate_annotation()
 
 
 class CategoryComment(models.Model):
