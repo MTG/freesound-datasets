@@ -352,8 +352,12 @@ class Dataset(models.Model):
         return markdown.markdown(self.description)
 
     @property
-    def annotations(self):
+    def candidate_annotations(self):
         return CandidateAnnotation.objects.filter(sound_dataset__dataset=self)
+
+    @property
+    def ground_truth_annotations(self):
+        return GroundTruthAnnotation.objects.all()
 
     @property
     def num_sounds(self):
@@ -361,7 +365,7 @@ class Dataset(models.Model):
 
     @property
     def num_annotations(self):
-        return self.annotations.count()
+        return self.candidate_annotations.count()
 
     @property
     def avg_annotations_per_sound(self):
@@ -372,7 +376,7 @@ class Dataset(models.Model):
     @property
     def num_validated_annotations(self):
         # This is the number of annotations that have at least one vote
-        return self.annotations.annotate(num_votes=Count('votes')).filter(num_votes__gt=0).count()
+        return self.candidate_annotations.annotate(num_votes=Count('votes')).filter(num_votes__gt=0).count()
 
     @property
     def percentage_validated_annotations(self):
@@ -383,11 +387,11 @@ class Dataset(models.Model):
     @property
     def num_ground_truth_annotations(self):
         # This is the number of annotations that have ground truth state PP (1) or PNP (0.5)
-        return self.annotations.filter(ground_truth__gt=0).count()
+        return self.ground_truth_annotations.count()
 
     @property
     def num_verified_annotations(self):
-        return self.annotations.exclude(ground_truth__isnull=True).count()
+        return self.candidate_annotations.exclude(ground_truth__isnull=True).count()
 
     @property
     def num_user_contributions(self):
@@ -404,7 +408,7 @@ class Dataset(models.Model):
         return self.sounds_per_taxonomy_node(node_id=node_id).count()
 
     def annotations_per_taxonomy_node(self, node_id):
-        return self.annotations.filter(taxonomy_node__node_id=node_id)
+        return self.candidate_annotations.filter(taxonomy_node__node_id=node_id)
 
     def num_annotations_per_taxonomy_node(self, node_id):
         return self.annotations_per_taxonomy_node(node_id=node_id).count()
@@ -419,14 +423,14 @@ class Dataset(models.Model):
         """
         Returns annotations that have no vote agreement
         """
-        return self.annotations.filter(taxonomy_node__node_id=node_id).filter(ground_truth=None)
+        return self.candidate_annotations.filter(taxonomy_node__node_id=node_id).filter(ground_truth=None)
 
     def get_categories_to_validate(self, user):
         """
         Returns a query set with the TaxonomyNode that can be validated by a user
         Quite slow, should not be use often
         """
-        taxonomy_node_pk = self.annotations.exclude(votes__created_by=user)\
+        taxonomy_node_pk = self.candidate_annotations.exclude(votes__created_by=user)\
             .select_related('taxonomy_node').values_list('taxonomy_node', flat=True).distinct()
         return self.taxonomy.taxonomynode_set.filter(pk__in=taxonomy_node_pk)
 
