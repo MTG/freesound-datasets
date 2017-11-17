@@ -27,8 +27,14 @@ class Taxonomy(models.Model):
     def get_parents(self, node_id):
         return self.get_element_at_id(node_id).parents.all()
 
+    def get_propagate_to_parents(self, node_id):
+        return self.get_element_at_id(node_id).propagate_to_parents.all()
+
     def get_children(self, node_id):
         return self.get_element_at_id(node_id).children.all()
+
+    def get_propagate_from_children(self, node_id):
+        return self.get_element_at_id(node_id).propagate_from.all()
 
     def get_element_at_id(self, node_id):
         return self.taxonomynode_set.get(node_id=node_id)
@@ -80,6 +86,26 @@ class Taxonomy(models.Model):
 
         return children_list
 
+    def get_all_propagate_from_children(self, node_id):
+        """
+            Returns a list of all the children of the given node id that propagate to the parent
+        """
+        def get_propagate_from_children(node_id, cur=list()):
+            children = self.get_propagate_from_children(node_id)
+            if not children:
+                yield cur
+            else:
+                for node in children:
+                    for child in get_propagate_from_children(node.node_id, [node] + cur):
+                        yield child
+        children_list = list(self.get_propagate_from_children(node_id))
+        for children in get_propagate_from_children(node_id):
+            for child in children:
+                if child.node_id not in [n.node_id for n in children_list]:
+                    children_list.append(child)
+
+        return children_list
+
     def get_all_parents(self, node_id):
         """
             Returns a list of all the children of the given node id
@@ -97,6 +123,29 @@ class Taxonomy(models.Model):
         # this double for loop is for checking if a parent is already in the list
         # in this case, we do not append it to the list
         for parents in get_parents(node_id):
+            for parent in parents:
+                if parent.node_id not in [n.node_id for n in parents_list]:
+                    parents_list.append(parent)
+
+        return parents_list
+
+    def get_all_propagate_to_parents(self, node_id):
+        """
+            Returns a list of all the children of the given node id
+        """
+        def get_propagate_to_parents(node_id, cur=list()):
+            parents = self.get_propagate_to_parents(node_id)
+            if not parents:
+                yield cur
+            else:
+                for node in parents:
+                    for parent in get_propagate_to_parents(node.node_id, [node] + cur):
+                        yield parent
+
+        parents_list = list(self.get_propagate_to_parents(node_id))
+        # this double for loop is for checking if a parent is already in the list
+        # in this case, we do not append it to the list
+        for parents in get_propagate_to_parents(node_id):
             for parent in parents:
                 if parent.node_id not in [n.node_id for n in parents_list]:
                     parents_list.append(parent)
@@ -157,8 +206,8 @@ class Sound(models.Model):
     deleted_in_freesound = models.BooleanField(default=False, db_index=True)
     extra_data = JSONField(default={})
 
-    def get_annotations(self, dataset):
-        return Annotation.objects.filter(sound_dataset__in=self.sounddataset_set.filter(dataset=dataset))
+    def get_candidate_annotations(self, dataset):
+        return CandidateAnnotation.objects.filter(sound_dataset__in=self.sounddataset_set.filter(dataset=dataset))
 
     def __str__(self):
         return 'Sound {0} (freesound {1})'.format(self.id, self.freesound_id)
@@ -180,6 +229,7 @@ class TaxonomyNode(models.Model):
     negative_verification_examples_activated = models.BooleanField(default=True)
     taxonomy = models.ForeignKey(Taxonomy, null=True, blank=True, on_delete=models.SET_NULL)
     parents = models.ManyToManyField('self', symmetrical=False, related_name='children')
+    propagate_to_parents = models.ManyToManyField('self', symmetrical=False, related_name='propagate_from')
     faq = models.TextField(blank=True)
     nb_ground_truth = models.IntegerField(default=0)
     # for easy admin example change:
@@ -260,11 +310,15 @@ class TaxonomyNode(models.Model):
 
     @property
     def num_user_contributions(self):
-        return Vote.objects.filter(annotation__taxonomy_node=self).count()
+        return Vote.objects.filter(candidate_annotation__taxonomy_node=self).count()
 
     @property
     def num_verified_annotations(self):
-        return Annotation.objects.filter(taxonomy_node=self).exclude(ground_truth__isnull=True).count()
+        return CandidateAnnotation.objects.filter(taxonomy_node=self).exclude(ground_truth__isnull=True).count()
+
+    @property
+    def num_ground_truth_annotations(self):
+        return GroundTruthAnnotation.objects.filter(taxonomy_node=self).count()
 
     def get_parents(self):
         return self.parents.all()
@@ -302,8 +356,12 @@ class Dataset(models.Model):
         return markdown.markdown(self.description)
 
     @property
-    def annotations(self):
-        return Annotation.objects.filter(sound_dataset__dataset=self)
+    def candidate_annotations(self):
+        return CandidateAnnotation.objects.filter(sound_dataset__dataset=self)
+
+    @property
+    def ground_truth_annotations(self):
+        return GroundTruthAnnotation.objects.all()
 
     @property
     def num_sounds(self):
@@ -311,7 +369,7 @@ class Dataset(models.Model):
 
     @property
     def num_annotations(self):
-        return self.annotations.count()
+        return self.candidate_annotations.count()
 
     @property
     def avg_annotations_per_sound(self):
@@ -322,7 +380,7 @@ class Dataset(models.Model):
     @property
     def num_validated_annotations(self):
         # This is the number of annotations that have at least one vote
-        return self.annotations.annotate(num_votes=Count('votes')).filter(num_votes__gt=0).count()
+        return self.candidate_annotations.annotate(num_votes=Count('votes')).filter(num_votes__gt=0).count()
 
     @property
     def percentage_validated_annotations(self):
@@ -333,28 +391,28 @@ class Dataset(models.Model):
     @property
     def num_ground_truth_annotations(self):
         # This is the number of annotations that have ground truth state PP (1) or PNP (0.5)
-        return self.annotations.filter(ground_truth__gt=0).count()
+        return self.ground_truth_annotations.count()
 
     @property
     def num_verified_annotations(self):
-        return self.annotations.exclude(ground_truth__isnull=True).count()
+        return self.candidate_annotations.exclude(ground_truth__isnull=True).count()
 
     @property
     def num_user_contributions(self):
-        return Vote.objects.filter(annotation__sound_dataset__dataset=self).count()
+        return Vote.objects.filter(candidate_annotation__sound_dataset__dataset=self).count()
 
     @property
     def releases(self):
         return self.datasetrelease_set.all().order_by('-release_date')
 
     def sounds_per_taxonomy_node(self, node_id):
-        return Sound.objects.filter(datasets=self, sounddataset__annotations__taxonomy_node__node_id=node_id)
+        return Sound.objects.filter(datasets=self, sounddataset__candidate_annotations__taxonomy_node__node_id=node_id)
 
     def num_sounds_per_taxonomy_node(self, node_id):
         return self.sounds_per_taxonomy_node(node_id=node_id).count()
 
     def annotations_per_taxonomy_node(self, node_id):
-        return self.annotations.filter(taxonomy_node__node_id=node_id)
+        return self.candidate_annotations.filter(taxonomy_node__node_id=node_id)
 
     def num_annotations_per_taxonomy_node(self, node_id):
         return self.annotations_per_taxonomy_node(node_id=node_id).count()
@@ -369,14 +427,14 @@ class Dataset(models.Model):
         """
         Returns annotations that have no vote agreement
         """
-        return self.annotations.filter(taxonomy_node__node_id=node_id).filter(ground_truth=None)
+        return self.candidate_annotations.filter(taxonomy_node__node_id=node_id).filter(ground_truth=None)
 
     def get_categories_to_validate(self, user):
         """
         Returns a query set with the TaxonomyNode that can be validated by a user
         Quite slow, should not be use often
         """
-        taxonomy_node_pk = self.annotations.exclude(votes__created_by=user)\
+        taxonomy_node_pk = self.candidate_annotations.exclude(votes__created_by=user)\
             .select_related('taxonomy_node').values_list('taxonomy_node', flat=True).distinct()
         return self.taxonomy.taxonomynode_set.filter(pk__in=taxonomy_node_pk)
 
@@ -392,7 +450,7 @@ class Dataset(models.Model):
 
     def num_votes_with_value(self, node_id, vote_value):
         return Vote.objects.filter(
-            annotation__sound_dataset__dataset=self, annotation__taxonomy_node__node_id=node_id, vote=vote_value).count()
+            candidate_annotation__sound_dataset__dataset=self, candidate_annotation__taxonomy_node__node_id=node_id, vote=vote_value).count()
 
     def get_comments_per_taxonomy_node(self, node_id):
         return CategoryComment.objects.filter(dataset=self, category_id=node_id)
@@ -459,10 +517,8 @@ class SoundDataset(models.Model):
     dataset = models.ForeignKey(Dataset)
 
 
-class Annotation(models.Model):
+class CandidateAnnotation(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
-    created_by = models.ForeignKey(User, related_name='annotations', null=True, on_delete=models.SET_NULL)
-    sound_dataset = models.ForeignKey(SoundDataset, related_name='annotations')
     TYPE_CHOICES = (
         ('MA', 'Manual'),
         ('AU', 'Automatic'),
@@ -470,14 +526,16 @@ class Annotation(models.Model):
     )
     type = models.CharField(max_length=2, choices=TYPE_CHOICES, default='UK')
     algorithm = models.CharField(max_length=200, blank=True, null=True)
-    taxonomy_node = models.ForeignKey(TaxonomyNode, blank=True, null=True)
     start_time = models.DecimalField(max_digits=6, decimal_places=3, blank=True, null=True)
     end_time = models.DecimalField(max_digits=6, decimal_places=3, blank=True, null=True)
     ground_truth = models.FloatField(null=True, blank=True, default=None)
+    created_by = models.ForeignKey(User, related_name='candidate_annotations', null=True, on_delete=models.SET_NULL)
+    sound_dataset = models.ForeignKey(SoundDataset, related_name='candidate_annotations')
+    taxonomy_node = models.ForeignKey(TaxonomyNode, blank=True, null=True, related_name='candidate_annotations')
 
     def __str__(self):
         return 'Annotation for sound {0}'.format(self.sound_dataset.sound.id)
-    
+
     @property
     def value(self):
         return self.taxonomy_node.node_id
@@ -502,6 +560,37 @@ class Annotation(models.Model):
             return None
 
 
+class GroundTruthAnnotation(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    start_time = models.DecimalField(max_digits=6, decimal_places=3, blank=True, null=True)
+    end_time = models.DecimalField(max_digits=6, decimal_places=3, blank=True, null=True)
+    ground_truth = models.FloatField(null=True, blank=True, default=None)
+    created_by = models.ForeignKey(User, related_name='ground_truth_annotations', null=True, on_delete=models.SET_NULL)
+    sound_dataset = models.ForeignKey(SoundDataset, related_name='ground_truth_annotations')
+    taxonomy_node = models.ForeignKey(TaxonomyNode, blank=True, null=True, related_name='ground_truth_annotations')
+    from_candidate_annotation = models.ForeignKey(CandidateAnnotation, blank=True, null=True)
+    from_propagation = models.BooleanField(default=False)
+
+    @property
+    def value(self):
+        return self.taxonomy_node.node_id
+
+    def __str__(self):
+        return 'Annotation for sound {0}'.format(self.sound_dataset.sound.id)
+
+    def propagate_annotation(self):
+        propagate_to_parents = self.taxonomy_node.taxonomy.get_all_propagate_to_parents(self.taxonomy_node.node_id)
+        for parent in propagate_to_parents:
+            GroundTruthAnnotation.objects.get_or_create(start_time=self.start_time,
+                                                        end_time=self.end_time,
+                                                        ground_truth=self.ground_truth,
+                                                        created_by=self.created_by,
+                                                        sound_dataset=self.sound_dataset,
+                                                        taxonomy_node=parent,
+                                                        from_candidate_annotation=self.from_candidate_annotation,
+                                                        from_propagation=True)
+
+
 # choices for quality control test used in Vote and User Profile
 TEST_CHOICES = (
     ('UN', 'Unknown'),  # Test was not implemented when user contributed
@@ -517,22 +606,34 @@ class Vote(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(User, related_name='votes', null=True, on_delete=models.SET_NULL)
     vote = models.FloatField()
-    annotation = models.ForeignKey(Annotation, related_name='votes')
+    candidate_annotation = models.ForeignKey(CandidateAnnotation, related_name='votes', null=True)
     visited_sound = models.NullBooleanField(null=True, blank=True, default=None)
     # 'visited_sound' is to store whether the user needed to open the sound in Freesound to perform this vote
     test = models.CharField(max_length=2, choices=TEST_CHOICES, default='UN')  # Store test result
     from_test_page = models.NullBooleanField(null=True, blank=True, default=None)  # Store if votes are from a test page
 
     def __str__(self):
-        return 'Vote for annotation {0}'.format(self.annotation.id)
+        return 'Vote for annotation {0}'.format(self.candidate_annotation.id)
 
     def save(self, request=False, *args, **kwargs):
         super(Vote, self).save(*args, **kwargs)
         # here calculate ground truth for vote.annotation
-        ground_truth_state = self.annotation.ground_truth_state
+        candidate_annotation = self.candidate_annotation
+        ground_truth_state = candidate_annotation.ground_truth_state
         if ground_truth_state:
-            self.annotation.ground_truth = ground_truth_state
-            self.annotation.save()
+            candidate_annotation.ground_truth = ground_truth_state
+            candidate_annotation.save()
+            ground_truth_annotation, created = GroundTruthAnnotation.objects.get_or_create(
+                start_time=candidate_annotation.start_time,
+                end_time=candidate_annotation.end_time,
+                ground_truth=candidate_annotation.ground_truth,
+                created_by=candidate_annotation.created_by,
+                sound_dataset=candidate_annotation.sound_dataset,
+                taxonomy_node=candidate_annotation.taxonomy_node,
+                from_candidate_annotation=candidate_annotation,
+                from_propagation=False)
+            if created:
+                ground_truth_annotation.propagate_annotation()
 
 
 class CategoryComment(models.Model):

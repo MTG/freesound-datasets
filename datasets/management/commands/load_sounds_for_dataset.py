@@ -62,7 +62,7 @@ class Command(BaseCommand):
                     )
 
                     for node_id in sound_data['aso_ids']:
-                        Annotation.objects.create(
+                        CandidateAnnotation.objects.create(
                             sound_dataset=sound_dataset,
                             type='AU',
                             algorithm=algorithm_name,

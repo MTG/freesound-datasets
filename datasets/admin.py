@@ -1,5 +1,5 @@
 from django.contrib import admin
-from datasets.models import Dataset, Sound, Annotation, Vote, Taxonomy, DatasetRelease, TaxonomyNode
+from datasets.models import Dataset, Sound, Vote, Taxonomy, DatasetRelease, TaxonomyNode
 
 
 class TaxonomyNodeAdmin(admin.ModelAdmin):
@@ -9,7 +9,6 @@ class TaxonomyNodeAdmin(admin.ModelAdmin):
 
 admin.site.register(Dataset)
 admin.site.register(Sound)
-admin.site.register(Annotation)
 admin.site.register(Vote)
 admin.site.register(Taxonomy)
 admin.site.register(DatasetRelease)
