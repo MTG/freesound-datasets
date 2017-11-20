@@ -170,11 +170,11 @@ def contribute_validate_annotations_category(request, short_name, node_id):
 
     user_test = user.profile.test
     sound_examples_verification = node.freesound_examples_verification.all().filter(deleted_in_freesound=False)
-    annotation_examples_verification_ids = dataset.annotations.filter(sound_dataset__sound__in=sound_examples_verification,
+    annotation_examples_verification_ids = dataset.candidate_annotations.filter(sound_dataset__sound__in=sound_examples_verification,
                                                                       taxonomy_node=node).values_list('id', flat=True)
 
     sound_examples = node.freesound_examples.all().filter(deleted_in_freesound=False)
-    annotation_examples_ids = dataset.annotations.filter(sound_dataset__sound__in=sound_examples, taxonomy_node=node) \
+    annotation_examples_ids = dataset.candidate_annotations.filter(sound_dataset__sound__in=sound_examples, taxonomy_node=node) \
         .values_list('id', flat=True)
 
     if node.positive_verification_examples_activated:
