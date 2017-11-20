@@ -1,6 +1,9 @@
 # Freesound Datasets
 
-Website to annotate and create datasets based on Freesound sounds
+A platform for the collaborative creation of open audio datasets based on Freesound content. Please find more information in our paper:
+
+>  E. Fonseca, J. Pons, X. Favory, F. Font, D. Bogdanov, A. Ferraro, S. Oramas, A. Porter and X. Serra. “Freesound Datasets: A Platform for the Creation of Open Audio Datasets” In *Proceedings of the 18th International Society for Music Information Retrieval Conference*, Suzhou, China, 2017.
+
 
 ## Configuration
 
