@@ -147,6 +147,12 @@ def contribute_validate_annotations(request, short_name):
     return render(request, 'datasets/contribute_validate_annotations.html', {'dataset': dataset})
 
 
+def contribute_validate_annotations_easy(request, short_name):
+    node_id = TaxonomyNode.objects.order_by('?')[0].url_id
+    print(node_id)
+    return contribute_validate_annotations_category(request, short_name, node_id)
+
+
 PresentNotPresentUnsureFormSet = formset_factory(PresentNotPresentUnsureForm)
 
 @login_required
@@ -157,6 +163,7 @@ def contribute_validate_annotations_category(request, short_name, node_id):
     user_is_maintainer = dataset.user_is_maintainer(user)
     user_last_category = user.profile.last_category_annotated
     node_id = unquote(node_id)
+    print(node_id)
     node = dataset.taxonomy.get_element_at_id(node_id)
     skip_tempo = True if user_last_category == node and user.profile.contributed_recently or \
                          request.GET.get(settings.SKIP_TEMPO_PARAMETER, False) else False

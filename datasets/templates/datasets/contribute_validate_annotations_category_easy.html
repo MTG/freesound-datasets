@@ -1,0 +1,294 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load dataset_templatetags %}
+{% block title %}Validate category {{ node.name }}{% endblock title %}
+{% block page_js %}
+    <script type="text/javascript">
+        function submitForm(){
+            document.getElementById("submitButton").disabled = true; 
+            $.ajax({
+                type: "POST",
+                url: "{% url 'save-contribute-validate-annotations-per-category' %}",
+                data: $('#votes_form').serialize(),
+                success: function(data){
+                    $('[id^=row_annotation_]').removeClass('red');
+                    if (data.errors){
+                        for (var index in data.errors){
+                            var position = data.errors[index];
+                            $('#row_annotation_' + position).addClass('red');
+                        }
+                        $('#on_error_modal').modal('show');
+                        document.getElementById("submitButton").disabled = false;
+                    } else {
+                        $('#on_success_modal').modal({closable: false}).modal('show');
+                    }
+                },
+                error: function() {
+                    $('#on_request_error_modal').modal({closable: false}).modal('show');
+                },
+                dataType: 'json'
+            });
+        }
+
+        function openFreesoundSoundPage(freesound_id, sound_idx){
+            window.open('https://freesound.org/s/' + freesound_id + '/');
+            $('#id_form-' + sound_idx + '-visited_sound').val(true);
+        }
+
+        function show_form() {
+            $('#start_annotating_info_div').hide();
+            $('#form_container').css("visibility", "visible");
+            $('#step-training').removeClass("active");
+            $('#step-validate').removeClass("disabled step");
+            $('#step-validate').addClass("active step");
+        }
+
+        $(document).ready(function() {
+            setTimeout(function(){
+                $('#start_annotating_button').removeClass('disabled');
+                $('#start_annotating_button_div').removeAttr("data-tooltip");
+            }, 10000);
+            if ('{{skip_tempo}}'=='True'){show_form();}
+        });
+        var nb_task1_pages = {{nb_task1_pages}}
+    </script>
+{% endblock %}
+{% block content %}
+<center>
+    <div style="margin-top:-20px;" class="ui mini steps">
+      <div class="step">
+        <div class="content">
+          <div class="title">FSD</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="content">
+          <div class="title">Task1: validate category annotations</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="content">
+          <div class="title">Instructions</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="content">
+          <div class="title">Choose category</div>
+        </div>
+      </div>
+      <div id="step-training" class="active step">
+        <div class="content">
+          <div class="title">Training</div>
+        </div>
+      </div>
+      <div id="step-validate" class="disabled step">
+        <div class="content">
+          <div class="title">Validate</div>
+        </div>
+      </div>
+    </div>
+</center>
+    <br>
+    <br>
+    <div class="ui grid">
+        <div class="eight wide column">
+            <h1 class="ui header" style="display: inline-block;">{{ node.name }}</h1>
+            {% if user_is_maintainer %}
+                {% load admin_urls %}
+                &nbsp;<a title="Edit in administration page" href="{% url node|admin_urlname:'change' node.pk %}" target="_blank"><i class="edit icon"></i></a>
+        {% endif %}
+        </div>
+        <div class="eight wide column right aligned">
+                <a href="{% url 'choose_category' dataset.short_name %}" class="blue ui button right labeled icon">Choose another category <i class="refresh icon"></i></a>
+        </div>
+    </div>
+    {% display_taxonomy_node_small_info dataset node.node_id 'cva' %}
+    <br>
+    {% if not node.omitted %}
+        <div id="start_annotating_info_div" class="ui aligned basic segment">
+            <p>
+                <b>Before annotating, please take some time to acclimatise yourself with your category <span class="ui label">{{node.name}}</span> and its related categories:</b>
+            </p>
+            <div class="ui bulleted list">
+                 <div class="item">Read the description and listen to the examples of {{node.name}}.</div>
+                 <div class="item">You will find description and examples of its siblings and/or children by clicking them.</div>
+            </div>
+            <br>
+            <div id="start_annotating_button_div" class="ui center aligned basic segment" data-tooltip="Please take your time to look at the category and the related ones before starting to annotate :)" data-position="bottom center">
+                <button id="start_annotating_button" class="red ui button disabled" onclick="show_form();">Start annotating</button></div>
+        </div>
+        <div id="form_container" style="visibility: hidden">
+            <div class="ui grid">
+                <div class="ten wide column">
+                    <h2>Is <div class="ui big label">{{ node.name }}</div> present in the following sounds?</h2>
+                </div>
+                <div class="six wide column right aligned">
+                    {% if annotations_forms %}
+                        <a href="javascript:void(0);" onclick="$('#help_modal').modal('show');" class="ui orange button right labeled icon">Help <i class="help icon"></i></a>
+                        <a href="{% url 'contribute-validate-annotations-category' dataset.short_name node.url_id %}?{{skip_tempo_parameter}}=True" class="ui button right labeled blue icon">Try other sounds <i class="refresh icon"></i></a>
+                    {% endif %}
+                </div>
+            </div>
+            <br>
+            <form id="votes_form" class="ui form">{% csrf_token %}
+                {{ formset.management_form }}
+                <div class="ui centered cards">
+                    {% for annotation, form in annotations_forms %}
+                        <div class="card" id="row_annotation_{{ forloop.counter0 }}">
+                            {% with annotation.sound_dataset.sound.freesound_id as fsid  %}
+                                <div class="content">
+                                    <div class="right floated meta"><a href="javascript:void(0);" onclick="openFreesoundSoundPage('{{ fsid }}', '{{ forloop.counter0 }}');">
+                                        see in <img class="ui image" style="width: 80px;" src="{% static 'img/freesound_logo_color.png' %}"></a></div>
+                                    <div class="header">#{{ forloop.counter }}</div>
+
+                                    <div class="description">
+                                        <div class="ui grid">
+                                            <div class="eight wide column">
+                                                {{ fsid| fs_embed | safe }}
+                                            </div>
+                                            <div class="eight wide column vote_card_form">
+                                                {{ form.vote }}
+                                                {{ form.annotation_id }}
+                                                {{ form.visited_sound }}
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            {% endwith %}
+                        </div>
+                    {% empty %}
+                        <br>
+                        There are no more annotations to validate for this category!
+                    {% endfor %}
+                </div>
+                {% if annotations_forms %}
+                    <br><br>
+                    <div class="field">
+                        {{ category_comment_form.comment }}
+                        <input id="id_category_id" name="category_id" type="hidden" value="{{ node.node_id }}">
+                        <input id="id_dataset" name="dataset" type="hidden" value="{{ dataset.id }}">
+                    </div>
+                {% endif %}
+            </form>
+            {% if annotations_forms %}
+                <br><button id="submitButton" class="right floated ui green button" onclick="submitForm();">Submit!</button>
+            {% endif %}
+        </div>
+    {% endif %}
+
+
+    <!-- on success modal -->
+    <div id="on_success_modal" class="ui basic modal">
+        <div class="ui icon header"><i class="smile icon"></i>
+            Thanks!
+        </div>
+        <div class="content">
+            <p>
+                Congratulations, you just annotated {{ N }} sounds! <br>
+                {% if nb_task1_pages < 6 %}
+                    You annotated <b>{{ nb_task1_pages }}/6 pages</b>.
+                {% else %}
+                    Thank you very much, you annotated {{ nb_task1_pages }}/6 pages.
+                    You can choose another category or take a deserved rest!
+                {% endif %}
+            </p>
+        </div>
+        <div class="actions">
+            {% if nb_task1_pages < 6 %}
+                <a href="{% url 'contribute-validate-annotations-category' dataset.short_name node.url_id %}?{{skip_tempo_parameter}}=True" class="green ui inverted right labeled button icon"><i class="plus icon"></i> Give me more sounds from this category</a>
+            {% else %}
+                <a href="{% url 'choose_category' dataset.short_name %}" class="green ui inverted button right labeled icon"><i class="refresh icon"></i> Choose another category</a>
+            {% endif %}
+            <a href="{% url 'dataset' dataset.short_name %}" class="blue ui inverted button right labeled icon"><i class="home icon"></i> Go back to the dataset page</a>
+        </div>
+    </div>
+    <!-- end on success modal -->
+
+    <!-- on error modal -->
+    <div id="on_error_modal" class="ui basic modal">
+        <div class="ui icon header"><i class="meh icon"></i>
+            Meh!
+        </div>
+        <div class="content">
+            <p>
+                We can't submit yet your votes because you need to provide a vote for each sound.
+                Please, check those highlighted in red.
+            </p>
+        </div>
+        <div class="actions">
+            <div class="green ui inverted button icon cancel">Ok</div>
+        </div>
+    </div>
+    <!-- end on error modal -->
+
+    <!-- help modal -->
+    <div id="help_modal" class="ui basic modal">
+        <div class="ui icon header"><i class="help icon"></i>
+            Summary of instructions
+        </div>
+        <div class="content">
+            <div class="ui bulleted list">
+                <div class="item">
+                    Response type meanings:
+                    <p>
+                        <table class="ui celled padded inverted table">
+                            <thead>
+                            <tr><th>Response type</th>
+                            <th>Meaning</th>
+                            </tr></thead>
+                            <tbody>
+                            <tr>
+                                <td>Present and predominant</td>
+                                <td>Clearly present in the audio clip and predominant, either isolated from other types of sound or with low/mild background noise.</td>
+                            </tr>
+                            <tr>
+                                <td>Present but not predominant</td>
+                                <td>Present, but the audio clip also contains other salient types of sound and/or strong background noise.</td>
+                            </tr>
+                            <tr>
+                                <td>Not Present</td>
+                                <td>The type of sound is not present in the audio clip.</td>
+                            </tr>
+                            <tr>
+                                <td>Unsure</td>
+                                <td>I am not sure whether the type of sound is present or not.</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </p>
+                </div>
+                <div class="item">
+                    Please consider check categories' <b>Hierarchy</b>, <b>Description</b> and related categories (siblings and/or direct children) before annotating
+                </div>
+                <div class="item">
+                    Check the sound’s <b>tags and description in Freesound</b> if you can’t make up your mind (click on the &nbsp;<i class="external icon"></i> icons)
+                </div>
+                <div class="item">
+                    You can add general <b>comments about a category</b> at the bottom of the page
+                </div>
+                <div class="item">
+                    Check the <a href="{% url 'contribute-validate-annotations' dataset.short_name %}?help=1" target="_blank">full instructions</a> if you have any doubts
+                </div>
+            </div>
+        </div>
+        <div class="actions">
+            <div class="green ui inverted button icon cancel">Ok</div>
+        </div>
+    </div>
+    <!-- end help modal -->
+
+    <!-- error modal, cookie expired for instance -->
+    <div id="on_request_error_modal" class="ui basic modal">
+        <div class="ui icon header"><i class="meh icon"></i>
+            Meh!
+        </div>
+        <div class="content">
+            <p>
+                We can't submit yet your votes because your submission may have expired. <br>
+                Please <a href="{% url 'login' %}">login</a>.
+            </p>
+        </div>
+    </div>
+
+{% endblock %}
