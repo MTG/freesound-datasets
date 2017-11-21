@@ -168,6 +168,8 @@
                         <input id="id_dataset" name="dataset" type="hidden" value="{{ dataset.id }}">
                     </div>
                 {% endif %}
+                {{ from_task_hidden_form }}
+                <input id="id_from_task" name="from_task" type="hidden" value="BE">
             </form>
             {% if annotations_forms %}
                 <br><button id="submitButton" class="right floated ui green button" onclick="submitForm();">Submit!</button>
@@ -194,9 +196,9 @@
         </div>
         <div class="actions">
             {% if nb_task1_pages < 6 %}
-                <a href="{% url 'contribute-validate-annotations-category' dataset.short_name node.url_id %}?{{skip_tempo_parameter}}=True" class="green ui inverted right labeled button icon"><i class="plus icon"></i> Give me more sounds from this category</a>
+                <a href="{% url 'contribute-validate-annotations-category-beginner' dataset.short_name %}?{{skip_tempo_parameter}}=True&url_id={{node.url_id}}" class="green ui inverted right labeled button icon"><i class="plus icon"></i> Give me more sounds from this category</a>
             {% else %}
-                <a href="{% url 'contribute-validate-annotations-category-beginner' dataset.short_name %}" class="green ui inverted button right labeled icon"><i class="refresh icon"></i> Choose another category</a>
+                <a href="{% url 'contribute-validate-annotations-category-beginner' dataset.short_name %}" class="green ui inverted button right labeled icon"><i class="refresh icon"></i> Try another category</a>
             {% endif %}
             <a href="{% url 'dataset' dataset.short_name %}" class="blue ui inverted button right labeled icon"><i class="home icon"></i> Go back to the dataset page</a>
         </div>
