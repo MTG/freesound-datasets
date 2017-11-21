@@ -148,7 +148,9 @@ def contribute_validate_annotations(request, short_name):
 
 
 def contribute_validate_annotations_easy(request, short_name):
-    node_id = TaxonomyNode.objects.order_by('?')[0].url_id
+    node_id = request.GET.get('url_id')
+    if not node_id:
+        node_id = TaxonomyNode.objects.order_by('?')[0].url_id
     return contribute_validate_annotations_category(request, short_name, node_id,
                                                     html_url='datasets/contribute_validate_annotations_category_easy.html')
 

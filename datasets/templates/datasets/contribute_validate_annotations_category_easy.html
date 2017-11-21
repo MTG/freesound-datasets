@@ -37,6 +37,7 @@
 
         function show_form() {
             $('#start_annotating_info_div').hide();
+            $('#start_annotating_button').hide();
             $('#form_container').css("visibility", "visible");
             $('#step-training').removeClass("active");
             $('#step-validate').removeClass("disabled step");
@@ -63,7 +64,7 @@
         {% endif %}
         </div>
         <div class="eight wide column right aligned">
-                <a href="{% url 'choose_category' dataset.short_name %}" class="blue ui button right labeled icon">Choose another category <i class="refresh icon"></i></a>
+                <a href="{% url 'contribute-validate-annotations-category-beginner' dataset.short_name %}" class="blue ui button right labeled icon">Try another category <i class="refresh icon"></i></a>
         </div>
     </div>
     {% display_taxonomy_node_small_info dataset node.node_id 'cva' %}
@@ -110,7 +111,7 @@
                 </tbody>
             </table>
         </div>
-            <div id="start_annotating_button_div" class="ui center aligned basic segment" data-tooltip="Please take your time to look at the category and the related ones before starting to annotate :)" data-position="bottom center">
+        <div id="start_annotating_button_div" class="ui center aligned basic segment" data-tooltip="Please take your time to look at the category and the related ones before starting to annotate :)" data-position="bottom center">
                 <button id="start_annotating_button" class="red ui button disabled" onclick="show_form();">Start annotating</button></div>
         <div id="form_container" style="visibility: hidden">
             <div class="ui grid">
@@ -120,7 +121,7 @@
                 <div class="six wide column right aligned">
                     {% if annotations_forms %}
                         <a href="javascript:void(0);" onclick="$('#help_modal').modal('show');" class="ui orange button right labeled icon">Help <i class="help icon"></i></a>
-                        <a href="{% url 'contribute-validate-annotations-category' dataset.short_name node.url_id %}?{{skip_tempo_parameter}}=True" class="ui button right labeled blue icon">Try other sounds <i class="refresh icon"></i></a>
+                        <a href="{% url 'contribute-validate-annotations-category-beginner' dataset.short_name %}?{{skip_tempo_parameter}}=True&url_id={{node.url_id}}" class="ui button right labeled blue icon">Try other sounds <i class="refresh icon"></i></a>
                     {% endif %}
                 </div>
             </div>
