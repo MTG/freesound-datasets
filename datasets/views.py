@@ -149,21 +149,20 @@ def contribute_validate_annotations(request, short_name):
 
 def contribute_validate_annotations_easy(request, short_name):
     node_id = TaxonomyNode.objects.order_by('?')[0].url_id
-    print(node_id)
-    return contribute_validate_annotations_category(request, short_name, node_id)
+    return contribute_validate_annotations_category(request, short_name, node_id,
+                                                    html_url='datasets/contribute_validate_annotations_category_easy.html')
 
 
 PresentNotPresentUnsureFormSet = formset_factory(PresentNotPresentUnsureForm)
 
 @login_required
-def contribute_validate_annotations_category(request, short_name, node_id):
+def contribute_validate_annotations_category(request, short_name, node_id, html_url=None):
     NB_TOTAL_ANNOTATIONS = 12
     dataset = get_object_or_404(Dataset, short_name=short_name)
     user = request.user
     user_is_maintainer = dataset.user_is_maintainer(user)
     user_last_category = user.profile.last_category_annotated
     node_id = unquote(node_id)
-    print(node_id)
     node = dataset.taxonomy.get_element_at_id(node_id)
     skip_tempo = True if user_last_category == node and user.profile.contributed_recently or \
                          request.GET.get(settings.SKIP_TEMPO_PARAMETER, False) else False
@@ -255,7 +254,10 @@ def contribute_validate_annotations_category(request, short_name, node_id):
         request.session['nb_task1_pages'] = 1
         nb_task1_pages = 1
 
-    return render(request, 'datasets/contribute_validate_annotations_category.html',
+    if not html_url:
+        html_url = 'datasets/contribute_validate_annotations_category.html'
+
+    return render(request, html_url,
                   {'dataset': dataset, 'node': node, 'annotations_forms': annotations_forms,
                    'formset': formset, 'N': N, 'user_is_maintainer': user_is_maintainer,
                    'category_comment_form': category_comment_form, 'skip_tempo': skip_tempo,
