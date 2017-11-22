@@ -8,6 +8,7 @@ import logging
 
 VALID_FS_IDS = [384240, 384239, 384238, 384237, 384218, 384217, 384211, 384210, 384206, 384202, 384201, 384200, 384199, 384198, 384197, 384196, 384195, 384193, 384192, 384191, 384190, 384188, 384187, 384186, 384185, 384184, 384183, 384182, 384181, 384180, 384179, 384178, 384177, 384176, 384175, 384174, 384173, 384172, 384171, 384170, 384169, 384168, 384167, 384166, 384165, 384164, 384163, 384162, 384161, 384160, 384159, 384158, 384157, 384156, 384155, 384154, 384153, 384152, 384151, 384150, 384149, 384148, 384147, 384146, 384145, 384144, 384143, 384142, 384141, 384140, 384139, 384138, 384137, 384136, 384135, 384134, 384133, 384132, 384131, 384130, 384129, 384128, 384127, 384126, 384125, 384124, 384123, 384122, 384121, 384120, 384119, 384118, 384117, 384116, 384115, 384114, 384113, 384112, 384111, 384110, 384109, 384107, 384106, 384105, 384104, 384103, 384102, 384101, 384100, 384099, 384098, 384097, 384096, 384095, 384094, 384093, 384092, 384091, 384090, 384089, 384088, 384087, 384086, 384085, 384084, 384083, 384082, 384081, 384080, 384079, 384078, 384077, 384076, 384075, 384074, 384073, 384072, 384071, 384070, 384069, 384068, 384067, 384066, 384065, 384064, 384063, 384062, 384061, 384060, 384059, 384058, 384057, 384056, 384055, 384054, 384053, 384052, 384051, 384050, 384049, 384048, 384047, 384046, 384045, 384044, 384043, 384042, 384041, 384040, 384038, 384037, 384036, 384035, 384034, 384033, 384032, 384031, 384030, 384029, 384028, 384027, 384026, 384025, 384024, 384023, 384022, 384021, 384020, 384019, 384018, 384017, 384016, 384015, 384014, 384013, 384012, 384011, 384010, 384009, 384008]
 
+
 def get_dataset(dataset_short_name):
     """Get Dataset object instance.
     
@@ -24,6 +25,7 @@ def get_dataset(dataset_short_name):
         return Dataset.objects.get(short_name=dataset_short_name)
     except Dataset.DoesNotExist:
         raise Exception("Can't create fake data as dataset with short name {0} does not seem to exist. Did you load the initial.json fixture?".format(short_name))
+
 
 def create_sounds(dataset_short_name, num_sounds):
     """Create fake Sound object instances.
@@ -51,6 +53,7 @@ def create_sounds(dataset_short_name, num_sounds):
                 sound=sound
             )
 
+
 def create_users(num_users):
     """Create fake User object instances.
     
@@ -65,6 +68,7 @@ def create_users(num_users):
                 username='username_{0}'.format(i + num_current_users),
                 password='123456'
             )
+
 
 def create_annotations(dataset_short_name, num_annotations):
     """Create fake Annotation object instances.
@@ -93,6 +97,7 @@ def create_annotations(dataset_short_name, num_annotations):
                 created_by_id=random.choice(all_user_object_ids),
             )
 
+
 def create_votes(num_votes):
     """Create fake Votes object instances.
     
@@ -111,10 +116,11 @@ def create_votes(num_votes):
     with transaction.atomic():
         for i in range(0, num_votes):
             Vote.objects.create(
-                annotation_id=random.choice(all_annotation_object_ids),
+                candidate_annotation_id=random.choice(all_annotation_object_ids),
                 vote=random.choice(possible_vote_options),
                 created_by_id=random.choice(all_user_object_ids),
             )
+
 
 def add_taxonomy_nodes(taxonomy):
     """Create TaxonomyNode object instances for a Taxonomy.
@@ -128,7 +134,7 @@ def add_taxonomy_nodes(taxonomy):
     for node_id, node in taxonomy_dict.items():
         abstract = 'abstract' in node['restrictions']
         omitted = 'omittedTT' in node['restrictions']
-        taxonomy_node =  TaxonomyNode.objects.create(node_id=node_id, 
+        taxonomy_node = TaxonomyNode.objects.get_or_create(node_id=node_id,
                                       name=node['name'], 
                                       description=node['description'], 
                                       citation_uri=node['citation_uri'], 
@@ -143,6 +149,7 @@ def add_taxonomy_nodes(taxonomy):
             for node_id in taxonomy.data[taxonomy_node.node_id]['parent_ids']:
                 parent_node = TaxonomyNode.objects.get(node_id=node_id)
                 taxonomy_node.parents.add(parent_node)
+
 
 class Command(BaseCommand):
     help = 'Generates fake Sounds, Annotations and Votes data. ' \
@@ -162,7 +169,10 @@ class Command(BaseCommand):
         num_annotations = options['num_annotations']
         num_votes = options['num_votes']
 
+        dataset = get_dataset(short_name)
+
         create_sounds(short_name, num_sounds)
         create_users(num_users)
+        add_taxonomy_nodes(dataset.taxonomy)
         create_annotations(short_name, num_annotations)
         create_votes(num_votes)
