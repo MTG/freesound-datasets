@@ -48,7 +48,10 @@
             setTimeout(function(){
                 $('#start_annotating_button').removeClass('disabled');
                 $('#start_annotating_button_div').removeAttr("data-tooltip");
+                clearInterval(set_intverval_var);
+                $('#progress').progress({percent:100})
             }, 10000);
+            set_intverval_var = setInterval(function(){$('#progress').progress('increment');}, 400);
             if ('{{skip_tempo}}'=='True'){show_form();}
         });
         var nb_task1_pages = {{nb_task1_pages}}
@@ -114,7 +117,12 @@
             </div>
         </div>
         <div id="start_annotating_button_div" class="ui center aligned basic segment" data-tooltip="Please take your time to look at the category and the related ones before starting to annotate :)" data-position="bottom center">
-                <button id="start_annotating_button" class="red ui button disabled" onclick="show_form();">Start annotating</button></div>
+            <div id="start_annotating_button" class="big button red ui button disabled" onclick="show_form();">Start annotating
+                <div class="ui bottom attached progress" id="progress" data-value="1" data-total="25">
+                    <div class="bar"></div>
+                </div>
+            </div>
+        </div>
         <div id="form_container" style="visibility: hidden">
             <div class="ui grid">
                 <div class="ten wide column">
