@@ -3,6 +3,11 @@ body {
 	height: 100%;
 }
 
+#header_home {
+	min-height: 76px;
+	margin: 0 0;
+}
+
 /* flex tricks to have footer always at bottom */
 .main_wrapper {
 	display: flex;

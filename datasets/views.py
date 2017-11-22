@@ -55,6 +55,15 @@ def dataset(request, short_name):
     })
 
 
+def dataset_explore(request, short_name):
+    dataset = get_object_or_404(Dataset, short_name=short_name)
+     
+    return render(request, 'datasets/dataset_explore.html', {
+        'dataset': dataset,
+    })
+
+
+
 def dataset_taxonomy_tree(request, short_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
     taxonomy_tree = dataset.taxonomy.get_taxonomy_as_tree()

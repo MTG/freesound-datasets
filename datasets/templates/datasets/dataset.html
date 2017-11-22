@@ -1,28 +1,16 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 {% load humanize %}
-{% block title %}Explore{% endblock title %}
+{% block title %}{{dataset.short_name|upper}}{% endblock title %}
 {% block page_js %}
     <script type="text/javascript">
         $(document).ready(function() {
             loadDatasetReleasesTable();
-            loadDatasetTaxonomyTable();
-            loadOntologyTree();
             {% if dataset_release_form_errors %}
                 $('#make_release_modal').modal('show');
             {% endif %}
             $('.menu .item').tab();
         });
-
-        function loadDatasetTaxonomyTable(){
-            $( "#dataset_taxonomy_table_placeholder" ).load( "{% url 'taxonomy-table' dataset.short_name %}", function() {
-                $('#dataset_contents').DataTable({
-                    'paging': true,
-                    'info': true,
-                });
-                $('#dataset_contents_paginate').parent().attr('style', 'width: 100% !important');
-            });
-        }
 
         function loadDatasetReleasesTable() {
             $( "#dataset_releases_table_placeholder" ).load( "{% url 'releases-table' dataset.short_name %}", function() {
@@ -148,34 +136,4 @@
             </div>
         <!-- end make release modal -->
     {% endif %}
-    <br>
-    <h2>Explore the categories</h2>
-    <p>
-        In the Table below you can browse the different sound categories of the dataset, and see the current annotation
-        state of the mapped data. You can also explore the audio samples by clicking Explore. In the Tree tab we provide
-        an interactive tree for visualization of the <a target="_blank" href="https://research.google.com/audioset/ontology/">
-        AudioSet Ontology</a>. Categories shaded in red are AudioSet categories that are not considered for the next
-        release of {{ dataset.short_name|upper }}. See our <a target="_blank" href="https://ismir2017.smcnus.org/wp-content/uploads/2017/10/161_Paper.pdf">
-        ISMIR2017 paper</a> for more details.
-        <!--Want to share something with us? Go to our Discussion page.-->
-    </p>
-
-<div class="ui red two item top attached tabular inverted menu">
-  <a class="item active" data-tab="first">
-      <i class="list layout icon"></i> Table
-  </a>
-  <a class="item" data-tab="second">
-      <i class="tree icon"></i> Tree
-  </a>
-</div>
-<div class="ui bottom attached tab segment active" data-tab="first">
-    <div id="dataset_taxonomy_table_placeholder" class="tabcontent">
-        <div class="ui active centered inline text loader">Loading data...</div>
-    </div>
-</div>
-<div class="ui bottom attached tab segment" data-tab="second">
-    {% include "datasets/ontology_tree.html" %}
-</div>
-
-
 {% endblock %}
