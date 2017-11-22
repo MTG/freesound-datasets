@@ -7,6 +7,7 @@ urlpatterns = [
     url(r'^save_contribute_validate_annotations_category/$', save_contribute_validate_annotations_category,
         name='save-contribute-validate-annotations-per-category'),
     url(r'^(?P<short_name>[^\/]+)/$', dataset, name='dataset'),
+    url(r'^(?P<short_name>[^\/]+)/explore/$', dataset_explore, name='dataset-explore'),
     url(r'^(?P<short_name>[^\/]+)/download-script/$', download_script, name='download-script'),
     url(r'^(?P<short_name>[^\/]+)/discussion/', discussion, name='discussion'),
     url(r'^(?P<short_name>[^\/]+)/dataset-sounds/$', dataset_sounds, name='dataset-sounds'),
