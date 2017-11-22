@@ -57,11 +57,19 @@
         </div>
     {% endblock %}
 
-    <!-- CONTENT -->
+    {% if home %}
+    <!-- CONTENT FULL PAGE -->
+    <div class="ui main">
+      {% block content_large %}
+      {% endblock content_large%}
+    </div>
+    {% else %}
+    <!-- CONTENT SMALL WIDTH -->
     <div class="ui main text container">
       {% block content %}
       {% endblock content%}
     </div>
+    {% endif %}
 
     <!-- FOOTER -->
     {% block footer %}

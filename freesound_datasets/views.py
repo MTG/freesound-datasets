@@ -13,7 +13,7 @@ def crash_me(request):
 
 
 def index(request):
-    return render(request, 'index.html', {})
+    return render(request, 'index.html', {'home':True})
 
 
 def faq(request):

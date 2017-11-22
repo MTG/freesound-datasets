@@ -2,66 +2,120 @@
 {% load staticfiles %}
 {% block title %}Freesound Datasets - Index{% endblock title %}
 
-{% block content %}
-  <h1 class="ui header">Welcome to the Freesound Datasets platform!</h1>
-  <p>
-    JORDI LOVE! Freesound Datasets is a platform for the collaborative creation of open audio datasets based on
-    Freesound content.
-    We believe that datasets can have a greater impact if they are created and maintained according to some principles.
-    In our view, datasets should be <b>transparent</b> in their creation process, should be released under
-    <b>open licenses</b> to allow their free distribution, and should be <b>dynamic</b> in the sense that they can evolve
-    over time in quality and quantity. Freesound Datasets facilitates the creation and maintenance of audio datasets which
-    are built with these principles in mind.
-  </p>
+{% block content_large %}
 
-  <h3 class="ui header">How?</h3>
-  <p>
-    We rely on the community to make this project sustainable. We leverage
-    <a target="_blank" href="http://freesound.org/">Freesound.org</a> as source of <b>open audio content</b>
-    for the creation of datasets. We plan to gather sound annotations through <b>crowdsourcing</b> using
-    Freesound Datasets in order to construct ground truth for the datasets.
-  </p>
+<!--TITLE-->
+<div class="ui inverted raised vertical padded center aligned segment" style="background-image: url({% static 'img/bin_fons.png' %});background-size: 100% auto;">
+  <br><br><br><br>
+  <center><img class="ui center aligned image" style="width: 700px;" src="{% static "img/freesound_datasets_logo.svg" %}"></center>
+  <h3>A platform for the collaborative curation of open audio collections &mdash; fully annotated by humans and based on Freesound content</h3>
+  <br><br>
+  <a href="{% url 'contribute-validate-annotations-category-beginner' 'fsd' %}" class="ui big button inverted right labeled icon">Get started with our annotation task! <i class="right arrow icon"></i></a>
+  <br><br><br><br><br><br><br><br>
+</div>
 
-  <h3 class="ui header">What can be done in this platform?</h3>
-  <p>
-    You can <b>explore</b> the content of the hosted datasets and you can also <b>download</b> them.
-    But even more importantly, you can contribute to their creation in different ways.
-    Currently, you can annotate sound in order to generate ground truth and you can <b>discuss</b> the datasets as well
-    as the platform. In the future we plan to enable more functionalities, such as the <b>reporting</b> of mislabeled
-    or faulty audio samples.
-  </p>
+<br><br>
 
-  <p>
-    You can find more information in our <a target="_blank" href="https://ismir2017.smcnus.org/wp-content/uploads/2017/10/161_Paper.pdf">
-    ISMIR 2017 paper</a>. You can also visit our <a href="{% url 'faq' %}">FAQ</a> page. If you wish to share
-    comments or suggestions, please visit our <a href="{% url 'discussion' %}">Discussion</a> page, or subscribe to our
-    Google Group: <a target="_blank" href="https://groups.google.com/forum/#!forum/freesound-datasets">Freesound Datasets</a>
-    to stay up-to-date about this platform and hosted datasets. If you use this platform or any of the hosted datasets
-    in academic work please cite: <br>
-    <i>E. Fonseca, J. Pons, X. Favory, F. Font, D. Bogdanov, A. Ferraro, S. Oramas, A. Porter and X. Serra.
-    “Freesound Datasets: A Platform for the Creation of Open Audio Datasets” In Proceedings of the 18th International
-    Society for Music Information Retrieval Conference, Suzhou, China, 2017.</i>
-  </p>
+<!--PRINCIPLES-->
+<div class="ui vertical">
+  <div class="ui equal width stackable internally celled grid">
+    <div class="row">
 
-  <p>
-    We plan to host several open audio datasets built out of Freesound content. The first and most important dataset
-    is called FreesoundDataset (FSD).
-  </p>
+      <!--OUR VISION-->
+      <div class="right aligned column very padded">
+        <div class="ui list" style="margin-right: 35px;">
+          <div class="item">
+            <div class="header"><h1>Our vision ...</h1></div><br>
+          </div>
+          <div class="item">
+            <div class="header"><h3>Transparency</h3></div>
+            <p>The datasets creation process should be as transparent as possible to easily spot possible faults</p>
+          </div>
+          <div class="item">
+            <div class="header"><h3>Openness</h3></div>
+            <p>Data should be released under open licenses to facilitate its distribution and reproducible research</p>
+          </div>
+          <div class="item">
+            <div class="header"><h3>Dynamism</h3></div>
+            <p>Datasets should be dynamic in the sense that they can evolve over time in quality and quantity</p>
+          </div>
+        </div>
+      </div>
 
-<div class="ui raised segment">
-  <div class="ui two column middle aligned very relaxed stackable grid">
-    <div class="column">
-      <p class="medium text">
-        <b>FreesoundDataset (FSD)</b> is a large-scale, general-purpose dataset composed of
-        <a target="_blank" href="http://freesound.org/">Freesound</a> content organised into the ontology of
-        <a target="_blank" href="https://research.google.com/audioset/">Google's AudioSet</a>.
-      </p>
-    </div>
-    <div class="column">
-      <a title="go to FreesoundDataset"class="fluid ui button red" style="padding: 5px;" href="{% url 'dataset' 'fsd' %}">
-        <img style="padding: 0px;width: 80px;max-height:60px;" src="{% static "img/freesound_dataset_logo_b.svg" %}">
-      </a>
+      <!--OUR PLAN-->
+      <div class="left aligned column very padded" >
+        <div class="ui list" style="margin-left: 35px;">
+          <div class="item">
+            <div class="header"><h1>... and our plan!</h1></div><br>
+          </div>
+          <div class="item">
+            <div class="header"><h3>Freesound content</h3></div>
+            <p>We are leveraging <a target="_blank" href="http://freesound.org/">Freesound.org</a> (>300k sounds) as a source of open audio content for creating datasets</p>
+          </div>
+          <div class="item">
+            <div class="header"><h3>Community-based</h3></div>
+            <p>We rely on our sorrounding communities to sustainably crowdsource sound annotations and to improve our tooling</p>
+          </div>
+          <div class="item">
+            <div class="header"><h3>The FreesoundDatasets platform</h3></div>
+            <p>Facilitates annotation gathering, data exploration, downloading, faults reporting and the discussion around the dataset</p>
+            <!--<p>Facilitates the exploration, download and contribute to our datasets, for example via reporting mislabeled or faulty audio samples.</p>-->
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
+<br><br>
+
+<!--WHAT CAN I DO?-->
+
+<div class="ui vertical inverted secondary red segment center aligned"><!-- style="background-color: #DADADA;">-->
+  <h2 style="margin-top: 45px; margin-bottom: 25px;">Explore, download and contribute to the FreesoundDataset</h2>
+  <div class="ui main center aligned container" style="margin-top: 30px; width:55%;">
+    <div class="ui raised segment">
+      <div class="ui two column middle aligned compact stackable grid">
+        <div class="ten wide column">
+          <p class="medium text"><b>FreesoundDataset (FSD)</b> is a large-scale, general-purpose dataset composed of
+          <b><a target="_blank" href="http://freesound.org/">Freesound.org</a></b> content organised into the <b><a target="_blank" href="https://research.google.com/audioset/">AudioSet Ontology</a></b>.</p>
+        </div>
+        <div class="six wide column">
+          <a title="go to FreesoundDataset" class="fluid ui button red right labeled icon" style="padding: 5px;" href="{% url 'dataset' 'fsd' %}">
+          <img style="padding: 0px;width: 100px;max-height:80px;" src="{% static "img/freesound_dataset_logo_b.svg" %}"><i class="right arrow icon"></i></a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <br><br>
+</div>
+
+<center>
+<div class="ui main center aligned container" style="margin-top: 40px; width:30%;">
+<div class="ui basic buttons">
+  <button class="ui button"><a target="_blank" href="https://github.com/MTG/freesound-datasets/" style="min-width: 200px;">
+      <i class="github icon huge"></i>
+      <h3>GitHub</h3>
+    </a></button>
+  <button class="ui button"><a target="_blank" href="https://github.com/MTG/freesound-datasets/" style="min-width: 200px;">
+      <i class="announcement icon huge"></i>
+      <h3>FAQ</h3>
+    </a></button>
+  <button class="ui button"><a target="_blank" href="https://github.com/MTG/freesound-datasets/" style="min-width: 200px;">
+      <i class="comments outline icon huge"></i>
+      <h3>Discussion</h3>
+    </a></button>
+  <button class="ui button"><a target="_blank" href="https://github.com/MTG/freesound-datasets/" style="min-width: 200px;">
+      <i class="bar icon huge"></i>
+      <h3>GoogleGroup</h3>
+    </a></button>
+</div>
+</div>
+</center>
+
+<div class="ui main center aligned container" style="margin-top: 30px;">
+<div class="ui raised segment">
+ E. Fonseca, J. Pons, X. Favory, F. Font, D. Bogdanov, A. Ferraro, S. Oramas, A. Porter & X. Serra. <a target="_blank" href="https://ismir2017.smcnus.org/wp-content/uploads/2017/10/161_Paper.pdf">Freesound Datasets: A Platform for the Creation of Open Audio Datasets</a>. <br>In Proceedings of the 18th International Society for Music Information Retrieval Conference, Suzhou, China, 2017. <b>[BiBteX for academic reference]</b>
+</div>
+
 {% endblock %}
