@@ -13,7 +13,7 @@ from django.forms import formset_factory
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from datasets.models import Dataset, DatasetRelease, CandidateAnnotation, Vote, TaxonomyNode, SoundDataset, Sound
 from datasets import utils
-from datasets.forms import DatasetReleaseForm, PresentNotPresentUnsureForm, CategoryCommentForm
+from datasets.forms import DatasetReleaseForm, PresentNotPresentUnsureForm, CategoryCommentForm, HiddenFromTask
 from pygments import highlight
 from pygments.lexers import PythonLexer
 from pygments.formatters import HtmlFormatter
@@ -147,10 +147,18 @@ def contribute_validate_annotations(request, short_name):
     return render(request, 'datasets/contribute_validate_annotations.html', {'dataset': dataset})
 
 
+def contribute_validate_annotations_easy(request, short_name):
+    node_id = request.GET.get('url_id')
+    if not node_id:
+        node_id = TaxonomyNode.objects.exclude(omitted=True).order_by('?')[0].url_id
+    return contribute_validate_annotations_category(request, short_name, node_id,
+                                                    html_url='datasets/contribute_validate_annotations_category_easy.html')
+
+
 PresentNotPresentUnsureFormSet = formset_factory(PresentNotPresentUnsureForm)
 
 @login_required
-def contribute_validate_annotations_category(request, short_name, node_id):
+def contribute_validate_annotations_category(request, short_name, node_id, html_url=None):
     NB_TOTAL_ANNOTATIONS = 12
     dataset = get_object_or_404(Dataset, short_name=short_name)
     user = request.user
@@ -242,18 +250,22 @@ def contribute_validate_annotations_category(request, short_name, node_id):
     annotations_forms = list(zip(list(annotations), formset))
 
     category_comment_form = CategoryCommentForm()
+    from_task_hidden_form = HiddenFromTask()
 
     nb_task1_pages = request.session.get('nb_task1_pages', False)
     if not nb_task1_pages:
         request.session['nb_task1_pages'] = 1
         nb_task1_pages = 1
 
-    return render(request, 'datasets/contribute_validate_annotations_category.html',
+    if not html_url:
+        html_url = 'datasets/contribute_validate_annotations_category.html'
+
+    return render(request, html_url,
                   {'dataset': dataset, 'node': node, 'annotations_forms': annotations_forms,
                    'formset': formset, 'N': N, 'user_is_maintainer': user_is_maintainer,
                    'category_comment_form': category_comment_form, 'skip_tempo': skip_tempo,
                    'skip_tempo_parameter': settings.SKIP_TEMPO_PARAMETER,
-                   'nb_task1_pages': nb_task1_pages})
+                   'nb_task1_pages': nb_task1_pages, 'from_task_hidden_form': from_task_hidden_form})
 
 
 @login_required
@@ -317,6 +329,9 @@ def save_contribute_validate_annotations_category(request):
             request.user.profile.last_category_annotated = node
             request.user.save()
 
+            # get from which task (beginner or advanced) the user submitted his votes
+            from_task = request.POST.get('from_task')
+
             for form in formset:
                 if 'vote' in form.cleaned_data:  # This is to skip last element of formset which is empty
                     annotation_id = form.cleaned_data['annotation_id']
@@ -332,6 +347,7 @@ def save_contribute_validate_annotations_category(request):
                                 candidate_annotation_id=annotation_id,
                                 test=request.user.profile.test,
                                 from_test_page=from_test_page,
+                                from_task=from_task,
                             )
 
             if comment_form.cleaned_data['comment'].strip():  # If there is a comment

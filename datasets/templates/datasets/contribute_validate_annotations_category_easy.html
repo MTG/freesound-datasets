@@ -58,42 +58,6 @@
     </script>
 {% endblock %}
 {% block content %}
-<center>
-    <div style="margin-top:-20px;" class="ui mini steps">
-      <div class="step">
-        <div class="content">
-          <div class="title">FSD</div>
-        </div>
-      </div>
-      <div class="step">
-        <div class="content">
-          <div class="title">Task1: validate category annotations</div>
-        </div>
-      </div>
-      <div class="step">
-        <div class="content">
-          <div class="title">Instructions</div>
-        </div>
-      </div>
-      <div class="step">
-        <div class="content">
-          <div class="title">Choose category</div>
-        </div>
-      </div>
-      <div id="step-training" class="active step">
-        <div class="content">
-          <div class="title">Training</div>
-        </div>
-      </div>
-      <div id="step-validate" class="disabled step">
-        <div class="content">
-          <div class="title">Validate</div>
-        </div>
-      </div>
-    </div>
-</center>
-    <br>
-    <br>
     <div class="ui grid">
         <div class="eight wide column">
             <h1 class="ui header" style="display: inline-block;">{{ node.name }}</h1>
@@ -103,28 +67,62 @@
         {% endif %}
         </div>
         <div class="eight wide column right aligned">
-                <a href="{% url 'choose_category' dataset.short_name %}" class="blue ui button right labeled icon">Choose another category <i class="refresh icon"></i></a>
+                <a href="{% url 'contribute-validate-annotations-category-beginner' dataset.short_name %}" class="blue ui button right labeled icon">Try another category <i class="refresh icon"></i></a>
         </div>
     </div>
-    {% display_taxonomy_node_small_info dataset node.node_id 'cva' %}
-    <br>
+    {% display_taxonomy_node_small_info dataset node.node_id False %}
     {% if not node.omitted %}
-        <div id="start_annotating_info_div" class="ui aligned basic segment">
-            <p>
-                <b>Before annotating, please take some time to acclimatise yourself with your category <span class="ui label">{{node.name}}</span> and its related categories:</b>
-            </p>
-            <div class="ui bulleted list">
-                 <div class="item">Read the description and listen to the examples of {{node.name}}.</div>
-                 <div class="item">You will find description and examples of its siblings and/or children by clicking them.</div>
+        <div id="start_annotating_info_div" class="ui aligned segment">
+            <div class="ui aligned text container" style="width: 100%;">
+                For each category you will be presented with pages of 12 sounds.
+                <b>Start rating sounds in your category</b> according to the formulated question:
+                <b>Is <div class="ui medium label">{{ node.name }}</div> present in the following sounds?</b>
+                <br>There are 4 possible answers:
+                <table class="ui celled table">
+                    <tbody>
+                    <tr>
+                        <td><i>Present and predominant</i></td>
+                        <td>The type of sound described is <b>clearly present</b> in the audio clip and it is <b>predominant</b>,
+                            either isolated from other types of sound or with low/mild background noise.</td>
+                    </tr>
+                    <tr>
+                        <td><i>Present but not predominant</i></td>
+                        <td>The type of sound described is <b>present</b>, but the audio clip also <b>contains other salient
+                            types of sound and/or strong background noise.</b></td>
+                    </tr>
+                    <tr>
+                        <td><i>Not Present</i></td>
+                        <td>The type of sound described is <b>not present</b> in the audio clip.</td>
+                    </tr>
+                    <tr>
+                        <td><i>Unsure</i></td>
+                        <td><b>I am not sure</b> whether the type of sound described is present or not.</td>
+                    </tr>
+                    </tbody>
+                </table>
+                <table class="ui compact table">
+                    <tbody>
+                        <tr><td>
+                            <b>Are you finding it difficult?</b> Feel free to access Freesound through the link at the top
+                                right corner of every sound (<span><small>see in </small><img class="ui inline image" style="width:80px;" src="{% static 'img/freesound_logo_color.png' %}"></span>) to check the sound’s metadata (description and tags).
+                        </td></tr>
+                        <tr><td>
+                            If you annotate for an hour please take a <b>10 minutes break</b>.
+                        </td></tr>
+                        <tr><td>
+                            <b>You can click the help button</b> next to the formulated question to see these guidelines.
+                        </td></tr>
+                    </tbody>
+                </table>
             </div>
-            <br>
-            <div id="start_annotating_button_div" class="ui center aligned basic segment" data-tooltip="Please take your time to look at the category and the related ones before starting to annotate :)" data-position="bottom center">
-                <div id="start_annotating_button" class="big button red ui button disabled" onclick="show_form();">Start annotating
-                    <div class="ui bottom attached progress" id="progress" data-value="1" data-total="25">
-                        <div class="bar"></div>
-                    </div>
+        </div>
+        <div id="start_annotating_button_div" class="ui center aligned basic segment" data-tooltip="Please take your time to look at the category and the related ones before starting to annotate :)" data-position="bottom center">
+            <div id="start_annotating_button" class="big button red ui button disabled" onclick="show_form();">Start annotating
+                <div class="ui bottom attached progress" id="progress" data-value="1" data-total="25">
+                    <div class="bar"></div>
                 </div>
             </div>
+        </div>
         <div id="form_container" style="visibility: hidden">
             <div class="ui grid">
                 <div class="ten wide column">
@@ -133,7 +131,7 @@
                 <div class="six wide column right aligned">
                     {% if annotations_forms %}
                         <a href="javascript:void(0);" onclick="$('#help_modal').modal('show');" class="ui orange button right labeled icon">Help <i class="help icon"></i></a>
-                        <a href="{% url 'contribute-validate-annotations-category' dataset.short_name node.url_id %}?{{skip_tempo_parameter}}=True" class="ui button right labeled blue icon">Try other sounds <i class="refresh icon"></i></a>
+                        <a href="{% url 'contribute-validate-annotations-category-beginner' dataset.short_name %}?{{skip_tempo_parameter}}=True&url_id={{node.url_id}}" class="ui button right labeled blue icon">Try other sounds <i class="refresh icon"></i></a>
                     {% endif %}
                 </div>
             </div>
@@ -179,7 +177,7 @@
                     </div>
                 {% endif %}
                 {{ from_task_hidden_form }}
-                <input id="id_from_task" name="from_task" type="hidden" value="AD">
+                <input id="id_from_task" name="from_task" type="hidden" value="BE">
             </form>
             {% if annotations_forms %}
                 <br><button id="submitButton" class="right floated ui green button" onclick="submitForm();">Submit!</button>
@@ -200,15 +198,15 @@
                     You annotated <b>{{ nb_task1_pages }}/6 pages</b>.
                 {% else %}
                     Thank you very much, you annotated {{ nb_task1_pages }}/6 pages.
-                    You can choose another category or take a deserved rest!
+                    You can try another category or take a deserved rest!
                 {% endif %}
             </p>
         </div>
         <div class="actions">
             {% if nb_task1_pages < 6 %}
-                <a href="{% url 'contribute-validate-annotations-category' dataset.short_name node.url_id %}?{{skip_tempo_parameter}}=True" class="green ui inverted right labeled button icon"><i class="plus icon"></i> Give me more sounds from this category</a>
+                <a href="{% url 'contribute-validate-annotations-category-beginner' dataset.short_name %}?{{skip_tempo_parameter}}=True&url_id={{node.url_id}}" class="green ui inverted right labeled button icon"><i class="plus icon"></i> Give me more sounds from this category</a>
             {% else %}
-                <a href="{% url 'choose_category' dataset.short_name %}" class="green ui inverted button right labeled icon"><i class="refresh icon"></i> Choose another category</a>
+                <a href="{% url 'contribute-validate-annotations-category-beginner' dataset.short_name %}" class="green ui inverted button right labeled icon"><i class="refresh icon"></i> Try another category</a>
             {% endif %}
             <a href="{% url 'dataset' dataset.short_name %}" class="blue ui inverted button right labeled icon"><i class="home icon"></i> Go back to the dataset page</a>
         </div>
@@ -269,7 +267,8 @@
                     </p>
                 </div>
                 <div class="item">
-                    Please consider categories' <b>Hierarchy</b>, <b>Description</b> and related categories (siblings and/or direct children) before annotating
+                    Please consider categories' <b>Hierarchy</b>, <b>Description</b> and related categories.
+                    (siblings and/or direct children) before annotating.
                 </div>
                 <div class="item">
                     Check the sound’s <b>tags and description in Freesound</b> if you can’t make up your mind (use the
@@ -277,10 +276,10 @@
                         class="ui inline image" style="width:80px;" src="{% static 'img/freesound_logo_color.png' %}"></span>).
                 </div>
                 <div class="item">
-                    You can add general <b>comments about a category</b> at the bottom of the page
+                    You can add general <b>comments about a category</b> at the bottom of the page.
                 </div>
                 <div class="item">
-                    Check the <a href="{% url 'contribute-validate-annotations' dataset.short_name %}?help=1" target="_blank">full instructions</a> if you have any doubts
+                    If you annotate for an hour please take a <b>10 minutes break</b>.
                 </div>
             </div>
         </div>

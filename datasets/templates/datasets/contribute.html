@@ -5,21 +5,26 @@
 
 {% block content %}
     <h1 class="ui header">Contribute to {{ dataset.short_name|upper }} by annotating sounds</h1>
-    <p>This is your entry point for helping making the world a batter place by contributing to
-        {{ dataset.short_name|upper }} :)
-    <br>At the moment, we have one available task for contributing to the dataset.</p>
     <table class="ui very basic table">
         <tbody>
             <tr>
                 <td>
                     <div class="ui raised segment">
                         <div class="ui two column middle aligned very relaxed stackable grid">
-                            <div class="ten wide column"><p class="medium text"><b>Task 1:</b> This task consists of validating
-                                automatically generated annotations that express the presence of a sound category in
-                                an audio sample.</p></div>
-                            <div class="six wide column">
-                            <a href="{% url 'contribute-validate-annotations' dataset.short_name %}?help=1" class="ui big right labeled icon blue button">
-                                <i class="checkmark box icon"></i>Validate category annotations</a>
+                            <div class="eleven wide column"><p class="medium text"><b>Validate category annotations:</b> this task consists
+                                of validating (automatically generated) annotations that express the presence of a sound
+                                category in an audio sample. <br><i>Beginners task only includes a few simpler categories.</i> </p></div>
+                            <div class="five wide column">
+                                <div class="ui vertical buttons">
+                                    <div style="margin-bottom: 6px">
+                                        <a href="{% url 'contribute-validate-annotations-category-beginner' dataset.short_name %}?help=1" class="ui large right labeled icon blue button">
+                                            <i class="checkmark box icon"></i>Start beginners task</a>
+                                    </div>
+                                    <div class="ui">
+                                        <a href="{% url 'contribute-validate-annotations' dataset.short_name %}?help=1" class="ui large right labeled icon blue button">
+                                            <i class="checkmark box icon"></i>Start advanced task</a>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

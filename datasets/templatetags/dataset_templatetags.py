@@ -103,10 +103,11 @@ def display_taxonomy_node_info(context, dataset, node_id, category_link_to='e'):
 
 
 @register.inclusion_tag('datasets/taxonomy_node_small_info.html', takes_context=True)
-def display_taxonomy_node_small_info(context, dataset, node_id, category_link_to='e'):
+def display_taxonomy_node_small_info(context, dataset, node_id, related_categories=True):
     user_is_maintainer = dataset.user_is_maintainer(context['request'].user)
     node_data = taxonomy_node_data(dataset, node_id)
-    return {'dataset': dataset, 'node': node_data, 'user_is_maintainer': user_is_maintainer}
+    return {'dataset': dataset, 'node': node_data, 'user_is_maintainer': user_is_maintainer,
+            'related_categories': related_categories}
 
 
 @register.inclusion_tag('datasets/taxonomy_node_mini_info.html')
