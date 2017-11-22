@@ -53,7 +53,16 @@
                 </div>
             </td>
         </tr>
-        {% if node.sibling_ids %}
+        {% if node.freesound_examples %}
+            <tr><td>Examples</td>
+                <td>
+                    {% for fsid in node.freesound_examples %}
+                        {{ fsid| fs_embed | safe }}
+                    {% endfor %}
+                </td>
+            </tr>
+        {% endif %}
+        {% if node.sibling_ids and related_categories %}
             <tr>
                 <td>Siblings</td>
                 <td><div class="ui horizontal list">
@@ -66,7 +75,7 @@
                 </div></td>
             </tr>
         {% endif %}
-        {% if node.child_ids %}
+        {% if node.child_ids and related_categories %}
             <tr>
                 <td>Direct children</td>
                 <td><div class="ui horizontal list">
@@ -83,15 +92,6 @@
             <td class="three wide">Description</td>
             <td>{{ node.description }}</td>
         </tr>
-        {% if node.freesound_examples %}
-            <tr><td>Examples</td>
-                <td>
-                    {% for fsid in node.freesound_examples %}
-                        {{ fsid| fs_embed | safe }}
-                    {% endfor %}
-                </td>
-            </tr>
-        {% endif %}
         {% if node.faq %}
             <tr>
                 <td>FAQ</td>

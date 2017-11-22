@@ -67,7 +67,7 @@
                 <a href="{% url 'contribute-validate-annotations-category-beginner' dataset.short_name %}" class="blue ui button right labeled icon">Try another category <i class="refresh icon"></i></a>
         </div>
     </div>
-    {% display_taxonomy_node_small_info dataset node.node_id 'cva' %}
+    {% display_taxonomy_node_small_info dataset node.node_id False %}
     {% if not node.omitted %}
         <div id="start_annotating_info_div" class="ui aligned segment">
             <div class="ui aligned text container" style="width: 100%;">
