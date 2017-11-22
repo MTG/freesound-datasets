@@ -23,6 +23,8 @@ urlpatterns = [
         name='contribute-validate-annotations'),
     url(r'^(?P<short_name>[^\/]+)/annotate/validate_annotations/(?P<node_id>[^\/]+)/$',
         contribute_validate_annotations_category, name='contribute-validate-annotations-category'),
+    url(r'^(?P<short_name>[^\/]+)/annotate/validate_annotations_beginner/$',
+        contribute_validate_annotations_easy, name='contribute-validate-annotations-category-beginner'),
     url(r'^(?P<short_name>[^\/]+)/annotate/choose_category/$', choose_category, name='choose_category'),
     url(r'^(?P<short_name>[^\/]+)/annotate/choose_category_table/$', dataset_taxonomy_table_choose,
         name='dataset_taxonomy_table_choose'),
