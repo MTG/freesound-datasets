@@ -26,6 +26,23 @@
                 </div>
             </td>
         </tr>
+        <tr>
+            <td class="three wide">Description</td>
+            <td>{{ node.description }}</td>
+        </tr>
+        {% if node.sibling_ids %}
+            <tr>
+                <td>Siblings</td>
+                <td><div class="ui horizontal list">
+                    {% for node_id in node.sibling_ids %}
+                        {% taxonomy_node dataset node_id as sub_node_data %}
+                        <div class="item" style="margin-left:0px;margin-right:5px;">
+                            <a href="{% url category_link_to dataset.short_name sub_node_data.url_id %}" target="_blank" class="ui label">{{ sub_node_data.name }}</a>
+                        </div>
+                    {% endfor %}
+                </div></td>
+            </tr>
+        {% endif %}
         {% if node.child_ids %}
             <tr>
                 <td>Direct children</td>
@@ -39,10 +56,6 @@
                 </div></td>
             </tr>
         {% endif %}
-        <tr>
-            <td class="three wide">Description</td>
-            <td>{{ node.description }}</td>
-        </tr>
         <tr><td>URI</td><td>{% if node.citation_uri %}<a href="{{ node.citation_uri }}" target="_blank">{{ node.citation_uri }}</a>{% else %}-{% endif %}</td></tr>
         {% if node.freesound_examples %}
             <tr><td>Examples</td>
