@@ -22,16 +22,11 @@
     </script>
 {% endblock %}
 {% block content %}
-    <h1 class="ui header">Explore the categories of {{dataset.short_name|upper}}</h1>
-    <p>
-        In the Table below you can browse the different sound categories of the dataset, and see the current annotation
-        state of the mapped data. You can also explore the audio samples by clicking Explore. In the Tree tab we provide
-        an interactive tree for visualization of the <a target="_blank" href="https://research.google.com/audioset/ontology/">
-        AudioSet Ontology</a>. Categories shaded in red are AudioSet categories that are not considered for the next
-        release of {{ dataset.short_name|upper }}. See our <a target="_blank" href="https://ismir2017.smcnus.org/wp-content/uploads/2017/10/161_Paper.pdf">
-        ISMIR2017 paper</a> for more details.
-        <!--Want to share something with us? Go to our Discussion page.-->
-    </p>
+    <h1 class="ui header">Explore the {{ dataset.name }}</h1>
+<div class="ui error message">
+  <i class="close icon"></i><p>Since the first FSD release does not exist, <b>you can only explore the automatically generated candidate annotations</b>.</p>
+  <p>Categories shaded in red are AudioSet categories that are not considered for the next release of {{ dataset.short_name|upper }}.</p>
+</div>
 
 <div class="ui red two item top attached tabular inverted menu">
   <a class="item active" data-tab="first">
