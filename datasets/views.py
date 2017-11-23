@@ -226,6 +226,21 @@ def contribute_validate_annotations_category(request, short_name, node_id, html_
         annotation_with_no_vote_short_ids = annotations.filter(num_votes=0,
                                                                sound_dataset__sound__extra_data__duration__lte=10)\
             .values_list('id', flat=True)
+
+        # from the short one, order them by number of ground truth annotations that the corresponding sound has
+        CandidateAnnotation.objects.raw("""
+                  SELECT "datasets_candidateannotation"."id", "datasets_candidateannotation"."taxonomy_node_id",
+                  COUNT(
+                  CASE "datasets_groundtruthannotation"."from_propagation" WHEN False then 1 ELSE NULL END) AS "num_sound_gt"
+                  FROM "datasets_candidateannotation"
+                  INNER JOIN "datasets_sounddataset"
+                  ON ("datasets_candidateannotation"."sound_dataset_id" = "datasets_sounddataset"."id")
+                  LEFT OUTER JOIN "datasets_groundtruthannotation"
+                  ON ("datasets_sounddataset"."id" = "datasets_groundtruthannotation"."sound_dataset_id")
+                  WHERE "datasets_candidateannotation"."id" IN %s
+                  GROUP BY "datasets_candidateannotation"."id" ORDER BY "num_sound_gt"
+                  DESC, RANDOM() limit 12;""", (tuple(annotation_with_no_vote_short_ids),))
+
         N_with_no_vote_short = min(len(annotation_with_no_vote_short_ids), N_ANNOTATIONS_TO_VALIDATE - N_with_vote)
         if N_with_no_vote_short:
             annotation_ids += random.sample(list(annotation_with_no_vote_short_ids), N_with_no_vote_short)
