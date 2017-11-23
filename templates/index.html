@@ -8,7 +8,7 @@
 <div class="ui inverted raised vertical padded center aligned segment" style="background-image: url({% static 'img/bin_fons.png' %});background-size: 100% auto;">
   <br><br><br><br>
   <center><img class="ui center aligned image" style="width: 700px;" src="{% static "img/freesound_datasets_logo.svg" %}"></center>
-  <h3>A platform for the collaborative curation of open audio collections &mdash; fully annotated by humans and based on Freesound content</h3>
+  <h3>A platform for the collaborative creation of open audio collections labelled by humans and based on Freesound content</h3>
   <br><br>
   <a href="{% url 'contribute-validate-annotations-category-beginner' 'fsd' %}" class="ui big button inverted right labeled icon">Get started with our annotation task! <i class="right arrow icon"></i></a>
   <br><br><br><br><br><br><br><br>
@@ -50,11 +50,11 @@
           </div>
           <div class="item">
             <div class="header"><h3>Freesound content</h3></div>
-            <p>We are leveraging <a target="_blank" href="http://freesound.org/">Freesound.org</a> (>300k sounds) as a source of open audio content for creating datasets</p>
+            <p>We are leveraging <a target="_blank" href="http://freesound.org/">Freesound.org</a> (>360k sounds) as a source of open audio content for creating datasets</p>
           </div>
           <div class="item">
             <div class="header"><h3>Community-based</h3></div>
-            <p>We rely on our sorrounding communities to sustainably crowdsource sound annotations and to improve our tooling</p>
+            <p>We rely on the community to sustainably crowdsource sound annotations and to improve our platform</p>
           </div>
           <div class="item">
             <div class="header"><h3>The FreesoundDatasets platform</h3></div>
@@ -94,18 +94,22 @@
 <div class="ui center aligned container" style="margin-top: 45px;">
 <div class="ui basic buttons">
   <a target="_blank" class="ui button" href="https://github.com/MTG/freesound-datasets/" style="min-width: 200px;">
+      <p>For nerds!</p>
       <center><i class="github icon huge"></i>
       <h3>GitHub</h3></center>
     </a>
   <a class="ui button" href="{% url 'faq' %}" style="min-width: 200px;">
+      <p>Are you confused?</p>
       <center><i class="announcement icon huge"></i>
       <h3>FAQ</h3></center>
     </a>
   <a class="ui button" href="{% url 'discussion' %}" style="min-width: 200px;">
+      <p>Comments or suggestions?</p>
       <center><i class="comments outline icon huge"></i>
       <h3>Discussion</h3></center>
     </a>
   <a target="_blank" class="ui button" href="https://groups.google.com/forum/#!forum/freesound-datasets" style="min-width: 200px;">
+      <p>Stay tuned!</p>
       <center><i class="bar icon huge"></i>
       <h3>GoogleGroup</h3></center>
     </a>
