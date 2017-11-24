@@ -8,7 +8,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db.models import Count
-from django.db import transaction
+from django.db import transaction, connection
 from django.forms import formset_factory
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from datasets.models import Dataset, DatasetRelease, CandidateAnnotation, Vote, TaxonomyNode, SoundDataset, Sound
@@ -160,19 +160,24 @@ def get_candidate_annotations_complete_ids_random_from(candidate_annotation_ids)
         order them by number of ground truth annotations that the corresponding sound has, and
         randomize (for complete labeling
     """
-    return CandidateAnnotation.objects.raw("""
-              SELECT "datasets_candidateannotation"."id", "datasets_candidateannotation"."taxonomy_node_id",
-              COUNT(
-              CASE "datasets_groundtruthannotation"."from_propagation" WHEN False then 1 ELSE NULL END) 
-              AS "num_sound_gt"
-              FROM "datasets_candidateannotation"
-              INNER JOIN "datasets_sounddataset"
-              ON ("datasets_candidateannotation"."sound_dataset_id" = "datasets_sounddataset"."id")
-              LEFT OUTER JOIN "datasets_groundtruthannotation"
-              ON ("datasets_sounddataset"."id" = "datasets_groundtruthannotation"."sound_dataset_id")
-              WHERE "datasets_candidateannotation"."id" IN %s
-              GROUP BY "datasets_candidateannotation"."id" ORDER BY "num_sound_gt"
-              DESC, RANDOM() limit 12;""", (tuple(candidate_annotation_ids),)).values_list('id', flat=True)
+    with connection.cursor() as cursor:
+        if len(candidate_annotation_ids):
+            cursor.execute("""
+                  SELECT "datasets_candidateannotation"."id",
+                  COUNT(
+                  CASE "datasets_groundtruthannotation"."from_propagation" WHEN False then 1 ELSE NULL END) 
+                  AS "num_sound_gt"
+                  FROM "datasets_candidateannotation"
+                  INNER JOIN "datasets_sounddataset"
+                  ON ("datasets_candidateannotation"."sound_dataset_id" = "datasets_sounddataset"."id")
+                  LEFT OUTER JOIN "datasets_groundtruthannotation"
+                  ON ("datasets_sounddataset"."id" = "datasets_groundtruthannotation"."sound_dataset_id")
+                  WHERE "datasets_candidateannotation"."id" IN %s
+                  GROUP BY "datasets_candidateannotation"."id" ORDER BY "num_sound_gt"
+                  DESC, RANDOM() limit 12;""", [tuple(candidate_annotation_ids)])
+            return [i[0] for i in cursor.fetchall()]
+        else:
+            return []
 
 
 PresentNotPresentUnsureFormSet = formset_factory(PresentNotPresentUnsureForm)
@@ -280,7 +285,6 @@ def contribute_validate_annotations_category(request, short_name, node_id, html_
     annotations_forms = list(zip(list(annotations), formset))
 
     category_comment_form = CategoryCommentForm()
-    from_task_hidden_form = HiddenFromTask()
 
     nb_task1_pages = request.session.get('nb_task1_pages', False)
     if not nb_task1_pages:
