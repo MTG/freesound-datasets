@@ -32,13 +32,6 @@ class PresentNotPresentUnsureForm(forms.Form):
     )
 
 
-class HiddenFromTask(forms.Form):
-    from_task = forms.CharField(
-        required=True,
-        widget=forms.HiddenInput,
-    )
-
-
 class CategoryCommentForm(forms.ModelForm):
 
     class Meta:

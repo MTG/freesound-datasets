@@ -295,7 +295,7 @@ def contribute_validate_annotations_category(request, short_name, node_id, html_
                    'formset': formset, 'N': N, 'user_is_maintainer': user_is_maintainer,
                    'category_comment_form': category_comment_form, 'skip_tempo': skip_tempo,
                    'skip_tempo_parameter': settings.SKIP_TEMPO_PARAMETER,
-                   'nb_task1_pages': nb_task1_pages, 'from_task_hidden_form': from_task_hidden_form})
+                   'nb_task1_pages': nb_task1_pages})
 
 
 @login_required
