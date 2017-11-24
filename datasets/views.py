@@ -13,7 +13,7 @@ from django.forms import formset_factory
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from datasets.models import Dataset, DatasetRelease, CandidateAnnotation, Vote, TaxonomyNode, SoundDataset, Sound
 from datasets import utils
-from datasets.forms import DatasetReleaseForm, PresentNotPresentUnsureForm, CategoryCommentForm, HiddenFromTask
+from datasets.forms import DatasetReleaseForm, PresentNotPresentUnsureForm, CategoryCommentForm
 from pygments import highlight
 from pygments.lexers import PythonLexer
 from pygments.formatters import HtmlFormatter
