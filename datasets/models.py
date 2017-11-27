@@ -464,6 +464,14 @@ class Dataset(models.Model):
             return None
         return self.releases.all().order_by('-release_date')[0].release_tag
 
+    @property
+    def random_fs_sound_id(self):
+        sounds = self.sounds.order_by('?')
+        if sounds:
+            return sounds[0].freesound_id
+        else:
+            return None
+
 
 class DatasetRelease(models.Model):
     dataset = models.ForeignKey(Dataset)
