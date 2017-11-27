@@ -240,40 +240,63 @@ def contribute_validate_annotations_category(request, short_name, node_id, html_
     # Extract the voted annotations ids
     annotation_with_vote_ids = annotations.filter(num_votes__gt=0).values_list('id', flat=True)
 
-    # Select 12 (- num of test examples) annotations prioritizing annotations that have been already voted, randomize
-    # TODO: Maybe use weighted sampling to avoid this 2 step selection (may include more steps in the future...)
+    # Get annotations corresponding to short sounds (<10sec)
+    annotation_with_vote_short_ids = annotations.filter(id__in=annotation_with_vote_ids,
+                                                        sound_dataset__sound__extra_data__duration__lte=10)\
+        .values_list('id', flat=True)
+
+    # Order by number of ground truth annotations that the corresponding sound has, and randomize (complete labeling)
+    annotation_with_vote_short_complete_ids = \
+        get_candidate_annotations_complete_ids_random_from(annotation_with_vote_short_ids)
+
+    # Add them to the annotation list
     N_ANNOTATIONS_TO_VALIDATE = NB_TOTAL_ANNOTATIONS - len(annotation_ids)
-    N_with_vote = min(len(annotation_with_vote_ids), N_ANNOTATIONS_TO_VALIDATE)
-    if N_with_vote:
-        annotation_ids += random.sample(list(annotation_with_vote_ids), N_with_vote)
+    N_with_vote_short_complete = min(len(annotation_with_vote_short_complete_ids), N_ANNOTATIONS_TO_VALIDATE)
+    if N_with_vote_short_complete:
+        annotation_ids += annotation_with_vote_short_complete_ids[:N_with_vote_short_complete]
 
-    # if there is not enough voted annotations (<12), add non voted annotations corresponding to short clips
+    # If we don't have enough annotations, add the one that correspond to long sounds (>10sec) - Same priority steps
     if len(annotation_ids) < NB_TOTAL_ANNOTATIONS:
-        annotation_with_no_vote_short_ids = annotations.filter(num_votes=0,
-                                                               sound_dataset__sound__extra_data__duration__lte=10)\
-            .values_list('id', flat=True)
-
-        # from the short one, order them by number of ground truth annotations that the corresponding sound has, and
-        # randomize (for complete labeling)
-        annotation_with_no_vote_short_complete_ids = \
-            get_candidate_annotations_complete_ids_random_from(annotation_with_no_vote_short_ids)
-
-        N_with_no_vote_short_complete = min(len(annotation_with_no_vote_short_complete_ids), N_ANNOTATIONS_TO_VALIDATE - N_with_vote)
-        if N_with_no_vote_short_complete:
-            annotation_ids += annotation_with_no_vote_short_complete_ids[:N_with_no_vote_short_complete]
-
-        # if there is not enough (<12), fill the list with non voted annotations
-        if len(annotation_ids) < NB_TOTAL_ANNOTATIONS:
-            annotation_with_no_vote_ids = annotations.filter(num_votes=0)\
-                .exclude(id__in=annotation_with_no_vote_short_ids)\
+        annotation_with_vote_long = annotations.filter(id__in=annotation_with_vote_ids)\
+                .exclude(id__in=annotation_with_vote_short_ids)\
                 .values_list('id', flat=True)
-            annotation_with_no_vote_complete_ids = \
-                get_candidate_annotations_complete_ids_random_from(annotation_with_no_vote_ids)
+        annotation_with_vote_long_complete_ids = \
+            get_candidate_annotations_complete_ids_random_from(annotation_with_vote_long)
+        N_with_vote_long_complete = min(len(annotation_with_vote_long_complete_ids),
+                                        NB_TOTAL_ANNOTATIONS - len(annotation_ids))
+        if N_with_vote_long_complete:
+            annotation_ids += annotation_with_vote_long_complete_ids[:N_with_vote_long_complete]
 
-            N_with_no_vote = min(len(annotation_with_no_vote_complete_ids), N_ANNOTATIONS_TO_VALIDATE - N_with_vote - N_with_no_vote_short_complete)
-            if N_with_no_vote:
-                annotation_ids += annotation_with_no_vote_complete_ids[:N_with_no_vote]
+        # If there is not enough annotations, add non voted annotations - Same priority steps
+        if len(annotation_ids) < NB_TOTAL_ANNOTATIONS:
+            # Get annotations corresponding to short sounds
+            annotation_with_no_vote_short_ids = annotations.filter(num_votes=0,
+                                                                   sound_dataset__sound__extra_data__duration__lte=10)\
+                .values_list('id', flat=True)
 
+            # Order by number of ground truth annotations that the corresponding sound has, and randomize
+            annotation_with_no_vote_short_complete_ids = \
+                get_candidate_annotations_complete_ids_random_from(annotation_with_no_vote_short_ids)
+
+            N_with_no_vote_short_complete = min(len(annotation_with_no_vote_short_complete_ids),
+                                                NB_TOTAL_ANNOTATIONS - len(annotation_ids))
+            if N_with_no_vote_short_complete:
+                annotation_ids += annotation_with_no_vote_short_complete_ids[:N_with_no_vote_short_complete]
+
+            # If we don't have enough annotations, add the one that correspond to long sounds
+            if len(annotation_ids) < NB_TOTAL_ANNOTATIONS:
+                annotation_with_no_vote_ids = annotations.filter(num_votes=0)\
+                    .exclude(id__in=annotation_with_no_vote_short_ids)\
+                    .values_list('id', flat=True)
+                annotation_with_no_vote_complete_ids = \
+                    get_candidate_annotations_complete_ids_random_from(annotation_with_no_vote_ids)
+
+                N_with_no_vote_long = min(len(annotation_with_no_vote_complete_ids),
+                                     NB_TOTAL_ANNOTATIONS - len(annotation_ids))
+                if N_with_no_vote_long:
+                    annotation_ids += annotation_with_no_vote_complete_ids[:N_with_no_vote_long]
+
+    # Get the selected annotations
     N = len(annotation_ids)
     annotations = list(CandidateAnnotation.objects.filter(id__in=annotation_ids).select_related('sound_dataset__sound'))
     if negative_annotation_example:  # add the "dummy" negative example annotation if it exists
