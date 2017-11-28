@@ -1,8 +1,10 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 {% load humanize %}
+{% load dataset_templatetags %}
 {% block title %}{{dataset.short_name|upper}}{% endblock title %}
 {% block page_js %}
+
     <script type="text/javascript">
         $(document).ready(function() {
             loadDatasetReleasesTable();
@@ -77,8 +79,242 @@
     </script>
 {% endblock %}
 {% block content %}
+
+
+<!--new proposed version**********************************************************************************-->
+
 <center>
 
+<h2 style="color: black;">{{ dataset.short_name|upper }} is a large-scale, general-purpose audio dataset</h2>
+        <p style="margin-top:0px">Thousands of audio samples from <a target="_blank" href="http://freesound.org/"><b>Freesound.org</b></a> organised following the <a target="_blank" href="https://research.google.com/audioset/"><b>AudioSet Ontology</b></a></p>
+
+<br>
+
+  <div class="ui container" style="width:100%;">
+    <div class="ui middle aligned stackable grid container">
+      <div class="row">
+        <div class="right floated left aligned nine wide column">
+          <h3 class="ui header">{{ dataset.short_name|upper }}: a dataset of everyday sounds</h3>
+          <p style="text-align:justify">The AudioSet Ontology is a hierarchical collection of over 600 sound classes and
+              we have filled them with {{ dataset.num_sounds|intcomma }} audio samples from Freesound.org.
+              This process generated {{ dataset.num_annotations|intcomma }} candidate annotations
+that express the presence of sound sources in audio clips.
+          {{ dataset.short_name|upper }}  includes a variety of everyday sounds, from human and animal sounds to music and sounds made by things,
+              all under Creative Commons licenses.
+          </p>
+        </div>
+        <div class="six wide right floated column">
+              <div class="ui basic segment ">
+          <img class="ui center aligned image" style="width: 270px;padding: 0px 20px 3px 20px;" src="{% static "img/freesound_logo_color.png" %}">
+          <img class="ui center aligned image" style="width: 270px;padding: 10px 20px 10px 20px;" src="{% static "img/audioset_logo_blue.svg" %}">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<br><br>
+
+  <div class="ui container" style="width:100%;">
+    <div class="ui middle aligned stackable grid container">
+      <div class="row">
+        <div class="six wide right floated column">
+          <div class="ui basic segment  " >
+          <!--<img class="ui center aligned image" style="width: 240px;" src="{% static "img/freesound_logo.svg" %}">-->
+              {{ dataset.random_fs_sound_id| fs_embed | safe }}
+              {{ dataset.random_fs_sound_id| fs_embed | safe }}
+
+          </div>
+        </div>
+        <div class="right floated left aligned nine wide column">
+          <h3 class="ui header">Crowdsourcing annotations</h3>
+          <p style="text-align:justify">By creating this dataset, we hope to promote research to enable machines to hear
+              and interpret similarly to humans.
+          In order to make {{ dataset.short_name|upper}} reliable enough for research, we need to verify the generated annotations.
+              To do so, we are now crowdsourcing annotations to build the first {{ dataset.short_name|upper }} release. Wanna contribute? :)
+
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+
+<br>
+
+<div class="ui steps raised" style="text-align:left;">
+
+  <div class="step">
+    <i class="checkmark grey icon"></i>
+    <div class="content">
+      <div class="title">Generate annotations</div>
+      <div class="description">already done automatically</div>
+    </div>
+  </div>
+
+  <div class="active step">
+    <i class="users  icon"></i>
+    <div class="content">
+      <div class="title"><a target="_blank" href="https://datasets.freesound.org/fsd/annotate/"><b>Crowdsourcing</b></a></div>
+      <div class="description">help us <a target="_blank" href="https://datasets.freesound.org/fsd/annotate/"><b>verify the <br> candidate annotations</b></a></div>
+    </div>
+  </div>
+
+  <div class="disabled step">
+    <i class="send icon"></i>
+    <div class="content">
+      <div class="title">First {{ dataset.short_name|upper }} release</div>
+      <div class="description">including waveforms, audio features, <br> metadata and annotations</div>
+    </div>
+  </div>
+
+</div>
+
+<br>
+
+
+
+
+<br>
+
+<!--<div class="ui vertical segment center aligned">-->
+<div class="ui vertical segment center aligned ">
+
+<h2> Get involved and start contributing!</h2>
+<center>
+<div class="ui basic labels" style="margin-top:25px;border: 0px solid;">
+
+  <a class="ui basic label" href="{% url 'dataset-explore' dataset.short_name %}" style="min-width: 200px;border: 0px solid;">
+      <center><h3>Explore</h3>
+      <i class="unhide icon huge"></i><br><br>
+      <p>Take a peek <br> inside {{ dataset.short_name|upper }}</p></center>
+    </a>
+
+  <a class="ui basic label" href="{% url 'contribute' dataset.short_name %}" style="min-width: 200px;border: 0px solid;">
+      <center><h3>Annotate</h3>
+      <i class="child icon huge"></i><br><br>
+      <p>Help us verify the<br> candidate annotations</p></center>
+    </a>
+
+  <a class="ui basic label" href="{% url 'discussion' dataset.short_name %}" style="min-width: 200px;border: 0px solid;">
+      <center><h3>Discuss</h3>
+      <i class="comments outline icon huge"></i><br><br>
+      <p>Share your comments<br>and suggestions</p></center>
+    </a>
+</div>
+</center>
+<br>
+</div>
+
+
+<br><br><br>
+
+
+
+<div class="ui vertical segment center aligned ">
+<div class="ui grid">
+
+<div class="eleven wide column"><h2>Our goals</h2>
+ <br>
+ <div class="ui three statistics">
+
+
+  <div class="ui blue statistic">
+    <div class="value">
+      +600k
+    </div>
+    <div class="label">
+      annotations
+    </div>
+  </div>
+
+  <div class="ui blue statistic">
+    <div class="value">
+      +260k
+    </div>
+    <div class="label">
+      audio samples
+    </div>
+  </div>
+
+   <div class="ui blue statistic">
+    <div class="label">
+      improving
+    </div>
+    <div class="text value">
+      quantity <br>& quality
+    </div>
+  </div>
+
+
+ </div>
+
+
+</div>
+
+
+
+
+
+
+<div class="five wide column"><h2>Current status</h2>
+ <br>
+ <div class="ui one statistics">
+  <div class="ui blue statistic">
+    <div class="value">
+      7%
+    </div>
+    <div class="label">
+      annotations<br> verified
+    </div>
+  </div>
+
+  <!--<div class="grey statistic">-->
+    <!--<div class="value">-->
+      <!--1056-->
+    <!--</div>-->
+    <!--<div class="label">-->
+      <!--annotations-->
+    <!--</div>-->
+  <!--</div>-->
+ </div>
+</div>
+</div>
+<br><br><br>
+
+</div>
+<br>
+
+
+<div class="ui main center aligned container stackable" style="margin-top: 30px; margin-bottom:-30px;">
+<p  style="margin-bottom: 0px;"> If you use this platform or any of the hosted datasets in academic work please cite our paper: </p>
+ E. Fonseca, J. Pons, X. Favory, F. Font, D. Bogdanov, A. Ferraro, S. Oramas, A. Porter & X. Serra.
+    <a target="_blank" href="https://ismir2017.smcnus.org/wp-content/uploads/2017/10/161_Paper.pdf"><br>
+        Freesound Datasets: A Platform for the Creation of Open Audio Datasets</a>. <br>
+    In Proceedings of the 18th International Society for Music Information Retrieval Conference, Suzhou, China, 2017. <b>[BiB]</b>
+</div>
+
+
+</center>
+<!--end of new proposed version-->
+
+
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+
+
+
+
+
+
+
+
+
+<!--second version**********************************************************************************-->
+
+
+<center>
 <h2 style="color: black;">The {{ dataset.short_name|upper }} is a large-scale, general-purpose audio dataset</h2>
         <p style="margin-top:0px">It consists of audio samples from <a target="_blank" href="http://freesound.org/"><b>Freesound.org</b></a> organised following the <a target="_blank" href="https://research.google.com/audioset/"><b>AudioSet Ontology</b></a></p>
 
@@ -184,7 +420,7 @@ which express the potential presence of a sound source in an audio sample.</p>
     <i class="users icon"></i>
     <div class="content">
       <div class="title">Crowdsourcing</div>
-      <div class="description">we rely on the community to<br>validate the candidate annotations</div>
+      <div class="description">we rely on the community to<br>verify the candidate annotations</div>
     </div>
   </div>
   <div class="disabled step">
@@ -216,8 +452,12 @@ which express the potential presence of a sound source in an audio sample.</p>
     </a>
 </div>
 </div>
-
 </center>
+
+
+
+
+
 <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
 <div class="ui inverted red segment raised">
   <center><br><img class="ui center aligned image" style="width: 240px;padding: 30px 20px 30px 20px;" src="{% static "img/audioset_logo.svg" %}"><i class="ui icon heart big"><!-- heart handshake exchange --></i><img class="ui center aligned image" style="width: 240px;" src="{% static "img/freesound_logo.svg" %}"><i class="ui icon arrow down big"><!-- heart handshake exchange --></i><!--<img class="ui center aligned image" style="width: 270px;" src="{% static "img/freesound_datasets_logo.svg" %}">-->
