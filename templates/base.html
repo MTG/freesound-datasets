@@ -28,12 +28,13 @@
         {% if home %}
         <div id="header_home" class="ui red inverted menu" style="border-radius: 0 !important;">
         {% else %}
-        <div class="ui fixed red inverted menu">
+        <div id="header_other" class="ui fixed red inverted menu">
         {% endif %}
           <div class="ui container">
             {% if dataset %}
                 {% if dataset.short_name == "fsd" %}
-                    <a href="{% url 'dataset' dataset.short_name %}"><img style="padding: 5px;width: 120px;max-height:70px;" src="{% static "img/freesound_dataset_logo_b.svg" %}"></a>
+                    <a href="{% url 'dataset' dataset.short_name %}" class="{% if dataset_page %} active {% else %} {% endif %}item">
+                        <img style="padding: 5px;width: 120px;max-height:70px;" src="{% static "img/freesound_dataset_logo_b.svg" %}"></a>
                 {% else %}
                     {{ dataset.name }}
                 {% endif %}
@@ -46,7 +47,7 @@
                     <a href="#" class="item disabled">Download</a>
                 {% endif %}
             {% else %}
-                <img style=" visibility: hidden; padding: 5px;width: 300px;height:76px; hi" src="{% static "img/freesound_datasets_logo.svg" %}">
+                <img style=" visibility: hidden; padding: 5px;width: 300px;height:76px;" src="{% static "img/freesound_datasets_logo.svg" %}">
             {% endif %}
             <div class="right menu">
                 {% if request.user.is_authenticated %}
@@ -55,7 +56,7 @@
                 {% else %}
                     <a class="item" href="{% url 'login' %}"><i class="user icon"></i>Login</a>
                 {% endif %}
-                <a class="item" href="{% url 'index' %}"><i class="home icon"></i>Home</a>
+                <a class="{% active_if_current 'index' %}item" href="{% url 'index' %}"><i class="home icon"></i>Home</a>
             </div>
           </div>
         </div>

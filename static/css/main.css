@@ -8,6 +8,10 @@ body {
 	margin: 0 0;
 }
 
+#header_other {
+	height: 76px;
+}
+
 /* flex tricks to have footer always at bottom */
 .main_wrapper {
 	display: flex;

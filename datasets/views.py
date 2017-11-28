@@ -50,6 +50,7 @@ def dataset(request, short_name):
         
     return render(request, 'datasets/dataset.html', {
         'dataset': dataset,
+        'dataset_page': True,
         'user_is_maintainer': user_is_maintainer,
         'dataset_release_form': form, 'dataset_release_form_errors': form_errors,
     })
