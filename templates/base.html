@@ -26,9 +26,9 @@
     <!-- HEADER -->
     {% block header %}
         {% if home %}
-        <div id="header_home" class="ui inverted menu" style="border-radius: 0 !important;">
+        <div id="header_home" class="ui red inverted menu" style="border-radius: 0 !important;">
         {% else %}
-        <div class="ui fixed inverted menu">
+        <div class="ui fixed red inverted menu">
         {% endif %}
           <div class="ui container">
             {% if dataset %}
@@ -77,7 +77,7 @@
 
     <!-- FOOTER -->
     {% block footer %}
-        <div class="ui inverted vertical footer segment">
+        <div class="ui inverted red vertical footer segment">
             <div class="ui center aligned container">
                 <div class="ui horizontal inverted small link list">
                     <a class="item" href="{% url 'index' %}">
