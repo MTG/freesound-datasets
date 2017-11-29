@@ -118,12 +118,21 @@ that express the presence of sound sources in audio clips.
   <div class="ui container" style="width:100%;">
     <div class="ui middle aligned stackable grid container">
       <div class="row">
-        <div class="six wide right floated column">
-          <div class="ui basic segment  " >
-          <!--<img class="ui center aligned image" style="width: 240px;" src="{% static "img/freesound_logo.svg" %}">-->
-              {{ dataset.random_fs_sound_id| fs_embed | safe }}
-              {{ dataset.random_fs_sound_id| fs_embed | safe }}
-
+      <!-- EX TRANSLATE: $('#examples_container').css({"-webkit-transform":"translate(-220px,0px)"}); -->
+        <div class="six wide right floated column" style="overflow-x: hidden;">
+          <div id="examples_container" style="width: 2000px;">
+            {% for node in random_nodes %}
+              <span class="ui segment" id="node_{{ forloop.counter }}" style="display: inline-block;">
+              <div><p><b>{{ node.name }}</b></p></div>
+              <div>
+                {% for sound in node.valid_examples %}
+                  <span>
+                    {{ sound| fs_embed | safe }}
+                  </span>
+                {% endfor %}
+              </div>
+              </span>
+            {% endfor %}
           </div>
         </div>
         <div class="right floated left aligned nine wide column">
