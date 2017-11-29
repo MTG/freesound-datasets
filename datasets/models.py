@@ -11,6 +11,7 @@ from django.dispatch import receiver
 import os
 import markdown
 import datetime
+import random
 from django.utils import timezone
 from django.core.validators import RegexValidator
 from django.core.exceptions import ObjectDoesNotExist
@@ -466,11 +467,10 @@ class Dataset(models.Model):
 
     @property
     def random_fs_sound_id(self):
-        sounds = self.sounds.order_by('?')
-        if sounds:
-            return sounds[0].freesound_id
-        else:
-            return None
+        last = self.sounds.count() - 1
+        random_index = random.randint(0, last-1)
+        sounds = self.sounds.all()[random_index]
+        return sounds.freesound_id
 
 
 class DatasetRelease(models.Model):
