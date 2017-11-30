@@ -189,8 +189,8 @@ that express the presence of sound sources in audio clips.
   <div class="active step">
     <i class="users  icon"></i>
     <div class="content">
-      <div class="title"><a target="_blank" href="https://datasets.freesound.org/fsd/annotate/"><b>Crowdsourcing</b></a></div>
-      <div class="description">help us <a target="_blank" href="https://datasets.freesound.org/fsd/annotate/"><b>verify the <br> candidate annotations</b></a></div>
+      <div class="title"><a target="_blank" href="{% url 'contribute' dataset.short_name %}"><b>Crowdsourcing</b></a></div>
+      <div class="description">help us <a target="_blank" href="{% url 'contribute' dataset.short_name %}"><b>verify the <br> candidate annotations</b></a></div>
     </div>
   </div>
 
@@ -478,7 +478,7 @@ which express the potential presence of a sound source in an audio sample.</p>
       <center><i class="child icon huge"></i>
       <h3>Annotate</h3></center>
     </a>
-  <a class="ui button" href="{% url 'discussion' 'fsd' %}" style="min-width: 200px;">
+  <a class="ui button" href="{% url 'discussion' dataset.short_name %}" style="min-width: 200px;">
       <center><i class="comments outline icon huge"></i>
       <h3>Discussion</h3></center>
     </a>
@@ -570,7 +570,7 @@ which express the potential presence of a sound source in an audio sample.</p>
       <center><i class="child icon huge"></i>
       <h3>Annotate</h3></center>
     </a>
-  <a class="ui button" href="{% url 'discussion' 'fsd' %}" style="min-width: 200px;">
+  <a class="ui button" href="{% url 'discussion' dataset.short_name %}" style="min-width: 200px;">
       <center><i class="comments outline icon huge"></i>
       <h3>Discussion</h3></center>
     </a>
