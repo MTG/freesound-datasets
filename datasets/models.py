@@ -235,6 +235,7 @@ class TaxonomyNode(models.Model):
     # for easy admin example change:
     list_freesound_examples = models.CharField(max_length=100, null=True, blank=True, validators=[validator_list_examples])
     list_freesound_examples_verification = models.CharField(max_length=100, null=True, blank=True, validators=[validator_list_examples])
+    beginner_task = models.BooleanField(default=False)
 
     app_label = 'datasets'
     model_name = 'taxonomynode'

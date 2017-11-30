@@ -150,9 +150,13 @@ def contribute_validate_annotations(request, short_name):
 def contribute_validate_annotations_easy(request, short_name):
     node_id = request.GET.get('url_id')
     if not node_id:
-        node_id = TaxonomyNode.objects.exclude(omitted=True).order_by('?')[0].url_id
-    return contribute_validate_annotations_category(request, short_name, node_id,
-                                                    html_url='datasets/contribute_validate_annotations_category_easy.html')
+        node_ids = TaxonomyNode.objects.filter(beginner_task=True).order_by('?')
+        if node_ids:
+            node_id = node_ids[0].url_id
+            return contribute_validate_annotations_category(request, short_name, node_id,
+                                            html_url='datasets/contribute_validate_annotations_category_easy.html')
+        else:
+            return contribute(request, short_name)
 
 
 def get_candidate_annotations_complete_ids_random_from(candidate_annotation_ids):
