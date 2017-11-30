@@ -2,6 +2,7 @@
 {% load staticfiles %}
 {% load humanize %}
 {% load dataset_templatetags %}
+{% load general_templatetags %}
 {% block title %}{{dataset.short_name|upper}}{% endblock title %}
 {% block page_js %}
 
@@ -79,9 +80,14 @@
         }
 
         function start_auto_scroll() {
-            var translate_values = ['-25', '-322', '-621', '-920', '-1217', '-1515', '-1811', '-2109', '-2407', '-2705'];
+            var examples_container = $('#examples_container');
+            var categories = examples_container.children();
+            var translate_values = [];
+            categories.each(function(){
+                translate_values.push(-$( this ).position()['left']+3)
+            });
             var counter = 1;
-            $('#examples_container').css({"transform": "translateX(-25px)"});
+            examples_container.css({"transform": "translateX("+ translate_values[0] +")"});
             var paused = false;
             $('#category_examples').on({
                 mouseenter: function () {
@@ -94,7 +100,7 @@
             setInterval(function() {
                 if (!paused) {
                     var translate_value = translate_values[counter];
-                    $('#examples_container').css({"transform": "translateX(" + translate_value + "px)"});
+                    examples_container.css({"transform": "translateX(" + translate_value + "px)"});
                     counter = (counter < 9) ? counter + 1 : 0;
                 }
             }, 5000)
@@ -103,9 +109,6 @@
     </script>
 {% endblock %}
 {% block content %}
-
-
-<!--new proposed version**********************************************************************************-->
 
 <center>
 
@@ -146,7 +149,7 @@ that express the presence of sound sources in audio clips.
           <div id="examples_container" style="width: 3000px; transition: transform 1s ease;">
             {% for node in random_nodes %}
               <span class="ui segment" id="node_{{ forloop.counter }}" style="display: inline-block; width:294px;">
-              <div><p><b>{{ node.name }}</b></p></div>
+              <a href="{% url 'dataset-explore-taxonomy-node' dataset.short_name node.url_id %}"><p><b>{{ node.name }}</b></p></a>
               <div>
                 {% for sound in node.valid_examples %}
                   <span>
@@ -260,293 +263,6 @@ that express the presence of sound sources in audio clips.
     <a target="_blank" href="https://ismir2017.smcnus.org/wp-content/uploads/2017/10/161_Paper.pdf"><br>
         Freesound Datasets: A Platform for the Creation of Open Audio Datasets</a>. <br>
     In Proceedings of the 18th International Society for Music Information Retrieval Conference, Suzhou, China, 2017. <b>[BiB]</b>
-</div>
-
-
-</center>
-<!--end of new proposed version-->
-
-
-<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-
-
-
-
-
-
-
-
-
-<!--second version**********************************************************************************-->
-
-
-<center>
-<h2 style="color: black;">The {{ dataset.short_name|upper }} is a large-scale, general-purpose audio dataset</h2>
-        <p style="margin-top:0px">It consists of audio samples from <a target="_blank" href="http://freesound.org/"><b>Freesound.org</b></a> organised following the <a target="_blank" href="https://research.google.com/audioset/"><b>AudioSet Ontology</b></a></p>
-
-<br>
-
-  <div class="ui container" style="width:80%;">
-    <div class="ui middle aligned stackable grid container">
-      <div class="row">
-        <div class="six wide right floated column">
-          <div class="ui segment inverted red">
-          <img class="ui center aligned image" style="width: 240px;padding: 30px 20px 30px 20px;" src="{% static "img/audioset_logo.svg" %}">
-          </div>
-        </div>
-        <div class="right floated left aligned nine wide column">
-          <h3 class="ui header">Title placeholder</h3>
-          <p>The Audioset Ontology includes {{dataset.taxonomy.get_num_nodes}} classes. We have mapped a total of {{ dataset.num_sounds|intcomma }} Freesound.org audio
-        samples to the AudioSet Ontology. The mapping generated {{ dataset.num_annotations|intcomma }} annotations
-which express the potential presence of a sound source in an audio sample.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-<br><br>
-
-<div class="ui grid">
-<div class="eight wide column"><h2>Our goals</h2>
- <br>
- <div class="ui two statistics">
-  <div class="grey statistic">
-    <div class="value">
-      +300k
-    </div>
-    <div class="label">
-      audio samples
-    </div>
-  </div>
-  <div class="grey statistic">
-    <div class="text value">
-      high <br>quality
-    </div>
-    <div class="label">
-      annotations
-    </div>
-  </div>
- </div>
-</div> 
-<div class="eight wide column"><h2>Current status</h2>
- <br>
- <div class="ui two statistics">
-  <div class="grey statistic">
-    <div class="value">
-      7%
-    </div>
-    <div class="label">
-      completed
-    </div>
-  </div>
-  <div class="grey statistic">
-    <div class="value">
-      1056
-    </div>
-    <div class="label">
-      annotations
-    </div>
-  </div>
- </div>
-</div> 
-</div>
-
-<br><br><br>
-
-  <div class="ui container" style="width:80%;">
-    <div class="ui middle aligned stackable grid container">
-      <div class="row">
-        <div class="right floated left aligned nine wide column">
-          <h3 class="ui header">Space for examples and applications</h3>
-          <p>We can give your company superpowers to do things that they never thought possible. Let us delight your customers and empower your needs...through pure data analytics.We can give your company superpowers to do things that they never thought possible. Let us delight your customers and empower your needs...through pure data analytics.</p>
-        </div>
-        <div class="six wide right floated column">
-          <div class="ui segment inverted red">
-          <img class="ui center aligned image" style="width: 240px;" src="{% static "img/freesound_logo.svg" %}">
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-
-<br>
-
-<h3> We are now crowdsourcing annotations to build the first {{ dataset.short_name|upper}} release</h3>
-
-<div class="ui steps raised" style="text-align:left;">
-  <div class="step">
-    <i class="checkmark green icon"></i>
-    <div class="content">
-      <div class="title">Generate candidate<br>annotations</div>
-      <div class="description">by leveraging Freesound.org </div>
-    </div>
-  </div>
-  <div class="active step">
-    <i class="users icon"></i>
-    <div class="content">
-      <div class="title">Crowdsourcing</div>
-      <div class="description">we rely on the community to<br>verify the candidate annotations</div>
-    </div>
-  </div>
-  <div class="disabled step">
-    <i class="send icon"></i>
-    <div class="content">
-      <div class="title">First FSD release</div>
-      <div class="description">including: waveforms, pre-computed<br>features, metadata and annotations</div>
-    </div>
-  </div>
-</div>
-
-<br>
-
-<h2> Get involved and start contributing!</h2>
-<div class="ui raised center aligned container" style="margin-top: 35px;">
-<div class="ui basic buttons">
-
-  <a class="ui button" href="{% url 'dataset-explore' dataset.short_name %}" style="min-width: 200px;">
-      <center><i class="treatment open outline icon huge"></i>
-      <h3>Explore</h3></center>
-    </a>
-  <a class="ui button" href="{% url 'contribute' dataset.short_name %}" style="min-width: 200px;">
-      <center><i class="child icon huge"></i>
-      <h3>Annotate</h3></center>
-    </a>
-  <a class="ui button" href="{% url 'discussion' dataset.short_name %}" style="min-width: 200px;">
-      <center><i class="comments outline icon huge"></i>
-      <h3>Discussion</h3></center>
-    </a>
-</div>
-</div>
-</center>
-
-
-
-
-
-<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-<div class="ui inverted red segment raised">
-  <center><br><img class="ui center aligned image" style="width: 240px;padding: 30px 20px 30px 20px;" src="{% static "img/audioset_logo.svg" %}"><i class="ui icon heart big"><!-- heart handshake exchange --></i><img class="ui center aligned image" style="width: 240px;" src="{% static "img/freesound_logo.svg" %}"><i class="ui icon arrow down big"><!-- heart handshake exchange --></i><!--<img class="ui center aligned image" style="width: 270px;" src="{% static "img/freesound_datasets_logo.svg" %}">-->
-<div class="ui raised segment" style="width:85%;margin-bottom:15px;">
-<h3>The {{ dataset.name }} ({{ dataset.short_name|upper }}) is a large-scale, general-purpose audio dataset</h3>
-        <h4 style="margin-top:0px">It consists of audio samples from <a target="_blank" href="http://freesound.org/">Freesound.org</a> (>300k) organised following the <a target="_blank" href="https://research.google.com/audioset/">AudioSet Ontology</a></h4>
-</div>
-</center>
-</div>
-<br>
-<center>
-<h2> We are now crowdsourcing annotations to build the first {{ dataset.short_name|upper}} release!</h2>
-
-<div class="ui steps raised" style="text-align:left;">
-  <div class="step">
-    <i class="checkmark green icon"></i>
-    <div class="content">
-      <div class="title">Generate candidate<br>annotations</div>
-      <div class="description">...via leveraging Freesound.org</div>
-    </div>
-  </div>
-  <div class="active step">
-    <i class="users icon"></i>
-    <div class="content">
-      <div class="title">Crowdsourcing</div>
-      <div class="description">we rely on the community to<br>validate the candidate annotations!</div>
-    </div>
-  </div>
-  <div class="disabled step">
-    <i class="send icon"></i>
-    <div class="content">
-      <div class="title">First FSD release</div>
-      <div class="description">including: waveforms, pre-computed<br>features, metadata and annotations</div>
-    </div>
-  </div>
-</div>
-
-<h2>Current status &ndash; statistics:</h2>
-</center>
-    <p>
-        <div id="dataset_releases_table_placeholder">
-            <div class="ui active centered inline text loader">Loading data...</div>
-        </div>
-    </p>
-    {% if user_is_maintainer %}
-        <button onclick="$('#make_release_modal').modal('show');" class="green ui button right labeled icon right floated">Make new release <i class="add icon"></i></button>
-        <!-- make release modal -->
-            <div id="make_release_modal" class="ui modal">
-                <div class="header">
-                    Make a new release for {{ dataset.name }}
-                </div>
-                <div class="content">
-                    <form id="make_release_form" class="ui form" method="post" action=".">{% csrf_token %}
-                        {{ dataset_release_form.as_p }}
-                        <p><button class="right floated ui green button" type="submit">OK</button><br></p>
-                    </form>
-                </div>
-            </div>
-        <!-- end make release modal -->
-    {% endif %}
-
-<center>
-<div class="ui segment" style="width:100%">
-<p>Considering Freesound tags, we have mapped {{ dataset.num_sounds|intcomma }}
-        audio samples to the AudioSet Ontology classes. As a result, the mapping generated {{ dataset.num_annotations|intcomma }} candidate annotations. 
-        We are now validating these automatically generated candidate annotations via crowdsourcing &mdash; to publish soon the first FSD release!</p>
-</div>
-
-<h2> Get involved and start contributing!</h2>
-<div class="ui raised center aligned container" style="margin-top: 35px;">
-<div class="ui basic buttons">
-
-  <a class="ui button" href="{% url 'dataset-explore' dataset.short_name %}" style="min-width: 200px;">
-      <center><i class="treatment open outline icon huge"></i>
-      <h3>Explore</h3></center>
-    </a>
-  <a class="ui button" href="{% url 'contribute' dataset.short_name %}" style="min-width: 200px;">
-      <center><i class="child icon huge"></i>
-      <h3>Annotate</h3></center>
-    </a>
-  <a class="ui button" href="{% url 'discussion' dataset.short_name %}" style="min-width: 200px;">
-      <center><i class="comments outline icon huge"></i>
-      <h3>Discussion</h3></center>
-    </a>
-  <a target="_blank" class="ui button" href="https://ismir2017.smcnus.org/wp-content/uploads/2017/10/161_Paper.pdf" style="min-width: 200px;">
-      <center><i class="file pdf outline icon huge"></i>
-      <h3>+ info</h3></center>
-    </a>
-</div>
-</div>
-
-<br>
-
-<h2> Our goals</h2>
-
-<br>
-
-<div class="ui three statistics">
-  <div class="grey statistic">
-    <div class="value">
-      +300,000
-    </div>
-    <div class="label">
-      audio samples
-    </div>
-  </div>
-  <div class="grey statistic">
-    <div class="label">
-      IMPROVE in
-    </div>
-    <div class="text value">
-      QUANTITY &<br>QUALITY
-    </div>
-  </div>
-    <div class="grey statistic">
-    <div class="text value">
-      HUMAN<br>
-      LABELLED
-    </div>
-    <div class="label">
-      DATASET
-    </div>
-  </div>
 </div>
 </center>
 {% endblock %}
