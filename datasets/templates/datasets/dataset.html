@@ -79,9 +79,9 @@
         }
 
         function start_auto_scroll() {
-            var translate_values = ['-120', '-417', '-716', '-1015', '-1314', '-1610'];
+            var translate_values = ['-25', '-322', '-621', '-920', '-1217', '-1515', '-1811', '-2109', '-2407', '-2705'];
             var counter = 1;
-            $('#examples_container').css({"transform": "translateX(-120px)"});
+            $('#examples_container').css({"transform": "translateX(-25px)"});
             var paused = false;
             $('#category_examples').on({
                 mouseenter: function () {
@@ -95,9 +95,9 @@
                 if (!paused) {
                     var translate_value = translate_values[counter];
                     $('#examples_container').css({"transform": "translateX(" + translate_value + "px)"});
-                    counter = (counter < 5) ? counter + 1 : 0;
+                    counter = (counter < 9) ? counter + 1 : 0;
                 }
-            }, 5000)
+            }, 2000)
 
         }
     </script>
@@ -143,7 +143,7 @@ that express the presence of sound sources in audio clips.
     <div class="ui middle aligned stackable grid container">
       <div class="row">
         <div id="category_examples" class="six wide right floated column" style="overflow-x: hidden;">
-          <div id="examples_container" style="width: 2000px; transition: transform 1s ease;">
+          <div id="examples_container" style="width: 3000px; transition: transform 1s ease;">
             {% for node in random_nodes %}
               <span class="ui segment" id="node_{{ forloop.counter }}" style="display: inline-block; width:294px;">
               <div><p><b>{{ node.name }}</b></p></div>
