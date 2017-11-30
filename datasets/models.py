@@ -399,6 +399,12 @@ class Dataset(models.Model):
         return self.candidate_annotations.exclude(ground_truth__isnull=True).count()
 
     @property
+    def percentage_verified_annotations(self):
+        if self.num_annotations == 0:
+            return 0
+        return self.num_verified_annotations * 100.0 / self.num_annotations
+
+    @property
     def num_user_contributions(self):
         return Vote.objects.filter(candidate_annotation__sound_dataset__dataset=self).count()
 
