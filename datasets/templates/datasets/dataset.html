@@ -12,6 +12,7 @@
                 $('#make_release_modal').modal('show');
             {% endif %}
             $('.menu .item').tab();
+            start_auto_scroll();
         });
 
         function loadDatasetReleasesTable() {
@@ -76,6 +77,29 @@
                 polling_timer = setInterval(function(){ updateReleasePercentages(); }, 1000);
             }
         }
+
+        function start_auto_scroll() {
+            var translate_values = ['-120', '-417', '-716', '-1015', '-1314'];
+            var counter = 1;
+            $('#examples_container').css({"transform": "translateX(-120px)"});
+            var paused = false;
+            $('#category_examples').on({
+                mouseenter: function () {
+                    paused = true;
+                },
+                mouseleave: function () {
+                    paused = false;
+                }
+            });
+            setInterval(function() {
+                if (!paused) {
+                    var translate_value = translate_values[counter];
+                    $('#examples_container').css({"transform": "translateX(" + translate_value + "px)"});
+                    counter = (counter < 4) ? counter + 1 : 0;
+                }
+            }, 5000)
+
+        }
     </script>
 {% endblock %}
 {% block content %}
@@ -118,11 +142,10 @@ that express the presence of sound sources in audio clips.
   <div class="ui container" style="width:100%;">
     <div class="ui middle aligned stackable grid container">
       <div class="row">
-      <!-- EX TRANSLATE: $('#examples_container').css({"-webkit-transform":"translate(-220px,0px)"}); -->
-        <div class="six wide right floated column" style="overflow-x: hidden;">
-          <div id="examples_container" style="width: 2000px;">
+        <div id="category_examples" class="six wide right floated column" style="overflow-x: hidden;">
+          <div id="examples_container" style="width: 2000px; transition: transform 1s ease;">
             {% for node in random_nodes %}
-              <span class="ui segment" id="node_{{ forloop.counter }}" style="display: inline-block;">
+              <span class="ui segment" id="node_{{ forloop.counter }}" style="display: inline-block; width:294px;">
               <div><p><b>{{ node.name }}</b></p></div>
               <div>
                 {% for sound in node.valid_examples %}
