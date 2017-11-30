@@ -9,14 +9,14 @@ class Command(BaseCommand):
            'DATASET_ID PATH/TO/TAOXNOMY_FILE.json'
 
     def add_arguments(self, parser):
-        parser.add_argument('dataset_id', type=int)
+        parser.add_argument('dataset_short_name', type=str)
         parser.add_argument('taxonomy_file', type=str)
 
     def handle(self, *args, **options):
         file_location = options['taxonomy_file']
-        dataset_id = options['dataset_id']
+        dataset_short_name = options['dataset_short_name']
 
-        ds = Dataset.objects.get(id=dataset_id)
+        ds = Dataset.objects.get(short_name=dataset_short_name)
         taxonomy = ds.taxonomy
         data = json.load(open(file_location))
 
