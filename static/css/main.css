@@ -157,6 +157,10 @@ ul {
    font-size: 16px;
 }
 
+.small.text {
+  font-size: 13px;
+}
+
 .back_clear {
 	color: #262626;
 }
