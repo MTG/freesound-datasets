@@ -120,7 +120,7 @@
         <div class="right floated left aligned nine wide column">
           <h3 class="ui header">{{ dataset.short_name|upper }}: a dataset of everyday sounds</h3>
           <p style="text-align:justify">The AudioSet Ontology is a hierarchical collection of over 600 sound classes and
-              we have filled them with {{ dataset.num_sounds|intcomma }} audio samples from Freesound.org.
+              we have filled them with {{ dataset.num_sounds|intcomma }} audio samples from Freesound.
               This process generated {{ dataset.num_annotations|intcomma }} candidate annotations
 that express the presence of sound sources in audio clips.
           {{ dataset.short_name|upper }}  includes a variety of everyday sounds, from human and animal sounds to music and sounds made by things,
@@ -173,37 +173,35 @@ that express the presence of sound sources in audio clips.
 
 
 <br><br>
+<div class="ui basic segment center aligned ">
+<h2> Get involved and start contributing!</h2>
+<center>
+<div class="ui basic labels" style="margin-top:25px;border: 0px solid;">
 
+  <a class="ui basic label" href="{% url 'dataset-explore' dataset.short_name %}" style="min-width: 200px;border: 0px solid;">
+      <center><h3>Explore</h3>
+      <i class="unhide icon huge"></i><br><br>
+      <p>Take a peek <br> inside {{ dataset.short_name|upper }}</p></center>
+    </a>
 
-<div class="ui steps raised" style="text-align:left;">
+  <a class="ui basic label" href="{% url 'contribute' dataset.short_name %}" style="min-width: 200px;border: 0px solid;">
+      <center><h3>Annotate</h3>
+      <i class="child icon huge"></i><br><br>
+      <p>Help us verify the<br> candidate annotations</p></center>
+    </a>
 
-  <div class="step">
-    <i class="checkmark grey icon"></i>
-    <div class="content">
-      <div class="title">Generate annotations</div>
-      <div class="description">already done automatically</div>
-    </div>
-  </div>
-
-  <div class="active step">
-    <i class="users  icon"></i>
-    <div class="content">
-      <div class="title"><a target="_blank" href="{% url 'contribute' dataset.short_name %}"><b>Crowdsourcing</b></a></div>
-      <div class="description">help us <a target="_blank" href="{% url 'contribute' dataset.short_name %}"><b>verify the <br> candidate annotations</b></a></div>
-    </div>
-  </div>
-
-  <div class="disabled step">
-    <i class="send icon"></i>
-    <div class="content">
-      <div class="title">First {{ dataset.short_name|upper }} release</div>
-      <div class="description">including waveforms, audio features, <br> metadata and annotations</div>
-    </div>
-  </div>
-
+  <a class="ui basic label" href="{% url 'discussion' dataset.short_name %}" style="min-width: 200px;border: 0px solid;">
+      <center><h3>Discuss</h3>
+      <i class="comments outline icon huge"></i><br><br>
+      <p>Share your comments<br>and suggestions</p></center>
+    </a>
+</div>
+</center>
+<br>
 </div>
 
-<br><br><br>
+
+<br>
 <div class="ui center aligned ">
 
 <div class="ui grid">
@@ -256,41 +254,8 @@ that express the presence of sound sources in audio clips.
 </div>
 
 
-
-<br>
-
-<!--<div class="ui vertical segment center aligned">-->
-<div class="ui vertical segment center aligned ">
-
-<h2> Get involved and start contributing!</h2>
-<center>
-<div class="ui basic labels" style="margin-top:25px;border: 0px solid;">
-
-  <a class="ui basic label" href="{% url 'dataset-explore' dataset.short_name %}" style="min-width: 200px;border: 0px solid;">
-      <center><h3>Explore</h3>
-      <i class="unhide icon huge"></i><br><br>
-      <p>Take a peek <br> inside {{ dataset.short_name|upper }}</p></center>
-    </a>
-
-  <a class="ui basic label" href="{% url 'contribute' dataset.short_name %}" style="min-width: 200px;border: 0px solid;">
-      <center><h3>Annotate</h3>
-      <i class="child icon huge"></i><br><br>
-      <p>Help us verify the<br> candidate annotations</p></center>
-    </a>
-
-  <a class="ui basic label" href="{% url 'discussion' dataset.short_name %}" style="min-width: 200px;border: 0px solid;">
-      <center><h3>Discuss</h3>
-      <i class="comments outline icon huge"></i><br><br>
-      <p>Share your comments<br>and suggestions</p></center>
-    </a>
-</div>
-</center>
-<br>
-</div>
-
-
 <div class="ui main center aligned container stackable" style="margin-top: 30px; margin-bottom:-30px;">
-<p  style="margin-bottom: 0px;"> If you use this platform or any of the hosted datasets in your work please cite our paper: </p>
+<p  style="margin-bottom: 0px;"> If you use this dataset in your work please cite our paper: </p>
  E. Fonseca, J. Pons, X. Favory, F. Font, D. Bogdanov, A. Ferraro, S. Oramas, A. Porter & X. Serra.
     <a target="_blank" href="https://ismir2017.smcnus.org/wp-content/uploads/2017/10/161_Paper.pdf"><br>
         Freesound Datasets: A Platform for the Creation of Open Audio Datasets</a>. <br>
