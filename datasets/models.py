@@ -478,7 +478,7 @@ class Dataset(models.Model):
         sounds = self.sounds.all()[random_index]
         return sounds.freesound_id
 
-    def get_random_taxonomy_node_with_examples(self, num_nodes=6):
+    def get_random_taxonomy_node_with_examples(self, num_nodes=10):
         nodes = self.taxonomy.taxonomynode_set.annotate(nb_examples=Count('freesound_examples'))\
             .filter(nb_examples__gte=2)
         random_idx = random.sample(range(len(nodes)), min(num_nodes, len(nodes)))
