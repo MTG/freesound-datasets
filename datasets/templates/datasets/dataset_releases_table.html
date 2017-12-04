@@ -6,17 +6,13 @@
             <th class="one wide"></th>
             <th class="one wide"># classes</th>
             <th class="one wide"># audio samples</th>
-            <th class="one wide"><div data-tooltip="Annotations that have been validated by several users,
+            <th class="one wide"><div data-tooltip="Annotations that have been verified by several users,
             until reaching agreement on the presence of the sound class.">
                 # ground truth annotations</div></th>
-            <th class="one wide"><div data-tooltip="Annotations that have been validated by several users,
-            until reaching agreement on either presence or absence of the sound class.">
-                # verified annotations</div></th>
             <th class="one wide"> <div data-tooltip="Generated automatically by the initial mapping from Freesound tags to AudioSet,
             expressing the potential presence of a sound class in an audio sample."># candidate annotations</div></th>
             <th class="one wide"> <div data-tooltip="Number of contributions or validations made by users.">
                 # votes</div></th>
-            <th class="one wide"></th>
         </tr>
     </thead>
     <tbody>
@@ -25,10 +21,8 @@
             <td>{{ dataset_basic_stats.num_taxonomy_nodes }}</td>
             <td>{{ dataset_basic_stats.num_sounds }}</td>
             <td>{{ dataset_basic_stats.num_ground_truth_annotations }}</td>
-            <td>{{ dataset_basic_stats.num_verified_annotations}}</td>
             <td>{{ dataset_basic_stats.num_annotations }}</td>
             <td>{{ dataset_basic_stats.num_user_contributions }}</td>
-            <td></td>
         </tr>
         {% for release in dataset_releases_for_user %}
             <tr id="release_row_{{ release.id }}" class="{% if not release.is_processed %}negative{% else %}{% if release.type == 'IN' %}warning{% else %}{% endif %}{% endif %}">
