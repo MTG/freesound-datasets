@@ -48,12 +48,203 @@
         </div>
       </div>
     </div>
+
+
+    <h1>Instructions</h1>
+
+<h3>Task: validating the presence of a sound category in audio samples</h3>
+<p>Thank you for annotating! <i>Please read these instructions carefully.</i>
+
+
 </center>
-    <h1 class="ui header">Instructions</h1>
-    <p>
-        Thank you for annotating! Please read these instructions carefully.
-        This task consists of validating the presence of a sound category in audio samples.
-    </p>
+
+<br>
+
+  <div class="ui container" style="width:90%;">
+    <div class="ui middle aligned stackable grid container">
+      <div class="row">
+        
+        <div class="two wide right floated column">
+          <div class="ui basic segment ">
+            <div class="ui red statistic">
+              <div class="value">
+                <b>1</b>
+              </div>
+              <div class="label">
+               Choose<br>category
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="right floated left aligned twelve wide column very">
+          <p>Choose a sound category from the AudioSet Ontology. </p><p style="margin-top:-25px;"><i>If you don't feel comfortable</i> with the category you are in, please <i>consider changing it</i>
+                        by returning to this first step.
+          </p>
+        </div>
+      </div>
+    </div>
+  
+    <div class="ui middle aligned stackable grid container">
+      <div class="row">
+
+        <div class="two wide right floated column">
+          <div class="ui basic segment ">
+            <div class="ui red statistic">
+              <div class="value">
+               <b>2</b>
+              </div>
+              <div class="label">
+               training
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="right floated left aligned twelve wide column">
+          <p><b style="color:red;">Familiarise yourself with your category and its related categories</b>. The training page provides an overview of the category and its meaning, i.e.: related categories, description or examples. <i>Click on a related category to display
+                        some more information!</i>
+
+                        
+          </p>
+        </div>
+        
+      </div>
+    </div>
+<!--<br>
+<img class="ui bordered shaded centered image" style="width:85%;" src="{% static 'img/screen_explicit_training.png' %}"/>
+<br>-->
+    <div class="ui middle aligned stackable grid container">
+      <div class="row">
+        
+        <div class="two wide right floated column">
+          <div class="ui basic segment ">
+            <div class="ui red statistic">
+              <div class="value">
+                <b>3</b>
+              </div>
+              <div class="label">
+               validate
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="right floated left aligned twelve wide column">
+          <p style="text-align:justify;margin-right:70px;">Start validating sounds in your category according to the formulated question..</p>
+                        <p style="margin-top:-25px;"><b style="color:red;">Is &#60;sound category&#62; present in the following sounds?</b></p>
+<p style="margin-top:-25px;">..and the following <i>4 possible answers</i>:</p>
+                
+        </div>
+      </div>
+    </div>
+
+
+
+                 <table class="ui compact inverted blue table" style="margin-left:57px;width:95%;margin-top:20px;background-color:#b3b3b3;">
+                    <tr><td><p><b>Present and predominant</b></p></td><td><p>
+                        The type of sound described is <i>clearly present</i> in the audio clip and it is <i>predominant</i>,
+                        either isolated from other types of sound or with low/mild background noise.
+                    </p></td></tr>
+                    <tr><td><p><b>Present but not predominant</b></p></td><td><p>
+                        The type of sound described is <i>present</i>, but the audio clip also <i>contains other salient
+                        types of sound and/or strong background noise</i>.
+                    </p></td></tr>
+                    <tr><td><p><b>Not Present</b></p></td><td><p>
+                        The type of sound described is <i>not present</i> in the audio clip.
+                    </p></td></tr>
+                    <tr><td><p><b>Unsure</b></p></td><td><p>
+                        <i>I am not sure</i> whether the type of sound described is present or not.
+                    </p></td></tr>
+                </table>
+
+
+
+
+</div>
+
+<center>
+
+
+<br><br>
+
+
+<div class="ui relaxed grid" style="width:75%;margin-left:30px;">
+  <div class="two column row">
+
+    <div class="column">
+
+<img class="ui image" src="{% static 'img/one_vote.png' %}"/>
+
+
+    </div>
+
+    <div class="column">  <br><br><p><b style="color:red;">Are you finding it difficult?</b> Access Freesound through the </small><img class="ui inline image" style="width:80px;" src="{% static 'img/freesound_logo_color.png' %}"></span>link to check the sound’s metadata (description and tags).</p></div>
+
+
+
+  </div>
+</div>
+
+
+
+<div class="ui basic labels" style="margin-top:30px; text-align: center;">
+  <div class="ui basic label" style="text-align: center;background-color: transparent;border:transparent;">
+      <center>
+      <i class="sound icon huge back_clear"></i><br><br>
+      <p class="small text">Use high-quality<br>headphones</p></center>
+    </div>
+  <div class="ui basic label" style="background-color: transparent;border:transparent;">
+      <center>
+      <i class="volume up icon huge back_clear"></i><br><br>
+      <p class="small text">Set the volume to<br>a comfortable level</p></center>
+    </div>
+  <div class="ui basic label" style="background-color: transparent;border:transparent;">
+      <center>
+      <i class="heartbeat icon huge back_clear"></i><br><br>
+      <p class="small text">Take a 10 minutes<br>brake every hour</p></center>
+    </div>
+  <div class="ui basic label" style="background-color: transparent;border:transparent;">
+      <center>
+      <!--<i class="help outline icon huge back_clear"></i>--><a href="javascript:void(0);" onclick="$('#help_modal').modal('show');" class="ui orange button right labeled icon small">Help <i class="help icon"></i></a><br><br><br>
+      <p class="small text">Click help to review<br>these instructions</p></center>
+    </div>
+</div>
+
+    <br><br><br>
+    <div id="start_annotating_button_div" class="ui center aligned grid" data-tooltip="Please take your time to read the instructions carefully before starting :)">
+        <a id="start_annotating_button" href="{% url 'choose_category' dataset.short_name %}" class="ui big right labeled icon blue button disabled"><i class="checkmark box icon"></i>I can't wait anymore, let's start!</a>
+    </div>
+</center>
+
+<br><br><br><br><br><br><br><br><br><br><br><br>
+<center>
+<div class="ui raised tertiary red segment centered" style="width:65%;text-align:left;">
+
+ <p><b>Are you finding it difficult?</b> Access Freesound through the link at the top
+                right corner of every sound (<span><small>see in </small><img class="ui inline image" style="width:80px;" src="{% static 'img/freesound_logo_color.png' %}"></span>) to check the sound’s metadata (description and tags).</p>
+      
+
+
+<p>During the task, click on <a href="javascript:void(0);" onclick="$('#help_modal').modal('show');" class="ui orange button right labeled icon small">Help <i class="help icon"></i></a> to consult a summarized version of these instructions.</p>
+
+<p>Put your <b>headphones, adjust sound level</b> comfortably and listen to the provided examples.</p>
+
+<p><b>Annotated more than an hour?</b> Please take a 10 minutes break.</p>
+
+
+</div>
+
+</center>
+
+<br>
+<br>
+<br>
+<br>
+<br><br><br><br><br><br><br><br><br><br><br><br>
+
+
+
 
     <a id="how-to-validate-a-category"></a>
     <table class="ui celled compact definition table">
@@ -191,5 +382,64 @@
     <div id="start_annotating_button_div" class="ui center aligned grid" data-tooltip="Please take your time to read the instructions carefully before starting :)">
         <a id="start_annotating_button" href="{% url 'choose_category' dataset.short_name %}" class="ui big right labeled icon blue button disabled"><i class="checkmark box icon"></i>I can't wait anymore, let's start!</a>
     </div>
+
+
+    <!-- help modal -->
+    <div id="help_modal" class="ui basic modal">
+        <div class="ui icon header"><i class="help icon"></i>
+            Summary of instructions
+        </div>
+        <div class="content">
+            <div class="ui bulleted list">
+                <div class="item">
+                    Response type meanings:
+                    <p>
+                        <table class="ui celled padded inverted table">
+                            <thead>
+                            <tr><th>Response type</th>
+                            <th>Meaning</th>
+                            </tr></thead>
+                            <tbody>
+                            <tr>
+                                <td>Present and predominant</td>
+                                <td>Clearly present in the audio clip and predominant, either isolated from other types of sound or with low/mild background noise.</td>
+                            </tr>
+                            <tr>
+                                <td>Present but not predominant</td>
+                                <td>Present, but the audio clip also contains other salient types of sound and/or strong background noise.</td>
+                            </tr>
+                            <tr>
+                                <td>Not Present</td>
+                                <td>The type of sound is not present in the audio clip.</td>
+                            </tr>
+                            <tr>
+                                <td>Unsure</td>
+                                <td>I am not sure whether the type of sound is present or not.</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </p>
+                </div>
+                <div class="item">
+                    Please consider categories' <b>Hierarchy</b>, <b>Description</b> and related categories (siblings and/or direct children) before annotating
+                </div>
+                <div class="item">
+                    Check the sound’s <b>tags and description in Freesound</b> if you can’t make up your mind (use the
+                    link at the top right corner of every sound  (<span><small>see in </small><img
+                        class="ui inline image" style="width:80px;" src="{% static 'img/freesound_logo_color.png' %}"></span>).
+                </div>
+                <div class="item">
+                    You can add general <b>comments about a category</b> at the bottom of the page
+                </div>
+                <div class="item">
+                    Check the <a href="{% url 'contribute-validate-annotations' dataset.short_name %}?help=1" target="_blank">full instructions</a> if you have any doubts
+                </div>
+            </div>
+        </div>
+        <div class="actions">
+            <div class="green ui inverted button icon cancel">Ok</div>
+        </div>
+    </div>
+    <!-- end help modal -->
 
 {% endblock %}
