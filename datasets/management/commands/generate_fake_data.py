@@ -47,6 +47,9 @@ def create_sounds(dataset_short_name, num_sounds):
             sound = Sound.objects.create(
                 name='Freesound sound #{0}'.format(count + num_current_sounds),
                 freesound_id=fsid,
+                extra_data={
+                    'duration': 20*random.random(),
+                }
             )
             SoundDataset.objects.create(
                 dataset=dataset,
