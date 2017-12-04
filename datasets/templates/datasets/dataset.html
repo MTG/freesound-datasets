@@ -113,7 +113,7 @@
 <center>
 
 <h2 style="color: black;">{{ dataset.short_name|upper }} is a large-scale, general-purpose audio dataset</h2>
-        <p style="margin-top:0px">Thousands of audio samples from <a target="_blank" href="http://freesound.org/"><b>Freesound.org</b></a> organised following the <a target="_blank" href="https://research.google.com/audioset/"><b>AudioSet Ontology</b></a></p>
+        <p style="margin-top:0px">Thousands of audio samples from <a target="_blank" href="http://freesound.org/"><b>Freesound</b></a> organised following the <a target="_blank" href="https://research.google.com/audioset/"><b>AudioSet Ontology</b></a></p>
 
 <br>
 
@@ -184,19 +184,19 @@ that express the presence of sound sources in audio clips.
   <a class="ui basic label" href="{% url 'dataset-explore' dataset.short_name %}" style="min-width: 200px;border: 0px solid;">
       <center><h3>Explore</h3>
       <i class="unhide icon huge"></i><br><br>
-      <p>Take a peek <br> inside {{ dataset.short_name|upper }}</p></center>
+      <p class="small text">Take a peek <br> inside {{ dataset.short_name|upper }}</p></center>
     </a>
 
   <a class="ui basic label" href="{% url 'contribute' dataset.short_name %}" style="min-width: 200px;border: 0px solid;">
       <center><h3>Annotate</h3>
       <i class="child icon huge"></i><br><br>
-      <p>Help us verify the<br> candidate annotations</p></center>
+      <p class="small text">Help us verify the<br> candidate annotations</p></center>
     </a>
 
   <a class="ui basic label" href="{% url 'discussion' dataset.short_name %}" style="min-width: 200px;border: 0px solid;">
       <center><h3>Discuss</h3>
       <i class="comments outline icon huge"></i><br><br>
-      <p>Share your comments<br>and suggestions</p></center>
+      <p class="small text">Share your comments<br>and suggestions</p></center>
     </a>
 </div>
 </center>
@@ -253,16 +253,11 @@ that express the presence of sound sources in audio clips.
 </div>
 
 </div>
-<br>
 </div>
 
-
-<div class="ui main center aligned container stackable" style="margin-top: 30px; margin-bottom:-30px;">
-<p  style="margin-bottom: 0px;"> If you use this dataset in your work please cite our paper: </p>
- E. Fonseca, J. Pons, X. Favory, F. Font, D. Bogdanov, A. Ferraro, S. Oramas, A. Porter & X. Serra.
-    <a target="_blank" href="https://ismir2017.smcnus.org/wp-content/uploads/2017/10/161_Paper.pdf"><br>
-        Freesound Datasets: A Platform for the Creation of Open Audio Datasets</a>. <br>
-    In Proceedings of the 18th International Society for Music Information Retrieval Conference, Suzhou, China, 2017. <b>[BiB]</b>
+<div class="ui main center aligned container stackable" style="margin-top: 40px; margin-bottom: -30px;">
+<p><i>If you use this datasets in your work please cite our paper &ndash; or check it for more information:</i><br><b><a target="_blank" href="https://ismir2017.smcnus.org/wp-content/uploads/2017/10/161_Paper.pdf">Freesound Datasets: A Platform for the Creation of Open Audio Datasets</a></b><br>E. Fonseca, J. Pons, X. Favory, F. Font, D. Bogdanov, A. Ferraro, S. Oramas, A. Porter & X. Serra<br>In Proceedings of the 18th International Society for Music Information Retrieval Conference, Suzhou, China, 2017<b> 
+<a href="{% static 'bibtex/fonseca2017freesound.bib'%}">[BiB]</a></b></p>
 </div>
 </center>
 {% endblock %}

@@ -10,7 +10,7 @@
   <center><img class="ui center aligned image" style="width: 700px;" src="{% static "img/freesound_datasets_logo.svg" %}"></center>
   <h3>A platform for the collaborative creation of open audio collections labelled by humans and based on Freesound content</h3>
   <br><br>
-  <a href="{% url 'contribute-validate-annotations-category-beginner' 'fsd' %}" class="ui big button inverted right labeled icon">Get started with our annotation task! <i class="right arrow icon"></i></a>
+  <a href="{% url 'contribute' 'fsd' %}" class="ui big button inverted right labeled icon">Get started with our annotation task! <i class="right arrow icon"></i></a>
   <br><br><br><br><br><br><br><br>
 </div>
 
@@ -21,7 +21,7 @@
     <div class="ui two column middle aligned compact stackable grid">
       <div class="ten wide column">
         <p class="medium text">The FSD is a large-scale, general-purpose dataset composed of
-        <b><a target="_blank" href="http://freesound.org/" style="color: black;">Freesound.org</a></b> content organised by the <b>
+        <b><a target="_blank" href="http://freesound.org/" style="color: black;">Freesound</a></b> content organised by the <b>
         <a target="_blank" href="https://research.google.com/audioset/" style="color: black;">AudioSet Ontology</a></b></p>
       </div>
       <div class="six wide column">
@@ -35,7 +35,7 @@
 <br>
 </div>
 
-<div class="ui vertical secondary inverted segment center aligned" style="background-color: #52527a;">
+<div class="ui vertical red inverted segment center aligned" style="background-color: #52527a;">
 <br>
 <div class="ui vertical">
   <div class="ui equal width stackable internally celled grid">
@@ -48,15 +48,15 @@
           </div>
           <div class="item">
             <div class="header back_clear"><h3>Transparency</h3></div>
-            <p class="medium text blanched_yellow">The datasets creation process should be as transparent<br>as possible since data science results heavily rely on those</p>
+            <p class="medium text">The datasets creation process should be as transparent<br>as possible since data science results heavily rely on those</p>
           </div>
           <div class="item">
             <div class="header back_clear"><h3>Openness</h3></div>
-            <p class="medium text blanched_yellow">Data should be released under open licenses to<br>facilitate its distribution and reproducible research</p>
+            <p class="medium text">Data should be released under open licenses to<br>facilitate its distribution and reproducible research</p>
           </div>
           <div class="item">
             <div class="header back_clear"><h3>Dynamism</h3></div>
-            <p class="medium text blanched_yellow">Datasets should be dynamic in the sense that<br>they can evolve over time in quality and quantity</p>
+            <p class="medium text">Datasets should be dynamic in the sense that<br>they can evolve over time in quality and quantity</p>
           </div>
         </div>
       </div>
@@ -69,15 +69,15 @@
           </div>
           <div class="item">
             <div class="header back_clear"><h3>Freesound content</h3></div>
-            <p class="medium text blanched_yellow">We are leveraging <b><a target="_blank" href="http://freesound.org/" class="blanched_yellow">Freesound.org</a></b> (>360k sounds) as a<br>source of open audio content for creating datasets</p>
+            <p class="medium text">We are leveraging <b><a target="_blank" href="http://freesound.org/" style="color: white;">Freesound</a></b> (>360k sounds) as a<br>source of open audio content for creating datasets</p>
           </div>
           <div class="item">
             <div class="header back_clear"><h3>Community-based</h3></div>
-            <p class="medium text blanched_yellow">We rely on the community to sustainably crowdsource high-quality<br>sound annotations and to improve our platform workflows</p>
+            <p class="medium text">We rely on the community to sustainably crowdsource high-quality<br>sound annotations and to improve our platform workflows</p>
           </div>
           <div class="item">
             <div class="header back_clear"><h3>The FreesoundDatasets platform</h3></div>
-            <p class="medium text blanched_yellow"> Builds and maintains datasets following the outlined principles of<br>transparency, openness, dynamic character, and sustainability</p>
+            <p class="medium text"> Builds and maintains datasets following the outlined principles of<br>transparency, openness, dynamic character, and sustainability</p>
           </div>
         </div>
       </div>
@@ -88,8 +88,8 @@
 <br>
 
 </div>
-<div class="ui vertical tertiary red inverted segment center aligned">
-<h2 style="margin-top: 20px; margin-bottom: -20px; text-align: center;">What can I do in this platform?</h2>
+<div class="ui vertical secondary red inverted segment center aligned">
+<h2 style="margin-top: 20px; margin-bottom: -20px; text-align: center; color: #262626;">What can I do in this platform?</h2>
 <div class="ui basic labels" style="margin-top:40px; text-align: center;">
   <div class="ui basic label" style="min-width: 180px;text-align: center;background-color: transparent;border:transparent;">
       <center><h3 class="back_clear">Explore</h3>
@@ -120,7 +120,7 @@
 <br>
 </div>
 
-<div class="ui vertical raised segment center aligned" style="background-color: #f8f6f3">
+<div class="ui main center aligned container stackable" style="margin-top: 10px; margin-bottom:-30px;">
 <center>
 <div class="ui basic labels" style="margin-top:25px;border: 0px solid;">
   <a target="_blank" class="ui basic label" href="https://github.com/MTG/freesound-datasets/" style="min-width: 200px;
@@ -149,11 +149,11 @@
 </div>
 </center>
 <br>
-</div>
-
-<div class="ui main center aligned container stackable" style="margin-top: 30px; margin-bottom:-30px;">
-<p  style="margin-bottom: 0px;"> If you use this platform or any of the hosted datasets in academic work please cite our paper: </p>
- E. Fonseca, J. Pons, X. Favory, F. Font, D. Bogdanov, A. Ferraro, S. Oramas, A. Porter & X. Serra. <a target="_blank" href="https://ismir2017.smcnus.org/wp-content/uploads/2017/10/161_Paper.pdf">Freesound Datasets: A Platform for the Creation of Open Audio Datasets</a>. <br>In Proceedings of the 18th International Society for Music Information Retrieval Conference, Suzhou, China, 2017. <b>[BiB]</b>
+<br>
+<br>
+<p  style="margin-bottom: 0px;"> If you use this platform or any of the hosted datasets in your work please cite our paper: </p>
+ E. Fonseca, J. Pons, X. Favory, F. Font, D. Bogdanov, A. Ferraro, S. Oramas, A. Porter & X. Serra. <a target="_blank" href="https://ismir2017.smcnus.org/wp-content/uploads/2017/10/161_Paper.pdf">Freesound Datasets: A Platform for the Creation of Open Audio Datasets</a>. <br>In Proceedings of the 18th International Society for Music Information Retrieval Conference, Suzhou, China, 2017 <b>
+<a href="{% static 'bibtex/fonseca2017freesound.bib'%}">[BiB]</a></b>
 </div>
 
 {% endblock %}
