@@ -143,9 +143,26 @@
       </div>
     </div>
 
+                <table class="ui compact secondary inverted segment table" style="margin-left:57px;width:100%;margin-top:20px;background-color:#52527a;box-shadow: 1px 4px 8px 1px rgba(0, 0, 0, 0.2), 1px 6px 20px 1px rgba(0, 0, 0, 0.19);">
+                    <tr><td><p><b style="color:white">Present and predominant</b></p></td><td><p>
+                        The type of sound described is <i>clearly present</i> in the audio clip and it is <i>predominant</i>,
+                        either isolated from other types of sound or with low/mild background noise.
+                    </p></td></tr>
+                    <tr><td><p><b style="color:white">Present but not predominant</b></p></td><td><p>
+                        The type of sound described is <i>present</i>, but the audio clip also <i>contains other salient
+                        types of sound and/or strong background noise</i>.
+                    </p></td></tr>
+                    <tr><td><p><b style="color:white">Not Present</b></p></td><td><p>
+                        The type of sound described is <i>not present</i> in the audio clip.
+                    </p></td></tr>
+                    <tr><td><p><b style="color:white">Unsure</b></p></td><td><p>
+                        <i>I am not sure</i> whether the type of sound described is present or not.
+                    </p></td></tr>
+                </table>
 
 
-                 <table class="ui compact inverted blue table" style="margin-left:57px;width:100%;margin-top:20px;background-color:#b3b3b3;box-shadow: 1px 4px 8px 1px rgba(0, 0, 0, 0.2), 1px 6px 20px 1px rgba(0, 0, 0, 0.19);">
+
+                 <table class="ui compact secondary inverted blue table" style="margin-left:57px;width:100%;margin-top:20px;background-color:#b3b3b3;box-shadow: 1px 4px 8px 1px rgba(0, 0, 0, 0.2), 1px 6px 20px 1px rgba(0, 0, 0, 0.19);">
                     <tr><td><p><b style="color:white">Present and predominant</b></p></td><td><p>
                         The type of sound described is <i>clearly present</i> in the audio clip and it is <i>predominant</i>,
                         either isolated from other types of sound or with low/mild background noise.
@@ -165,7 +182,14 @@
 
 
 
+
+
+
 </div>
+
+
+
+
 
 <center>
 
@@ -174,16 +198,19 @@
 
 
 <div class="ui relaxed grid" style="width:84%;margin-left:75px;">
+
+
+
+
   <div class="two column row">
 
     <div class="column">
 
 <img class="ui massive image" src="{% static 'img/one_vote.png' %}"/>
 
-
     </div>
 
-    <div class="column"><div class="ui segment" style="margin-top:15px;"><p>In the annotating interface you can find a link to <img class="ui inline image" style="width:80px;" src="{% static 'img/freesound_logo_color.png' %}">. In case of doubt, <i>click it to check the sound’s metadata</i>: description and tags.</p></div>
+    <div class="column"><div class="ui segment" style="margin-top:15px;"><p>In the annotation interface you can find a link to <img class="ui inline image" style="width:80px;" src="{% static 'img/freesound_logo_color.png' %}">. In case of doubt, <i>click it to check the sound’s description and tags.</i> </p></div>
 
     <div class="column"><br><p>You will be presented with pages of 12 sounds. Once the sounds are annotated: <i>submit and continue to next page</i>. We propose that you annotate 6 pages.</p>
 <br>
@@ -192,6 +219,40 @@
 
   </div>
 </div>
+
+
+
+
+
+
+
+
+
+  <div class="two column row">
+
+    <div class="column"><br><p>The annotation interface for a sound looks like this and it features a link to <img class="ui inline image" style="width:80px;" src="{% static 'img/freesound_logo_color.png' %}">.
+        In case of doubt, <i>click it to check the sound’s description and tags.</i>
+
+        <br><br>
+      You will be presented with pages of 12 sounds. Once the sounds are annotated: <i>submit and continue to next page</i>. We propose that you annotate 6 pages.  </p>
+    </div>
+
+    <div class="column">
+
+        <img class="ui medium image" src="{% static 'img/vote_one_sound.png' %}"/>
+
+    </div>
+
+
+
+</div>
+
+</div>
+<!--</div>-->
+
+    <br><br>
+
+
 
 <div class="ui basic labels" style="margin-top:20px; margin-left:125px; text-align: center;">
   <div class="ui basic label" style="text-align: center;background-color: transparent;border:transparent;">
@@ -216,13 +277,51 @@
     </div>
 </div>
 
-<br><br><br>
+
+<br><br>
 
     <div id="start_annotating_button_div" class="ui grid" data-tooltip="Please take your time to read the instructions carefully before starting :)" style="margin-left:235px;margin-top:40px;">
         <a id="start_annotating_button" href="{% url 'choose_category' dataset.short_name %}" class="ui big right labeled icon red button disabled"><i class="right arrow icon"></i>I can't wait anymore, let's start!</a>
     </div>
 
+    <!--</div>-->
+
+    <br><br>
+    <div id="start_annotating_button_div" class="ui center aligned grid" data-tooltip="Please take your time to read the instructions carefully before starting :)">
+        <a id="start_annotating_button" href="{% url 'choose_category' dataset.short_name %}" class="ui big right labeled icon red button disabled"><i class="checkmark box icon"></i>I can't wait anymore, let's start!</a>
+    </div>
+
+
+
+
 </center>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 <br><br><br><br><br><br><br><br><br><br><br><br>
 <center>
