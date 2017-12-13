@@ -66,13 +66,10 @@
                 </td>
             </tr>
         {% endif %}
-        <tr><td><div data-tooltip="Number of audio samples coming from the initial mapping from Freesound to AudioSet.">
+        <tr><td><div data-tooltip="Total number of audio samples, listed below, which are candidate annotations for the '{{ node.name }}' class.">
                 # audio samples</div></td><td>{{ node.num_sounds }}</td></tr>
-        <tr><td><div data-tooltip="Annotations that have been validated by several users, until reaching agreement on the presence of the sound class.">
+        <tr><td><div data-tooltip="Number of candidate annotations validated by several users, which agreed on the presence of the '{{ node.name }}' class in a sound.">
             # ground truth annotations</div></td><td>{{ node.nb_ground_truth }}</td></tr>
-        <tr><td><div data-tooltip="Annotations that have been validated by several users,
-            until reaching agreement on either presence or absence of the sound class.">
-                # verified annotations</div></td><td>{{ node.num_verified_annotations }}</td></tr>
         {% if user_is_maintainer %}
             {% if node.comments %}
                 <tr>
