@@ -113,7 +113,7 @@
 <center>
 
 <h2 style="color: black;">{{ dataset.short_name|upper }} is a large-scale, general-purpose audio dataset</h2>
-        <p style="margin-top:0px">Thousands of audio samples from <a target="_blank" href="http://freesound.org/"><b>Freesound</b></a> <b style="color: red;">are</b> organised following the <a target="_blank" href="https://research.google.com/audioset/"><b>AudioSet Ontology</b></a></p>
+        <p style="margin-top:0px">Thousands of audio samples from <a target="_blank" href="http://freesound.org/"><b>Freesound</b></a> organised following the <a target="_blank" href="https://research.google.com/audioset/"><b>AudioSet Ontology</b></a></p>
 
 <br>
 
@@ -125,7 +125,7 @@
           <p style="text-align:justify">The AudioSet Ontology is a hierarchical collection of over 600 sound classes and
               we have filled them with {{ dataset.num_sounds|intcomma }} audio samples from Freesound.
               This process generated {{ dataset.num_annotations|intcomma }} candidate annotations
-that express the <b style="color: red;">potential</b> presence of sound sources in <b style="color: red;">those</b> audio clips.
+that express the potential presence of sound sources in audio clips.
           {{ dataset.short_name|upper }}  includes a variety of everyday sounds, from human and animal sounds to music and sounds made by things,
               all under Creative Commons licenses.
           </p>
@@ -189,7 +189,7 @@ that express the <b style="color: red;">potential</b> presence of sound sources 
   <a class="ui basic label" href="{% url 'dataset-explore' dataset.short_name %}" style="min-width: 200px;border: 0px solid;">
       <center><h3>Explore</h3>
       <i class="unhide icon huge"></i><br><br>
-      <p class="small text">Take a peek <br> inside <b style="color: red;">to</b> {{ dataset.short_name|upper }}</p></center>
+      <p class="small text">Take a peek <br> inside {{ dataset.short_name|upper }}</p></center>
     </a>
 
   <a class="ui basic label" href="{% url 'contribute' dataset.short_name %}" style="min-width: 200px;border: 0px solid;">
