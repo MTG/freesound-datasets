@@ -12,17 +12,26 @@
                     <div class="ui raised segment">
                         <div class="ui two column middle aligned very relaxed stackable grid">
                             <div class="eleven wide column"><p class="medium text"><b>Validate category annotations:</b> this task consists
-                                of validating (automatically generated) annotations that express the presence of a sound
-                                category in an audio sample. <br><i>Beginners task includes some simpler categories to get started.</i> </p></div>
+                                of validating (automatically generated) annotations that express the potential presence of a sound
+                                category in an audio sample.
+                                <br><i>Beginners task includes a few simpler categories.
+                                Advanced task includes many more categories.</i>
+
+<!--<div data-tooltip="Annotations that denote the potential presence of a sound category in an audio clip">Beginners task</div>-->
+                            </p></div>
                             <div class="five wide right aligned column">
                                 <div class="ui vertical buttons">
                                     <div style="margin-bottom: 6px;">
-                                        <a href="{% url 'contribute-validate-annotations-category-beginner' dataset.short_name %}?help=1" class="ui large right labeled icon blue button">
-                                            <i class="right arrow box icon"></i>Beginners task</a>
+                                        <a href="{% url 'contribute-validate-annotations-category-beginner' dataset.short_name %}?help=1"
+                                           class="ui large right labeled icon blue button">
+                                            <i class="right arrow box icon"></i>
+                                            <div data-tooltip="Only a few simpler categories">Beginners task</div></a>
                                     </div>
                                     <div>
-                                        <a href="{% url 'contribute-validate-annotations' dataset.short_name %}?help=1" class="ui large right labeled icon blue button">
-                                            <i class="right arrow box icon"></i>Advanced task</a>
+                                        <a href="{% url 'contribute-validate-annotations' dataset.short_name %}?help=1"
+                                           class="ui large right labeled icon blue button">
+                                            <i class="right arrow box icon"></i>
+                                            <div data-tooltip="Many more categories">Advanced task</div></a>
                                     </div>
                                 </div>
                             </div>
