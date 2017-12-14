@@ -66,9 +66,10 @@
                 </td>
             </tr>
         {% endif %}
-        <tr><td><div data-tooltip="Total number of audio samples, listed below, which are candidate annotations for the '{{ node.name }}' class.">
+        <tr><td><div data-tooltip="Audio samples (listed below), which are candidate annotations for the '{{ node.name }}' category">
                 # audio samples</div></td><td>{{ node.num_sounds }}</td></tr>
-        <tr><td><div data-tooltip="Number of candidate annotations validated by several users, which agreed on the presence of the '{{ node.name }}' class in a sound.">
+        <tr><td><div data-tooltip="Candidate annotations validated by several users,
+            until coming to agreement on the presence of the '{{ node.name }}' category in an audio sample">
             # ground truth annotations</div></td><td>{{ node.nb_ground_truth }}</td></tr>
         {% if user_is_maintainer %}
             {% if node.comments %}
