@@ -53,6 +53,10 @@
                 </div>
             </td>
         </tr>
+        <tr>
+            <td class="three wide">Description</td>
+            <td>{{ node.description }}</td>
+        </tr>
         {% if node.freesound_examples %}
             <tr><td>Examples</td>
                 <td>
@@ -88,10 +92,6 @@
                 </div></td>
             </tr>
         {% endif %}
-        <tr>
-            <td class="three wide">Description</td>
-            <td>{{ node.description }}</td>
-        </tr>
         {% if node.faq %}
             <tr>
                 <td>FAQ</td>
