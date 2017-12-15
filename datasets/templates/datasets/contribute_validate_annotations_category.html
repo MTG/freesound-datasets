@@ -111,23 +111,135 @@
     {% if not node.omitted %}
          <div id="start_annotating_info_div" class="ui aligned basic segment">
 
+
+ <!--newest-->
             <div class="ui relaxed grid" style="width:100%;text-align:left;color:#666666;">
               <div class="two column row">
 
-                <div class="column">
+                <div class="eight wide column">
                 <div class="ui basic segment center aligned ">
-                  <h3>Familiarise yourself with the<br><i>{{node.name}}</i> category </h3>
+                  <h3>Before annotating, familiarise yourself with<br> <a class="ui label large">{{node.name}}</a> </h3>
                   <div class="ui basic labels" style="margin-top:25px;border: 0px solid;">
 
                     <div class="ui basic label" style="border: 0px solid;">
                       <center>
-                      <i class="unhide icon huge" style="color:#666666;"></i><br>
+                      <i class="unhide icon huge blue" style="color:#666666;"></i><br>
                       <h5 style="color:#666666;">Read the <b>description</b></h5>
                       </center>
                     </div>
                     <div class="ui basic label" style="border: 0px solid;">
                       <center>
-                      <i class="sound icon huge" style="color:#666666;"></i><br>
+                      <i class="sound icon huge blue" style="color:#666666;"></i><br>
+                      <h5 style="color:#666666;"><b>Listen</b> to the examples</h5>
+                      </center>
+                    </div>
+                  </div>
+                  <br><br>
+                </div>
+                </div>
+
+
+                <div class="eight wide column">
+                 <div class="ui basic segment center aligned">
+                  <h3>Understand its <a class="ui label large">related categories</a><br>to make sense of the context </h3>
+                  <div class="ui basic labels" style="margin-top:25px;border: 0px solid;">
+
+                    <div class="ui basic label" style="border: 0px solid;">
+                      <center>
+                      <i class="mouse pointer icon huge blue" style="color:#666666;"></i><br>
+                          <h5 style="color:#666666;">Click them to check their<br>description & examples<br/> </br/></h5>
+                      </center>
+                    </div>
+                    <div class="ui basic label" style="border: 0px solid;">
+                      <center>
+                      <!--<i class="map signs icon huge blue " style="color:#666666;"></i><br>                      -->
+                      <i class="warning sign icon huge blue " style="color:#666666;"></i><br>
+                          <!--<h5 style="color:#666666;">Distinguish <br> <a class="ui label">{{node.name}}</a> <br> from its siblings</h5>-->
+                          <h5 style="color:#666666;">Distinguish <br> <a class="ui label">{{node.name}}</a> <br> from its siblings</h5>
+                      </center>
+                    </div>
+                  </div>
+                  <br>
+                 </div>
+                </div>
+              </div>
+            </div>
+
+<br><br>
+ <!--new-->
+            <div class="ui relaxed grid" style="width:100%;text-align:left;color:#666666;">
+              <div class="two column row">
+
+                <div class="eight wide column">
+                <div class="ui basic segment center aligned ">
+                  <h3>Before annotating, familiarise yourself with<br> <a class="ui label large">{{node.name}}</a> </h3>
+                  <div class="ui basic labels" style="margin-top:25px;border: 0px solid;">
+
+                    <div class="ui basic label" style="border: 0px solid;">
+                      <center>
+                      <i class="unhide icon huge blue" style="color:#666666;"></i><br>
+                      <h5 style="color:#666666;">Read the <b>description</b></h5>
+                      </center>
+                    </div>
+                    <div class="ui basic label" style="border: 0px solid;">
+                      <center>
+                      <i class="sound icon huge blue" style="color:#666666;"></i><br>
+                      <h5 style="color:#666666;"><b>Listen</b> to the examples</h5>
+                      </center>
+                    </div>
+                  </div>
+                  <br><br>
+                </div>
+                </div>
+
+
+                <div class="eight wide column">
+                 <div class="ui basic segment center aligned">
+                  <h3>Understand its <a class="ui label large">related categories</a><br>to make sense of the context </h3>
+                  <div class="ui basic labels" style="margin-top:25px;border: 0px solid;">
+
+                    <div class="ui basic label" style="border: 0px solid;">
+                      <center>
+                      <i class="mouse pointer icon huge blue" style="color:#666666;"></i><br>
+                          <h5 style="color:#666666;">Click them to check their<br>description & examples</h5>
+                      </center>
+                    </div>
+                    <div class="ui basic label" style="border: 0px solid;">
+                      <center>
+                      <!--<i class="map signs icon huge blue " style="color:#666666;"></i><br>                      -->
+                      <i class="warning sign icon huge blue " style="color:#666666;"></i><br>
+                          <!--<h5 style="color:#666666;">Distinguish <br> <a class="ui label">{{node.name}}</a> <br> from its siblings</h5>-->
+                          <h5 style="color:#666666;">Distinguish your category<br>from its siblings</h5>
+                      </center>
+                    </div>
+                  </div>
+                  <br>
+                 </div>
+                </div>
+              </div>
+            </div>
+
+             <br><br><br><br>
+
+
+<!--OLD++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
+            <div class="ui relaxed grid" style="width:100%;text-align:left;color:#666666;">
+              <div class="two column row">
+
+                <div class="column">
+                <div class="ui basic segment center aligned ">
+                  <h3>Familiarise yourself with<br> the <i>{{node.name}}</i> category </h3>
+                  <div class="ui basic labels" style="margin-top:25px;border: 0px solid;">
+
+                    <div class="ui basic label" style="border: 0px solid;">
+                      <center>
+                      <i class="unhide icon huge " style="color:#666666;"></i><br>
+                      <h5 style="color:#666666;">Read the <b>description</b></h5>
+                      </center>
+                    </div>
+                    <div class="ui basic label" style="border: 0px solid;">
+                      <center>
+                      <i class="sound icon huge " style="color:#666666;"></i><br>
                       <h5 style="color:#666666;"><b>Listen</b> to the examples</h5>
                       </center>
                     </div>
@@ -162,6 +274,12 @@
             </div>
 
 
+
+
+
+
+
+
 </center>
 <br><br><br><br>
 <center>
@@ -176,7 +294,7 @@ Tip 1: in case of doubt click to freesound.  Tip 2: in case of doubt, double che
             <p>Before annotating, familiarise yourself with the <i>{{node.name}}</i> category:</p>
             <div class="ui list">
                  <div class="item"><p>- &nbsp; Read the <b>description.</b></p></div>
-                 <div class="item"><p>- &nbsp; <b>Listen</b> to the examples.</b></p></div>
+                 <div class="item"><p>- &nbsp; <b>Listen</b> to the examples.</br></p></div>
             </div>
            </div>
           <!--<div class="ui warning message">-->
