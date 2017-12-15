@@ -109,66 +109,65 @@
     {% display_taxonomy_node_small_info dataset node.node_id 'cva' %}
     <br>
     {% if not node.omitted %}
-        <div id="start_annotating_info_div" class="ui aligned basic" class="margin-top:-20px;">
-            
-           <!--NEW STUFF-->
+         <div id="start_annotating_info_div" class="ui aligned basic segment">
 
-<div class="ui relaxed grid" style="width:100%;text-align:left;color:#666666;">
-<div class="two column row">
+            <div class="ui relaxed grid" style="width:100%;text-align:left;color:#666666;">
+              <div class="two column row">
 
-<div class="column">
-<div class="ui basic segment center aligned ">
-  <h3>Familiarise yourself with the<br><i>{{node.name}}</i> category </h3>
-  <div class="ui basic labels" style="margin-top:25px;border: 0px solid;">
+                <div class="column">
+                <div class="ui basic segment center aligned ">
+                  <h3>Familiarise yourself with the<br><i>{{node.name}}</i> category </h3>
+                  <div class="ui basic labels" style="margin-top:25px;border: 0px solid;">
 
-    <div class="ui basic label" style="border: 0px solid;">
-      <center>
-      <i class="unhide icon huge" style="color:#666666;"></i><br>
-      <h5 style="color:#666666;">Read the <b>description</b></h5>
-      </center>
-    </div>
-    <div class="ui basic label" style="border: 0px solid;">
-      <center>
-      <i class="sound icon huge" style="color:#666666;"></i><br>
-      <h5 style="color:#666666;"><b>Listen</b> to the examples</h5>
-      </center>
-    </div>
-  </div>
-  <br><br>
-  Tip 1: in case of doubt click to freesound.
-</div>
-</div>
+                    <div class="ui basic label" style="border: 0px solid;">
+                      <center>
+                      <i class="unhide icon huge" style="color:#666666;"></i><br>
+                      <h5 style="color:#666666;">Read the <b>description</b></h5>
+                      </center>
+                    </div>
+                    <div class="ui basic label" style="border: 0px solid;">
+                      <center>
+                      <i class="sound icon huge" style="color:#666666;"></i><br>
+                      <h5 style="color:#666666;"><b>Listen</b> to the examples</h5>
+                      </center>
+                    </div>
+                  </div>
+                  <br><br>
+                </div>
+                </div>
 
-<div class="column">
-<div class="ui basic segment center aligned " style="margin-bottom: 300px">
-  <h3>Understand siblings and direct children<br>to make sense of the context </h3>
-  <div class="ui basic labels" style="margin-top:25px;border: 0px solid;">
+                <div class="column">
+                 <div class="ui basic segment center aligned">
+                  <h3>Understand siblings and direct children<br>to make sense of the context </h3>
+                  <div class="ui basic labels" style="margin-top:25px;border: 0px solid;">
 
-    <div class="ui basic label" style="border: 0px solid;">
-      <center>
-      <i class="map signs icon huge" style="color:#666666;"></i><br>
-      <h5 style="color:#666666;">Make sure to distinguish<br><i>{{node.name}}</i> from its siblings</h5>
-      </center>
-    </div>
-    <div class="ui basic label" style="border: 0px solid;">
-      <center>
-      <i class="mouse pointer icon huge" style="color:#666666;"></i><br>
-          <h5 style="color:#666666;">Click <a class="ui label">them</a> to see<br>more information</h5>
-      </center>
-    </div>
-  </div>
-  <br>
-  Tip 2: in case of doubt, double check the definition.
-</div>
-</div>
+                    <div class="ui basic label" style="border: 0px solid;">
+                      <center>
+                      <i class="map signs icon huge" style="color:#666666;"></i><br>
+                      <h5 style="color:#666666;">Distinguish <i>{{node.name}}</i> from its siblings<br>with their defition & examples</h5>
+                      </center>
+                    </div>
+                    <div class="ui basic label" style="border: 0px solid;">
+                      <center>
+                      <i class="mouse pointer icon huge" style="color:#666666;"></i><br>
+                          <h5 style="color:#666666;">Click <a class="ui label">them</a> to see<br>more information</h5>
+                      </center>
+                    </div>
+                  </div>
+                  <br>
+
+                 </div>
+                </div>
+              </div>
+            </div>
 
 
-</div>
 </center>
-
-
-
+<br><br><br><br>
 <center>
+Tip 1: in case of doubt click to freesound.  Tip 2: in case of doubt, double check the definition.
+
+    <br><br><br><br>
 <div class="ui relaxed grid" style="width:95%;text-align:left;">
         <div class="two column row">
 
@@ -234,6 +233,12 @@
 </div>
 </center>
 <br>
+
+
+<br><br><br><br><br>
+
+
+
            <!--NEW STUFF-->
 
             <p>
@@ -251,7 +256,11 @@
                     </div>
                 </div>
             </div>
-        </div>
+         </div>
+
+
+
+
         <div id="form_container" style="visibility: hidden">
             <div class="ui grid">
                 <div class="ten wide column">
