@@ -522,16 +522,45 @@ Tip 1: in case of doubt click to freesound.  Tip 2: in case of doubt, double che
                     </p>
                 </div>
                 <div class="item">
-                    Please consider categories' <b>Hierarchy</b>, <b>Description</b> and related categories (siblings and/or direct children) before annotating
+                    Before annotating:
+                    <div class="ui bulleted list">
+                        <div class="item">
+                            familiarise yourself with your category: read the description & listen to the examples
+                        </div>
+                        <div class="item">
+                            understand its related categories to make sense of the context: click them to check their description & examples,
+                            and make sure to distinguish your category from its siblings
+                        </div>
+                    </div>
                 </div>
                 <div class="item">
-                    Check the sound’s <b>tags and description in Freesound</b> if you can’t make up your mind (use the
-                    link at the top right corner of every sound  (<span><small>see in </small><img
-                        class="ui inline image" style="width:80px;" src="{% static 'img/freesound_logo_color.png' %}"></span>).
+                    In case of doubt:
+                    <div class="ui bulleted list">
+                        <div class="item">
+                            double-check the category descriptions
+                        </div>
+                        <div class="item">
+                            click the link to<span><img class="ui inline image" style="width:80px;"
+                           src="{% static 'img/freesound_logo_color.png' %}"></span> to check the sound’s description and tags
+                        </div>
+                    </div>
                 </div>
                 <div class="item">
-                    You can add general <b>comments about a category</b> at the bottom of the page
+                    You are presented with pages of 12 sounds. We propose that you annotate 6 pages.
                 </div>
+
+
+                <!--<div class="item">-->
+                    <!--Please consider categories' <b>Hierarchy</b>, <b>Description</b> and related categories (siblings and/or direct children) before annotating-->
+                <!--</div>-->
+                <!--<div class="item">-->
+                    <!--Check the sound’s <b>tags and description in Freesound</b> if you can’t make up your mind (use the-->
+                    <!--link at the top right corner of every sound  (<span><small>see in </small><img-->
+                        <!--class="ui inline image" style="width:80px;" src="{% static 'img/freesound_logo_color.png' %}"></span>).-->
+                <!--</div>-->
+                <!--<div class="item">-->
+                    <!--You can add general <b>comments about a category</b> at the bottom of the page-->
+                <!--</div>-->
                 <div class="item">
                     Check the <a href="{% url 'contribute-validate-annotations' dataset.short_name %}?help=1" target="_blank">full instructions</a> if you have any doubts
                 </div>
