@@ -85,18 +85,8 @@
 </center>
 
 <center>
-<br>
-    <h1 class="ui header">Choose category</h1>
+    <h1 class="ui header" style="margin-top:35px;margin-bottom:35px;">Choose category</h1>
 </center>
-<div class="ui warning message">
-    <p>Use one of the following menus to choose a category:</p>
-    <div class="ui list">
-        <div class="item"><p>- &nbsp;<b>Explore</b> the first two levels of the ontology and
-            finally choose the category you will focus on.</div>
-        <div class="item"><p>- &nbsp;Choose a category among <b>our priorities</b> for the creation of FSD.</p></div>
-        <div class="item"><p>- &nbsp;<b>Search</b> a category by its name.</p></div>
-    </div>
-</div>
 
 <!--
     <p>Use one of the table below to <b>choose a category</b>:</p>
@@ -108,15 +98,18 @@
     </div>
     <br>-->
 
-    <div class="ui three two item top attached tabular inverted menu">
+    <div class="ui three item top attached inverted menu">
       <a class="item active" data-tab="first">
-          <h4> Explore</h4>
+          <div style="margin-left:15px;"><i class="sitemap icon big white"></i></div>
+          <div style="margin-right:15px;"><p> <b>Navigate</b> the first two levels of the ontology & choose a category</p></div>
       </a>
       <a class="item" data-tab="second">
-          <h4> Our priorities </h4>
+          <div style="margin-left:15px;"><i class="wizard icon big white"></i></div>
+          <div style="margin-right:15px;"><p>Choose a category among <b>our priorities</b> for the creation of FSD</p></div>
       </a>
       <a class="item" data-tab="third">
-          <h4> Search </h4>
+          <div style="margin-left:15px;margin-right:25px;"><i class="search icon big white"></i></div>
+          <div style="margin-right:15px;"><p><b>Search</b> a category by its name</p></div>
       </a>
     </div>
 
@@ -129,4 +122,18 @@
     <div class="ui bottom attached tab segment" data-tab="third" id="search_table_placeholder">
         <div class="ui active centered inline text loader">Loading data...</div>
     </div>
+
+
+
+
+<div class="ui message">
+    <p>Use one of the following menus to choose a category:</p>
+    <div class="ui list">
+        <div class="item"><p>- &nbsp;<b>Explore</b> the first two levels of the ontology and
+            finally choose the category you will focus on.</div>
+        <div class="item"><p>- &nbsp;Choose a category among <b>our priorities</b> for the creation of FSD.</p></div>
+        <div class="item"><p>- &nbsp;<b>Search</b> a category by its name.</p></div>
+    </div>
+</div>
+
 {% endblock %}
