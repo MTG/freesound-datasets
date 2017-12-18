@@ -69,7 +69,7 @@
         <tr><td><div data-tooltip="Audio samples with candidate annotations for the '{{ node.name }}' category">
                 # audio samples</div></td><td>{{ node.num_sounds }}</td></tr>
         <tr><td><div data-tooltip="Candidate annotations validated by more than one user, with majority agreement on the presence of '{{ node.name }}'">
-            # ground truth annotations</div></td><td>{{ node.nb_ground_truth }}</td></tr>
+            # ground truth</div></td><td>{{ node.nb_ground_truth }}</td></tr>
         {% if user_is_maintainer %}
             {% if node.comments %}
                 <tr>
