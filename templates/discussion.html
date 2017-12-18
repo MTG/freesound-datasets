@@ -3,63 +3,46 @@
 {% block title %}Freesound Datasets - FAQ{% endblock title %}
 
 {% block content %}
-
-
-
-
-
-
 <h1 class="ui header">Contribute by joining our ongoing discussions</h1>
-
 
 <p> One way of contributing is through discussing the hosted datasets and the platform itself. We would like the community to get involved and to share comments and suggestions with us and other users.
 The goal is to create discussion around different issues so that they can be addressed with contributions of the community. </p>
 
-
-
 <center>
-
-
   <div class="ui basic segment center aligned ">
 <h2>Our communication channels</h2>
   <!--<br>-->
 <center>
-<div class="ui basic labels" style="margin-top:25px;border: 0px solid;">
 
-    <a class="ui basic label" href="{% url 'contribute' dataset.short_name %}" style="min-width: 200px;border: 0px solid;">
+<div class="ui basic labels" style="margin-top:25px;border: 0px solid;">
+    <a class="ui basic label" target="_blank" href="https://groups.google.com/forum/#!forum/freesound-datasets" style="min-width: 200px;border: 0px solid;">
       <center><h3>Subscribe to our<br>GoogleGroup</h3>
       <i class="bar icon huge"></i><br><br>
       <p class="small text">Easy access to public discussions<br>& community updates</p></center>
     </a>
 
-
-    <a class="ui basic label" href="{% url 'discussion' dataset.short_name %}" style="min-width: 200px;border: 0px solid;">
+    <a class="ui basic label" target="_blank" href="mailto:mtg@upf.edu" style="min-width: 200px;border: 0px solid;">
       <center><h3>Send us<br>an e-mail</h3>
       <i class="mail outline icon huge"></i><br><br>
       <p class="small text">For private<br>communication</p></center>
     </a>
 
-
-  <a class="ui basic label" href="{% url 'dataset-explore' dataset.short_name %}" style="min-width: 200px;border: 0px solid;">
+  <a class="ui basic label" target="_blank" href="https://github.com/MTG/freesound-datasets/issues" style="min-width: 200px;border: 0px solid;">
       <center><h3>Participate in our<br>GitHub issues</h3>
       <i class="github icon huge"></i><br><br>
       <p class="small text">Take a look at the issues<br>or create a new one</p></center>
     </a>
-
 </div>
 </center>
 <br>
 </div>
-{#<h2 class="ui header">How to contribute?</h2>#}
+
 <h2 class="ui header">See some examples on how to contribute!</h2>
-
 </center>
 <br>
-
-
-
 <br>
 <center>
+
 <div class="container" style="width:100%">
 <table class="ui celled table">
   <tbody>
@@ -116,10 +99,7 @@ The goal is to create discussion around different issues so that they can be add
       <td class="active"><center>Send us an email and let's talk.</center></td>
       <td style="text-align: center"><a href="mailto:mtg@upf.edu"><i class="mail outline icon"></i></a></td>
     </tr>
-
   </tbody>
 </table>
 </div></center>
-
-
 {% endblock %}
