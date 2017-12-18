@@ -285,7 +285,8 @@ class TaxonomyNode(models.Model):
                 "nb_ground_truth": self.nb_ground_truth,
                 "nb_user_contributions": self.num_user_contributions,
                 "nb_verified_annotations": self.num_verified_annotations,
-                "faq": self.faq}
+                "faq": self.faq,
+                "url_id": self.url_id}
 
     @property
     def url_id(self):
