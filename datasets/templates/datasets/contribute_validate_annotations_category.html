@@ -77,17 +77,17 @@
       </div>
       <div class="step">
         <div class="content">
-          <div class="title">Choose category</div>
+          <div class="title">1)Choose category</div>
         </div>
       </div>
       <div id="step-training" class="active step">
         <div class="content">
-          <div class="title">Training</div>
+          <div class="title">2)Training</div>
         </div>
       </div>
       <div id="step-validate" class="disabled step">
         <div class="content">
-          <div class="title">Validate</div>
+          <div class="title">3)Validate</div>
         </div>
       </div>
     </div>
@@ -102,15 +102,45 @@
                 &nbsp;<a title="Edit in administration page" href="{% url node|admin_urlname:'change' node.pk %}" target="_blank"><i class="edit icon"></i></a>
         {% endif %}
         </div>
-        <div class="eight wide column right aligned">
-                <a href="{% url 'choose_category' dataset.short_name %}" class="blue ui button right labeled icon">Choose another category <i class="refresh icon"></i></a>
-        </div>
+        <!--<div class="eight wide column right aligned">-->
+                <!--<a href="{% url 'choose_category' dataset.short_name %}" class="blue ui button right labeled icon">Choose another category <i class="refresh icon"></i></a>-->
+        <!--</div>-->
     </div>
     {% display_taxonomy_node_small_info dataset node.node_id 'cva' %}
     <br>
     {% if not node.omitted %}
          <div id="start_annotating_info_div" class="ui aligned basic segment">
 
+
+
+ <!--final-->
+
+            <div class="ui message ">
+              <p>TIP: Once you are familiar with <span class="ui label">{{node.name}}</span>,
+              comparing it with its siblings will help you understand and distinguish them.
+              Click siblings and direct children to check their description & examples.<br/>
+              </p>
+              <p>If you don't feel comfortable with the chosen category, you can
+              <a href="{% url 'choose_category' dataset.short_name %}" class="blue ui basic tiny button blue right labeled icon">choose another category <i class="refresh icon"></i></a>
+              </p>
+            </div>
+    <br>
+            <div class="ui message">
+              <p>First, familiarise yourself with <span class="ui label">{{node.name}}</span>
+              (read the description and listen to the examples).</p>
+
+              <p>Comparing <span class="ui label">{{node.name}}</span> with its siblings helps to understand and distinguish them.
+              Click siblings and direct children to check their description & examples.<br/>
+              </p>
+
+
+              <p>If you don't feel comfortable with the chosen category, you can
+              <a href="{% url 'choose_category' dataset.short_name %}" class="blue ui basic tiny button right labeled icon">choose another category <i class="refresh icon"></i></a>
+              </p>
+            </div>
+
+
+    <br>
 
  <!--newest-->
             <div class="ui relaxed grid" style="width:100%;text-align:left;color:#666666;">
