@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 import os
 import errno
 import dj_database_url
+import raven
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -65,6 +66,7 @@ INSTALLED_APPS = [
     'debug_toolbar',
     'datasets',
     'social_django',
+    'raven.contrib.django.raven_compat',
 ]
 
 MIDDLEWARE = [
@@ -158,6 +160,13 @@ USE_L10N = True
 
 USE_TZ = True
 
+
+RAVEN_CONFIG = {
+    'dsn': os.getenv('SENTRY_DSN'),
+    # If you are using git, you can also automatically configure the
+    # release based on the git info.
+    'release': raven.fetch_git_sha(os.path.dirname(os.pardir)),
+}
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
