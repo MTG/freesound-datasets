@@ -77,17 +77,17 @@
       </div>
       <div class="step">
         <div class="content">
-          <div class="title">1)Choose category</div>
+          <div class="title">1) Choose category</div>
         </div>
       </div>
       <div id="step-training" class="active step">
         <div class="content">
-          <div class="title">2)Training</div>
+          <div class="title">2) Train</div>
         </div>
       </div>
       <div id="step-validate" class="disabled step">
         <div class="content">
-          <div class="title">3)Validate</div>
+          <div class="title">3) Validate</div>
         </div>
       </div>
     </div>
@@ -102,9 +102,9 @@
                 &nbsp;<a title="Edit in administration page" href="{% url node|admin_urlname:'change' node.pk %}" target="_blank"><i class="edit icon"></i></a>
         {% endif %}
         </div>
-        <!--<div class="eight wide column right aligned">-->
-                <!--<a href="{% url 'choose_category' dataset.short_name %}" class="blue ui button right labeled icon">Choose another category <i class="refresh icon"></i></a>-->
-        <!--</div>-->
+        <div class="eight wide column right aligned">
+                <a href="{% url 'choose_category' dataset.short_name %}" class="blue ui button right labeled icon">Choose another category <i class="refresh icon"></i></a>
+        </div>
     </div>
     {% display_taxonomy_node_small_info dataset node.node_id 'cva' %}
     <br>

@@ -151,6 +151,7 @@ ul {
     overflow-y: scroll;
     height: 600px;
     width: 100% !important;
+	margin-bottom: 0px;
 }
 
 .medium.text {
