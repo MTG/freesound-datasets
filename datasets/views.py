@@ -132,6 +132,7 @@ def taxonomy_node(request, short_name, node_id):
     return render(request, 'datasets/taxonomy_node.html', {'dataset': dataset, 'node': node, 'sounds': sounds,
                                                            'user_is_maintainer': user_is_maintainer})
 
+
 #############################
 # CONTRIBUTE TO DATASET VIEWS
 #############################
@@ -144,6 +145,7 @@ def contribute(request, short_name):
                                               DATASET_ANNOTATORS_RANKING_TEMPLATE.format(dataset.id), 60 * 1)
 
     return render(request, 'datasets/contribute.html', {'dataset': dataset, 'annotators_ranking': annotators_ranking})
+
 
 @login_required
 def contribute_validate_annotations(request, short_name):
@@ -165,10 +167,10 @@ def contribute_validate_annotations_easy(request, short_name):
         node_ids = TaxonomyNode.objects.filter(beginner_task=True).order_by('?')
         if node_ids:
             node_id = node_ids[0].url_id
-            return contribute_validate_annotations_category(request, short_name, node_id,
-                                            html_url='datasets/contribute_validate_annotations_category_easy.html')
         else:
             return contribute(request, short_name)
+    return contribute_validate_annotations_category(request, short_name, node_id,
+                                                    html_url='datasets/contribute_validate_annotations_category_easy.html')
 
 
 def get_candidate_annotations_complete_ids_random_from(candidate_annotation_ids):
