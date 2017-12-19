@@ -126,37 +126,25 @@
         </div>
     </div>
     {% display_taxonomy_node_small_info dataset node.node_id 'cva' %}
-    <br>
+
     {% if not node.omitted %}
          <div id="start_annotating_info_div" class="ui aligned basic segment">
 
-
-
- <!--final-->
-
-            <div class="ui message ">
-              <p>TIP: Once you are familiar with <span class="ui label">{{node.name}}</span>,
-              comparing it with its siblings will help you understand and distinguish them.
-              Click siblings and direct children to check their description & examples.<br/>
-              </p>
-              <p>If you don't feel comfortable with the chosen category, you can
-              <a href="{% url 'choose_category' dataset.short_name %}" class="blue ui basic tiny button blue right labeled icon">choose another category <i class="refresh icon"></i></a>
-              </p>
-            </div>
-    <br>
-            <div class="ui message">
+             <div class="ui message">
               <p>Familiarise yourself with the <span class="ui label">{{node.name}}</span> category
               (read the description and listen to the examples).</p>
 
-              <p>Comparing <span class="ui label">{{node.name}}</span> with its siblings helps to understand how to
-                  distinguish <span class="ui label">{{node.name}}</span> from its related categories (siblings and direct children).
-              Click a <span class="ui label">category</span> to check their description & examples.<br/>
+              <p>Comparing with its siblings will help you understand how to
+                  distinguish between <span class="ui label">{{node.name}}</span> sounds and sounds from similar categories.
+              To form your judgement, click any <span class="ui label">category</span> to check their description and examples.<br/>
+              </p>
+
+              <p>If you don't feel comfortable with the chosen category, please: &nbsp;
+              <a href="{% url 'choose_category' dataset.short_name %}" class="blue ui basic tiny button blue right labeled icon">choose another category <i class="refresh icon"></i></a>
               </p>
 
             </div>
 
-
-            <br>
             <div id="start_annotating_button_div" class="ui center aligned basic segment" data-tooltip="Please take your time to look at the category and the related ones before starting to annotate :)" data-position="bottom center">
                 <div id="start_annotating_button" class="big button red ui button disabled" onclick="show_form();">Start annotating
                     <div class="ui bottom attached progress" id="progress" data-value="1" data-total="25">
