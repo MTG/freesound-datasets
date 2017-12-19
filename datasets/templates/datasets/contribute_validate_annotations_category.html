@@ -199,10 +199,13 @@
                         </div>
                     {% empty %}
                         <br>
+                        <h3 class="ui header">
                         {% if nb_task1_pages > 1 %}
-                            Thank you very much, you annotated {{ nb_task1_pages }}/6 pages.
+                            Thank you for annotating {{ nb_task1_pages|add:"-1" }} pages!
+                            <br>
                         {% endif %}
-                        There are no more annotations to validate for this category!
+                        There are no more annotations to validate for this category.
+                        </h3>
                     {% endfor %}
                 </div>
                 {% if annotations_forms %}
