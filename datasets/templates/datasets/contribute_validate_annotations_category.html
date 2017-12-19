@@ -42,6 +42,8 @@
             $('#step-training').removeClass("active");
             $('#step-validate').removeClass("disabled step");
             $('#step-validate').addClass("active step");
+            $('#header_step').text("Validate");
+            $('#header_category').text("{{node.name}}");
         }
 
         $(document).ready(function() {
@@ -92,11 +94,14 @@
       </div>
     </div>
 </center>
+    <center>
+        <h1 id="header_step" class="ui header" style="margin-top:35px;">Train</h1>
+    </center>
     <br>
     <br>
     <div class="ui grid">
         <div class="eight wide column">
-            <h1 class="ui header" style="display: inline-block;">{{ node.name }}</h1>
+            <h2 id="header_category" class="ui header" style="display: inline-block;">Familiarize yourself with <span class="ui big label">{{node.name}}</span></h2>
             {% if user_is_maintainer %}
                 {% load admin_urls %}
                 &nbsp;<a title="Edit in administration page" href="{% url node|admin_urlname:'change' node.pk %}" target="_blank"><i class="edit icon"></i></a>
