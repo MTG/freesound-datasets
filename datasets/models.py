@@ -560,6 +560,30 @@ class CandidateAnnotation(models.Model):
         else:
             return None
 
+    @property
+    def freesound_id(self):
+        return self.sound_dataset.sound.freesound_id
+
+    def num_vote_value(self, value):
+        vote_values = [v.vote for v in self.votes.all() if v.test is not 'FA']
+        return vote_values.count(value)
+
+    @property
+    def num_PP(self):
+        return self.num_vote_value(1)
+
+    @property
+    def num_PNP(self):
+        return self.num_vote_value(0.5)
+
+    @property
+    def num_U(self):
+        return self.num_vote_value(0)
+
+    @property
+    def num_NP(self):
+        return self.num_vote_value(-1)
+
 
 class GroundTruthAnnotation(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
