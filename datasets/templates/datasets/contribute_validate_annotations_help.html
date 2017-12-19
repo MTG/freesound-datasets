@@ -3,7 +3,7 @@
 {% load humanize %}
 {% block title %}Validate category annotations{% endblock title %}
 {% block page_js %}
-    <script type="text/javascript">
+    <script type="text/javascript" xmlns="http://www.w3.org/1999/html">
         function enable_button() {
             $('#start_annotating_button').removeClass('disabled');
             $('#start_annotating_button_div').removeAttr("data-tooltip");
@@ -58,13 +58,11 @@
 
 </center>
 
-<br>
-
-<div class="ui container" style="width:90%;">
+<div class="ui container" style="width:100%; margin-top:10px;">
 
     <div class="ui middle aligned grid">
       <div class="row">
-        <div class="two wide right floated column">
+        <div class="two wide left floated column">
           <div class="ui basic segment ">
             <div class="ui red statistic">
               <div class="value">
@@ -77,8 +75,8 @@
           </div>
         </div>
         
-        <div class="right floated left aligned thirteen wide column very">
-            <p><b>Choose a sound category from the AudioSet Ontology.</b> </p><p style="margin-top:-25px;">If you don't feel comfortable
+        <div class="right floated left aligned fourteen wide column very">
+            <p><i>Choose a sound category from the AudioSet Ontology.</i> </p><p style="margin-top:-25px;">If you don't feel comfortable
             with your category, please consider choosing another category.
           </p>
         </div>
@@ -88,27 +86,27 @@
     <div class="ui middle aligned grid">
       <div class="row">
 
-        <div class="two wide right floated column">
+        <div class="two wide left floated column">
           <div class="ui basic segment ">
             <div class="ui red statistic">
               <div class="value">
                <b>2</b>
               </div>
               <div class="label">
-               train
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;train&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
               </div>
             </div>
           </div>
         </div>
 
-        <div class="right floated left aligned thirteen wide column">
-          <p style="margin-right:25px;"><b style="color:black;">Familiarise yourself with your category and its related categories</b>.
-              We provide an overview of the category's meaning: hierarchy in the ontology, description,
+        <div class="right floated left aligned fourteen wide column">
+          <p style="margin-right:0px;"><i>Familiarise yourself with the chosen category and its related categories</i>.
+              Our interface provides an overview of the category's meaning: hierarchy in the ontology, description,
               examples, and related categories (siblings & direct children).</p>
-            <p style="margin-top:-25px;">Click on a related category to display more information!</p>
+            <p style="margin-top:-25px;">By clicking on a related category you can display more information about it:</p>
         </div>
         <center>
-            <img class="ui bordered shaded centered image" style="width:96%;box-shadow: 1px 4px 8px 1px rgba(0, 0, 0, 0.2), 1px 6px 20px 1px rgba(0, 0, 0, 0.19);margin-left:15px;margin-top:30px;" src="{% static 'img/train_interface.gif' %}"/><br>
+            <img class="ui bordered shaded centered image" style="width:100%;box-shadow: 1px 4px 8px 1px rgba(0, 0, 0, 0.2), 1px 6px 20px 1px rgba(0, 0, 0, 0.19);margin-left:15px;margin-top:30px;" src="{% static 'img/train_interface.gif' %}"/><br>
         </center>
       </div>
 
@@ -119,7 +117,7 @@
     <div class="ui middle aligned grid">
       <div class="row">
         
-        <div class="two wide right floated column">
+        <div class="two wide left floated column">
           <div class="ui basic segment ">
             <div class="ui red statistic">
               <div class="value">
@@ -132,53 +130,49 @@
           </div>
         </div>
         
-        <div class="right floated left aligned thirteen wide column">
-          <p style="text-align:justify;margin-right:70px;">Start validating sounds in your category according to the formulated question..</p>
-          <p style="margin-top:-25px;"><b style="color:black;">Is &#60;sound category&#62; present in the following sounds?</b></p>
+        <div class="right floated left aligned fourteen wide column">
+          <p style="text-align:justify;margin-right:70px;">You will be presented with pages of 12 sounds.
+          Once sounds are annotated: submit and continue to next page,
+          we propose that you annotate 6 pages. Annotate the presented sounds according to the following question..</p>
+          <p style="margin-top:-25px;"><i>Is &#60;sound category&#62; present in the following sounds?</i></p>
           <p style="margin-top:-25px;text-align:left;margin-right:55px;">..and the following 4 possible answers:</p>
         </div>
       </div>
     </div>
 
-    <table class="ui compact secondary inverted segment table" style="width:100%;margin-top:20px;background-color:#52527a;box-shadow: 1px 4px 8px 1px rgba(0, 0, 0, 0.2), 1px 6px 20px 1px rgba(0, 0, 0, 0.19);">
-        <tr><td><p><b style="color:white">Present and predominant</b></p></td><td><p>
+<div class="ui grid" style="wide:120%;">
+  <div class="six wide column">
+      <center><img class="ui medium image" src="{% static 'img/vote_one_sound.png' %}"/><br>
+      <p>The annotation interface features
+        a link to <img class="ui inline image" style="width:80px;" src="{% static 'img/freesound_logo_color.png' %}">.
+      In case of doubt, click it to check the sound’s description and tags.</p></center>
+  </div>
+  <div class="ten wide column">
+      <table class="ui compact segment inverted tertiary red table"  style="width:100%;box-shadow: 1px 4px 8px 1px rgba(0, 0, 0, 0.2), 1px 6px 20px 1px rgba(0, 0, 0, 0.19);">
+        <tr><td><p><b>Present and predominant</b></p></td><td><p>
             The type of sound described is <i>clearly present</i> in the audio clip and it is <i>predominant</i>,
             either isolated from other types of sound or with low/mild background noise.
         </p></td></tr>
-        <tr><td><p><b style="color:white">Present but not predominant</b></p></td><td><p>
+        <tr><td><p><b>Present but not predominant</b></p></td><td><p>
             The type of sound described is <i>present</i>, but the audio clip also <i>contains other salient
             types of sound and/or strong background noise</i>.
         </p></td></tr>
-        <tr><td><p><b style="color:white">Not Present</b></p></td><td><p>
+        <tr><td><p><b>Not present</b></p></td><td><p>
             The type of sound described is <i>not present</i> in the audio clip.
         </p></td></tr>
-        <tr><td><p><b style="color:white">Unsure</b></p></td><td><p>
+        <tr><td><p><b>Unsure</b></p></td><td><p>
             <i>I am not sure</i> whether the type of sound described is present or not.
         </p></td></tr>
     </table>
+  </div>
+</div>
+
+
 
 </div>
 
 <center>
-<br><br>
 
-<div class="ui relaxed grid" style="width:90%;">
-  <div class="two column row" style="margin-left:30px;">
-    <div class="column"><br>
-        <p>The annotation interface for a sound looks like this and it features
-        a link to <img class="ui inline image" style="width:80px;" src="{% static 'img/freesound_logo_color.png' %}">.
-        In case of doubt, <i>click it to check the sound’s description and tags.</i>
-        <br><br>
-        You will be presented with pages of 12 sounds. Once the sounds are annotated:
-        <i>submit and continue to next page</i>. We propose that you annotate 6 pages.</p>
-    </div>
-
-    <div class="column">
-        <img class="ui medium image" src="{% static 'img/vote_one_sound.png' %}"/>
-    </div>
-
-  </div>
-</div>
 
 <br>
 
@@ -200,8 +194,7 @@
     </div>
   <div class="ui basic label" style="background-color: transparent;border:transparent;">
       <center>
-
-<!--<i class="help outline icon huge back_clear"></i><a href="javascript:void(0);" onclick="$('#help_modal').modal('show');" --><a  class="ui orange button right icon small">Help <i class="help icon"></i></a><br><br><br>
+      <a  class="ui orange button right icon small">Help <i class="help icon"></i></a><br><br><br>
       <p class="small text">Click help to review<br>these instructions</p></center>
     </div>
 </div>
@@ -210,7 +203,6 @@
 <div id="start_annotating_button_div" class="ui center aligned grid" data-tooltip="Please take your time to read the instructions carefully before starting :)">
     <a id="start_annotating_button" href="{% url 'choose_category' dataset.short_name %}" class="ui big right labeled icon red button disabled"><i class="checkmark box icon"></i>I can't wait anymore, let's start!</a>
 </div>
-
 
 
 
