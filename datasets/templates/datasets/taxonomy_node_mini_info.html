@@ -1,5 +1,5 @@
 {% load dataset_templatetags %}
-<table class="ui unstackable table" width="100%">
+<table class="ui unstackable table bottom attached" width="100%" style="margin-bottom:7px;">
     <tbody>
     <td>Hierarchy</td>
     <td>
@@ -40,7 +40,8 @@
     </tbody>
 </table>
 <div style="text-align:right;">
-    <a class="blue ui button right labeled icon" href="{% url 'dataset-explore-taxonomy-node' dataset.short_name node.url_id %}" target="_blank">
-        Go to category page<i class="right arrow icon"></i>
-    </a>
+    <div class="blue ui button right labeled icon"
+         href="{% url 'dataset-explore-taxonomy-node' dataset.short_name node.url_id %}" target="_blank">
+        Go to <i>{{node.name}}</i> page<i class="right arrow icon"></i>
+    </div>
 </div>
