@@ -199,6 +199,9 @@
                         </div>
                     {% empty %}
                         <br>
+                        {% if nb_task1_pages > 1 %}
+                            Thank you very much, you annotated {{ nb_task1_pages }}/6 pages.
+                        {% endif %}
                         There are no more annotations to validate for this category!
                     {% endfor %}
                 </div>
