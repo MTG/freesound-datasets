@@ -131,11 +131,10 @@
         </div>
 
         <div class="right floated left aligned fourteen wide column">
-          <p style="text-align:justify;margin-right:70px;">You will be presented with pages of 12 sounds.
-          Once sounds are validated: submit and continue to next page,
-          we propose that you validate 6 pages. Validate the presented sounds according to the following question..</p>
-            <p style="margin-top:-25px;"><i>Is</i> <span class="ui label">sound category</span> <i>present in the following sounds?</i></p>
-          <p style="margin-top:-25px;text-align:left;margin-right:55px;">..and the following 4 possible answers:</p>
+          <p style="text-align:justify;margin-right:70px;">You will be presented with 6 pages of 12 sounds.
+          Validate each presented sound according to the following question:
+          &nbsp; <i>Is</i> <span class="ui label">sound category</span> <i>present in the following sounds?</i></p>
+          <p style="margin-top:-25px;text-align:left;margin-right:55px;">And the following 4 possible answers:</p>
         </div>
 
       </div>
@@ -143,10 +142,9 @@
 
 <div class="ui grid" style="wide:120%;">
   <div class="six wide column">
-      <center><img class="ui medium image" src="{% static 'img/vote_one_sound.png' %}"/><br>
-      <p>The annotation interface features
-        a link to <img class="ui inline image" style="width:80px;" src="{% static 'img/freesound_logo_color.png' %}">.
-      In case of doubt, click it to check the sound’s description and tags.</p></center>
+      <center><img class="ui medium image" src="{% static 'img/interface_sound.gif' %}" style="width:80%;box-shadow: 1px 4px 8px 1px rgba(0, 0, 0, 0.2), 1px 6px 20px 1px rgba(0, 0, 0, 0.19);"/><br>
+      <p> In case of doubt, click to the <img class="ui inline image" style="width:80px;" src="{% static 'img/freesound_logo_color.png' %}"> link
+      to check the sound’s description and tags.</p></center>
   </div>
   <div class="ten wide column">
       <table class="ui compact segment table"  style="width:100%;box-shadow: 1px 4px 8px 1px rgba(0, 0, 0, 0.2), 1px 6px 20px 1px rgba(0, 0, 0, 0.19);">
@@ -197,14 +195,9 @@
       <i class="heartbeat icon huge back_clear"></i><br><br>
       <p class="small text">Take a 10 minutes<br>break every hour</p></center>
     </div>
-  <div class="ui basic label" style="background-color: transparent;border:transparent;">
-      <center>
-      <a  class="ui orange button right icon small">Help <i class="help icon"></i></a><br><br><br>
-      <p class="small text">Click help to review<br>these instructions</p></center>
-    </div>
 </div>
 
-<br><br><br>
+<br><br>
 <div id="start_annotating_button_div" class="ui center aligned grid" data-tooltip="Please take your time to read the instructions carefully before starting :)">
     <a id="start_annotating_button" href="{% url 'choose_category' dataset.short_name %}" class="ui big right labeled icon red button disabled"><i class="checkmark box icon"></i>I can't wait anymore, let's start!</a>
 </div>

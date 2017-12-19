@@ -131,21 +131,20 @@
          <div id="start_annotating_info_div" class="ui aligned basic segment">
 
              <div class="ui message">
-              <p>Familiarise yourself with the <span class="ui label">{{node.name}}</span> category
-              (read the description and listen to the examples).</p>
+              <!--<p>Familiarise yourself with the <span class="ui label">{{node.name}}</span> category
+              (read the description and listen to the examples).</p>-->
 
-              <p>Comparing with its siblings will help you understand how to
-                  distinguish between <span class="ui label">{{node.name}}</span> sounds and sounds from similar categories.
-              To form your judgement, click any <span class="ui label">category</span> to check their description and examples.<br/>
-              </p>
+                 <center><p><b>Tip &ndash;</b> Understanding the siblings will help you distinguishing <span class="ui label">{{node.name}}</span> sounds from other similar categories.
+              </p><p>Click on any <span class="ui label">category</span> to check its description and examples!</p></center>
 
-              <p>If you don't feel comfortable with the chosen category, please: &nbsp;
+              <!--<p>If you don't feel comfortable with the chosen category, please: &nbsp;
               <a href="{% url 'choose_category' dataset.short_name %}" class="blue ui basic tiny button blue right labeled icon">choose another category <i class="refresh icon"></i></a>
-              </p>
+              </p>-->
 
             </div>
 
-            <div id="start_annotating_button_div" class="ui center aligned basic segment" data-tooltip="Please take your time to look at the category and the related ones before starting to annotate :)" data-position="bottom center">
+            <div id="start_annotating_button_div" class="ui center aligned basic segment"
+                 data-tooltip="Please take your time to familiarise yourself with the category and its siblings before starting to validate :)" data-position="bottom center">
                 <div id="start_annotating_button" class="big button red ui button disabled" onclick="show_form();">Start annotating
                     <div class="ui bottom attached progress" id="progress" data-value="1" data-total="25">
                         <div class="bar"></div>
@@ -198,14 +197,15 @@
                             {% endwith %}
                         </div>
                     {% empty %}
-                        <br>
-                        <h3 class="ui header">
+                        <center>
+                        <h3 class="ui header" style="margin-top:20px;">
                         {% if nb_task1_pages > 1 %}
                             Thank you for annotating {{ nb_task1_pages|add:"-1" }} pages!
-                            <br>
+                            <br><br>
                         {% endif %}
                         There are no more annotations to validate for this category.
                         </h3>
+                        </center>
                     {% endfor %}
                 </div>
                 {% if annotations_forms %}
@@ -271,10 +271,10 @@
     <!-- help modal -->
     <div id="help_modal" class="ui basic modal">
         <div class="ui icon header"><i class="help icon"></i>
-            Summary of instructions
+            Instructions summary
         </div>
         <div class="content">
-            <div class="ui bulleted list">
+            <div class="ui list">
                 <div class="item">
                     Response type meanings:
                     <p>
@@ -293,7 +293,7 @@
                                 <td>Present, but the audio clip also contains other salient types of sound and/or strong background noise.</td>
                             </tr>
                             <tr>
-                                <td>Not Present</td>
+                                <td>Not present</td>
                                 <td>The type of sound is not present in the audio clip.</td>
                             </tr>
                             <tr>
@@ -308,11 +308,11 @@
                     Before annotating:
                     <div class="ui bulleted list">
                         <div class="item">
-                            Familiarise yourself with <i>{{node.name}}</i>: read the description & listen to the examples
+                            Familiarise yourself with <i>{{node.name}}</i>: read the description & listen to the examples.
                         </div>
                         <div class="item">
-                            Comparing <i>{{node.name}}</i> with its siblings helps to understand and distinguish them.
-                            Click siblings and direct children to check their description & examples
+                            Understanding the siblings will help you distinguishing <i>{{node.name}}</i> sounds from other similar categories.
+                            Click on any <span class="ui label">category</span> to check its description and examples.
                         </div>
                     </div>
                 </div>
@@ -320,17 +320,17 @@
                     In case of doubt:
                     <div class="ui bulleted list">
                         <div class="item">
-                            Double-check the category descriptions
+                            Double-check the category descriptions.
                         </div>
                         <div class="item">
                             Click the link to<span><img class="ui inline image" style="width:80px;"
-                           src="{% static 'img/freesound_logo_color.png' %}"></span> to check the sound’s description and tags
+                           src="{% static 'img/freesound_logo_color.png' %}"></span> to check the sound’s description and tags.
                         </div>
                     </div>
                 </div>
-                <div class="item">
-                    You are presented with pages of 12 sounds. We propose that you annotate 6 pages
-                </div>
+
+
+
 
 
                 <!--<div class="item">-->
@@ -345,7 +345,7 @@
                     <!--You can add general <b>comments about a category</b> at the bottom of the page-->
                 <!--</div>-->
                 <div class="item">
-                    Check the <a href="{% url 'contribute-validate-annotations' dataset.short_name %}?help=1" target="_blank">full instructions</a> if you have any doubts
+                    Check the <a href="{% url 'contribute-validate-annotations' dataset.short_name %}?help=1" target="_blank">full instructions</a> if you have any doubts.
                 </div>
             </div>
         </div>
