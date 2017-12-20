@@ -709,6 +709,11 @@ class Profile(models.Model):
         except IndexError:
             return False
 
+    @property
+    def is_fsd_maintainer(self):
+        dataset = Dataset.objects.get(short_name='fsd')
+        return dataset.user_is_maintainer(self.user)
+
 
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
