@@ -1,6 +1,7 @@
-from datasets.models import Dataset, Vote
+from datasets.models import Dataset, Vote, GroundTruthAnnotation
 from celery import shared_task
 from utils.redis_store import store
+from statistics import mean, StatisticsError
 import logging
 import datetime
 
@@ -79,6 +80,52 @@ def compute_dataset_bad_mapping(store_key, dataset_id):
 
         store.set(store_key, {'bad_mapping_categories': bad_mapping_categories,
                               'bad_mapping_categories_last_month': bad_mapping_categories_last_month})
+
+        logger.info('Finished computing data for {0}'.format(store_key))
+
+    except Dataset.DoesNotExist:
+        pass
+
+
+@shared_task
+def compute_dataset_difficult_agreement(store_key, dataset_id):
+    logger.info('Start computing data for {0}'.format(store_key))
+    try:
+        dataset = Dataset.objects.get(id=dataset_id)
+        nodes = dataset.taxonomy.taxonomynode_set.all()
+        reference_date = datetime.datetime.today() - datetime.timedelta(days=31)
+        difficult_agreement_categories = list()
+        difficult_agreement_categories_last_month = list()
+
+        for node in nodes:
+            ground_truth_annotations = node.ground_truth_annotations.filter(from_propagation=False)
+            ground_truth_annotations_last_month = node.ground_truth_annotations.filter(from_propagation=False,
+                                                                                       created_at__gt=reference_date)
+            try:
+                mean_votes_agreement = mean([annotation.from_candidate_annotation.votes.count()
+                                             for annotation in ground_truth_annotations])
+            except StatisticsError:
+                mean_votes_agreement = 0
+            try:
+                mean_votes_agreement_last_month = mean([annotation.from_candidate_annotation.votes.count()
+                                                        for annotation in ground_truth_annotations_last_month])
+            except StatisticsError:
+                mean_votes_agreement_last_month = 0
+
+            difficult_agreement_categories.append((node.name, mean_votes_agreement))
+            difficult_agreement_categories_last_month.append((node.name, mean_votes_agreement_last_month))
+
+        difficult_agreement_categories = [category_name_votes for category_name_votes in difficult_agreement_categories
+                                          if category_name_votes[1] > 2]
+        difficult_agreement_categories = sorted(difficult_agreement_categories, key=lambda x: x[1], reverse=True)
+        difficult_agreement_categories_last_month = [category_name_votes for category_name_votes
+                                                     in difficult_agreement_categories_last_month
+                                                     if category_name_votes[1] > 2]
+        difficult_agreement_categories_last_month = sorted(difficult_agreement_categories_last_month, key=lambda x: x[1]
+                                                           , reverse=True)
+
+        store.set(store_key, {'difficult_agreement_categories': difficult_agreement_categories,
+                              'difficult_agreement_categories_last_month': difficult_agreement_categories_last_month})
 
         logger.info('Finished computing data for {0}'.format(store_key))
 

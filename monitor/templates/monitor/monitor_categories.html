@@ -3,151 +3,241 @@
 {% load general_templatetags %}
 {% block title %}Monitor category page{% endblock title %}
 
+{% block page_js %}
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $('.ui.accordion').accordion();
+        });
+    </script>
+{% endblock %}
+
 {% block content %}
     <h1 class="ui header">Monitor categories of {{dataset.short_name|upper}}</h1>
     <br>
 
-    {#    TOP CONTRIBUTED CATEGORIES     #}
-    <div class="ui basic segment" style="padding: 0; margin:0;">
-        <h2>Top contributed categories</h2>
-        <div class="ui grid">
-            <div class="two column row">
-                <div class="column">
-                    <h3>All time</h3>
-                    <table class="ui unstackable table" width="100%">
-                        <thead>
-                        <tr>
-                            <th>#</th>
-                            <th class="center aligned">Category name</th>
-                            <th class="center aligned">Number of contributions</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% for node_name, num_votes in top_contributed.top_categories %}
+    <div class="ui accordion">
+        {#    TOP CONTRIBUTED CATEGORIES     #}
+        <div class="active title">
+            <h2 class="ui header"><i class="dropdown icon"></i> Top contributed categories</h2>
+        </div>
+        <div class="active content">
+            <div class="ui grid">
+                <div class="two column row">
+                    <div class="column">
+                        <h3>All time</h3>
+                        <table class="ui unstackable table" width="100%">
+                            <thead>
                             <tr>
-                                <td>{{ forloop.counter }}</td>
-                                <td class="center aligned">
-                                    {% if forloop.counter == 1 %}
-                                        <i class="yellow star icon"></i>
-                                    {% elif forloop.counter == 2 %}
-                                        <i class="grey star icon"></i>
-                                    {% elif forloop.counter == 3 %}
-                                        <i class="brown star icon"></i>
-                                    {% endif %}
-                                    {{ node_name }}
-                                </td>
-                                <td class="center aligned">{{ num_votes }}</td>
+                                <th>#</th>
+                                <th class="center aligned">Category name</th>
+                                <th class="center aligned">Number of contributions</th>
                             </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                <div class="column">
-                    <h3>Last week</h3>
-                    <table class="ui unstackable table" width="100%">
-                        <thead>
-                        <tr>
-                            <th>#</th>
-                            <th class="center aligned">Category name</th>
-                            <th class="center aligned">Number of contributions</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% for node_name, num_votes in top_contributed.top_categories_last_week %}
+                            </thead>
+                            <tbody>
+                            {% for node_name, num_votes in top_contributed.top_categories %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td class="center aligned">
+                                        {% if forloop.counter == 1 %}
+                                            <i class="yellow star icon"></i>
+                                        {% elif forloop.counter == 2 %}
+                                            <i class="grey star icon"></i>
+                                        {% elif forloop.counter == 3 %}
+                                            <i class="brown star icon"></i>
+                                        {% endif %}
+                                        {{ node_name }}
+                                    </td>
+                                    <td class="center aligned">{{ num_votes }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="column">
+                        <h3>Last week</h3>
+                        <table class="ui unstackable table" width="100%">
+                            <thead>
                             <tr>
-                                <td>{{ forloop.counter }}</td>
-                                <td class="center aligned">
-                                    {% if forloop.counter == 1 %}
-                                        <i class="yellow star icon"></i>
-                                    {% elif forloop.counter == 2 %}
-                                        <i class="grey star icon"></i>
-                                    {% elif forloop.counter == 3 %}
-                                        <i class="brown star icon"></i>
-                                    {% endif %}
-                                    {{ node_name }}
-                                </td>
-                                <td class="center aligned">{{ num_votes }}</td>
+                                <th>#</th>
+                                <th class="center aligned">Category name</th>
+                                <th class="center aligned">Number of contributions</th>
                             </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                    <div class="ui grid">
-                        <div class="right aligned column">
-                            <span class="small_gray_text">Last updated {{ top_contributed.redis_timestamp | timestamp_to_datetime | timesince  }} ago</span>
+                            </thead>
+                            <tbody>
+                            {% for node_name, num_votes in top_contributed.top_categories_last_week %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td class="center aligned">
+                                        {% if forloop.counter == 1 %}
+                                            <i class="yellow star icon"></i>
+                                        {% elif forloop.counter == 2 %}
+                                            <i class="grey star icon"></i>
+                                        {% elif forloop.counter == 3 %}
+                                            <i class="brown star icon"></i>
+                                        {% endif %}
+                                        {{ node_name }}
+                                    </td>
+                                    <td class="center aligned">{{ num_votes }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                        <div class="ui grid">
+                            <div class="right aligned column">
+                                <span class="small_gray_text">Last updated {{ top_contributed.redis_timestamp | timestamp_to_datetime | timesince  }} ago</span>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    {#    BAD MAPPING CATEGORIES     #}
-    <div class="ui basic segment" style="padding: 0; margin:0;">
-        <h2>Categories with bad mapping</h2>
-        <div class="ui grid">
-            <div class="two column row">
-                <div class="column">
-                    <h3>All time</h3>
-                    <table class="ui unstackable table" width="100%">
-                        <thead>
-                        <tr>
-                            <th>#</th>
-                            <th class="center aligned">Category name</th>
-                            <th class="center aligned">Bad mapping score</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% for node_name, score in bad_mapping.bad_mapping_categories %}
+        {#    BAD MAPPING CATEGORIES     #}
+        <div class="title">
+            <h2 class="ui header"><i class="dropdown icon"></i> Categories with bad mapping</h2>
+        </div>
+        <div class="content">
+            <div class="ui grid">
+                <div class="two column row">
+                    <div class="column">
+                        <h3>All time</h3>
+                        <table class="ui unstackable table" width="100%">
+                            <thead>
                             <tr>
-                                <td>{{ forloop.counter }}</td>
-                                <td class="center aligned">
-                                    {% if forloop.counter == 1 %}
-                                        <i class="yellow star icon"></i>
-                                    {% elif forloop.counter == 2 %}
-                                        <i class="grey star icon"></i>
-                                    {% elif forloop.counter == 3 %}
-                                        <i class="brown star icon"></i>
-                                    {% endif %}
-                                    {{ node_name }}
-                                </td>
-                                <td class="center aligned">{{ score | multiply:100 | floatformat:0 }} %</td>
+                                <th>#</th>
+                                <th class="center aligned">Category name</th>
+                                <th class="center aligned">Bad mapping score</th>
                             </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                            {% for node_name, score in bad_mapping.bad_mapping_categories %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td class="center aligned">
+                                        {% if forloop.counter == 1 %}
+                                            <i class="yellow star icon"></i>
+                                        {% elif forloop.counter == 2 %}
+                                            <i class="grey star icon"></i>
+                                        {% elif forloop.counter == 3 %}
+                                            <i class="brown star icon"></i>
+                                        {% endif %}
+                                        {{ node_name }}
+                                    </td>
+                                    <td class="center aligned">{{ score | multiply:100 | floatformat:0 }} %</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="column">
+                        <h3>Last month</h3>
+                        <table class="ui unstackable table" width="100%">
+                            <thead>
+                            <tr>
+                                <th>#</th>
+                                <th class="center aligned">Category name</th>
+                                <th class="center aligned">Bad mapping score</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for node_name, score in bad_mapping.bad_mapping_categories_last_month %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td class="center aligned">
+                                        {% if forloop.counter == 1 %}
+                                            <i class="yellow star icon"></i>
+                                        {% elif forloop.counter == 2 %}
+                                            <i class="grey star icon"></i>
+                                        {% elif forloop.counter == 3 %}
+                                            <i class="brown star icon"></i>
+                                        {% endif %}
+                                        {{ node_name }}
+                                    </td>
+                                    <td class="center aligned">{{ score | multiply:100 | floatformat:0 }} %</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                        <div class="ui grid">
+                            <div class="right aligned column">
+                                <span class="small_gray_text">Last updated {{ bad_mapping.redis_timestamp | timestamp_to_datetime | timesince }} ago</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="column">
-                    <h3>Last month</h3>
-                    <table class="ui unstackable table" width="100%">
-                        <thead>
-                        <tr>
-                            <th>#</th>
-                            <th class="center aligned">Category name</th>
-                            <th class="center aligned">Bad mapping score</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% for node_name, score in bad_mapping.bad_mapping_categories_last_month %}
+            </div>
+        </div>
+
+        {#    DIFFICULT AGREEMENT CATEGORIES     #}
+        <div class="title">
+            <h2 class="ui header"><i class="dropdown icon"></i> Categories with difficult agreement</h2>
+        </div>
+        <div class="content">
+            <div class="ui grid">
+                <div class="two column row">
+                    <div class="column">
+                        <h3>All time</h3>
+                        <table class="ui unstackable table" width="100%">
+                            <thead>
                             <tr>
-                                <td>{{ forloop.counter }}</td>
-                                <td class="center aligned">
-                                    {% if forloop.counter == 1 %}
-                                        <i class="yellow star icon"></i>
-                                    {% elif forloop.counter == 2 %}
-                                        <i class="grey star icon"></i>
-                                    {% elif forloop.counter == 3 %}
-                                        <i class="brown star icon"></i>
-                                    {% endif %}
-                                    {{ node_name }}
-                                </td>
-                                <td class="center aligned">{{ score | multiply:100 | floatformat:0 }} %</td>
+                                <th>#</th>
+                                <th class="center aligned">Category name</th>
+                                <th class="center aligned">Average num of votes until agreement</th>
                             </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                    <div class="ui grid">
-                        <div class="right aligned column">
-                            <span class="small_gray_text">Last updated {{ bad_mapping.redis_timestamp | timestamp_to_datetime | timesince  }} ago</span>
+                            </thead>
+                            <tbody>
+                            {% for node_name, mean_num_votes in difficult_agreement.difficult_agreement_categories %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td class="center aligned">
+                                        {% if forloop.counter == 1 %}
+                                            <i class="yellow star icon"></i>
+                                        {% elif forloop.counter == 2 %}
+                                            <i class="grey star icon"></i>
+                                        {% elif forloop.counter == 3 %}
+                                            <i class="brown star icon"></i>
+                                        {% endif %}
+                                        {{ node_name }}
+                                    </td>
+                                    <td class="center aligned">{{ mean_num_votes | floatformat:2 }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="column">
+                        <h3>Last month</h3>
+                        <table class="ui unstackable table" width="100%">
+                            <thead>
+                            <tr>
+                                <th>#</th>
+                                <th class="center aligned">Category name</th>
+                                <th class="center aligned">Average num of votes until agreement</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for node_name, mean_num_votes in difficult_agreement.difficult_agreement_categories_last_month %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td class="center aligned">
+                                        {% if forloop.counter == 1 %}
+                                            <i class="yellow star icon"></i>
+                                        {% elif forloop.counter == 2 %}
+                                            <i class="grey star icon"></i>
+                                        {% elif forloop.counter == 3 %}
+                                            <i class="brown star icon"></i>
+                                        {% endif %}
+                                        {{ node_name }}
+                                    </td>
+                                    <td class="center aligned">{{ mean_num_votes | floatformat:2 }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                        <div class="ui grid">
+                            <div class="right aligned column">
+                                <span class="small_gray_text">Last updated {{ difficult_agreement.redis_timestamp | timestamp_to_datetime | timesince }} ago</span>
+                            </div>
                         </div>
                     </div>
                 </div>
