@@ -155,6 +155,7 @@ def contribute_validate_annotations_easy(request, short_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
     node_id = request.GET.get('url_id')
     if not node_id:
+        request.session['nb_task1_pages'] = 0
         nodes = TaxonomyNode.objects.filter(beginner_task=True).order_by('?')
         nodes = [node for node in nodes if dataset.user_can_annotate(node.node_id, request.user)]
         if nodes:
