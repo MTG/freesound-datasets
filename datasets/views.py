@@ -105,20 +105,22 @@ def taxonomy_node(request, short_name, node_id):
     user_is_maintainer = dataset.user_is_maintainer(request.user)
     node_id = unquote(node_id)
     node = dataset.taxonomy.get_element_at_id(node_id)
-    sound_list = dataset.sounds_per_taxonomy_node(node_id)
-    paginator = Paginator(sound_list, 10)
+    annotation_list = dataset.annotations_per_taxonomy_node(node_id)\
+        .annotate(num_votes=Count('votes')).order_by('-num_votes')
+    paginator = Paginator(annotation_list, 10)
     page = request.GET.get('page')
     try:
-        sounds = paginator.page(page)
+        annotations = paginator.page(page)
     except PageNotAnInteger:
         # If page is not an integer, deliver first page.
-        sounds = paginator.page(1)
+        annotations = paginator.page(1)
     except EmptyPage:
         # If page is out of range (e.g. 9999), deliver last page of results.
-        sounds = paginator.page(paginator.num_pages)
+        annotations = paginator.page(paginator.num_pages)
         
-    return render(request, 'datasets/taxonomy_node.html', {'dataset': dataset, 'node': node, 'sounds': sounds,
-                                                           'user_is_maintainer': user_is_maintainer})
+    return render(request, 'datasets/taxonomy_node.html', {'dataset': dataset, 'node': node,
+                                                           'user_is_maintainer': user_is_maintainer,
+                                                           'sounds': annotations})
 
 
 #############################
