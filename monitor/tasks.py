@@ -34,3 +34,53 @@ def compute_dataset_top_contributed_categories(store_key, dataset_id, N=15):
 
     except Dataset.DoesNotExist:
         pass
+
+
+@shared_task
+def compute_dataset_bad_mapping(store_key, dataset_id):
+    logger.info('Start computing data for {0}'.format(store_key))
+    try:
+        dataset = Dataset.objects.get(id=dataset_id)
+        nodes = dataset.taxonomy.taxonomynode_set.all()
+        reference_date = datetime.datetime.today() - datetime.timedelta(days=31)
+        bad_mapping_categories = list()
+        bad_mapping_categories_last_month = list()
+
+        for node in nodes:
+            num_PP = dataset.num_votes_with_value(node.node_id, 1.0)
+            num_PNP = dataset.num_votes_with_value(node.node_id, 0.5)
+            num_NP = dataset.num_votes_with_value(node.node_id, -1.0)
+            num_U = dataset.num_votes_with_value(node.node_id, 0.0)
+            try:
+                bad_mapping_score = (num_NP + num_U) / (num_PP + num_PNP + num_NP + num_U)
+            except ZeroDivisionError:
+                bad_mapping_score = 0
+
+            num_PP_last_month = dataset.num_votes_with_value_after_date(node.node_id, 1.0, reference_date)
+            num_PNP_last_month = dataset.num_votes_with_value_after_date(node.node_id, 0.5, reference_date)
+            num_NP_last_month = dataset.num_votes_with_value_after_date(node.node_id, -1.0, reference_date)
+            num_U_last_month = dataset.num_votes_with_value_after_date(node.node_id, 0.0, reference_date)
+            try:
+                bad_mapping_score_last_month = (num_NP_last_month + num_U_last_month) / \
+                                               (num_PP_last_month + num_PNP_last_month + num_NP_last_month + num_U_last_month)
+            except ZeroDivisionError:
+                bad_mapping_score_last_month = 0
+
+            bad_mapping_categories.append((node.name, bad_mapping_score))
+            bad_mapping_categories_last_month.append((node.name, bad_mapping_score_last_month))
+
+            bad_mapping_categories = sorted(bad_mapping_categories, key=lambda x: x[1], reverse=True)  # Sort by mapping score
+            bad_mapping_categories = [category_name_score for category_name_score in bad_mapping_categories  # keep bad ones
+                                      if category_name_score[1] >= 0.5]
+
+            bad_mapping_categories_last_month = sorted(bad_mapping_categories_last_month, key=lambda x: x[1], reverse=True)
+            bad_mapping_categories_last_month = [category_name_score for category_name_score in bad_mapping_categories_last_month
+                                                 if category_name_score[1] >= 0.5]
+
+        store.set(store_key, {'bad_mapping_categories': bad_mapping_categories,
+                              'bad_mapping_categories_last_month': bad_mapping_categories_last_month})
+
+        logger.info('Finished computing data for {0}'.format(store_key))
+
+    except Dataset.DoesNotExist:
+        pass
