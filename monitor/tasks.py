@@ -21,12 +21,12 @@ def compute_dataset_top_contributed_categories(store_key, dataset_id, N=15):
 
         for node in nodes:
             num_votes = Vote.objects.filter(candidate_annotation__taxonomy_node=node).count()
-            top_categories.append((node.name, num_votes))
+            top_categories.append((node.url_id, node.name, num_votes))
             num_votes_last_week = Vote.objects.filter(candidate_annotation__taxonomy_node=node, created_at__gt=reference_date).count()
-            top_categories_last_week.append((node.name, num_votes_last_week))
+            top_categories_last_week.append((node.url_id, node.name, num_votes_last_week))
 
-        top_categories = sorted(top_categories, key=lambda x: x[1], reverse=True)  # Sort by number of votes
-        top_categories_last_week = sorted(top_categories_last_week, key=lambda x: x[1], reverse=True)
+        top_categories = sorted(top_categories, key=lambda x: x[2], reverse=True)  # Sort by number of votes
+        top_categories_last_week = sorted(top_categories_last_week, key=lambda x: x[2], reverse=True)
 
         store.set(store_key, {'top_categories': top_categories[:N],
                               'top_categories_last_week': top_categories_last_week[:N]})
@@ -67,16 +67,16 @@ def compute_dataset_bad_mapping(store_key, dataset_id):
             except ZeroDivisionError:
                 bad_mapping_score_last_month = 0
 
-            bad_mapping_categories.append((node.name, bad_mapping_score))
-            bad_mapping_categories_last_month.append((node.name, bad_mapping_score_last_month))
+            bad_mapping_categories.append((node.url_id, node.name, bad_mapping_score))
+            bad_mapping_categories_last_month.append((node.url_id, node.name, bad_mapping_score_last_month))
 
-            bad_mapping_categories = sorted(bad_mapping_categories, key=lambda x: x[1], reverse=True)  # Sort by mapping score
+            bad_mapping_categories = sorted(bad_mapping_categories, key=lambda x: x[2], reverse=True)  # Sort by mapping score
             bad_mapping_categories = [category_name_score for category_name_score in bad_mapping_categories  # keep bad ones
-                                      if category_name_score[1] >= 0.5]
+                                      if category_name_score[2] >= 0.5]
 
-            bad_mapping_categories_last_month = sorted(bad_mapping_categories_last_month, key=lambda x: x[1], reverse=True)
+            bad_mapping_categories_last_month = sorted(bad_mapping_categories_last_month, key=lambda x: x[2], reverse=True)
             bad_mapping_categories_last_month = [category_name_score for category_name_score in bad_mapping_categories_last_month
-                                                 if category_name_score[1] >= 0.5]
+                                                 if category_name_score[2] >= 0.5]
 
         store.set(store_key, {'bad_mapping_categories': bad_mapping_categories,
                               'bad_mapping_categories_last_month': bad_mapping_categories_last_month})
@@ -112,16 +112,16 @@ def compute_dataset_difficult_agreement(store_key, dataset_id):
             except StatisticsError:
                 mean_votes_agreement_last_month = 0
 
-            difficult_agreement_categories.append((node.name, mean_votes_agreement))
-            difficult_agreement_categories_last_month.append((node.name, mean_votes_agreement_last_month))
+            difficult_agreement_categories.append((node.url_id, node.name, mean_votes_agreement))
+            difficult_agreement_categories_last_month.append((node.url_id, node.name, mean_votes_agreement_last_month))
 
         difficult_agreement_categories = [category_name_votes for category_name_votes in difficult_agreement_categories
-                                          if category_name_votes[1] > 2]
-        difficult_agreement_categories = sorted(difficult_agreement_categories, key=lambda x: x[1], reverse=True)
+                                          if category_name_votes[2] > 2]
+        difficult_agreement_categories = sorted(difficult_agreement_categories, key=lambda x: x[2], reverse=True)
         difficult_agreement_categories_last_month = [category_name_votes for category_name_votes
                                                      in difficult_agreement_categories_last_month
-                                                     if category_name_votes[1] > 2]
-        difficult_agreement_categories_last_month = sorted(difficult_agreement_categories_last_month, key=lambda x: x[1]
+                                                     if category_name_votes[2] > 2]
+        difficult_agreement_categories_last_month = sorted(difficult_agreement_categories_last_month, key=lambda x: x[2]
                                                            , reverse=True)
 
         store.set(store_key, {'difficult_agreement_categories': difficult_agreement_categories,
