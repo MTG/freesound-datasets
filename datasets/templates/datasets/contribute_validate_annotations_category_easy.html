@@ -62,7 +62,7 @@
                 $('#start_annotating_button').removeClass('disabled');
                 $('#start_annotating_button_div').removeAttr("data-tooltip");
                 clearInterval(set_intverval_var);
-                $('#progress').progress({percent:100})
+                $('#progress').empty();
             }, 10000);
             set_intverval_var = setInterval(function(){$('#progress').progress('increment');}, 400);
             if ('{{skip_tempo}}'=='True'){show_form();}
@@ -86,7 +86,7 @@
         {% endif %}
         </div>
         <div class="eight wide column right aligned">
-                <a href="{% url 'contribute-validate-annotations-category-beginner' dataset.short_name %}" class="blue ui button right labeled icon">Try another category <i class="refresh icon"></i></a>
+                <a href="{% url 'contribute-validate-annotations-category-beginner' dataset.short_name %}" class="primary basic ui button right labeled icon">Try another category <i class="refresh icon"></i></a>
         </div>
     </div>
     {% display_taxonomy_node_small_info dataset node.node_id False %}
@@ -94,7 +94,7 @@
     <div id="start_annotating_info_div">
        <center>
        <p style="margin-top:30px;">You will be presented with 6 pages of 12 sounds.
-       Validate each presented sound according to the following question: <br>
+       Validate each presented sound according to the question: <br>
        <i>Is</i> <span class="ui label">sound category</span> <i>present in the following sounds?</i>
        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
        ..and the following 4 possible answers:</p>
@@ -106,7 +106,7 @@
            <div class="ui raised segment" style="margin: 0px 25px 25px 25px;">
              <img src="{% static 'img/one_vote.png' %}" style="width:100%;"/><br>
            </div>
-           <p> In case of doubt, click to the
+           <p> In case of doubt, click the
            <img class="ui inline image" style="width:80px;" src="{% static 'img/freesound_logo_color.png' %}">
            link to check the sound’s description and tags.</p>
          </div>

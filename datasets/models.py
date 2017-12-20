@@ -461,6 +461,11 @@ class Dataset(models.Model):
         return Vote.objects.filter(
             candidate_annotation__sound_dataset__dataset=self, candidate_annotation__taxonomy_node__node_id=node_id, vote=vote_value).count()
 
+    def num_votes_with_value_after_date(self, node_id, vote_value, reference_date):
+        return Vote.objects.filter(
+            candidate_annotation__sound_dataset__dataset=self, candidate_annotation__taxonomy_node__node_id=node_id,
+            vote=vote_value, created_at__gt=reference_date).count()
+
     def get_comments_per_taxonomy_node(self, node_id):
         return CategoryComment.objects.filter(dataset=self, category_id=node_id)
 
@@ -581,6 +586,30 @@ class CandidateAnnotation(models.Model):
         else:
             return None
 
+    @property
+    def freesound_id(self):
+        return self.sound_dataset.sound.freesound_id
+
+    def num_vote_value(self, value):
+        vote_values = [v.vote for v in self.votes.all() if v.test is not 'FA']
+        return vote_values.count(value)
+
+    @property
+    def num_PP(self):
+        return self.num_vote_value(1)
+
+    @property
+    def num_PNP(self):
+        return self.num_vote_value(0.5)
+
+    @property
+    def num_U(self):
+        return self.num_vote_value(0)
+
+    @property
+    def num_NP(self):
+        return self.num_vote_value(-1)
+
 
 class GroundTruthAnnotation(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
@@ -700,6 +729,11 @@ class Profile(models.Model):
             return last_contribution_date > past_date
         except IndexError:
             return False
+
+    @property
+    def is_fsd_maintainer(self):
+        dataset = Dataset.objects.get(short_name='fsd')
+        return dataset.user_is_maintainer(self.user)
 
 
 @receiver(post_save, sender=User)

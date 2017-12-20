@@ -44,3 +44,7 @@ def timestamp_to_datetime(value):
         return None
     return datetime.datetime.fromtimestamp(value)
 
+
+@register.filter()
+def multiply(value, arg):
+    return value*arg

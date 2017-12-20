@@ -46,6 +46,11 @@
                 {% else %}
                     <a href="#" class="item disabled">Download</a>
                 {% endif %}
+                {% if dataset.short_name == "fsd" %}
+                    {% if request.user.profile.is_fsd_maintainer %}
+                        <a href="{% url 'monitor-categories' dataset.short_name %}" class="{% active_if_current 'monitor-categories' %}item">Monitor</a>
+                    {% endif %}
+                {% endif %}
             {% else %}
                 <img style=" visibility: hidden; padding: 5px;width: 300px;height:76px;" src="{% static "img/freesound_datasets_logo.svg" %}">
             {% endif %}

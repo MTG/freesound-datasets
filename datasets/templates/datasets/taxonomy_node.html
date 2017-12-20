@@ -21,6 +21,10 @@
             <tr>
                 <th>Sound</th>
                 <th>Freesound URL</th>
+                <th><div data-tooltip="Number of times validated as present and predominant"># PP</div></th>
+                <th><div data-tooltip="Number of times validated as present but not predominant"># PNP</div></th>
+                <th><div data-tooltip="Number of times validated as not present"># NP</div></th>
+                <th><div data-tooltip="Number of times validated as unsure"># U</div></th>
             </tr>
         </thead>
         <tbody>
@@ -28,6 +32,10 @@
                 <tr>
                     <td>{{ sound.freesound_id | fs_embed | safe }}</td>
                     <td><a href="http://freesound.org/s/{{ sound.freesound_id }}" target="_blank">http://freesound.org/s/{{ sound.freesound_id }}</a></td>
+                    <td>{{ sound.num_PP }}</td>
+                    <td>{{ sound.num_PNP }}</td>
+                    <td>{{ sound.num_NP }}</td>
+                    <td>{{ sound.num_U }}</td>
                 </tr>
             {% endfor %} 
         </tbody>

@@ -60,3 +60,6 @@ store = RedisStore(verbose=False)
 DATASET_BASIC_STATS_KEY_TEMPLATE = 'dataset_basic_stats_{0}'
 DATASET_TAXONOMY_STATS_KEY_TEMPLATE = 'dataset_taxonomy_stats_{0}'
 DATASET_ANNOTATORS_RANKING_TEMPLATE = 'dataset_annotators_ranking_{0}'
+DATASET_TOP_CONTRIBUTED_CATEGORIES = 'dataset_top_contributed_categories_{0}'
+DATASET_BAD_MAPPING_CATEGORIES = 'dataset_bad_mapping_categoies_{0}'
+DATASET_DIFFICULT_AGREEMENT_CATEGORIES = 'dataset_difficult_agreement_categories_{0}'

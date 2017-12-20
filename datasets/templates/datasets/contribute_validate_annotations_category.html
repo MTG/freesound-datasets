@@ -122,7 +122,7 @@
         {% endif %}
         </div>
         <div class="eight wide column right aligned">
-                <a href="{% url 'choose_category' dataset.short_name %}" class="blue ui button right labeled icon">Choose another category <i class="refresh icon"></i></a>
+                <a href="{% url 'choose_category' dataset.short_name %}" class="primary basic ui button right labeled icon">Choose another category <i class="refresh icon"></i></a>
         </div>
     </div>
     {% display_taxonomy_node_small_info dataset node.node_id 'cva' %}
