@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load humanize %}
+{% load general_templatetags %}
 {% block title %}Monitor category page{% endblock title %}
 
 {% block content %}
@@ -70,6 +71,11 @@
                         {% endfor %}
                         </tbody>
                     </table>
+                    <div class="ui grid">
+                        <div class="right aligned column">
+                            <span class="small_gray_text">Last updated {{ top_contributed.redis_timestamp | timestamp_to_datetime | timesince  }} ago</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
