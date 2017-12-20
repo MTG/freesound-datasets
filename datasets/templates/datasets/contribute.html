@@ -18,7 +18,7 @@
                                 <div class="ui vertical buttons">
                                     <div style="margin-bottom: 6px">
                                         {% if beginner_task_finished %}
-                                            <a class="ui large right disabled labeled icon blue button">
+                                            <a class="ui large right labeled disabled icon blue button" data-tooltip="You already validated all the simple categories">
                                                 <i class="checkmark box icon"></i>Start beginners task</a>
                                         {% else %}
                                             <a href="{% url 'contribute-validate-annotations-category-beginner' dataset.short_name %}" class="ui large right labeled icon blue button">
