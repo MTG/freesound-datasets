@@ -9,6 +9,6 @@ from utils.redis_store import DATASET_TOP_CONTRIBUTED_CATEGORIES
 def monitor_categories(request, short_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
     top_contributed_categories = data_from_async_task(compute_dataset_top_contributed_categories, [dataset.id], {},
-                                                      DATASET_TOP_CONTRIBUTED_CATEGORIES.format(dataset.id), 60)['top_categories']
+                                                      DATASET_TOP_CONTRIBUTED_CATEGORIES.format(dataset.id), 60)
     return render(request, 'monitor/monitor_categories.html', {'dataset': dataset,
                                                                'top_contributed': top_contributed_categories})
