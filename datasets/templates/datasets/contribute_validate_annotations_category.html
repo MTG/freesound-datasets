@@ -46,7 +46,7 @@
             $('#step-training').removeClass("active");
             $('#step-validate').removeClass("disabled step");
             $('#step-validate').addClass("active step");
-            $('#header_step').text("Validate");
+            $('#header_step').text("3) Validate");
             $('#header_category').text("{{node.name}}");
             if ('{{skip_tempo}}' == 'True') {
                 $('html, body').scrollTop($("#form_container").offset().top - 80);
@@ -110,7 +110,7 @@
     </div>
 </center>
     <center>
-        <h1 id="header_step" class="ui header" style="margin-top:35px;">Train</h1>
+        <h1 id="header_step" class="ui header" style="margin-top:35px;">2) Train</h1>
     </center>
     <br>
     <div class="ui grid">
@@ -131,11 +131,12 @@
          <div id="start_annotating_info_div" class="ui aligned basic segment" style="padding: 0px;">
 
              <div class="ui message">
-              <!--<p>Familiarise yourself with the <span class="ui label">{{node.name}}</span> category
-              (read the description and listen to the examples).</p>-->
 
-                 <center><p><b>Tip &ndash;</b> Understanding the siblings will help you distinguishing <span class="ui label">{{node.name}}</span> sounds from other similar categories.
-              </p><p>Click on any <span class="ui label">category</span> to check its description and examples!</p></center>
+
+                 <center><p>Read the description and listen to the examples to familiarise yourself with <span class="ui label">{{node.name}}</span></p>
+
+                     <p><b>Tip &ndash;</b> Understanding the siblings {% if node.children %} and direct children {% endif %} will help you distinguish <span class="ui label">{{node.name}}</span> from other similar categories.
+              </p><p style="margin-top:-15px;">Click on any <span class="ui label">category</span> to check its description and examples!</p></center>
 
               <!--<p>If you don't feel comfortable with the chosen category, please: &nbsp;
               <a href="{% url 'choose_category' dataset.short_name %}" class="blue ui basic tiny button blue right labeled icon">choose another category <i class="refresh icon"></i></a>
