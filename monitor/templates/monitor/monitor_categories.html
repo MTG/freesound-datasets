@@ -4,4 +4,7 @@
 
 {% block content %}
     <p>This page is for monitoring categories</p>
+    {% for node in top_contributed %}
+        <div class="ui segment">{{ node }}</div>
+    {% endfor %}
 {% endblock %}
