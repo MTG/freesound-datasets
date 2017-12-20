@@ -16,15 +16,17 @@
                                 category in an audio sample. <br><i>Beginners task only includes a few simpler categories.</i> </p></div>
                             <div class="five wide column">
                                 <div class="ui vertical buttons">
-                                    <div style="margin-bottom: 6px">
-                                        {% if beginner_task_finished %}
-                                            <div class="ui large right labeled disabled icon blue button" data-tooltip="You already validated all the simple categories">
-                                                <i class="checkmark box icon"></i>Start beginners task</div>
-                                        {% else %}
+                                    {% if beginner_task_finished %}
+                                        <div style="margin-bottom: 6px" data-tooltip="You already validated all the simple categories">
+                                            <a class="ui large right labeled disabled icon blue button">
+                                                <i class="checkmark box icon"></i>Start beginners task</a>
+                                        </div>
+                                    {% else %}
+                                        <div style="margin-bottom: 6px">
                                             <a href="{% url 'contribute-validate-annotations-category-beginner' dataset.short_name %}" class="ui large right labeled icon blue button">
                                                 <i class="checkmark box icon"></i>Start beginners task</a>
-                                        {% endif %}
-                                    </div>
+                                        </div>
+                                    {% endif %}
                                     <div class="ui">
                                         <a href="{% url 'contribute-validate-annotations' dataset.short_name %}?help=1" class="ui large right labeled icon blue button">
                                             <i class="checkmark box icon"></i>Start advanced task</a>
