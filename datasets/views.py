@@ -117,20 +117,22 @@ def taxonomy_node(request, short_name, node_id):
     user_is_maintainer = dataset.user_is_maintainer(request.user)
     node_id = unquote(node_id)
     node = dataset.taxonomy.get_element_at_id(node_id)
-    sound_list = dataset.sounds_per_taxonomy_node(node_id)
-    paginator = Paginator(sound_list, 10)
+    annotation_list = dataset.annotations_per_taxonomy_node(node_id)\
+        .annotate(num_votes=Count('votes')).order_by('-num_votes')
+    paginator = Paginator(annotation_list, 10)
     page = request.GET.get('page')
     try:
-        sounds = paginator.page(page)
+        annotations = paginator.page(page)
     except PageNotAnInteger:
         # If page is not an integer, deliver first page.
-        sounds = paginator.page(1)
+        annotations = paginator.page(1)
     except EmptyPage:
         # If page is out of range (e.g. 9999), deliver last page of results.
-        sounds = paginator.page(paginator.num_pages)
+        annotations = paginator.page(paginator.num_pages)
         
-    return render(request, 'datasets/taxonomy_node.html', {'dataset': dataset, 'node': node, 'sounds': sounds,
-                                                           'user_is_maintainer': user_is_maintainer})
+    return render(request, 'datasets/taxonomy_node.html', {'dataset': dataset, 'node': node,
+                                                           'user_is_maintainer': user_is_maintainer,
+                                                           'sounds': annotations})
 
 
 #############################
@@ -162,11 +164,14 @@ def contribute_validate_annotations(request, short_name):
 
 
 def contribute_validate_annotations_easy(request, short_name):
+    dataset = get_object_or_404(Dataset, short_name=short_name)
     node_id = request.GET.get('url_id')
     if not node_id:
-        node_ids = TaxonomyNode.objects.filter(beginner_task=True).order_by('?')
-        if node_ids:
-            node_id = node_ids[0].url_id
+        request.session['nb_task1_pages'] = 0
+        nodes = TaxonomyNode.objects.filter(beginner_task=True).order_by('?')
+        nodes = [node for node in nodes if dataset.user_can_annotate(node.node_id, request.user)]
+        if nodes:
+            node_id = nodes[0].url_id
         else:
             return contribute(request, short_name)
     return contribute_validate_annotations_category(request, short_name, node_id,
