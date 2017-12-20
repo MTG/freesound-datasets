@@ -127,14 +127,15 @@ def taxonomy_node(request, short_name, node_id):
 # CONTRIBUTE TO DATASET VIEWS
 #############################
 
-def contribute(request, short_name):
+def contribute(request, short_name, beginner_task_finished=False):
     dataset = get_object_or_404(Dataset, short_name=short_name)
 
     # Get previously stored annotators ranking
     annotators_ranking = data_from_async_task(compute_annotators_ranking, [dataset.id], {},
                                               DATASET_ANNOTATORS_RANKING_TEMPLATE.format(dataset.id), 60 * 1)
 
-    return render(request, 'datasets/contribute.html', {'dataset': dataset, 'annotators_ranking': annotators_ranking})
+    return render(request, 'datasets/contribute.html', {'dataset': dataset, 'annotators_ranking': annotators_ranking,
+                                                        'beginner_task_finished': beginner_task_finished})
 
 
 @login_required
@@ -157,11 +158,13 @@ def contribute_validate_annotations_easy(request, short_name):
     if not node_id:
         request.session['nb_task1_pages'] = 0
         nodes = TaxonomyNode.objects.filter(beginner_task=True).order_by('?')
-        nodes = [node for node in nodes if dataset.user_can_annotate(node.node_id, request.user)]
         if nodes:
-            node_id = nodes[0].url_id
-        else:
-            return contribute(request, short_name)
+            for node in nodes:
+                if dataset.user_can_annotate(node.node_id, request.user):
+                    node_id = node.url_id
+                    break
+    if not node_id:
+        return contribute(request, short_name, beginner_task_finished=True)
     return contribute_validate_annotations_category(request, short_name, node_id,
                                                     html_url='datasets/contribute_validate_annotations_category_easy.html')
 
