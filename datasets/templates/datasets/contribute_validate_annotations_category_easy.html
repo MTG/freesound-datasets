@@ -50,7 +50,7 @@
                 $('#start_annotating_button').removeClass('disabled');
                 $('#start_annotating_button_div').removeAttr("data-tooltip");
                 clearInterval(set_intverval_var);
-                $('#progress').progress({percent:100})
+                $('#progress').empty();
             }, 10000);
             set_intverval_var = setInterval(function(){$('#progress').progress('increment');}, 400);
             if ('{{skip_tempo}}'=='True'){show_form();}
