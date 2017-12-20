@@ -3,8 +3,76 @@
 {% block title %}Monitor category page{% endblock title %}
 
 {% block content %}
-    <p>This page is for monitoring categories</p>
-    {% for node in top_contributed %}
-        <div class="ui segment">{{ node }}</div>
-    {% endfor %}
+    <h1 class="ui header">Monitor categories of {{dataset.short_name|upper}}</h1>
+    <br>
+
+{#    TOP CONTRIBUTED CATEGORIES     #}
+    <div class="ui basic segment" style="padding: 0; margin:0;">
+        <h2>Top contributed categories</h2>
+        <div class="ui grid">
+            <div class="two column row">
+                <div class="column">
+                    <h3>All time</h3>
+                    <table class="ui unstackable table" width="100%">
+                        <thead>
+                        <tr>
+                            <th>#</th>
+                            <th class="center aligned">Category name</th>
+                            <th class="center aligned">Number of contributions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for node_name, num_votes in top_contributed.top_categories %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td class="center aligned">
+                                    {% if forloop.counter == 1 %}
+                                        <i class="yellow star icon"></i>
+                                    {% elif forloop.counter == 2 %}
+                                        <i class="grey star icon"></i>
+                                    {% elif forloop.counter == 3 %}
+                                        <i class="brown star icon"></i>
+                                    {% endif %}
+                                    {{ node_name }}
+                                </td>
+                                <td class="center aligned">{{ num_votes}}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="column">
+                    <h3>Last week</h3>
+                    <table class="ui unstackable table" width="100%">
+                        <thead>
+                        <tr>
+                            <th>#</th>
+                            <th class="center aligned">Category name</th>
+                            <th class="center aligned">Number of contributions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for node_name, num_votes in top_contributed.top_categories_last_week %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td class="center aligned">
+                                    {% if forloop.counter == 1 %}
+                                        <i class="yellow star icon"></i>
+                                    {% elif forloop.counter == 2 %}
+                                        <i class="grey star icon"></i>
+                                    {% elif forloop.counter == 3 %}
+                                        <i class="brown star icon"></i>
+                                    {% endif %}
+                                    {{ node_name }}
+                                </td>
+                                <td class="center aligned">{{ num_votes}}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
 {% endblock %}
