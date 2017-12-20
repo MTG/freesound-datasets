@@ -453,6 +453,11 @@ class Dataset(models.Model):
         return Vote.objects.filter(
             candidate_annotation__sound_dataset__dataset=self, candidate_annotation__taxonomy_node__node_id=node_id, vote=vote_value).count()
 
+    def num_votes_with_value_after_date(self, node_id, vote_value, reference_date):
+        return Vote.objects.filter(
+            candidate_annotation__sound_dataset__dataset=self, candidate_annotation__taxonomy_node__node_id=node_id,
+            vote=vote_value, created_at__gt=reference_date).count()
+
     def get_comments_per_taxonomy_node(self, node_id):
         return CategoryComment.objects.filter(dataset=self, category_id=node_id)
 
@@ -703,6 +708,11 @@ class Profile(models.Model):
             return last_contribution_date > past_date
         except IndexError:
             return False
+
+    @property
+    def is_fsd_maintainer(self):
+        dataset = Dataset.objects.get(short_name='fsd')
+        return dataset.user_is_maintainer(self.user)
 
 
 @receiver(post_save, sender=User)

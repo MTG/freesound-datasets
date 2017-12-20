@@ -17,6 +17,7 @@ urlpatterns = [
     url(r'^faq/', faq, name='faq'),
     url(r'^discussion/', discussion, name='discussion'),
     url(r'', include('datasets.urls')),
+    url(r'', include('monitor.urls')),
 ]
 
 if settings.DEBUG:
