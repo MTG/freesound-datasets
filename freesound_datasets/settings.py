@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     'django_extensions',
     'debug_toolbar',
     'datasets',
+    'monitor',
     'social_django',
     'raven.contrib.django.raven_compat',
 ]
