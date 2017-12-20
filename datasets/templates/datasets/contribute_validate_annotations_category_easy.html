@@ -37,6 +37,7 @@
 
         function show_form() {
             $('#start_annotating_info_div').hide();
+            $('#start_annotating_info_header').hide();
             $('#start_annotating_button').hide();
             $('#form_container').css("visibility", "visible");
             $('#step-training').removeClass("active");
@@ -58,6 +59,12 @@
     </script>
 {% endblock %}
 {% block content %}
+    <center><h3>Validate the presence of a sound category in audio samples</h3>
+    <p id="start_annotating_info_header">Read the description and listen to the examples to familiarise yourself with <span class="ui label">{{node.name}}</span></p>
+    </center>
+
+    <br><br>
+
     <div class="ui grid">
         <div class="eight wide column">
             <h1 class="ui header" style="display: inline-block;">{{ node.name }}</h1>
@@ -72,50 +79,73 @@
     </div>
     {% display_taxonomy_node_small_info dataset node.node_id False %}
     {% if not node.omitted %}
-        <div id="start_annotating_info_div" class="ui aligned segment">
-            <div class="ui aligned text container" style="width: 100%;">
-                For each category you will be presented with pages of 12 sounds.
-                <b>Start rating sounds in your category</b> according to the formulated question:
-                <b>Is <div class="ui medium label">{{ node.name }}</div> present in the following sounds?</b>
-                <br>There are 4 possible answers:
-                <table class="ui celled table">
-                    <tbody>
-                    <tr>
-                        <td><i>Present and predominant</i></td>
-                        <td>The type of sound described is <b>clearly present</b> in the audio clip and it is <b>predominant</b>,
-                            either isolated from other types of sound or with low/mild background noise.</td>
-                    </tr>
-                    <tr>
-                        <td><i>Present but not predominant</i></td>
-                        <td>The type of sound described is <b>present</b>, but the audio clip also <b>contains other salient
-                            types of sound and/or strong background noise.</b></td>
-                    </tr>
-                    <tr>
-                        <td><i>Not Present</i></td>
-                        <td>The type of sound described is <b>not present</b> in the audio clip.</td>
-                    </tr>
-                    <tr>
-                        <td><i>Unsure</i></td>
-                        <td><b>I am not sure</b> whether the type of sound described is present or not.</td>
-                    </tr>
-                    </tbody>
-                </table>
-                <table class="ui compact table">
-                    <tbody>
-                        <tr><td>
-                            <b>Are you finding it difficult?</b> Feel free to access Freesound through the link at the top
-                                right corner of every sound (<span><small>see in </small><img class="ui inline image" style="width:80px;" src="{% static 'img/freesound_logo_color.png' %}"></span>) to check the sound’s metadata (description and tags).
-                        </td></tr>
-                        <tr><td>
-                            If you annotate for an hour please take a <b>10 minutes break</b>.
-                        </td></tr>
-                        <tr><td>
-                            <b>You can click the help button</b> next to the formulated question to see these guidelines.
-                        </td></tr>
-                    </tbody>
-                </table>
+    <div id="start_annotating_info_div">
+       <center>
+       <p style="margin-top:30px;">You will be presented with 6 pages of 12 sounds.
+       Validate each presented sound according to the following question: <br>
+       <i>Is</i> <span class="ui label">sound category</span> <i>present in the following sounds?</i>
+       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+       ..and the following 4 possible answers:</p>
+
+       <br>
+
+       <div class="ui grid" style="wide:120%;">
+         <div class="six wide column">
+           <div class="ui raised segment" style="margin: 0px 25px 25px 25px;">
+             <img src="{% static 'img/one_vote.png' %}" style="width:100%;"/><br>
+           </div>
+           <p> In case of doubt, click to the
+           <img class="ui inline image" style="width:80px;" src="{% static 'img/freesound_logo_color.png' %}">
+           link to check the sound’s description and tags.</p>
+         </div>
+
+         <div class="ten wide column">
+           <table class="ui compact segment table"  style="width:100%;box-shadow: 1px 4px 4px 1px rgba(0, 0, 0, 0.2), 1px 4px 10px 1px rgba(0, 0, 0, 0.19);">
+            <thead>
+                <tr><th>Response type</th>
+                <th>Meaning</th>
+            </tr></thead>
+            <tr><td><p><i>Present and predominant</i></p></td><td><p>
+                The type of sound described is <i>clearly present</i> in the audio clip and it is <i>predominant</i>,
+                either isolated from other types of sound or with low/mild background noise.
+            </p></td></tr>
+            <tr><td><p><i>Present but not predominant</i></p></td><td><p>
+                The type of sound described is <i>present</i>, but the audio clip also <i>contains other salient
+                types of sound and/or strong background noise</i>.
+            </p></td></tr>
+            <tr><td><p><i>Not present</i></p></td><td><p>
+                The type of sound described is <i>not present</i> in the audio clip.
+            </p></td></tr>
+            <tr><td><p><i>Unsure</i></p></td><td><p>
+                <i>I am not sure</i> whether the type of sound described is present or not.
+            </p></td></tr>
+           </table>
+         </div>
+       </div>
+
+       <br>
+
+       <div class="ui basic labels" style="margin-top:20px; text-align: center;">
+          <div class="ui basic label" style="text-align: center;background-color: transparent;border:transparent;">
+              <center>
+              <i class="sound icon huge back_clear"></i><br><br>
+              <p class="small text">Use high-quality<br>headphones</p></center>
             </div>
-        </div>
+          <div class="ui basic label" style="background-color: transparent;border:transparent;">
+              <center>
+              <i class="volume up icon huge back_clear"></i><br><br>
+              <p class="small text">Set the volume to<br>a comfortable level</p></center>
+            </div>
+          <div class="ui basic label" style="background-color: transparent;border:transparent;">
+              <center>
+              <i class="heartbeat icon huge back_clear"></i><br><br>
+              <p class="small text">Take a 10 minutes<br>break every hour</p></center>
+            </div>
+       </div>
+       </center>
+
+    </div>
+
         <div id="start_annotating_button_div" class="ui center aligned basic segment" data-tooltip="Please take your time to look at the category and the related ones before starting to annotate :)" data-position="bottom center">
             <div id="start_annotating_button" class="big button red ui button disabled" onclick="show_form();">Start annotating
                 <div class="ui bottom attached progress" id="progress" data-value="1" data-total="25">
