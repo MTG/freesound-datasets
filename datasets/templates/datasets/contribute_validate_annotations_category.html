@@ -53,7 +53,7 @@
             } else {
                 $('html, body').scrollTop(0);
                 $('html, body').animate({
-                    scrollTop: $("#form_container").offset().top - 80
+                    scrollTop: $("#form_container").offset().top - 70
                 }, 2000);
             }
         }
@@ -128,7 +128,7 @@
     {% display_taxonomy_node_small_info dataset node.node_id 'cva' %}
 
     {% if not node.omitted %}
-         <div id="start_annotating_info_div" class="ui aligned basic segment">
+         <div id="start_annotating_info_div" class="ui aligned basic segment" style="padding: 0px;">
 
              <div class="ui message">
               <!--<p>Familiarise yourself with the <span class="ui label">{{node.name}}</span> category
