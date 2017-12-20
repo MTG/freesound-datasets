@@ -152,11 +152,13 @@ def contribute_validate_annotations(request, short_name):
 
 
 def contribute_validate_annotations_easy(request, short_name):
+    dataset = get_object_or_404(Dataset, short_name=short_name)
     node_id = request.GET.get('url_id')
     if not node_id:
-        node_ids = TaxonomyNode.objects.filter(beginner_task=True).order_by('?')
-        if node_ids:
-            node_id = node_ids[0].url_id
+        nodes = TaxonomyNode.objects.filter(beginner_task=True).order_by('?')
+        nodes = [node for node in nodes if dataset.user_can_annotate(node.node_id, request.user)]
+        if nodes:
+            node_id = nodes[0].url_id
         else:
             return contribute(request, short_name)
     return contribute_validate_annotations_category(request, short_name, node_id,
