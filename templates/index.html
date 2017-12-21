@@ -5,12 +5,13 @@
 {% block content_large %}
 
 <!--TITLE-->
-<div class="ui inverted raised vertical padded center aligned segment" style="background-image: url({% static 'img/2.jpg' %});background-size: 100% auto;">
+{#<div class="ui secondary red inverted raised vertical padded center aligned segment">#}
+<div class="ui inverted raised vertical padded center aligned segment" style="background-image: url({% static 'img/17.png' %});background-size: cover;">
   <br><br><br><br>
   <center><img class="ui center aligned image" style="width: 700px;" src="{% static "img/freesound_datasets_logo.svg" %}"></center>
   <h3>A platform for the collaborative creation of open audio collections labeled by humans and based on Freesound content</h3>
   <br><br>
-  <a href="{% url 'contribute' 'fsd' %}" class="ui big button inverted right labeled icon">Get started with our annotation tasks! <i class="right arrow icon"></i></a>
+  <a href="{% url 'contribute' 'fsd' %}" class="ui big button right labeled icon">Get started with our annotation tasks! <i class="right arrow icon"></i></a>
   <br><br><br><br><br><br><br><br>
 </div>
 
@@ -88,7 +89,7 @@
 <br>
 
 </div>
-<div class="ui vertical tertiary red inverted segment center aligned">
+<div class="ui vertical secondary red inverted segment center aligned">
 <h2 style="margin-top: 20px; margin-bottom: -20px; text-align: center;">What can I do in this platform?</h2>
 <div class="ui basic labels" style="margin-top:40px; text-align: center;">
   <div class="ui basic label" style="min-width: 180px;text-align: center;background-color: transparent;border:transparent;">
