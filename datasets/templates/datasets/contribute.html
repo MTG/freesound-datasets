@@ -21,17 +21,20 @@
                             </p></div>
                             <div class="five wide right aligned column">
                                 <div class="ui vertical buttons">
-                                    <div style="margin-bottom: 6px;">
-                                        <a href="{% url 'contribute-validate-annotations-category-beginner' dataset.short_name %}?help=1"
-                                           class="ui large right labeled icon blue button">
-                                            <i class="right arrow box icon"></i>Beginners task
-                                        </a>
-                                    </div>
-                                    <div>
-                                        <a href="{% url 'contribute-validate-annotations' dataset.short_name %}?help=1"
-                                           class="ui large right labeled icon blue button">
-                                            <i class="right arrow box icon"></i>Advanced task
-                                        </a>
+                                    {% if beginner_task_finished %}
+                                        <div style="margin-bottom: 6px" data-tooltip="You already validated all the simple categories">
+                                            <a class="ui large right labeled disabled icon blue button">
+                                                <i class="right arrow box icon"></i>Beginners task</a>
+                                        </div>
+                                    {% else %}
+                                        <div style="margin-bottom: 6px">
+                                            <a href="{% url 'contribute-validate-annotations-category-beginner' dataset.short_name %}" class="ui large right labeled icon blue button">
+                                                <i class="right arrow box icon"></i>Beginners task</a>
+                                        </div>
+                                    {% endif %}
+                                    <div class="ui">
+                                        <a href="{% url 'contribute-validate-annotations' dataset.short_name %}?help=1" class="ui large right labeled icon blue button">
+                                            <i class="right arrow box icon"></i>Advanced task</a>
                                     </div>
                                 </div>
                             </div>
