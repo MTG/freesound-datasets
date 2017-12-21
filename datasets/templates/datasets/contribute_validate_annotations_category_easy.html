@@ -20,7 +20,11 @@
                         $('#on_error_modal').modal('show');
                         document.getElementById("submitButton").disabled = false;
                     } else {
-                        $('#on_success_modal').modal({closable: false}).modal('show');
+                        if ('{{nb_task1_pages}}' != '6' ){
+                            window.location.href = "{% url 'contribute-validate-annotations-category-beginner' dataset.short_name %}?{{skip_tempo_parameter}}=True&url_id={{node.url_id}}";
+                        } else {
+                            $('#on_success_modal').modal({closable: false}).modal('show');
+                        }
                     }
                 },
                 error: function() {
@@ -43,6 +47,14 @@
             $('#step-training').removeClass("active");
             $('#step-validate').removeClass("disabled step");
             $('#step-validate').addClass("active step");
+            if ('{{skip_tempo}}' == 'True') {
+                $('html, body').scrollTop($("#form_container").offset().top - 80);
+            } else {
+                $('html, body').scrollTop(0);
+                $('html, body').animate({
+                    scrollTop: $("#form_container").offset().top - 70
+                }, 2000);
+            }
         }
 
         $(document).ready(function() {
@@ -209,7 +221,7 @@
                 <input id="id_from_task" name="from_task" type="hidden" value="BE">
             </form>
             {% if annotations_forms %}
-                <br><button id="submitButton" class="right floated ui green button" onclick="submitForm();">Submit!</button>
+                <br><button id="submitButton" class="right floated ui green button" onclick="submitForm();">Submit page {{nb_task1_pages}}/6</button>
             {% endif %}
         </div>
     {% endif %}
