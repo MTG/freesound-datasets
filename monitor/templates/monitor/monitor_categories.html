@@ -17,10 +17,11 @@
 
     <div class="ui accordion">
         {#    TOP CONTRIBUTED CATEGORIES     #}
-        <div class="active title">
+        <div class="title">
             <h2 class="ui header"><i class="dropdown icon"></i> Top contributed categories</h2>
+            <span class="small_gray_text">Last updated {{ top_contributed.redis_timestamp | timestamp_to_datetime | timesince  }} ago</span>
         </div>
-        <div class="active content">
+        <div class="content">
             <div class="ui grid">
                 <div class="two column row">
                     <div class="column">
@@ -86,19 +87,16 @@
                             {% endfor %}
                             </tbody>
                         </table>
-                        <div class="ui grid">
-                            <div class="right aligned column">
-                                <span class="small_gray_text">Last updated {{ top_contributed.redis_timestamp | timestamp_to_datetime | timesince  }} ago</span>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
         </div>
+    <br>
 
         {#    BAD MAPPING CATEGORIES     #}
         <div class="title">
             <h2 class="ui header"><i class="dropdown icon"></i> Categories with bad mapping</h2>
+            <span class="small_gray_text">Last updated {{ bad_mapping.redis_timestamp | timestamp_to_datetime | timesince }} ago</span>
         </div>
         <div class="content">
             <div class="ui grid">
@@ -166,19 +164,16 @@
                             {% endfor %}
                             </tbody>
                         </table>
-                        <div class="ui grid">
-                            <div class="right aligned column">
-                                <span class="small_gray_text">Last updated {{ bad_mapping.redis_timestamp | timestamp_to_datetime | timesince }} ago</span>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
         </div>
+    <br>
 
         {#    DIFFICULT AGREEMENT CATEGORIES     #}
         <div class="title">
             <h2 class="ui header"><i class="dropdown icon"></i> Categories with difficult agreement</h2>
+            <span class="small_gray_text">Last updated {{ difficult_agreement.redis_timestamp | timestamp_to_datetime | timesince }} ago</span>
         </div>
         <div class="content">
             <div class="ui grid">
@@ -246,19 +241,16 @@
                             {% endfor %}
                             </tbody>
                         </table>
-                        <div class="ui grid">
-                            <div class="right aligned column">
-                                <span class="small_gray_text">Last updated {{ difficult_agreement.redis_timestamp | timestamp_to_datetime | timesince }} ago</span>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
         </div>
+    <br>
 
         {#    REMAINING CANDIDATE ANNOTATIONS     #}
         <div class="title">
             <h2 class="ui header"><i class="dropdown icon"></i> Candidate annotations left per categories (with duration groups)</h2>
+            <span class="small_gray_text">Last updated {{ remaining_annotations.redis_timestamp | timestamp_to_datetime | timesince }} ago</span>
         </div>
         <div class="content">
             <div class="ui grid">
@@ -297,12 +289,9 @@
                     </tbody>
                 </table>
             </div>
-            <div class="ui grid">
-                <div class="right aligned column">
-                    <span class="small_gray_text">Last updated {{ remaining_annotations.redis_timestamp | timestamp_to_datetime | timesince }} ago</span>
-                </div>
-            </div>
         </div>
+    <br>
+
     </div>
 
 {% endblock %}
