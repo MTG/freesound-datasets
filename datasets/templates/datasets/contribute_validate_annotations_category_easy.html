@@ -21,7 +21,7 @@
                         document.getElementById("submitButton").disabled = false;
                     } else {
                         if ('{{nb_task1_pages}}' != '6' ){
-                            window.location.href = "{% url 'contribute-validate-annotations-category' dataset.short_name node.url_id %}?{{skip_tempo_parameter}}=True&url_id={{node.url_id}}";
+                            window.location.href = "{% url 'contribute-validate-annotations-category-beginner' dataset.short_name %}?{{skip_tempo_parameter}}=True&url_id={{node.url_id}}";
                         } else {
                             $('#on_success_modal').modal({closable: false}).modal('show');
                         }
