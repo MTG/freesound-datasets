@@ -1,4 +1,4 @@
-from datasets.models import Dataset, Vote, GroundTruthAnnotation
+from datasets.models import Dataset, Vote
 from celery import shared_task
 from utils.redis_store import store
 from statistics import mean, StatisticsError
@@ -126,6 +126,36 @@ def compute_dataset_difficult_agreement(store_key, dataset_id):
 
         store.set(store_key, {'difficult_agreement_categories': difficult_agreement_categories,
                               'difficult_agreement_categories_last_month': difficult_agreement_categories_last_month})
+
+        logger.info('Finished computing data for {0}'.format(store_key))
+
+    except Dataset.DoesNotExist:
+        pass
+
+
+@shared_task
+def compute_remaining_annotations_with_duration(store_key, dataset_id):
+    logger.info('Start computing data for {0}'.format(store_key))
+    try:
+        dataset = Dataset.objects.get(id=dataset_id)
+        nodes = dataset.taxonomy.taxonomynode_set.all()
+        remaining_categories = list()
+
+        for node in nodes:
+            non_gt_annotations = dataset.non_ground_truth_annotations_per_taxonomy_node(node.node_id)
+            num_candidate_annotations_non_gt = non_gt_annotations.count()
+            num_candidate_annotations_non_gt_max_10_sec = non_gt_annotations.\
+                filter(sound_dataset__sound__extra_data__duration__lte=10).count()
+            num_candidate_annotations_non_gt_max_20_sec = non_gt_annotations.\
+                filter(sound_dataset__sound__extra_data__duration__lte=20,
+                       sound_dataset__sound__extra_data__duration__gt=10).count()
+            remaining_categories.append((node.url_id, node.name, num_candidate_annotations_non_gt,
+                                         num_candidate_annotations_non_gt_max_10_sec,
+                                         num_candidate_annotations_non_gt_max_20_sec))
+
+        remaining_categories = sorted(remaining_categories, key=lambda x: x[3])
+
+        store.set(store_key, {'remaining_categories': remaining_categories})
 
         logger.info('Finished computing data for {0}'.format(store_key))
 

@@ -194,7 +194,7 @@
                             </tr>
                             </thead>
                             <tbody>
-                            {% for node_name, mean_num_votes in difficult_agreement.difficult_agreement_categories %}
+                            {% for url_id, node_name, mean_num_votes in difficult_agreement.difficult_agreement_categories %}
                                 <tr>
                                     <td>{{ forloop.counter }}</td>
                                     <td class="center aligned">
@@ -226,7 +226,7 @@
                             </tr>
                             </thead>
                             <tbody>
-                            {% for node_name, mean_num_votes in difficult_agreement.difficult_agreement_categories_last_month %}
+                            {% for url_id, node_name, mean_num_votes in difficult_agreement.difficult_agreement_categories_last_month %}
                                 <tr>
                                     <td>{{ forloop.counter }}</td>
                                     <td class="center aligned">
@@ -252,6 +252,54 @@
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        {#    REMAINING CANDIDATE ANNOTATIONS     #}
+        <div class="title">
+            <h2 class="ui header"><i class="dropdown icon"></i> Candidate annotations left per categories (with duration groups)</h2>
+        </div>
+        <div class="content">
+            <div class="ui grid">
+                <h3>All time</h3>
+                <table class="ui unstackable table" width="100%">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th class="center aligned">Category name</th>
+                        <th class="center aligned">Num candidate annotations left (<= 10 sec)</th>
+                        <th class="center aligned">Num candidate annotations left (>10 & <= 20 sec)</th>
+                        <th class="center aligned">Num candidate annotations left (total)</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for url_id, node_name, num_total, num_10_sec, num_20_sec in remaining_annotations.remaining_categories %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td class="center aligned">
+                                {% if forloop.counter == 1 %}
+                                    <i class="yellow star icon"></i>
+                                {% elif forloop.counter == 2 %}
+                                    <i class="grey star icon"></i>
+                                {% elif forloop.counter == 3 %}
+                                    <i class="brown star icon"></i>
+                                {% endif %}
+                                <a href="{% url 'dataset-explore-taxonomy-node' dataset.short_name url_id %}" target="_blank">
+                                    {{ node_name }}
+                                </a>
+                            </td>
+                            <td class="center aligned">{{ num_10_sec }}</td>
+                            <td class="center aligned">{{ num_20_sec }}</td>
+                            <td class="center aligned">{{ num_total }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="ui grid">
+                <div class="right aligned column">
+                    <span class="small_gray_text">Last updated {{ remaining_annotations.redis_timestamp | timestamp_to_datetime | timesince }} ago</span>
                 </div>
             </div>
         </div>
