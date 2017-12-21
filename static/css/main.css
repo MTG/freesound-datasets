@@ -3,6 +3,15 @@ body {
 	height: 100%;
 }
 
+#header_home {
+	min-height: 76px;
+	margin: 0 0;
+}
+
+#header_other {
+	height: 76px;
+}
+
 /* flex tricks to have footer always at bottom */
 .main_wrapper {
 	display: flex;
@@ -142,8 +151,21 @@ ul {
     overflow-y: scroll;
     height: 600px;
     width: 100% !important;
+	margin-bottom: 0px;
 }
 
 .medium.text {
    font-size: 16px;
+}
+
+.small.text {
+  font-size: 13px;
+}
+
+.back_clear {
+	color: #262626;
+}
+
+.blanched_yellow {
+	color: #ffebcd;
 }

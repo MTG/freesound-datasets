@@ -17,7 +17,7 @@ class PresentNotPresentUnsureForm(forms.Form):
         choices=(
             ('1', 'Present and predominant',),
             ('0.5', 'Present but not predominant',),
-            ('-1', 'Not Present',),
+            ('-1', 'Not present',),
             ('0', 'Unsure',),
         ),
     )

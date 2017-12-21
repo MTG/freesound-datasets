@@ -1,30 +1,29 @@
 {% load dataset_templatetags %}
-<table class="ui unstackable table" width="100%">
+<table class="ui unstackable table bottom attached" width="100%" style="margin-bottom:7px;">
     <tbody>
-            <td>Hierarchy</td>
-            <td>
-                <div class="ui list">
-                    {% for hierarchy_path in node.hierarchy_paths %}
+    <td>Hierarchy</td>
+    <td>
+        <div class="ui list">
+            {% for hierarchy_path in node.hierarchy_paths %}
+                <div class="item">
+                    <div class="ui horizontal list">
                         <div class="item">
-                            <div class="ui horizontal list">
-                                <div class="item">
-                                    <i class="tree icon"></i>
-                                </div>
-                                {% for node_id in hierarchy_path %}
-                                    {% taxonomy_node dataset node_id as sub_node_data  %}
-                                    <div class="item" style="margin-left:0px;margin-right:5px;">
-                                        >
-                                        <a href="{% url 'dataset-explore-taxonomy-node' dataset.short_name sub_node_data.url_id %}" target="_blank">{{ sub_node_data.name }}</a>
-                                    </div>
-                                {% endfor %}
-                            </div>
+                            <i class="tree icon"></i>
                         </div>
-                    {% empty %}
-                        <div class="item">-</div>
-                    {% endfor %}
+                        {% for node_id in hierarchy_path %}
+                            {% taxonomy_node dataset node_id as sub_node_data  %}
+                            <div class="item" style="margin-left:0px;margin-right:5px;">
+                                >
+                                <span>{{ sub_node_data.name }}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
                 </div>
-            </td>
-        </tr>
+            {% empty %}
+                <div class="item">-</div>
+            {% endfor %}
+        </div>
+    </td>
         <tr>
             <td class="three wide">Description</td>
             <td>{{ node.description }}</td>
@@ -38,7 +37,11 @@
                 </td>
             </tr>
         {% endif %}
-                </div>
-            </div>
     </tbody>
 </table>
+<div style="text-align:right;">
+    <a class="primary basic ui button right labeled icon"
+         href="{% url 'dataset-explore-taxonomy-node' dataset.short_name node.url_id %}" target="_blank">
+        Go to <i>{{node.name}}</i> page<i class="right arrow icon"></i>
+    </a>
+</div>

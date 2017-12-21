@@ -11,6 +11,7 @@ from django.dispatch import receiver
 import os
 import markdown
 import datetime
+import random
 from django.utils import timezone
 from django.core.validators import RegexValidator
 from django.core.exceptions import ObjectDoesNotExist
@@ -284,7 +285,8 @@ class TaxonomyNode(models.Model):
                 "nb_ground_truth": self.nb_ground_truth,
                 "nb_user_contributions": self.num_user_contributions,
                 "nb_verified_annotations": self.num_verified_annotations,
-                "faq": self.faq}
+                "faq": self.faq,
+                "url_id": self.url_id}
 
     @property
     def url_id(self):
@@ -399,6 +401,12 @@ class Dataset(models.Model):
         return self.candidate_annotations.exclude(ground_truth__isnull=True).count()
 
     @property
+    def percentage_verified_annotations(self):
+        if self.num_annotations == 0:
+            return 0
+        return self.num_verified_annotations * 100.0 / self.num_annotations
+
+    @property
     def num_user_contributions(self):
         return Vote.objects.filter(candidate_annotation__sound_dataset__dataset=self).count()
 
@@ -469,6 +477,19 @@ class Dataset(models.Model):
         if not self.releases.all():
             return None
         return self.releases.all().order_by('-release_date')[0].release_tag
+
+    @property
+    def random_fs_sound_id(self):
+        last = self.sounds.count() - 1
+        random_index = random.randint(0, last-1)
+        sounds = self.sounds.all()[random_index]
+        return sounds.freesound_id
+
+    def get_random_taxonomy_node_with_examples(self, num_nodes=10):
+        nodes = self.taxonomy.taxonomynode_set.annotate(nb_examples=Count('freesound_examples'))\
+            .filter(nb_examples__gte=2)
+        random_idx = random.sample(range(len(nodes)), min(num_nodes, len(nodes)))
+        return [nodes[idx] for idx in random_idx]
 
 
 class DatasetRelease(models.Model):

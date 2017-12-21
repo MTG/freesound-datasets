@@ -1,14 +1,14 @@
 {% load general_templatetags %}
-<table id="dataset_contents" class="ui unstackable table" width="100%">
+<table id="dataset_contents" class="ui unstackable table" width="100%" style="margin-bottom:5px;">
     <thead>
         <tr>
-            <th>Class</th>
-            <th><div data-tooltip="Number of sound samples coming from the initial mapping from Freesound to AudioSet.">
-                # sounds samples</div></th>
-            <th><div data-tooltip="Annotations that have been validated by several users, until reaching agreement on the presence of the sound class.">
-            # ground truth annotations</div></th>
-            <th><div data-tooltip="Annotations that have been validated by several users,
-            until reaching agreement on either presence or absence of the sound class."># verified annotations</div></th>
+            <th>Category</th>
+            <!--<th><div data-tooltip="Audio samples which are candidate annotations for this category">-->
+            <th><div data-tooltip="Audio samples with candidate annotations for this category">
+            <!--<th><div data-tooltip="Candidate audio sample for this category">-->
+                # audio samples</div></th>
+            <th><div data-tooltip="Candidate annotations validated by more than one user, with majority agreement on the presence of a sound category in an audio sample">
+            # ground truth</div></th>
             <th></th>
         </tr>
     </thead>
@@ -18,7 +18,6 @@
             <td>{{ node.name }}</td>
             <td>{{ node.num_sounds }}</td>
             <td>{{ node.num_ground_truth }}</td>
-            <td>{{ node.num_verified_annotations }}</td>
             <td class="right aligned"><a href="{% url category_link_to.0 dataset.short_name node.url_id %}" class="blue ui button right labeled icon">{{ category_link_to.1 }} <i class="right arrow icon"></i></a></td>
         </tr>
     {% endfor %}

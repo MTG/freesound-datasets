@@ -66,13 +66,10 @@
                 </td>
             </tr>
         {% endif %}
-        <tr><td><div data-tooltip="Number of sound samples coming from the initial mapping from Freesound to AudioSet.">
-                # sounds samples</div></td><td>{{ node.num_sounds }}</td></tr>
-        <tr><td><div data-tooltip="Annotations that have been validated by several users, until reaching agreement on the presence of the sound class.">
-            # ground truth annotations</div></td><td>{{ node.nb_ground_truth }}</td></tr>
-        <tr><td><div data-tooltip="Annotations that have been validated by several users,
-            until reaching agreement on either presence or absence of the sound class.">
-                # verified annotations</div></td><td>{{ node.num_verified_annotations }}</td></tr>
+        <tr><td><div data-tooltip="Audio samples with candidate annotations for the '{{ node.name }}' category">
+                # audio samples</div></td><td>{{ node.num_sounds }}</td></tr>
+        <tr><td><div data-tooltip="Candidate annotations validated by more than one user, with majority agreement on the presence of '{{ node.name }}'">
+            # ground truth</div></td><td>{{ node.nb_ground_truth }}</td></tr>
         {% if user_is_maintainer %}
             {% if node.comments %}
                 <tr>
@@ -103,7 +100,7 @@
         {% endif %}
         {% if node.is_omitted %}
             <tr class="negative">
-                <td colspan="2">This AudioSet class is not considered for the next release of FSD. See our
+                <td colspan="2">This AudioSet category is not considered for the first release of FSD. See our
                     <a target="_blank" href="https://ismir2017.smcnus.org/wp-content/uploads/2017/10/161_Paper.pdf">
                         ISMIR2017 paper</a> for more details.</td>
             </tr>

@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load humanize %}
+{% block title %}Explore{% endblock title %}
+{% block page_js %}
+    <script type="text/javascript">
+        $(document).ready(function() {
+            loadDatasetReleasesTable();
+            {% if dataset_release_form_errors %}
+                $('#make_release_modal').modal('show');
+            {% endif %}
+            loadDatasetTaxonomyTable();
+            loadOntologyTree();
+            $('.menu .item').tab();
+
+			$('.message .close')
+			  .on('click', function() {
+				$(this)
+				  .closest('.message')
+				  .transition('fade')
+				;
+			  })
+			;
+        });
+
+        function loadDatasetReleasesTable() {
+            $( "#dataset_releases_table_placeholder" ).load( "{% url 'releases-table' dataset.short_name %}", function() {
+                {% if user_is_maintainer %}
+                    startUpdatingPercentages();
+                {% endif %}
+            });
+        }
+
+        function loadDatasetTaxonomyTable(){
+            $( "#dataset_taxonomy_table_placeholder" ).load( "{% url 'taxonomy-table' dataset.short_name %}", function() {
+                $('#dataset_contents').DataTable({
+                    'paging': true,
+                    'info': true,
+                });
+                $('#dataset_contents_paginate').parent().attr('style', 'width: 100% !important');
+            });
+        }
+
+
+
+
+    </script>
+{% endblock %}
+{% block content %}
+
+
+<!-- CONTENT -->
+
+<!--<div class="ui main text container">-->
+<h1 class="ui header">Explore the {{ dataset.short_name|upper }}</h1>
+<p>The table shows some current basic stats of {{ dataset.short_name|upper }}. Hover your mouse over the headers for more info.</p>
+<!--</div>-->
+<!--<h2>Current status &ndash; statistics:</h2>-->
+<p>
+    <div id="dataset_releases_table_placeholder">
+        <div class="ui active centered inline text loader">Loading data...</div>
+    </div>
+</p>
+{% if user_is_maintainer %}
+    <button onclick="$('#make_release_modal').modal('show');" class="green ui button right labeled icon right floated">Make new release <i class="add icon"></i></button>
+    <!-- make release modal -->
+        <div id="make_release_modal" class="ui modal">
+            <div class="header">
+                Make a new release for {{ dataset.name }}
+            </div>
+            <div class="content">
+                <form id="make_release_form" class="ui form" method="post" action=".">{% csrf_token %}
+                    {{ dataset_release_form.as_p }}
+                    <p><button class="right floated ui green button" type="submit">OK</button><br></p>
+                </form>
+            </div>
+        </div>
+    <!-- end make release modal -->
+{% endif %}
+
+
+<div class="ui message">
+  <p>Since the first FSD release is not out yet, <b>you can only explore the candidate annotations</b> (that express the potential presence of a sound category in an audio sample).</p>
+  <p>Categories shaded in red are AudioSet categories that are not considered for the first release of {{ dataset.short_name|upper }}. See our
+                    <a target="_blank" href="https://ismir2017.smcnus.org/wp-content/uploads/2017/10/161_Paper.pdf">
+                        ISMIR2017 paper</a> for more details.</p>
+</div>
+<div class="ui two item top attached tabular menu">
+  <a class="item active" data-tab="first">
+      <i class="list layout icon"></i> Table
+  </a>
+  <a class="item" data-tab="second">
+      <i class="tree icon"></i> Tree
+  </a>
+</div>
+<div class="ui bottom attached tab segment active" data-tab="first">
+    <div id="dataset_taxonomy_table_placeholder" class="tabcontent">
+        <div class="ui active centered inline text loader">Loading data...</div>
+    </div>
+</div>
+<div class="ui bottom attached tab segment" data-tab="second">
+    {% include "datasets/ontology_tree.html" %}
+</div>
+{% endblock %}
