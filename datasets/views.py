@@ -164,6 +164,7 @@ def contribute_validate_annotations(request, short_name):
     return render(request, 'datasets/contribute_validate_annotations.html', {'dataset': dataset})
 
 
+@login_required
 def contribute_validate_annotations_easy(request, short_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
     node_id = request.GET.get('url_id')
