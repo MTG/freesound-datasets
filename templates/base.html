@@ -26,15 +26,15 @@
     <!-- HEADER -->
     {% block header %}
         {% if home %}
-        <div id="header_home" class="ui red inverted stackable menu" style="border-radius: 0 !important;">
+        <div id="header_home" class="ui red inverted menu" style="border-radius: 0 !important;">
         {% else %}
-        <div id="header_other" class="ui fixed red inverted stackable menu">
+        <div id="header_other" class="ui fixed red inverted menu">
         {% endif %}
           <div class="ui container">
             {% if dataset %}
                 {% if dataset.short_name == "fsd" %}
-                    <a href="{% url 'dataset' dataset.short_name %}" class="{% if dataset_page %} active {% else %} {% endif %}item" style="padding:0;">
-                        <img style="padding: 5px;width: 120px;max-height:76px;" src="{% static "img/freesound_dataset_logo_b.svg" %}"></a>
+                    <a href="{% url 'dataset' dataset.short_name %}" class="{% if dataset_page %} active {% else %} {% endif %}item">
+                        <img style="padding: 5px;width: 120px;max-height:70px;" src="{% static "img/freesound_dataset_logo_b.svg" %}"></a>
                 {% else %}
                     {{ dataset.name }}
                 {% endif %}
@@ -51,16 +51,18 @@
                         <a href="{% url 'monitor-categories' dataset.short_name %}" class="{% active_if_current 'monitor-categories' %}item">Monitor</a>
                     {% endif %}
                 {% endif %}
+            {% else %}
+                <img style=" visibility: hidden; padding: 5px;width: 300px;height:76px;" src="{% static "img/freesound_datasets_logo.svg" %}">
             {% endif %}
-            <div class="ui red inverted stackable menu right">
+            <div class="right menu">
                 {% if request.user.is_authenticated %}
-                    <div class="right item">{{ request.user.username }}</div>
+                    <div class="item">{{ request.user.username }}</div>
                     <a class="item" href="{% url 'logout' %}"><i class="user icon"></i>Logout</a>
                 {% else %}
-                    <a class="right item" href="{% url 'login' %}"><i class="user icon"></i>Login</a>
+                    <a class="item" href="{% url 'login' %}"><i class="user icon"></i>Login</a>
                 {% endif %}
                 <a class="{% active_if_current 'index' %}item" href="{% url 'index' %}"><i class="home icon"></i>Home</a>
-                <div style="border-left:1px solid #C82727;"></div>
+                <div style="border-left:1px solid #C82727;height:76px"></div>
             </div>
           </div>
         </div>
@@ -104,10 +106,5 @@
   {% block page_js %}
   {% endblock %}
 
-    {# HACK FOR PLACING TEXT CONTAINER AFTER HEADER #}
-      <script>
-          $(window).on("resize", function () {$(".main.container").css("margin-top", String(parseInt($("#header_other")
-              .css("height").replace('px', '')) + 20)  + "px")}).resize()
-      </script>
 </body>
 </html>

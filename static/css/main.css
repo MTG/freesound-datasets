@@ -9,7 +9,7 @@ body {
 }
 
 #header_other {
-	min-height: 76px;
+	height: 76px;
 }
 
 /* flex tricks to have footer always at bottom */
