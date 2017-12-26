@@ -332,7 +332,7 @@ class TaxonomyNode(models.Model):
     def get_siblings(self, parents=None):
         if not parents:
             parents = self.get_parents()
-        return TaxonomyNode.objects.filter(parents__in=parents).exclude(node_id=self.node_id)
+        return TaxonomyNode.objects.filter(parents__in=parents).exclude(node_id=self.node_id).distinct()
 
     @property
     def valid_examples(self):
