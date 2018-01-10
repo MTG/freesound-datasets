@@ -35,11 +35,11 @@ def monitor_category(request, short_name, node_id):
     dataset = get_object_or_404(Dataset, short_name=short_name)
     node_id = unquote(node_id)
     node = dataset.taxonomy.get_element_at_id(node_id)
-    example_ids = node.freesound_examples.values_list('freesound_id', flat=True)
-    verification_example_ids = node.freesound_examples_verification.values_list('freesound_id', flat=True)
-    false_verification_example_ids = node.freesound_false_examples.values_list('freesound_id', flat=True)
+    examples = node.freesound_examples.all()
+    verification_examples = node.freesound_examples_verification.all()
+    false_verification_examples = node.freesound_false_examples.all()
     return render(request, 'monitor/monitor_category.html', {'dataset': dataset,
                                                              'node': node,
-                                                             'example_ids': example_ids,
-                                                             'verification_example_ids': verification_example_ids,
-                                                             'false_verification_example_ids': false_verification_example_ids})
+                                                             'examples': examples,
+                                                             'verification_examples': verification_examples,
+                                                             'false_verification_examples': false_verification_examples})
