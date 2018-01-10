@@ -1,4 +1,5 @@
 from django.shortcuts import render, get_object_or_404
+from urllib.parse import unquote
 from datasets.models import Dataset
 from monitor.tasks import compute_dataset_top_contributed_categories, compute_dataset_bad_mapping, \
     compute_dataset_difficult_agreement, compute_remaining_annotations_with_duration
@@ -28,3 +29,17 @@ def monitor_categories(request, short_name):
                                                                'bad_mapping': bad_mapping_categories,
                                                                'difficult_agreement': difficult_agreement_categories,
                                                                'remaining_annotations': remaining_annotations})
+
+
+def monitor_category(request, short_name, node_id):
+    dataset = get_object_or_404(Dataset, short_name=short_name)
+    node_id = unquote(node_id)
+    node = dataset.taxonomy.get_element_at_id(node_id)
+    example_ids = node.freesound_examples.values_list('freesound_id', flat=True)
+    verification_example_ids = node.freesound_examples_verification.values_list('freesound_id', flat=True)
+    false_verification_example_ids = node.freesound_false_examples.values_list('freesound_id', flat=True)
+    return render(request, 'monitor/monitor_category.html', {'dataset': dataset,
+                                                             'node': node,
+                                                             'example_ids': example_ids,
+                                                             'verification_example_ids': verification_example_ids,
+                                                             'false_verification_example_ids': false_verification_example_ids})

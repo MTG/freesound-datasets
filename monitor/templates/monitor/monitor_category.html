@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% load staticfiles %}
+{% load general_templatetags %}
+{% load dataset_templatetags %}
+{% block title %}Monitor category page{% endblock title %}
+
+{% block page_js %}
+    <script type="text/javascript">
+        function openFreesoundSoundPage(freesound_id){
+            window.open('https://freesound.org/s/' + freesound_id + '/');
+        }
+    </script>
+{% endblock %}
+
+{% block content %}
+    <div class="ui breadcrumb">
+    <h1 class="ui header" style="display: inline-block;">Monitor the category <span class="ui big label">{{ node.name }}</span></h1>
+    {% if request.user.profile.is_fsd_maintainer %}
+        {% load admin_urls %}
+        &nbsp<a title="Edit in administration page" href="{% url node|admin_urlname:'change' node.pk %}" target="_blank"><i class="edit icon"></i></a>
+    {% endif %}
+    </div>
+    <br>
+    {#  Freesound examples  #}
+    <div class="">
+        <h2>Freesound examples</h2>
+        <div class="ui centered cards">
+        {% for fsid in example_ids %}
+            <div class="card">
+            <div class="content">
+                <div class="right floated meta"><a href="javascript:void(0);" onclick="openFreesoundSoundPage('{{ fsid }}');">
+                    see in <img class="ui image" style="width: 80px;" src="{% static 'img/freesound_logo_color.png' %}"></a></div>
+                <div class="header">#{{ fsid }}</div>
+                    {{ fsid| fs_embed | safe }}
+                </div>
+            </div>
+        {% endfor %}
+        </div>
+    </div>
+    <br>
+    {#  Freesound verification examples  #}
+    <div class="ui basic segment">
+        <h2>Freesound verification examples</h2>
+        <div class="ui centered cards">
+        {% for fsid in verification_example_ids %}
+            <div class="card">
+            <div class="content">
+                <div class="right floated meta"><a href="javascript:void(0);" onclick="openFreesoundSoundPage('{{ fsid }}');">
+                    see in <img class="ui image" style="width: 80px;" src="{% static 'img/freesound_logo_color.png' %}"></a></div>
+                <div class="header">#{{ fsid }}</div>
+                    {{ fsid| fs_embed | safe }}
+                </div>
+            </div>
+        {% endfor %}
+        </div>
+    </div>
+    <br>
+    {#  Freesound false verification examples  #}
+    <div class="ui basic segment">
+        <h2>Freesound false verification examples</h2>
+        <div class="ui centered cards">
+        {% for fsid in false_verification_example_ids %}
+            <div class="card">
+            <div class="content">
+                <div class="right floated meta"><a href="javascript:void(0);" onclick="openFreesoundSoundPage('{{ fsid }}');">
+                    see in <img class="ui image" style="width: 80px;" src="{% static 'img/freesound_logo_color.png' %}"></a></div>
+                <div class="header">#{{ fsid }}</div>
+                    {{ fsid| fs_embed | safe }}
+                </div>
+            </div>
+        {% endfor %}
+        </div>
+    </div>
+
+{% endblock %}
