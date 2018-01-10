@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% load staticfiles %}
+{% load admin_urls %}
+{% load general_templatetags %}
+{% load dataset_templatetags %}
+{% block title %}Monitor category page{% endblock title %}
+
+{% block page_js %}
+    <script type="text/javascript">
+        function openFreesoundSoundPage(freesound_id){
+            window.open('https://freesound.org/s/' + freesound_id + '/');
+        }
+    </script>
+{% endblock %}
+
+{% block content %}
+    <div class="ui breadcrumb">
+    <h1 class="ui header" style="display: inline-block;">Monitor the category <span class="ui big label">{{ node.name }}</span></h1>
+    {% if request.user.profile.is_fsd_maintainer %}
+        &nbsp<a title="Edit in administration page" href="{% url node|admin_urlname:'change' node.pk %}" target="_blank"><i class="edit large icon"></i></a>
+    {% endif %}
+    </div>
+    <br>
+    <div class="ui basic segment">
+        <div class="ui message">
+            <p class="medium text">
+                In this page are listed the sound examples of the selected category.
+            </p>
+            <p class="medium text">
+                If you see a card having a bottom border in red, it means this sound is known as "Deleted in Freesound".
+                If you find an example that is deleted in Freesound (the iframe could not be loaded) and does not have
+                the red border, please go to the admin page of the sound (<i class="edit small icon"></i>), check the
+                box "Deleted in freesound" and save your changes.
+            </p>
+        </div>
+    </div>
+
+    {#  Freesound examples  #}
+    <div class="ui basic segment">
+        <h2>Freesound examples</h2>
+        <div class="ui centered cards">
+        {% for sound in examples %}
+            <div class="card {% if sound.deleted_in_freesound %} red {% endif %}">
+                <div class="content">
+                    <div class="right floated meta"><a href="javascript:void(0);" onclick="openFreesoundSoundPage('{{ sound.freesound_id }}');">
+                        see in <img class="ui image" style="width: 80px;" src="{% static 'img/freesound_logo_color.png' %}"></a></div>
+                    <div class="header">#{{ sound.freesound_id }}
+                        {% if request.user.profile.is_fsd_maintainer %}
+                            &nbsp<a title="Edit in administration page" href="{% url sound|admin_urlname:'change' sound.pk %}" target="_blank"><i class="edit small icon"></i></a>
+                        {% endif %}
+                    </div>
+                        {{ sound.freesound_id| fs_embed | safe }}
+                </div>
+            </div>
+        {% endfor %}
+        </div>
+    </div>
+    <br>
+    {#  Freesound verification examples  #}
+    <div class="ui basic segment">
+        <h2>Freesound verification examples</h2>
+        <div class="ui centered cards">
+        {% for sound in verification_examples %}
+            <div class="card {% if sound.deleted_in_freesound %} red {% endif %}">
+                <div class="content">
+                    <div class="right floated meta"><a href="javascript:void(0);" onclick="openFreesoundSoundPage('{{ sound.freesound_id }}');">
+                        see in <img class="ui image" style="width: 80px;" src="{% static 'img/freesound_logo_color.png' %}"></a></div>
+                    <div class="header">#{{ sound.freesound_id }}
+                        {% if request.user.profile.is_fsd_maintainer %}
+                            &nbsp<a title="Edit in administration page" href="{% url sound|admin_urlname:'change' sound.pk %}" target="_blank"><i class="edit small icon"></i></a>
+                        {% endif %}
+                    </div>
+                        {{ sound.freesound_id| fs_embed | safe }}
+                </div>
+            </div>
+        {% endfor %}
+        </div>
+    </div>
+    <br>
+    {#  Freesound false verification examples  #}
+    <div class="ui basic segment">
+        <h2>Freesound false verification examples</h2>
+        <div class="ui centered cards">
+        {% for sound in false_verification_examples %}
+            <div class="card {% if sound.deleted_in_freesound %} red {% endif %}">
+                <div class="content">
+                    <div class="right floated meta"><a href="javascript:void(0);" onclick="openFreesoundSoundPage('{{ sound.freesound_id }}');">
+                        see in <img class="ui image" style="width: 80px;" src="{% static 'img/freesound_logo_color.png' %}"></a></div>
+                    <div class="header">#{{ sound.freesound_id }}
+                        {% if request.user.profile.is_fsd_maintainer %}
+                            &nbsp<a title="Edit in administration page" href="{% url sound|admin_urlname:'change' sound.pk %}" target="_blank"><i class="edit small icon"></i></a>
+                        {% endif %}
+                    </div>
+                        {{ sound.freesound_id| fs_embed | safe }}
+                </div>
+            </div>
+        {% endfor %}
+        </div>
+    </div>
+
+{% endblock %}

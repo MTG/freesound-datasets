@@ -207,6 +207,9 @@ class Sound(models.Model):
     deleted_in_freesound = models.BooleanField(default=False, db_index=True)
     extra_data = JSONField(default={})
 
+    app_label = 'datasets'
+    model_name = 'sound'
+
     def get_candidate_annotations(self, dataset):
         return CandidateAnnotation.objects.filter(sound_dataset__in=self.sounddataset_set.filter(dataset=dataset))
 
