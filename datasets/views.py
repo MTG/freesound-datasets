@@ -323,16 +323,22 @@ def contribute_validate_annotations_category(request, short_name, node_id, html_
                 if N_with_no_vote_long:
                     annotation_ids += annotation_with_no_vote_complete_ids[:N_with_no_vote_long]
 
+    # If not candidate annotations left, remove test annotations
+    if annotations.count() == 0:
+        annotation_ids = list()
+        negative_annotation_example = list()
+
     # Get the selected annotations
     N = len(annotation_ids)
-    annotations = list(CandidateAnnotation.objects.filter(id__in=annotation_ids).select_related('sound_dataset__sound'))
+    annotations_to_validate = list(CandidateAnnotation.objects.filter(id__in=annotation_ids)
+                                   .select_related('sound_dataset__sound'))
     if negative_annotation_example:  # add the "dummy" negative example annotation if it exists
-        annotations.append(negative_annotation_example)
-    random.shuffle(annotations)
+        annotations_to_validate.append(negative_annotation_example)
+    random.shuffle(annotations_to_validate)
 
     formset = PresentNotPresentUnsureFormSet(
-        initial=[{'annotation_id': annotation.id} for annotation in annotations])
-    annotations_forms = list(zip(list(annotations), formset))
+        initial=[{'annotation_id': annotation.id} for annotation in annotations_to_validate])
+    annotations_forms = list(zip(list(annotations_to_validate), formset))
 
     category_comment_form = CategoryCommentForm()
 
