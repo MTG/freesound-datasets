@@ -7,6 +7,7 @@
     <script type="text/javascript">
         $(document).ready(function(){
             $('.ui.accordion').accordion();
+            $('#category-table').DataTable();
         });
     </script>
 {% endblock %}
@@ -289,6 +290,30 @@
                     </tbody>
                 </table>
             </div>
+        </div>
+    <br>
+
+        {#    Table for accessing categories     #}
+        <div class="title">
+            <h2 class="ui header"><i class="dropdown icon"></i> Monitor individual categories</h2>
+        </div>
+        <div class="content">
+            <table id="category-table" class="ui unstackable table" width="100%" style="margin-bottom:5px;">
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for node in dataset.taxonomy.get_all_nodes %}
+                    <tr {% if node.is_omitted %}class="negative"{% endif %}>
+                        <td>{{ node.name }}</td>
+                        <td class="right aligned"><a href="{% url 'monitor-category' dataset.short_name node.url_id %}" class="blue ui button right labeled icon">Go<i class="right arrow icon"></i></a></td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
         </div>
     <br>
 
