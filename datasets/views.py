@@ -497,7 +497,16 @@ def dataset_taxonomy_table_choose(request, short_name):
     # GET request, nodes for Our priority table
     else:
         end_of_table = True
-        nodes = dataset.get_categories_to_validate(request.user).exclude(omitted=True).order_by('nb_ground_truth')[:20]
+        nodes = list()
+        all_nodes = dataset.get_categories_to_validate(request.user).exclude(omitted=True).order_by('nb_ground_truth')
+        # Select the 20 top priority nodes that the user can annotate
+        # This step could be avoid if the problem stated for the dataset.get_categories_to_validate() method was fixed
+        # see comment in the Dataset model method
+        for node in all_nodes:
+            if dataset.user_can_annotate(node.node_id, request.user):
+                nodes.append(node)
+            if len(nodes) >= 20:
+                break
 
     return render(request, 'datasets/dataset_taxonomy_table_choose.html', {
         'dataset': dataset, 'end_of_table': end_of_table, 'hierarchy_paths': hierarchy_paths, 'nodes': nodes})
@@ -507,8 +516,9 @@ def dataset_taxonomy_table_search(request, short_name):
     if not request.user.is_authenticated:
         return HttpResponse('Unauthorized', status=401)
     dataset = get_object_or_404(Dataset, short_name=short_name)
-    taxonomy = dataset.taxonomy
     nodes = dataset.get_categories_to_validate(request.user).exclude(omitted=True)
+    # Here it would be nice to check if the user has still some annotations to vote for all the displayed categories
+    # Unfortunately the dataset.user_can_annotate() method is to slow to be applied to all the nodes.
     return render(request, 'datasets/dataset_taxonomy_table_search.html', {'dataset': dataset, 'nodes': nodes})
 
 

@@ -446,6 +446,10 @@ class Dataset(models.Model):
         Returns a query set with the TaxonomyNode that can be validated by a user
         Quite slow, should not be use often
         """
+        # Here we should exclude the candidate annotations of each taxonomy node
+        # However, we have to find a way to exclude the annotations corresponding to sounds of the considered taxonomy
+        # node. Something like .exclude(sound_dataset__sound__in=node__freesound_examples). But it seems that the Django
+        # ORM does not allow to do this sort of things.
         taxonomy_node_pk = self.candidate_annotations.exclude(votes__created_by=user)\
             .select_related('taxonomy_node').values_list('taxonomy_node', flat=True).distinct()
         return self.taxonomy.taxonomynode_set.filter(pk__in=taxonomy_node_pk)
@@ -455,7 +459,25 @@ class Dataset(models.Model):
         Returns True if the user still have some annotation to validate for the category of id node_id
         Returns False if the user has no no more annotation to validate
         """
-        if self.non_ground_truth_annotations_per_taxonomy_node(node_id).exclude(votes__created_by=user).count() == 0:
+        node = self.taxonomy.get_element_at_id(node_id)
+
+        sound_examples_verification = node.freesound_examples_verification.all()
+        sound_examples = node.freesound_examples.all()
+
+        annotation_examples_verification_ids = self.candidate_annotations.filter(
+            sound_dataset__sound__in=sound_examples_verification,
+            taxonomy_node=node).values_list('id', flat=True)
+        annotation_examples_ids = self.candidate_annotations.filter(
+            sound_dataset__sound__in=sound_examples,
+            taxonomy_node=node).values_list('id', flat=True)
+
+        num_eligible_annotations = self.non_ground_truth_annotations_per_taxonomy_node(node_id)\
+            .exclude(votes__created_by=user)\
+            .exclude(id__in=annotation_examples_verification_ids)\
+            .exclude(id__in=annotation_examples_ids)\
+            .filter(sound_dataset__sound__deleted_in_freesound=False).count()
+
+        if num_eligible_annotations == 0:
             return False
         else:
             return True
