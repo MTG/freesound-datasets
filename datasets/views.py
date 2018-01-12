@@ -479,7 +479,10 @@ def dataset_taxonomy_table_choose(request, short_name):
         # choose a category at the given node_id level
         if node_id != str(0):
             if node_id in taxonomy.get_nodes_at_level(0).values_list('node_id', flat=True):
-                # remove node that them and all their children are omitted
+                # remove node that them and all their children are omitted.
+                # Here we should remove also the categories which all its children have no more annotations tu validate.
+                # Doing it with dataset.get_categories_to_validate() or with dataset.user_can_annotated() on all
+                # children would be too slow
                 nodes = [node for node in taxonomy.get_children(node_id) if not node.self_and_children_omitted]
             else:
                 end_of_table = True  # end of continue, now the user will choose a category to annotate
@@ -497,16 +500,7 @@ def dataset_taxonomy_table_choose(request, short_name):
     # GET request, nodes for Our priority table
     else:
         end_of_table = True
-        nodes = list()
-        all_nodes = dataset.get_categories_to_validate(request.user).exclude(omitted=True).order_by('nb_ground_truth')
-        # Select the 20 top priority nodes that the user can annotate
-        # This step could be avoid if the problem stated for the dataset.get_categories_to_validate() method was fixed
-        # see comment in the Dataset model method
-        for node in all_nodes:
-            if dataset.user_can_annotate(node.node_id, request.user):
-                nodes.append(node)
-            if len(nodes) >= 20:
-                break
+        nodes = dataset.get_categories_to_validate(request.user).exclude(omitted=True).order_by('nb_ground_truth')[:20]
 
     return render(request, 'datasets/dataset_taxonomy_table_choose.html', {
         'dataset': dataset, 'end_of_table': end_of_table, 'hierarchy_paths': hierarchy_paths, 'nodes': nodes})
@@ -517,8 +511,6 @@ def dataset_taxonomy_table_search(request, short_name):
         return HttpResponse('Unauthorized', status=401)
     dataset = get_object_or_404(Dataset, short_name=short_name)
     nodes = dataset.get_categories_to_validate(request.user).exclude(omitted=True)
-    # Here it would be nice to check if the user has still some annotations to vote for all the displayed categories
-    # Unfortunately the dataset.user_can_annotate() method is to slow to be applied to all the nodes.
     return render(request, 'datasets/dataset_taxonomy_table_search.html', {'dataset': dataset, 'nodes': nodes})
 
 

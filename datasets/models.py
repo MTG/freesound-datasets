@@ -446,13 +446,11 @@ class Dataset(models.Model):
         Returns a query set with the TaxonomyNode that can be validated by a user
         Quite slow, should not be use often
         """
-        # Here we should exclude the candidate annotations of each taxonomy node
-        # However, we have to find a way to exclude the annotations corresponding to sounds of the considered taxonomy
-        # node. Something like .exclude(sound_dataset__sound__in=node__freesound_examples). But it seems that the Django
-        # ORM does not allow to do this sort of things.
-        taxonomy_node_pk = self.candidate_annotations.exclude(votes__created_by=user)\
-            .select_related('taxonomy_node').values_list('taxonomy_node', flat=True).distinct()
-        return self.taxonomy.taxonomynode_set.filter(pk__in=taxonomy_node_pk)
+        taxonomy_node_pk = self.sounds.filter(sounddataset__candidate_annotations__ground_truth=None)\
+            .exclude(sounddataset__candidate_annotations__votes__created_by=user)\
+            .filter(taxonomy_node=None, taxonomy_node_verification=None)\
+            .values_list('sounddataset__candidate_annotations__taxonomy_node', flat=True)
+        return self.taxonomy.taxonomynode_set.filter(pk__in=set(taxonomy_node_pk))
 
     def user_can_annotate(self, node_id, user):
         """
