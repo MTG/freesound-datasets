@@ -32,6 +32,26 @@
                 timeFormat:"%b %y",
                 legendData:[{color: 'crimson', name: 'votes'}]
             }, {});
+
+            var cumulative_contributions = [];
+            var total_count = 0;
+            // this assumes that data counts are ordered by date asc
+            for (i=0; i<contributions.length; i++) {
+                total_count += contributions[i].count;
+                cumulative_contributions.push({
+                    day: contributions[i].day,
+                    count: total_count
+                })
+            }
+            displayCharts('.contributions', [cumulative_contributions], {
+                yText: 'cumulative-contributions',
+                attrX: 'day',
+                attrY: 'count',
+                tickEvery: d3.timeDay.every(60),
+                timeFormat:"%b %y",
+                legendData:[{color: 'crimson', name: 'votes'}]
+            }, {});
+
         });
     </script>
 {% endblock %}
@@ -47,7 +67,8 @@
             <span class="small_gray_text">Last updated {{ num_contributions_per_day.redis_timestamp | timestamp_to_datetime | timesince  }} ago</span>
         </div>
         <div class="content">
-             <div class='contributions'></div>
+            <div class='contributions'></div>
+            <div class='cumulative-contributions'></div>
         </div>
         <br>
 
