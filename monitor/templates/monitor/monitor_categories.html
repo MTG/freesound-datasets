@@ -1,13 +1,37 @@
 {% extends "base.html" %}
+{% load staticfiles %}
 {% load humanize %}
 {% load general_templatetags %}
 {% block title %}Monitor category page{% endblock title %}
 
 {% block page_js %}
+    <script src="https://d3js.org/d3.v4.min.js" type="text/javascript"></script>
+    <script src="https://d3js.org/d3-axis.v1.min.js"></script>
+    <script src="https://d3js.org/d3-array.v1.min.js"></script>
+    <script src="https://d3js.org/d3-collection.v1.min.js"></script>
+    <script src="https://d3js.org/d3-color.v1.min.js"></script>
+    <script src="https://d3js.org/d3-format.v1.min.js"></script>
+    <script src="https://d3js.org/d3-interpolate.v1.min.js"></script>
+    <script src="https://d3js.org/d3-time.v1.min.js"></script>
+    <script src="https://d3js.org/d3-time-format.v2.min.js"></script>
+    <script src="https://d3js.org/d3-scale.v1.min.js"></script>
+    <script src="https://d3js.org/d3-path.v1.min.js"></script>
+    <script src="https://d3js.org/d3-shape.v1.min.js"></script>
+    <script src="{% static "js/charts.js" %}"></script>">
     <script type="text/javascript">
         $(document).ready(function(){
             $('.ui.accordion').accordion();
             $('#category-table').DataTable();
+
+            var contributions = JSON.parse('{{ num_contributions_per_day.contribution_per_day | safe }}');
+            displayCharts('.contributions', [contributions], {
+                yText: 'contributions',
+                attrX: 'day',
+                attrY: 'count',
+                tickEvery: d3.timeDay.every(60),
+                timeFormat:"%b %y",
+                legendData:[{color: 'crimson', name: 'votes'}]
+            }, {});
         });
     </script>
 {% endblock %}
@@ -17,6 +41,16 @@
     <br>
 
     <div class="ui accordion">
+        {#    NUMBER OF CONTRIBUTIONS    #}
+        <div class="title">
+            <h2 class="ui header"><i class="dropdown icon"></i> Number of contributions</h2>
+            <span class="small_gray_text">Last updated {{ num_contributions_per_day.redis_timestamp | timestamp_to_datetime | timesince  }} ago</span>
+        </div>
+        <div class="content">
+             <div class='contributions'></div>
+        </div>
+        <br>
+
         {#    TOP CONTRIBUTED CATEGORIES     #}
         <div class="title">
             <h2 class="ui header"><i class="dropdown icon"></i> Top contributed categories</h2>
