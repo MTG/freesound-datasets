@@ -2,6 +2,9 @@ from datasets.models import Dataset, Vote
 from celery import shared_task
 from utils.redis_store import store
 from statistics import mean, StatisticsError
+from django.db.models.functions import TruncDay
+from django.db.models import Count
+import json
 import logging
 import datetime
 
@@ -157,6 +160,29 @@ def compute_remaining_annotations_with_duration(store_key, dataset_id):
         remaining_categories = sorted(remaining_categories, key=lambda x: x[3])
 
         store.set(store_key, {'remaining_categories': remaining_categories})
+
+        logger.info('Finished computing data for {0}'.format(store_key))
+
+    except Dataset.DoesNotExist:
+        pass
+
+
+@shared_task
+def compute_dataset_num_contributions_per_day(store_key, dataset_id):
+    logger.info('Start computing data for {0}'.format(store_key))
+    try:
+        dataset = Dataset.objects.get(id=dataset_id)
+        contribution_per_day = Vote.objects\
+            .filter(candidate_annotation__sound_dataset__dataset=dataset)\
+            .annotate(day=TruncDay('created_at'))\
+            .values('day')\
+            .annotate(count=Count('id'))\
+            .values('day', 'count')
+
+        store.set(store_key, {'contribution_per_day': json.dumps([{
+            'day': str(entry['day']),
+            'count':entry['count']}
+            for entry in contribution_per_day])})
 
         logger.info('Finished computing data for {0}'.format(store_key))
 
