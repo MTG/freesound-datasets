@@ -1,5 +1,5 @@
 
-// Display line chart with downloads, sounds and users
+// Display line chart with votes and ground truth
 function displayCharts(selectClass, data, options, exclude){
   var margin = {top: 20, right: 200, bottom: 30, left: 50},
     width = 700,
