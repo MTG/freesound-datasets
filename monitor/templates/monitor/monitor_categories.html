@@ -139,20 +139,20 @@
         <div class="content">
             <h3> Number of contributions per day </h3>
             <div class='contributions'></div>
-            <h3> Number of cumulative contributions per day </h3>
+            <h3> Cumulative number of contributions per day </h3>
             <div class='cumulative-contributions'></div>
         </div>
         <br>
 
         {#    NUMBER OF GROUND TRUTH    #}
         <div class="title">
-            <h2 class="ui header"><i class="dropdown icon"></i> Number of contributions</h2>
+            <h2 class="ui header"><i class="dropdown icon"></i> Number of ground truth annotations</h2>
             <span class="small_gray_text">Last updated {{ num_ground_truth_per_day.redis_timestamp | timestamp_to_datetime | timesince  }} ago</span>
         </div>
         <div class="content">
             <h3> Number of ground truth per day </h3>
             <div class='ground-truth'></div>
-            <h3> Number of cumulative ground truth per day </h3>
+            <h3> Cumulative number of ground truth per day </h3>
             <div class='cumulative-ground-truth'></div>
         </div>
         <br>

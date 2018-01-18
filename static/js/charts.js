@@ -1,5 +1,5 @@
 
-// Display line chart with votes and ground truth
+// Display line chart with votes and ground truth from https://github.com/MTG/freesound/blob/master/media/js/chart.js
 function displayCharts(selectClass, data, options, exclude){
   var margin = {top: 20, right: 200, bottom: 30, left: 50},
     width = 700,
