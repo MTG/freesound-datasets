@@ -173,17 +173,24 @@ def compute_dataset_num_contributions_per_day(store_key, dataset_id):
     try:
         dataset = Dataset.objects.get(id=dataset_id)
 
-        contribution_per_day = Vote.objects\
+        contributions = Vote.objects\
             .filter(candidate_annotation__sound_dataset__dataset=dataset)\
             .annotate(day=TruncDay('created_at'))\
             .values('day')\
             .annotate(count=Count('id'))\
             .values('day', 'count')
 
-        store.set(store_key, {'contribution_per_day': json.dumps([{
-            'day': str(entry['day']),
-            'count':entry['count']}
-            for entry in contribution_per_day])})
+        start_date = Vote.objects\
+            .filter(candidate_annotation__sound_dataset__dataset=dataset)\
+            .order_by('created_at')[0].created_at.replace(tzinfo=None)
+        end_date = datetime.datetime.now()
+        dates = [str(start_date + datetime.timedelta(days=x))[:10] for x in range(0, (end_date - start_date).days)]
+
+        contributions_per_day = {d: 0 for d in dates}
+        contributions_per_day.update({str(o['day'])[:10]: o['count'] for o in contributions})
+
+        store.set(store_key, {'contribution_per_day': json.dumps([[day, count]
+                                                                  for day, count in contributions_per_day.items()])})
 
         logger.info('Finished computing data for {0}'.format(store_key))
 
@@ -197,7 +204,7 @@ def compute_dataset_num_ground_truth_pre_day(store_key, dataset_id):
     try:
         dataset = Dataset.objects.get(id=dataset_id)
 
-        num_ground_truth_not_from_propagation_per_day = GroundTruthAnnotation.objects\
+        num_ground_truth_not_from_propagation = GroundTruthAnnotation.objects\
             .filter(sound_dataset__dataset=dataset)\
             .filter(from_propagation=False)\
             .annotate(day=TruncDay('created_at'))\
@@ -205,7 +212,7 @@ def compute_dataset_num_ground_truth_pre_day(store_key, dataset_id):
             .annotate(count=Count('id'))\
             .values('day', 'count')
 
-        num_ground_truth_from_propagation_per_day = GroundTruthAnnotation.objects\
+        num_ground_truth_from_propagation = GroundTruthAnnotation.objects\
             .filter(sound_dataset__dataset=dataset)\
             .filter(from_propagation=True)\
             .annotate(day=TruncDay('created_at'))\
@@ -213,15 +220,24 @@ def compute_dataset_num_ground_truth_pre_day(store_key, dataset_id):
             .annotate(count=Count('id'))\
             .values('day', 'count')
 
+        start_date = GroundTruthAnnotation.objects\
+            .filter(sound_dataset__dataset=dataset)\
+            .order_by('created_at')[0].created_at.replace(tzinfo=None)
+        end_date = datetime.datetime.now()
+        dates = [str(start_date + datetime.timedelta(days=x))[:10] for x in range(0, (end_date - start_date).days)]
+
+        num_ground_truth_not_from_propagation_per_day = {d: 0 for d in dates}
+        num_ground_truth_not_from_propagation_per_day.update({str(o['day'])[:10]: o['count']
+                                                              for o in num_ground_truth_not_from_propagation})
+        num_ground_truth_from_propagation_per_day = {d: 0 for d in dates}
+        num_ground_truth_from_propagation_per_day.update({str(o['day'])[:10]: o['count']
+                                                          for o in num_ground_truth_from_propagation})
+
         store.set(store_key, {
-            'num_ground_truth_not_from_propagation_per_day': json.dumps([{
-                'day': str(entry['day']),
-                'count':entry['count']}
-                for entry in num_ground_truth_not_from_propagation_per_day]),
-            'num_ground_truth_from_propagation_per_day': json.dumps([{
-                'day': str(entry['day']),
-                'count':entry['count']}
-                for entry in num_ground_truth_from_propagation_per_day])
+            'num_ground_truth_not_from_propagation_per_day':
+                json.dumps([[day, count] for day, count in num_ground_truth_not_from_propagation_per_day.items()]),
+            'num_ground_truth_from_propagation_per_day':
+                json.dumps([[day, count] for day, count in num_ground_truth_from_propagation_per_day.items()])
         })
 
         logger.info('Finished computing data for {0}'.format(store_key))

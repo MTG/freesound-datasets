@@ -5,19 +5,8 @@
 {% block title %}Monitor category page{% endblock title %}
 
 {% block page_js %}
-    <script src="https://d3js.org/d3.v4.min.js" type="text/javascript"></script>
-    <script src="https://d3js.org/d3-axis.v1.min.js"></script>
-    <script src="https://d3js.org/d3-array.v1.min.js"></script>
-    <script src="https://d3js.org/d3-collection.v1.min.js"></script>
-    <script src="https://d3js.org/d3-color.v1.min.js"></script>
-    <script src="https://d3js.org/d3-format.v1.min.js"></script>
-    <script src="https://d3js.org/d3-interpolate.v1.min.js"></script>
-    <script src="https://d3js.org/d3-time.v1.min.js"></script>
-    <script src="https://d3js.org/d3-time-format.v2.min.js"></script>
-    <script src="https://d3js.org/d3-scale.v1.min.js"></script>
-    <script src="https://d3js.org/d3-path.v1.min.js"></script>
-    <script src="https://d3js.org/d3-shape.v1.min.js"></script>
-    <script src="{% static "js/charts.js" %}"></script>">
+    <script src="https://code.highcharts.com/stock/highstock.js"></script>
+    <script src="https://code.highcharts.com/stock/modules/exporting.js"></script>
     <script type="text/javascript">
         $(document).ready(function(){
             $('.ui.accordion').accordion();
@@ -25,102 +14,135 @@
 
             var contributions = JSON.parse('{{ num_contributions_per_day.contribution_per_day | safe }}');
 
-            displayCharts('.contributions', [contributions], {
-                yText: 'contributions',
-                attrX: 'day',
-                attrY: 'count',
-                tickEvery: d3.timeDay.every(60),
-                timeFormat:"%b %y",
-                legendData:[{color: 'crimson', name: 'votes'}]
-            }, {});
-
-            var cumulative_contributions = [];
-            var total_count = 0;
-            // this assumes that data counts are ordered by date asc
-            for (i=0; i<contributions.length; i++) {
-                total_count += contributions[i].count;
-                cumulative_contributions.push({
-                    day: contributions[i].day,
-                    count: total_count
-                });
-            }
-
-            displayCharts('.cumulative-contributions', [cumulative_contributions], {
-                yText: 'cumulative-contributions',
-                attrX: 'day',
-                attrY: 'count',
-                tickEvery: d3.timeDay.every(60),
-                timeFormat:"%b %y",
-                legendData:[{color: 'crimson', name: 'votes'}]
-            }, {});
-
             var ground_truth_not_from_propagation =
                 JSON.parse('{{ num_ground_truth_per_day.num_ground_truth_not_from_propagation_per_day | safe }}');
             var ground_truth_from_propagation =
                 JSON.parse('{{ num_ground_truth_per_day.num_ground_truth_from_propagation_per_day | safe }}');
-            var total_ground_truth = [];
-            // Assume that ground_truth_not_from_propagation and ground_truth_from_propagation have the same day counts
+
+            var contributions_data = [];
+            for (var i=0 ; i<contributions.length; i++) {
+                contributions_data.push([new Date(contributions[i][0]).getTime(), contributions[i][1]]);
+            }
+            var cumulative_contributions_data = [];
+            var total_votes = 0;
+            for (var i=0 ; i<contributions.length; i++) {
+                total_votes += contributions[i][1];
+                cumulative_contributions_data.push([new Date(contributions[i][0]).getTime(), total_votes]);
+            }
+
+            var total_ground_truth_data = [];
             for (var i=0 ; i<ground_truth_not_from_propagation.length ; i++) {
-                total_ground_truth.push({
-                    count: ground_truth_not_from_propagation[i].count + ground_truth_from_propagation[i].count,
-                    day: ground_truth_not_from_propagation[i].day
-                });
+                total_ground_truth_data.push([
+                    new Date(ground_truth_not_from_propagation[i][0]).getTime(),
+                    ground_truth_not_from_propagation[i][1] + ground_truth_from_propagation[i][1]]);
+            }
+            var cumulative_total_ground_truth_data = [];
+            var total_count_ground_truth = 0;
+            for (var i=0 ; i<total_ground_truth_data.length; i++) {
+                total_count_ground_truth += total_ground_truth_data[i][1];
+                cumulative_total_ground_truth_data.push([
+                    new Date(ground_truth_not_from_propagation[i][0]).getTime(),
+                    total_count_ground_truth]);
             }
 
-
-            displayCharts('.ground-truth', [
-                ground_truth_not_from_propagation,
-                ground_truth_from_propagation,
-                total_ground_truth], {
-                    yText: 'annotations',
-                    attrX: 'day',
-                    attrY: 'count',
-                    tickEvery: d3.timeDay.every(60),
-                    timeFormat:"%b %y",
-                    legendData:[{color: 'crimson', name: 'ground truth not from propagation'},
-                                {color: 'blue', name: 'ground truth from propagation'},
-                                {color: 'green', name: 'total ground truth'}]
-                }, {});
-
-            var cumulative_ground_truth_not_from_propagation = [];
-            var cumulative_ground_truth_from_propagation = [];
-            var cumulative_total_ground_truth = [];
+            var ground_truth_not_from_propagation_data = [];
+            for (var i=0 ; i<ground_truth_not_from_propagation.length; i++) {
+                ground_truth_not_from_propagation_data.push([
+                    new Date(ground_truth_not_from_propagation[i][0]).getTime(),
+                    ground_truth_not_from_propagation[i][1]]);
+            }
+            var cumulative_ground_truth_not_from_propagation_data = [];
             var total_count_ground_truth_not_from_propagation = 0;
-            var total_count_ground_truth_from_propagation = 0;
-            var total_count_total_ground_truth = 0;
-            // this assumes that data counts are ordered by date asc
-            for (i=0; i<ground_truth_not_from_propagation.length; i++) {
-                total_count_ground_truth_not_from_propagation += ground_truth_not_from_propagation[i].count;
-                cumulative_ground_truth_not_from_propagation.push({
-                    day: ground_truth_not_from_propagation[i].day,
-                    count: total_count_ground_truth_not_from_propagation
-                });
-                total_count_ground_truth_from_propagation += ground_truth_from_propagation[i].count;
-                cumulative_ground_truth_from_propagation.push({
-                    day: ground_truth_not_from_propagation[i].day,
-                    count: total_count_ground_truth_from_propagation
-                });
-                total_count_total_ground_truth += total_ground_truth[i].count;
-                cumulative_total_ground_truth.push({
-                    day: ground_truth_not_from_propagation[i].day,
-                    count: total_count_total_ground_truth
-                });
+            for (var i=0 ; i<ground_truth_not_from_propagation.length; i++) {
+                total_count_ground_truth_not_from_propagation += ground_truth_not_from_propagation[i][1];
+                cumulative_ground_truth_not_from_propagation_data.push([
+                    new Date(ground_truth_not_from_propagation[i][0]).getTime(),
+                    total_count_ground_truth_not_from_propagation]);
             }
 
-            displayCharts('.cumulative-ground-truth', [
-                cumulative_ground_truth_not_from_propagation,
-                cumulative_ground_truth_from_propagation,
-                cumulative_total_ground_truth], {
-                    yText: 'annotations',
-                    attrX: 'day',
-                    attrY: 'count',
-                    tickEvery: d3.timeDay.every(60),
-                    timeFormat:"%b %y",
-                    legendData:[{color: 'crimson', name: 'ground truth not from propagation'},
-                                {color: 'blue', name: 'ground truth from propagation'},
-                                {color: 'green', name: 'total ground truth'}]
-                }, {});
+            var ground_truth_from_propagation_data = [];
+            for (var i=0 ; i<ground_truth_from_propagation.length; i++) {
+                ground_truth_from_propagation_data.push([
+                    new Date(ground_truth_from_propagation[i][0]).getTime(),
+                    ground_truth_from_propagation[i][1]]);
+            }
+            var cumulative_ground_truth_from_propagation_data = [];
+            var total_ground_truth_from_propagation = 0;
+            for (var i=0 ; i<ground_truth_from_propagation.length; i++) {
+                total_ground_truth_from_propagation += ground_truth_from_propagation[i][1];
+                cumulative_ground_truth_from_propagation_data.push([
+                    new Date(ground_truth_from_propagation[i][0]).getTime(),
+                    total_ground_truth_from_propagation]);
+            }
 
+            Highcharts.stockChart('contributions', {
+                rangeSelector: {
+                    selected: 1
+                },
+                title: {
+                    text: 'Number of votes'
+                },
+                series: [
+                    {
+                        name: 'number of votes',
+                        data: contributions_data
+                    },
+                    {
+                        name: 'number of votes (cumulative)',
+                        data: cumulative_contributions_data
+                    }],
+                legend: {
+                    enabled: true,
+                    align: 'left',
+                    floating: true,
+                    layout: 'vertical',
+                    verticalAlign: 'center',
+                    y: 60,
+                    shadow: true
+                }
+            });
+
+            Highcharts.stockChart('ground-truth', {
+                rangeSelector: {
+                    selected: 1
+                },
+                title: {
+                    text: 'Number of ground truth annotations'
+                },
+                series: [
+                    {
+                        name: 'total',
+                        data: total_ground_truth_data
+                    },
+                    {
+                        name: 'total (cumulative)',
+                        data: cumulative_total_ground_truth_data
+                    },
+                    {
+                        name: 'no propagation',
+                        data: ground_truth_not_from_propagation_data
+                    },                    {
+                        name: 'no propagation (cumulative)',
+                        data: cumulative_ground_truth_not_from_propagation_data
+                    },
+                    {
+                        name: 'from propagation',
+                        data: ground_truth_from_propagation_data
+                    },
+                    {
+                        name: 'from propagation (cumulative)',
+                        data: cumulative_ground_truth_from_propagation_data
+                    }],
+                legend: {
+                    enabled: true,
+                    align: 'left',
+                    floating: true,
+                    layout: 'vertical',
+                    verticalAlign: 'center',
+                    y: 60,
+                    shadow: true
+                }
+            });
 
         });
     </script>
@@ -137,10 +159,7 @@
             <span class="small_gray_text">Last updated {{ num_contributions_per_day.redis_timestamp | timestamp_to_datetime | timesince  }} ago</span>
         </div>
         <div class="content">
-            <h3> Number of contributions per day </h3>
-            <div class='contributions'></div>
-            <h3> Cumulative number of contributions per day </h3>
-            <div class='cumulative-contributions'></div>
+            <div id="contributions" style="height: 400px; min-width: 310px"></div>
         </div>
         <br>
 
@@ -150,10 +169,7 @@
             <span class="small_gray_text">Last updated {{ num_ground_truth_per_day.redis_timestamp | timestamp_to_datetime | timesince  }} ago</span>
         </div>
         <div class="content">
-            <h3> Number of ground truth per day </h3>
-            <div class='ground-truth'></div>
-            <h3> Cumulative number of ground truth per day </h3>
-            <div class='cumulative-ground-truth'></div>
+            <div id="ground-truth" style="height: 400px; min-width: 310px"></div>
         </div>
         <br>
 
