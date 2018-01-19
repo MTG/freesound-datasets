@@ -1,13 +1,149 @@
 {% extends "base.html" %}
+{% load staticfiles %}
 {% load humanize %}
 {% load general_templatetags %}
 {% block title %}Monitor category page{% endblock title %}
 
 {% block page_js %}
+    <script src="https://code.highcharts.com/stock/highstock.js"></script>
+    <script src="https://code.highcharts.com/stock/modules/exporting.js"></script>
     <script type="text/javascript">
         $(document).ready(function(){
             $('.ui.accordion').accordion();
             $('#category-table').DataTable();
+
+            var contributions = JSON.parse('{{ num_contributions_per_day.contribution_per_day | safe }}');
+
+            var ground_truth_not_from_propagation =
+                JSON.parse('{{ num_ground_truth_per_day.num_ground_truth_not_from_propagation_per_day | safe }}');
+            var ground_truth_from_propagation =
+                JSON.parse('{{ num_ground_truth_per_day.num_ground_truth_from_propagation_per_day | safe }}');
+
+            var contributions_data = [];
+            for (var i=0 ; i<contributions.length; i++) {
+                contributions_data.push([new Date(contributions[i][0]).getTime(), contributions[i][1]]);
+            }
+            var cumulative_contributions_data = [];
+            var total_votes = 0;
+            for (var i=0 ; i<contributions.length; i++) {
+                total_votes += contributions[i][1];
+                cumulative_contributions_data.push([new Date(contributions[i][0]).getTime(), total_votes]);
+            }
+
+            var total_ground_truth_data = [];
+            for (var i=0 ; i<ground_truth_not_from_propagation.length ; i++) {
+                total_ground_truth_data.push([
+                    new Date(ground_truth_not_from_propagation[i][0]).getTime(),
+                    ground_truth_not_from_propagation[i][1] + ground_truth_from_propagation[i][1]]);
+            }
+            var cumulative_total_ground_truth_data = [];
+            var total_count_ground_truth = 0;
+            for (var i=0 ; i<total_ground_truth_data.length; i++) {
+                total_count_ground_truth += total_ground_truth_data[i][1];
+                cumulative_total_ground_truth_data.push([
+                    new Date(ground_truth_not_from_propagation[i][0]).getTime(),
+                    total_count_ground_truth]);
+            }
+
+            var ground_truth_not_from_propagation_data = [];
+            for (var i=0 ; i<ground_truth_not_from_propagation.length; i++) {
+                ground_truth_not_from_propagation_data.push([
+                    new Date(ground_truth_not_from_propagation[i][0]).getTime(),
+                    ground_truth_not_from_propagation[i][1]]);
+            }
+            var cumulative_ground_truth_not_from_propagation_data = [];
+            var total_count_ground_truth_not_from_propagation = 0;
+            for (var i=0 ; i<ground_truth_not_from_propagation.length; i++) {
+                total_count_ground_truth_not_from_propagation += ground_truth_not_from_propagation[i][1];
+                cumulative_ground_truth_not_from_propagation_data.push([
+                    new Date(ground_truth_not_from_propagation[i][0]).getTime(),
+                    total_count_ground_truth_not_from_propagation]);
+            }
+
+            var ground_truth_from_propagation_data = [];
+            for (var i=0 ; i<ground_truth_from_propagation.length; i++) {
+                ground_truth_from_propagation_data.push([
+                    new Date(ground_truth_from_propagation[i][0]).getTime(),
+                    ground_truth_from_propagation[i][1]]);
+            }
+            var cumulative_ground_truth_from_propagation_data = [];
+            var total_ground_truth_from_propagation = 0;
+            for (var i=0 ; i<ground_truth_from_propagation.length; i++) {
+                total_ground_truth_from_propagation += ground_truth_from_propagation[i][1];
+                cumulative_ground_truth_from_propagation_data.push([
+                    new Date(ground_truth_from_propagation[i][0]).getTime(),
+                    total_ground_truth_from_propagation]);
+            }
+
+            Highcharts.stockChart('contributions', {
+                rangeSelector: {
+                    selected: 1
+                },
+                title: {
+                    text: 'Number of votes'
+                },
+                series: [
+                    {
+                        name: 'number of votes',
+                        data: contributions_data
+                    },
+                    {
+                        name: 'number of votes (cumulative)',
+                        data: cumulative_contributions_data
+                    }],
+                legend: {
+                    enabled: true,
+                    align: 'left',
+                    floating: true,
+                    layout: 'vertical',
+                    verticalAlign: 'center',
+                    y: 60,
+                    shadow: true
+                }
+            });
+
+            Highcharts.stockChart('ground-truth', {
+                rangeSelector: {
+                    selected: 1
+                },
+                title: {
+                    text: 'Number of ground truth annotations'
+                },
+                series: [
+                    {
+                        name: 'total',
+                        data: total_ground_truth_data
+                    },
+                    {
+                        name: 'total (cumulative)',
+                        data: cumulative_total_ground_truth_data
+                    },
+                    {
+                        name: 'no propagation',
+                        data: ground_truth_not_from_propagation_data
+                    },                    {
+                        name: 'no propagation (cumulative)',
+                        data: cumulative_ground_truth_not_from_propagation_data
+                    },
+                    {
+                        name: 'from propagation',
+                        data: ground_truth_from_propagation_data
+                    },
+                    {
+                        name: 'from propagation (cumulative)',
+                        data: cumulative_ground_truth_from_propagation_data
+                    }],
+                legend: {
+                    enabled: true,
+                    align: 'left',
+                    floating: true,
+                    layout: 'vertical',
+                    verticalAlign: 'center',
+                    y: 60,
+                    shadow: true
+                }
+            });
+
         });
     </script>
 {% endblock %}
@@ -17,6 +153,26 @@
     <br>
 
     <div class="ui accordion">
+        {#    NUMBER OF CONTRIBUTIONS    #}
+        <div class="title">
+            <h2 class="ui header"><i class="dropdown icon"></i> Number of contributions</h2>
+            <span class="small_gray_text">Last updated {{ num_contributions_per_day.redis_timestamp | timestamp_to_datetime | timesince  }} ago</span>
+        </div>
+        <div class="content">
+            <div id="contributions" style="height: 400px; min-width: 310px"></div>
+        </div>
+        <br>
+
+        {#    NUMBER OF GROUND TRUTH    #}
+        <div class="title">
+            <h2 class="ui header"><i class="dropdown icon"></i> Number of ground truth annotations</h2>
+            <span class="small_gray_text">Last updated {{ num_ground_truth_per_day.redis_timestamp | timestamp_to_datetime | timesince  }} ago</span>
+        </div>
+        <div class="content">
+            <div id="ground-truth" style="height: 400px; min-width: 310px"></div>
+        </div>
+        <br>
+
         {#    TOP CONTRIBUTED CATEGORIES     #}
         <div class="title">
             <h2 class="ui header"><i class="dropdown icon"></i> Top contributed categories</h2>
