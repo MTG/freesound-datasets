@@ -1,5 +1,7 @@
 from django.core.management.base import BaseCommand
+from django.conf import settings
 import json
+import os
 from datasets.models import CandidateAnnotation, Vote, TaxonomyNode, Dataset
 
 
@@ -39,4 +41,5 @@ class Command(BaseCommand):
             votes_dict[candidate_annotation['taxonomy_node__node_id']]['candidates']\
                 .append(candidate_annotation['sound_dataset__sound__freesound_id'])
 
-        json.dump(votes_dict, open(output_file, 'w'))
+        json.dump(votes_dict, open(os.path.join(settings.DATASET_RELEASE_FILES_FOLDER,
+                                                '{0}.json'.format(output_file)), 'w'))
