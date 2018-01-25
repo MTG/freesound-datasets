@@ -3,7 +3,7 @@ from urllib.parse import unquote
 from datasets.models import Dataset
 from monitor.tasks import compute_dataset_top_contributed_categories, compute_dataset_bad_mapping, \
     compute_dataset_difficult_agreement, compute_remaining_annotations_with_duration, \
-    compute_dataset_num_contributions_per_day, compute_dataset_num_ground_truth_pre_day
+    compute_dataset_num_contributions_per_day, compute_dataset_num_ground_truth_per_day
 from utils.async_tasks import data_from_async_task
 from utils.redis_store import DATASET_TOP_CONTRIBUTED_CATEGORIES, DATASET_BAD_MAPPING_CATEGORIES, \
     DATASET_DIFFICULT_AGREEMENT_CATEGORIES, DATASET_REMAINING_CANDIDATE_ANNOTATIONS_PER_CATEGORIES, \
@@ -29,7 +29,7 @@ def monitor_categories(request, short_name):
     num_contributions_per_day = data_from_async_task(compute_dataset_num_contributions_per_day, [dataset.id], {},
                                                      DATASET_CONTRIBUTIONS_PER_DAY.format(dataset.id), 60)
 
-    num_ground_truth_per_day = data_from_async_task(compute_dataset_num_ground_truth_pre_day, [dataset.id], {},
+    num_ground_truth_per_day = data_from_async_task(compute_dataset_num_ground_truth_per_day, [dataset.id], {},
                                                     DATASET_GROUND_TRUTH_PER_DAY.format(dataset.id), 60)
 
     return render(request, 'monitor/monitor_categories.html', {'dataset': dataset,
