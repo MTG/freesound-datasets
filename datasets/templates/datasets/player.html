@@ -1,0 +1,40 @@
+{% block page_js %}
+    <script type="text/javascript">
+        $('#waveform_{{ freesound_id }}').ready(function () {
+            // Create color map for spectrogram
+            var spectrogramColorMap = colormap({
+                colormap: magma,
+                nshades: 256,
+                format: 'rgb',
+                alpha: 1
+            });
+            var height = 64;
+            var wavesurfer = WaveSurfer.create({
+                container: "#waveform_{{ freesound_id }}",
+                waveColor: '#FF00FF',
+                progressColor: '#FF00FF'
+            });
+
+            wavesurfer.on('ready', function () {
+                var spectrogram = Object.create(WaveSurfer.Spectrogram);
+                spectrogram.init({
+                    wavesurfer: wavesurfer,
+                    container: "#waveform_{{ freesound_id }}",
+                    // For the spectrogram the height is half the number of fftSamples
+                    fftSamples: height * 2,
+                    height: height,
+                    colorMap: spectrogramColorMap
+                });
+            });
+
+{#            // Create hiddenImage, an image that is slowly revealed to a user as they annotate#}
+{#            // (only for this.currentTask.feedback === 'hiddenImage')#}
+{#            var hiddenImage = new HiddenImg('.hidden_img', 100);#}
+{#            hiddenImage.create();#}
+
+            wavesurfer.load('{{ sound_url }}');
+        });
+    </script>
+{% endblock %}
+
+<div id="waveform_{{ freesound_id }}" class="spectrogram"></div>
