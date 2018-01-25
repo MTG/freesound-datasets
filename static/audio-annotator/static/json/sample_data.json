@@ -1,0 +1,19 @@
+{
+    "task": {
+        "feedback": "none",
+        "visualization": "spectrogram",
+        "proximityTag": ["near", "far", "not sure"],
+        "annotationTag": ["horn honking", "dog barking", "knocking", "whistle", "engine idling", "jackhammer drilling", "music playing", "people talking", "single footstep", "siren wailing", "gun shooting", "industrial HVAC", "people shouting", "engine passing"],
+        "url": "/static/audio-annotator/static/wav/spectrogram_demo_doorknock_mono.wav",
+        "tutorialVideoURL":"https://www.youtube.com/embed/Bg8-83heFRM",
+        "alwaysShowTags": true,
+        "instructions": [
+            "Highlight &amp; Label Each Sound",
+            "1. &nbsp; Familiarize yourself with the list of sound labels under the audio recording.", 
+            "2. &nbsp; Click the play button and listen to the recording.", 
+            "3. &nbsp; For each sound event that you hear click and drag on the visualization to create a new annotation.",
+            "4. &nbsp; When creating a new annotation be as precise as possible.",
+            "5. &nbsp; Select the appropriate label and indicate whether the sound is near or far."
+        ]
+    }
+}
