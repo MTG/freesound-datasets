@@ -48,3 +48,10 @@ def timestamp_to_datetime(value):
 @register.filter()
 def multiply(value, arg):
     return value*arg
+
+
+@register.inclusion_tag('datasets/player.html')
+def sound_player(dataset, freesound_sound_id):
+    sound = dataset.sounds.get(freesound_id=freesound_sound_id)
+    sound_url = sound.extra_data['previews']
+    return {'dataset': dataset, 'sound_url': sound_url, 'freesound_id': freesound_sound_id}
