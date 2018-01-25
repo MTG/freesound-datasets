@@ -199,7 +199,7 @@ def compute_dataset_num_contributions_per_day(store_key, dataset_id):
 
 
 @shared_task
-def compute_dataset_num_ground_truth_pre_day(store_key, dataset_id):
+def compute_dataset_num_ground_truth_per_day(store_key, dataset_id):
     logger.info('Start computing data for {0}'.format(store_key))
     try:
         dataset = Dataset.objects.get(id=dataset_id)
@@ -235,9 +235,13 @@ def compute_dataset_num_ground_truth_pre_day(store_key, dataset_id):
 
         store.set(store_key, {
             'num_ground_truth_not_from_propagation_per_day':
-                json.dumps([[day, count] for day, count in num_ground_truth_not_from_propagation_per_day.items()]),
+                json.dumps(sorted([[day, count]
+                                   for day, count in num_ground_truth_not_from_propagation_per_day.items()],
+                                  key=lambda x: x[0])),
             'num_ground_truth_from_propagation_per_day':
-                json.dumps([[day, count] for day, count in num_ground_truth_from_propagation_per_day.items()])
+                json.dumps(sorted([[day, count]
+                                   for day, count in num_ground_truth_from_propagation_per_day.items()],
+                                  key=lambda x: x[0]))
         })
 
         logger.info('Finished computing data for {0}'.format(store_key))
