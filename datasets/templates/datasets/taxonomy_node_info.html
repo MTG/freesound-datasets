@@ -57,6 +57,10 @@
             <td class="three wide">Description</td>
             <td>{{ node.description }}</td>
         </tr>
+        <tr>
+            <td>URI</td>
+            <td>{% if node.citation_uri %}<a href="{{ node.citation_uri }}" target="_blank">{{ node.citation_uri }}</a>{% else %}-{% endif %}</td>
+        </tr>
         {% if node.sibling_ids %}
             <tr>
                 <td>Siblings</td>
@@ -83,7 +87,6 @@
                 </div></td>
             </tr>
         {% endif %}
-        <tr><td>URI</td><td>{% if node.citation_uri %}<a href="{{ node.citation_uri }}" target="_blank">{{ node.citation_uri }}</a>{% else %}-{% endif %}</td></tr>
         {% if node.freesound_examples %}
             <tr><td>Examples</td>
                 <td>

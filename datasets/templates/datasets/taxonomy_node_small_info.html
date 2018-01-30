@@ -57,6 +57,12 @@
             <td class="three wide">Description</td>
             <td>{{ node.description }}</td>
         </tr>
+        {% if node.citation_uri %}
+        <tr>
+            <td>URI</td>
+            <td><a href="{{ node.citation_uri }}" target="_blank">{{ node.citation_uri }}</a></td>
+        </tr>
+        {% endif %}
         {% if node.freesound_examples %}
             <tr><td>Examples</td>
                 <td>
