@@ -232,7 +232,7 @@ def refresh_sound_deleted_state():
 def refresh_sound_extra_data():
     logger.info('Start refreshing freesound sound extra data')
     sound_ids = Sound.objects.all().values_list('freesound_id', flat=True)
-    results = query_freesound_by_id(sound_ids, fields="id,name,analysis", descriptors="lowlevel.average_loudness")
+    results = query_freesound_by_id(sound_ids, fields="id,name,analysis,images", descriptors="lowlevel.average_loudness")
     with transaction.atomic():
         for freesound_sound in results:
             sound = Sound.objects.get(freesound_id=freesound_sound.id)
