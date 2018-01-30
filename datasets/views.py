@@ -487,9 +487,10 @@ def dataset_taxonomy_table_choose(request, short_name):
             else:
                 end_of_table = True  # end of continue, now the user will choose a category to annotate
                 nodes = taxonomy.get_all_children(node_id) + [taxonomy.get_element_at_id(node_id)] + taxonomy.get_all_parents(node_id)
-                # remove the nodes that have no more annotations to validate for the user, or are omitted
+                # we should remove the nodes that have no more annotations to validate for the user
+                # by using dataset.user_can_annotate(), but it is too slow
                 nodes = [node for node in nodes
-                         if dataset.user_can_annotate(node.node_id, request.user) and not node.omitted]
+                         if not node.omitted]
             hierarchy_paths = dataset.taxonomy.get_hierarchy_paths(node_id)
 
         # start choosing category
