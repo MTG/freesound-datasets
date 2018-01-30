@@ -3,13 +3,13 @@
     <div class="item">
         <div class="ui horizontal list">
             <div class="item">
-                <a data-node_id=0 class="loadButton"> Ontology </a>
+                <a data-node_id=0 class="medium text loadButton"> Ontology </a>
             </div>
             {% for node_id in hierarchy_path %}
                 {% taxonomy_node dataset node_id as sub_node_data  %}
                 <div class="item" style="margin-left:3px;margin-right:5px;">
                     &gt;
-                    <a data-node_id={{ node_id }} class="loadButton" >{{ sub_node_data.name }}</a>
+                    <a data-node_id={{ node_id }} class="medium text loadButton">{{ sub_node_data.name }}</a>
                 </div>
             {% endfor %}
         </div>
