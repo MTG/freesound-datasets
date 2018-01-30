@@ -445,6 +445,9 @@ class Dataset(models.Model):
         """
         return self.candidate_annotations.filter(taxonomy_node__node_id=node_id).filter(ground_truth=None)
 
+    def get_categories(self):
+        return self.taxonomy.taxonomynode_set
+
     def get_categories_to_validate(self, user):
         """
         Returns a query set with the TaxonomyNode that can be validated by a user

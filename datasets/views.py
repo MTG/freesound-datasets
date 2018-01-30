@@ -510,7 +510,7 @@ def dataset_taxonomy_table_search(request, short_name):
     if not request.user.is_authenticated:
         return HttpResponse('Unauthorized', status=401)
     dataset = get_object_or_404(Dataset, short_name=short_name)
-    nodes = dataset.get_categories_to_validate(request.user).exclude(omitted=True)
+    nodes = dataset.get_categories().exclude(omitted=True)  # sould use get_categories_to_validate() but it is too slow
     return render(request, 'datasets/dataset_taxonomy_table_search.html', {'dataset': dataset, 'nodes': nodes})
 
 
