@@ -515,12 +515,15 @@ def dataset_taxonomy_table_search(request, short_name):
 
 
 def get_mini_node_info(request, short_name, node_id):
+    show_examples = request.GET.get('se', 1)
+    show_go_button = request.GET.get('sb', 1)
     node_id = unquote(node_id)
     dataset = get_object_or_404(Dataset, short_name=short_name)
     node = dataset.taxonomy.get_element_at_id(node_id).as_dict()
     hierarchy_paths = dataset.taxonomy.get_hierarchy_paths(node['node_id'])
     node['hierarchy_paths'] = hierarchy_paths if hierarchy_paths is not None else []
-    return render(request, 'datasets/taxonomy_node_mini_info.html', {'dataset': dataset, 'node': node})
+    return render(request, 'datasets/taxonomy_node_mini_info.html',
+                  {'dataset': dataset, 'node': node, 'show_examples': show_examples, 'show_go_button': show_go_button})
 
 
 ########################

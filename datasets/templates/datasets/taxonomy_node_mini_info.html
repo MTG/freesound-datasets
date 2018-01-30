@@ -28,7 +28,7 @@
             <td class="three wide">Description</td>
             <td>{{ node.description }}</td>
         </tr>
-        {% if node.freesound_examples %}
+        {% if node.freesound_examples and show_examples > 0 %}
             <tr><td>Examples</td>
                 <td>
                     {% for fsid in node.freesound_examples %}
@@ -39,9 +39,11 @@
         {% endif %}
     </tbody>
 </table>
+{% if show_go_button > 0 %}
 <div style="text-align:right;">
     <a class="primary basic ui button right labeled icon"
          href="{% url 'dataset-explore-taxonomy-node' dataset.short_name node.url_id %}" target="_blank">
         Go to <i>{{node.name}}</i> page<i class="right arrow icon"></i>
     </a>
 </div>
+{% endif %}

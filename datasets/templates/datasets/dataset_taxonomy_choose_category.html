@@ -10,6 +10,33 @@
             loadDatasetTaxonomyTableSearch();
             $('.menu .item').tab();
         });
+        function addPopUpEvent() {
+            var popupLoading = '<div style="height:180px; width:500px" class="ui loading segment">Loading</div>';
+            $('.my-pop').ready(function() {
+                var my_pops = $('.my-pop[event-added=0]');
+                my_pops.attr('event-added', 1);
+                my_pops.popup({
+                    on: 'hover',
+                    html: popupLoading,
+                    onShow: function(el){
+                        var ajax_done = el.getAttribute('ajax_done');
+                        if (ajax_done == 0) {
+                            var popup = this;
+                            var ajax_url = el.getAttribute('ajax_url');
+                            $.ajax({
+                                url: ajax_url
+                            }).done(function(result) {
+                                el.setAttribute("data-html", result);
+                                el.setAttribute("ajax_done", 1);
+                                popup.html(result);
+                            }).fail(function() {
+                                popup.html('error')
+                            });
+                        }
+                    }
+                });
+            });
+        }
 
         function loadDatasetTaxonomyTableChoose(node_id){
             $.ajax({url: "{% url 'dataset_taxonomy_table_choose' dataset.short_name %}",
@@ -24,13 +51,16 @@
                         $(".loadButton").on("click", function(e) {
                             var thisId = $(this).data("node_id");
                             loadDatasetTaxonomyTableChoose(thisId)
-                        })
+                        });
+                        addPopUpEvent();
                     }
             })
         }
 
         function loadDatasetTaxonomyTablePriority(){
-            $( "#priority_table_placeholder" ).load( "{% url 'dataset_taxonomy_table_choose' dataset.short_name %}", function() {});
+            $( "#priority_table_placeholder" ).load( "{% url 'dataset_taxonomy_table_choose' dataset.short_name %}", function() {
+                addPopUpEvent();
+            });
         }
 
         function loadDatasetTaxonomyTableSearch(){
@@ -41,6 +71,7 @@
                     'ordering': false,
                 });
                 $('#dataset_contents_paginate').parent().attr('style', 'width: 100% !important');
+                addPopUpEvent();
             });
         }
     </script>
