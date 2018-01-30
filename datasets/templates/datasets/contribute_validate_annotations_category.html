@@ -135,7 +135,23 @@
 
                  <center><p>Read the description and listen to the examples to familiarise yourself with <span class="ui label">{{node.name}}</span></p>
 
-                     <p><b>Tip &ndash;</b> Understanding the siblings {% if node.children %} and direct children {% endif %} will help you distinguish <span class="ui label">{{node.name}}</span> from other similar categories.
+                     <p><b>Tip &ndash;</b> Understanding the
+                         {% if node.siblings.count > 0 and node.children.count > 0 and node.parents.count > 0 %}
+                            parents, siblings and direct children
+                         {% elif node.siblings.count > 0 and node.children.count > 0 %}
+                            siblings and direct children
+                         {% elif node.siblings.count > 0 and node.parents.count > 0 %}
+                            parents and siblings
+                         {% elif node.children.count > 0 and node.parents.count > 0 %}
+                             parents and direct children
+                         {% elif node.siblings.count > 0 %}
+                             siblings
+                         {% elif node.children.count > 0 %}
+                             direct children
+                         {% elif node.parents.count > 0 %}
+                             parents
+                         {% endif %}
+                         will help you distinguish <span class="ui label">{{node.name}}</span> from other similar categories.
               </p><p style="margin-top:-15px;">Click on any <span class="ui label">category</span> to check its description and examples!</p></center>
 
               <!--<p>If you don't feel comfortable with the chosen category, please: &nbsp;

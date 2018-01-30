@@ -338,6 +338,10 @@ class TaxonomyNode(models.Model):
         return TaxonomyNode.objects.filter(parents__in=parents).exclude(node_id=self.node_id).distinct()
 
     @property
+    def siblings(self):
+        return self.get_siblings()
+
+    @property
     def valid_examples(self):
         return self.freesound_examples.filter(deleted_in_freesound=False).values_list('freesound_id', flat=True)
 
