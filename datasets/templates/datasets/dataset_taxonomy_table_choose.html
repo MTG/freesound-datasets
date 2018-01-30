@@ -9,8 +9,18 @@
                 {% taxonomy_node dataset node_id as sub_node_data  %}
                 <div class="item" style="margin-left:3px;margin-right:5px;">
                     &gt;
-                    <a data-node_id={{ node_id }} class="medium text loadButton">{{ sub_node_data.name }}</a>
+                    <a data-node_id="{{ node_id }}" class="medium text loadButton">{{ sub_node_data.name }}</a>
                 </div>
+                {% if forloop.last %}
+                    <button style="margin-left:10px;" class="ui tiny button loadButton"
+                            {% if hierarchy_path|length == 1 %}
+                                data-node_id="0"
+                            {% else %}
+                                data-node_id="{{ hierarchy_path.0 }}"
+                            {% endif %}>
+                        <i class="reply icon"></i>
+                    </button>
+                {% endif %}
             {% endfor %}
         </div>
     </div>
