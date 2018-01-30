@@ -60,8 +60,8 @@
                             &nbsp<a title="Edit in administration page" href="{% url sound|admin_urlname:'change' sound.pk %}" target="_blank"><i class="edit small icon"></i></a>
                         {% endif %}
                     </div>
-                        {% sound_player dataset sound.freesound_id %}
-{#                        {{ sound.freesound_id| fs_embed | safe }}#}
+                    {% sound_player dataset sound.freesound_id %}
+{#                  {{ sound.freesound_id| fs_embed | safe }}#}
                 </div>
             </div>
         {% endfor %}

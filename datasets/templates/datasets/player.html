@@ -1,6 +1,7 @@
 {% block page_js %}
     <script type="text/javascript">
         $('#waveform_{{ freesound_id }}').ready(function () {
+
             // Create color map for spectrogram
             var spectrogramColorMap = colormap({
                 colormap: magma,
@@ -9,21 +10,45 @@
                 alpha: 1
             });
             var height = 64;
-            var wavesurfer = WaveSurfer.create({
-                container: "#waveform_{{ freesound_id }}",
+
+            var wavesurfer = Object.create(WaveSurfer);
+            wavesurfer.init({
+
+                container: "#s{{ freesound_id }} .audio_visual",
                 waveColor: '#FF00FF',
-                progressColor: '#FF00FF'
+                progressColor: '#000000',
+                height: height,
             });
 
             wavesurfer.on('ready', function () {
+
+                $("#s{{ freesound_id }} .audio_visual wave").css({
+                    width: "101%",
+                    overflow: "hidden"
+                });
+
+                $("#s{{ freesound_id }} .audio_visual wave").hide();
                 var spectrogram = Object.create(WaveSurfer.Spectrogram);
                 spectrogram.init({
                     wavesurfer: wavesurfer,
-                    container: "#waveform_{{ freesound_id }}",
+                    container: "#s{{ freesound_id }} .audio_visual .spectrogram",
                     // For the spectrogram the height is half the number of fftSamples
                     fftSamples: height * 2,
                     height: height,
                     colorMap: spectrogramColorMap
+                });
+
+                $("#s{{ freesound_id }} .controls .play_pause").click(function() {
+                    wavesurfer.playPause();
+                });
+
+                $("#s{{ freesound_id }} .controls .stop").click(function() {
+                    wavesurfer.stop();
+                });
+
+                $("#s{{ freesound_id }} .controls .switch").click(function() {
+                    $("#s{{ freesound_id }} .audio_visual wave").toggle();
+                    $("#s{{ freesound_id }} .audio_visual spectrogram").toggle();
                 });
             });
 
@@ -37,4 +62,26 @@
     </script>
 {% endblock %}
 
-<div id="waveform_{{ freesound_id }}" class="spectrogram"></div>
+<div class="soundplayer" id="s{{ freesound_id }}">
+    <div class="audio_visual">
+        <div class="spectrogram"></div>
+    </div>
+    <div class="ui horizontal buttons controls">
+        <button class="ui icon blue button play_pause">
+            <i class="play icon"></i>
+            <i class="pause icon" style="display: none;"></i>
+        </button>
+
+        <button class="ui icon blue button stop">
+            <i class="stop icon"></i>
+        </button>
+
+        <button class="ui red button switch">
+            Switch view
+        </button>
+    </div>
+</div>
+
+
+
+
