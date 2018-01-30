@@ -103,7 +103,7 @@
                     examples_container.css({"transform": "translateX(" + translate_value + "px)"});
                     counter = (counter < 9) ? counter + 1 : 0;
                 }
-            }, 5000)
+            }, 3000)
 
         }
     </script>
@@ -151,7 +151,7 @@ that express the potential presence of sound sources in audio clips.
               <span class="ui segment" id="node_{{ forloop.counter }}" style="display: inline-block; width:294px;">
               <a href="{% url 'dataset-explore-taxonomy-node' dataset.short_name node.url_id %}"><p><b>{{ node.name }}</b></p></a>
               <div>
-                {% for sound in node.valid_examples %}
+                {% for sound in node.valid_examples|slice:"2" %}
                   <span>
                     {{ sound| fs_embed | safe }}
                   </span>
