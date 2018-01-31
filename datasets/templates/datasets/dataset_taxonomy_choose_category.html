@@ -10,10 +10,14 @@
             loadDatasetTaxonomyTableSearch();
             $('.menu .item').tab();
         });
-        function addPopUpEvent() {
+        function addPopUpEvent(targets) {
             var popupLoading = '<div style="height:180px; width:500px" class="ui loading segment">Loading</div>';
             $('.my-pop').ready(function() {
-                var my_pops = $('.my-pop[event-added=0]');
+                if (typeof targets === 'undefined') {
+                    var my_pops = $('.my-pop[event-added=0]');
+                } else {
+                    var my_pops = targets;
+                }
                 my_pops.attr('event-added', 1);
                 my_pops.popup({
                     on: 'hover',
@@ -68,9 +72,12 @@
                 $('#dataset_contents').DataTable({
                     'paging': true,
                     'info': true,
-                    'ordering': false,
+                    'ordering': false
                 });
                 $('#dataset_contents_paginate').parent().attr('style', 'width: 100% !important');
+                $('#dataset_contents').on('draw.dt', function () {
+                    addPopUpEvent($(this).find('.my-pop'));
+                });
                 addPopUpEvent();
             });
         }
