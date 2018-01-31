@@ -44,9 +44,9 @@
             {% for node in nodes %}
                 <tr>
                     <td>{{ node.name }}
-                        <span class="my-pop ui" event-added=0 data-html='' ajax_done=0
+                        <span class="my-pop ui" event-added=0 data-html='' ajax_done=0 style="margin-left:5px;"
                               ajax_url="{% url 'get-mini-node-info' dataset.short_name node.url_id %}?se=0&sb=0">
-                            <i class="help inverted blue circle icon"></i></span>
+                            <i class="help grey circle icon"></i></span>
                     </td>
                     <td class="right aligned">
                         <button data-node_id="{{ node.node_id }}" class="loadButton teal ui button right labeled icon">
