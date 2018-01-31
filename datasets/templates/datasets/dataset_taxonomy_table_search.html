@@ -9,9 +9,9 @@
     {% for node in nodes %}
         <tr>
             <td>{{ node.name_with_parent }}
-                <span class="my-pop ui" data-html='' event-added=0 ajax_done=0
+                <span class="my-pop ui" data-html='' event-added=0 ajax_done=0 style="margin-left:5px;"
                       ajax_url="{% url 'get-mini-node-info' dataset.short_name node.url_id %}?se=0&sb=0">
-                    <i class="help inverted blue circle icon"></i>
+                    <i class="help grey circle icon"></i>
                 </span>
             </td>
             <td class="right aligned"><a href="{% url 'contribute-validate-annotations-category' dataset.short_name node.url_id %}"
