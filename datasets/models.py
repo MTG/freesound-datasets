@@ -285,7 +285,8 @@ class TaxonomyNode(models.Model):
                 "parent_ids": [parent.node_id for parent in parents],
                 "child_ids": [child.node_id for child in self.get_children()],
                 "sibling_ids": [sibling.node_id for sibling in self.get_siblings(parents)],
-                "nb_ground_truth": self.nb_ground_truth,
+                "nb_ground_truth": self.num_ground_truth_annotations,
+                "nb_propagated_ground_truth": self.num_propagated_ground_truth_annotations,
                 "nb_user_contributions": self.num_user_contributions,
                 "nb_verified_annotations": self.num_verified_annotations,
                 "faq": self.faq,
@@ -324,7 +325,11 @@ class TaxonomyNode(models.Model):
 
     @property
     def num_ground_truth_annotations(self):
-        return GroundTruthAnnotation.objects.filter(taxonomy_node=self).count()
+        return self.ground_truth_annotations.count()
+
+    @property
+    def num_propagated_ground_truth_annotations(self):
+        return self.ground_truth_annotations.filter(from_propagation=True).count()
 
     def get_parents(self):
         return self.parents.all()
