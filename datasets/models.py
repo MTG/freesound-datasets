@@ -711,7 +711,7 @@ class Vote(models.Model):
         # here calculate ground truth for vote.annotation
         candidate_annotation = self.candidate_annotation
         ground_truth_state = candidate_annotation.ground_truth_state
-        if ground_truth_state:
+        if ground_truth_state in (0.5, 1.0):
             candidate_annotation.ground_truth = ground_truth_state
             candidate_annotation.save()
             ground_truth_annotation, created = GroundTruthAnnotation.objects.get_or_create(
