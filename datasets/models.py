@@ -317,6 +317,13 @@ class TaxonomyNode(models.Model):
         return all(omitted for omitted in [child.omitted for child in all_children] + [self.omitted])
 
     @property
+    def self_and_children_advanced_task(self):
+        """ Returns False if the node and all its children have advanced_task False """
+        all_children = self.taxonomy.get_all_children(self.node_id)
+        return any(advanced_task for advanced_task in [child.advanced_task for child in all_children]
+                   + [self.advanced_task])
+
+    @property
     def num_user_contributions(self):
         return Vote.objects.filter(candidate_annotation__taxonomy_node=self).count()
 

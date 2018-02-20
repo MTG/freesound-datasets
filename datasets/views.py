@@ -483,25 +483,29 @@ def dataset_taxonomy_table_choose(request, short_name):
                 # Here we should remove also the categories which all its children have no more annotations tu validate.
                 # Doing it with dataset.get_categories_to_validate() or with dataset.user_can_annotated() on all
                 # children would be too slow
-                nodes = [node for node in taxonomy.get_children(node_id) if not node.self_and_children_omitted]
+                nodes = [node for node in taxonomy.get_children(node_id) if node.self_and_children_advanced_task
+                         and not node.self_and_children_omitted]
             else:
                 end_of_table = True  # end of continue, now the user will choose a category to annotate
                 nodes = taxonomy.get_all_children(node_id) + [taxonomy.get_element_at_id(node_id)] + taxonomy.get_all_parents(node_id)
                 # we should remove the nodes that have no more annotations to validate for the user
                 # by using dataset.user_can_annotate(), but it is too slow
                 nodes = [node for node in nodes
-                         if not node.omitted]
+                         if node.advanced_task and not node.omitted]
             hierarchy_paths = dataset.taxonomy.get_hierarchy_paths(node_id)
 
         # start choosing category
         else:
             nodes = taxonomy.get_nodes_at_level(0)
+            nodes = [node for node in nodes if node.self_and_children_advanced_task
+                     and not node.self_and_children_omitted]
         nodes = sorted(nodes, key=lambda n: n.nb_ground_truth)
 
     # GET request, nodes for Our priority table
     else:
         end_of_table = True
-        nodes = dataset.get_categories_to_validate(request.user).exclude(omitted=True).order_by('nb_ground_truth')[:20]
+        nodes = dataset.get_categories_to_validate(request.user).filter(advanced_task=True)\
+                    .exclude(omitted=True).order_by('nb_ground_truth')[:20]
 
     return render(request, 'datasets/dataset_taxonomy_table_choose.html', {
         'dataset': dataset, 'end_of_table': end_of_table, 'hierarchy_paths': hierarchy_paths, 'nodes': nodes})
@@ -511,7 +515,7 @@ def dataset_taxonomy_table_search(request, short_name):
     if not request.user.is_authenticated:
         return HttpResponse('Unauthorized', status=401)
     dataset = get_object_or_404(Dataset, short_name=short_name)
-    nodes = dataset.get_categories().exclude(omitted=True)  # sould use get_categories_to_validate() but it is too slow
+    nodes = dataset.get_categories().filter(advanced_task=True).exclude(omitted=True)  # sould use get_categories_to_validate() but it is too slow
     return render(request, 'datasets/dataset_taxonomy_table_search.html', {'dataset': dataset, 'nodes': nodes})
 
 
