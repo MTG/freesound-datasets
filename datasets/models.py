@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 
 import collections
 from django.db import models
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.contrib.postgres.fields import JSONField
 from django.contrib.auth.models import User
 from django.conf import settings
@@ -71,21 +71,15 @@ class Taxonomy(models.Model):
         """
             Returns a list of all the children of the given node id
         """
-        def get_children(node_id, cur=list()):
-            children = self.get_children(node_id)
-            if not children:
-                yield cur
-            else:
-                for node in children:
-                    for child in get_children(node.node_id, [node] + cur):
-                        yield child
-        children_list = list(self.get_children(node_id))
-        for children in get_children(node_id):
-            for child in children:
-                if child.node_id not in [n.node_id for n in children_list]:
-                    children_list.append(child)
-
-        return children_list
+        node = self.taxonomynode_set.get(node_id=node_id)
+        return self.taxonomynode_set.filter(Q(parents=node) |
+                                            Q(parents__parents=node) |
+                                            Q(parents__parents__parents=node) |
+                                            Q(parents__parents__parents__parents=node) |
+                                            Q(parents__parents__parents__parents__parents=node) |
+                                            Q(parents__parents__parents__parents__parents__parents=node) |
+                                            Q(parents__parents__parents__parents__parents__parents__parents=node)
+                                            ).distinct()
 
     def get_all_propagate_from_children(self, node_id):
         """
@@ -111,24 +105,15 @@ class Taxonomy(models.Model):
         """
             Returns a list of all the children of the given node id
         """
-        def get_parents(node_id, cur=list()):
-            parents = self.get_parents(node_id)
-            if not parents:
-                yield cur
-            else:
-                for node in parents:
-                    for parent in get_parents(node.node_id, [node] + cur):
-                        yield parent
-
-        parents_list = list(self.get_parents(node_id))
-        # this double for loop is for checking if a parent is already in the list
-        # in this case, we do not append it to the list
-        for parents in get_parents(node_id):
-            for parent in parents:
-                if parent.node_id not in [n.node_id for n in parents_list]:
-                    parents_list.append(parent)
-
-        return parents_list
+        node = self.taxonomynode_set.get(node_id=node_id)
+        return self.taxonomynode_set.filter(Q(children=node) |
+                                            Q(children__children=node) |
+                                            Q(children__children__children=node) |
+                                            Q(children__children__children__children=node) |
+                                            Q(children__children__children__children__children=node) |
+                                            Q(children__children__children__children__children__children=node) |
+                                            Q(children__children__children__children__children__children__children=node)
+                                            ).distinct()
 
     def get_all_propagate_to_parents(self, node_id):
         """
@@ -314,14 +299,13 @@ class TaxonomyNode(models.Model):
     def self_and_children_omitted(self):
         """ Returns True if the node and all its children are omitted """
         all_children = self.taxonomy.get_all_children(self.node_id)
-        return all(omitted for omitted in [child.omitted for child in all_children] + [self.omitted])
+        return not all_children.filter(omitted=False).exists() and self.omitted
 
     @property
     def self_and_children_advanced_task(self):
         """ Returns False if the node and all its children have advanced_task False """
         all_children = self.taxonomy.get_all_children(self.node_id)
-        return any(advanced_task for advanced_task in [child.advanced_task for child in all_children]
-                   + [self.advanced_task])
+        return all_children.filter(advanced_task=True).exists() or self.advanced_task
 
     @property
     def num_user_contributions(self):

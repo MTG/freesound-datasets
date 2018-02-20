@@ -487,7 +487,8 @@ def dataset_taxonomy_table_choose(request, short_name):
                          and not node.self_and_children_omitted]
             else:
                 end_of_table = True  # end of continue, now the user will choose a category to annotate
-                nodes = taxonomy.get_all_children(node_id) + [taxonomy.get_element_at_id(node_id)] + taxonomy.get_all_parents(node_id)
+                nodes = list(taxonomy.get_all_children(node_id)) + [taxonomy.get_element_at_id(node_id)] \
+                    + list(taxonomy.get_all_parents(node_id))
                 # we should remove the nodes that have no more annotations to validate for the user
                 # by using dataset.user_can_annotate(), but it is too slow
                 nodes = [node for node in nodes
@@ -505,7 +506,7 @@ def dataset_taxonomy_table_choose(request, short_name):
     else:
         end_of_table = True
         nodes = dataset.get_categories_to_validate(request.user).filter(advanced_task=True)\
-                    .exclude(omitted=True).order_by('nb_ground_truth')[:20]
+            .exclude(omitted=True).order_by('nb_ground_truth')[:20]
 
     return render(request, 'datasets/dataset_taxonomy_table_choose.html', {
         'dataset': dataset, 'end_of_table': end_of_table, 'hierarchy_paths': hierarchy_paths, 'nodes': nodes})
