@@ -240,6 +240,7 @@ class TaxonomyNode(models.Model):
     list_freesound_examples = models.CharField(max_length=100, null=True, blank=True, validators=[validator_list_examples])
     list_freesound_examples_verification = models.CharField(max_length=100, null=True, blank=True, validators=[validator_list_examples])
     beginner_task = models.BooleanField(default=False)
+    advanced_task = models.BooleanField(default=False, db_index=True)
 
     app_label = 'datasets'
     model_name = 'taxonomynode'

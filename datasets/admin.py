@@ -4,7 +4,7 @@ from datasets.models import Dataset, Sound, Vote, Taxonomy, DatasetRelease, Taxo
 
 class TaxonomyNodeAdmin(admin.ModelAdmin):
     fields = ('node_id', 'name', 'description', 'citation_uri', 'faq', 'omitted', 'list_freesound_examples',
-              'list_freesound_examples_verification', 'beginner_task')
+              'list_freesound_examples_verification', 'beginner_task', 'advanced_task')
 
 
 admin.site.register(Dataset)
