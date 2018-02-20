@@ -14,7 +14,7 @@
                     <i class="help grey circle icon"></i>
                 </span>
             </td>
-            <td class="right aligned"><a href="{% url 'contribute-validate-annotations-category' dataset.short_name node.url_id %}"
+            <td class="right aligned"><a href="{% url 'contribute-validate-annotations-category' dataset.short_name node.url_id %}?na={{ new_annotations }}&mt={{ maintainer_task }}"
                                          class="blue ui button right labeled icon"> Choose <i class="checkmark box icon"></i></a></td>
         </tr>
     {% endfor %}

@@ -189,10 +189,14 @@ def contribute_validate_annotations_easy(request, short_name):
 def contribute_validate_annotations_all(request, short_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
     user_is_maintainer = dataset.user_is_maintainer(request.user)
+    request.session['nb_task1_pages'] = 0
+    new_annotations = request.GET.get('na', 0)  # new annotations (for Kaggle dataset)
     if user_is_maintainer:
-        return render(request, 'datasets/dataset_taxonomy_choose_category_all.html', {'dataset': dataset})
+        return render(request, 'datasets/dataset_taxonomy_choose_category_all.html',
+                      {'dataset': dataset, 'new_annotations': new_annotations})
     else:
         return contribute(request, short_name)
+
 
 def get_candidate_annotations_complete_ids_random_from(candidate_annotation_ids):
     """
@@ -233,6 +237,8 @@ def contribute_validate_annotations_category(request, short_name, node_id, html_
     node = dataset.taxonomy.get_element_at_id(node_id)
     skip_tempo = True if user_last_category == node and user.profile.contributed_recently or \
                          request.GET.get(settings.SKIP_TEMPO_PARAMETER, False) else False
+    maintainer_task = request.GET.get('mt', 0)
+    new_annotations = request.GET.get('na', 0)  # new annotations (for Kaggle dataset)
 
     annotation_ids = []
     # check if user annotate a new category or has not annotate for a long time
@@ -275,6 +281,10 @@ def contribute_validate_annotations_category(request, short_name, node_id, html_
         .exclude(votes__created_by=user).exclude(id__in=annotation_examples_verification_ids) \
         .exclude(id__in=annotation_examples_ids) \
         .filter(sound_dataset__sound__deleted_in_freesound=False).annotate(num_votes=Count('votes'))
+
+    # Exclude annotations that have votes (for kaggle dataset)
+    if new_annotations == '1':
+        annotations = annotations.exclude(num_votes__gt=0)
 
     # Extract the voted annotations ids
     annotation_with_vote_ids = annotations.filter(num_votes__gt=0).values_list('id', flat=True)
@@ -367,7 +377,9 @@ def contribute_validate_annotations_category(request, short_name, node_id, html_
                    'formset': formset, 'N': N, 'user_is_maintainer': user_is_maintainer,
                    'category_comment_form': category_comment_form, 'skip_tempo': skip_tempo,
                    'skip_tempo_parameter': settings.SKIP_TEMPO_PARAMETER,
-                   'nb_task1_pages': nb_task1_pages})
+                   'nb_task1_pages': nb_task1_pages,
+                   'maintainer_task': maintainer_task,
+                   'new_annotations': new_annotations})
 
 
 @login_required
@@ -537,15 +549,20 @@ def dataset_taxonomy_table_search(request, short_name):
         return HttpResponse('Unauthorized', status=401)
     dataset = get_object_or_404(Dataset, short_name=short_name)
     nodes = dataset.get_categories().filter(advanced_task=True).exclude(omitted=True)  # sould use get_categories_to_validate() but it is too slow
-    return render(request, 'datasets/dataset_taxonomy_table_search.html', {'dataset': dataset, 'nodes': nodes})
+    return render(request, 'datasets/dataset_taxonomy_table_search.html',
+                  {'dataset': dataset, 'nodes': nodes, 'maintainer_task': 0})
 
 
 def dataset_taxonomy_table_search_all(request, short_name):
     if not request.user.is_authenticated:
         return HttpResponse('Unauthorized', status=401)
+    new_annotations = request.GET.get('na', 0)  # new annotations (for Kaggle dataset)
     dataset = get_object_or_404(Dataset, short_name=short_name)
     nodes = dataset.get_categories().exclude(omitted=True)  # sould use get_categories_to_validate() but it is too slow
-    return render(request, 'datasets/dataset_taxonomy_table_search.html', {'dataset': dataset, 'nodes': nodes})
+    return render(request, 'datasets/dataset_taxonomy_table_search.html',
+                  {'dataset': dataset, 'nodes': nodes,
+                   'maintainer_task': 1,
+                   'new_annotations': new_annotations})
 
 
 def get_mini_node_info(request, short_name, node_id):

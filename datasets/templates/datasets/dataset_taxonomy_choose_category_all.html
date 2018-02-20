@@ -40,7 +40,8 @@
         }
 
         function loadDatasetTaxonomyTableSearch(){
-            $( "#search_table_placeholder" ).load( "{% url 'taxonomy-table-search-all' dataset.short_name %}", function() {
+            $( "#search_table_placeholder" ).load( "{% url 'taxonomy-table-search-all' dataset.short_name %}{% if new_annotations == '1' %}?na={{ new_annotations }}{% endif %}",
+              function() {
                 $('#dataset_contents').DataTable({
                     'paging': true,
                     'info': true,
