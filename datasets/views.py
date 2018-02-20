@@ -142,12 +142,15 @@ def taxonomy_node(request, short_name, node_id):
 def contribute(request, short_name, beginner_task_finished=False):
     dataset = get_object_or_404(Dataset, short_name=short_name)
 
+    user_is_maintainer = dataset.user_is_maintainer(request.user)
+
     # Get previously stored annotators ranking
     annotators_ranking = data_from_async_task(compute_annotators_ranking, [dataset.id], {},
                                               DATASET_ANNOTATORS_RANKING_TEMPLATE.format(dataset.id), 60 * 1)
 
     return render(request, 'datasets/contribute.html', {'dataset': dataset, 'annotators_ranking': annotators_ranking,
-                                                        'beginner_task_finished': beginner_task_finished})
+                                                        'beginner_task_finished': beginner_task_finished,
+                                                        'user_is_maintainer': user_is_maintainer})
 
 
 @login_required
@@ -181,6 +184,15 @@ def contribute_validate_annotations_easy(request, short_name):
     return contribute_validate_annotations_category(request, short_name, node_id,
                                                     html_url='datasets/contribute_validate_annotations_category_easy.html')
 
+
+@login_required
+def contribute_validate_annotations_all(request, short_name):
+    dataset = get_object_or_404(Dataset, short_name=short_name)
+    user_is_maintainer = dataset.user_is_maintainer(request.user)
+    if user_is_maintainer:
+        return render(request, 'datasets/dataset_taxonomy_choose_category_all.html', {'dataset': dataset})
+    else:
+        return contribute(request, short_name)
 
 def get_candidate_annotations_complete_ids_random_from(candidate_annotation_ids):
     """
@@ -464,6 +476,14 @@ def choose_category(request, short_name):
     return render(request, 'datasets/dataset_taxonomy_choose_category.html', {'dataset': dataset})
 
 
+@login_required
+def choose_category_all(request, short_name):
+    dataset = get_object_or_404(Dataset, short_name=short_name)
+    request.session['read_instructions'] = True
+    request.session['nb_task1_pages'] = 0
+    return render(request, 'datasets/dataset_taxonomy_choose_category_all.html', {'dataset': dataset})
+
+
 def dataset_taxonomy_table_choose(request, short_name):
     if not request.user.is_authenticated:
         return HttpResponse('Unauthorized', status=401)
@@ -517,6 +537,14 @@ def dataset_taxonomy_table_search(request, short_name):
         return HttpResponse('Unauthorized', status=401)
     dataset = get_object_or_404(Dataset, short_name=short_name)
     nodes = dataset.get_categories().filter(advanced_task=True).exclude(omitted=True)  # sould use get_categories_to_validate() but it is too slow
+    return render(request, 'datasets/dataset_taxonomy_table_search.html', {'dataset': dataset, 'nodes': nodes})
+
+
+def dataset_taxonomy_table_search_all(request, short_name):
+    if not request.user.is_authenticated:
+        return HttpResponse('Unauthorized', status=401)
+    dataset = get_object_or_404(Dataset, short_name=short_name)
+    nodes = dataset.get_categories().exclude(omitted=True)  # sould use get_categories_to_validate() but it is too slow
     return render(request, 'datasets/dataset_taxonomy_table_search.html', {'dataset': dataset, 'nodes': nodes})
 
 

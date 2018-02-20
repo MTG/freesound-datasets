@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load humanize %}
+{% block title %}Validate category annotations{% endblock title %}
+{% block page_js %}
+    <script type="text/javascript">
+        $(document).ready(function() {
+            loadDatasetTaxonomyTableSearch();
+        });
+        function addPopUpEvent(targets) {
+            var popupLoading = '<div style="height:180px; width:500px" class="ui loading segment">Loading</div>';
+            $('.my-pop').ready(function() {
+                if (typeof targets === 'undefined') {
+                    var my_pops = $('.my-pop[event-added=0]');
+                } else {
+                    var my_pops = targets;
+                }
+                my_pops.attr('event-added', 1);
+                my_pops.popup({
+                    on: 'hover',
+                    html: popupLoading,
+                    onShow: function(el){
+                        var ajax_done = el.getAttribute('ajax_done');
+                        if (ajax_done == 0) {
+                            var popup = this;
+                            var ajax_url = el.getAttribute('ajax_url');
+                            $.ajax({
+                                url: ajax_url
+                            }).done(function(result) {
+                                el.setAttribute("data-html", result);
+                                el.setAttribute("ajax_done", 1);
+                                popup.html(result);
+                            }).fail(function() {
+                                popup.html('error')
+                            });
+                        }
+                    }
+                });
+            });
+        }
+
+        function loadDatasetTaxonomyTableSearch(){
+            $( "#search_table_placeholder" ).load( "{% url 'taxonomy-table-search-all' dataset.short_name %}", function() {
+                $('#dataset_contents').DataTable({
+                    'paging': true,
+                    'info': true,
+                    'ordering': false
+                });
+                $('#dataset_contents_paginate').parent().attr('style', 'width: 100% !important');
+                $('#dataset_contents').on('draw.dt', function () {
+                    addPopUpEvent($(this).find('.my-pop'));
+                });
+                addPopUpEvent();
+            });
+        }
+    </script>
+{% endblock %}
+
+
+
+{% block content %}
+<center>
+    <div style="margin-top:-20px;" class="ui mini steps">
+      <div class="step">
+        <div class="content">
+          <div class="title">FSD</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="content">
+          <div class="title">Task1: validate category annotations</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="content">
+          <div class="title">Instructions</div>
+        </div>
+      </div>
+      <div class="active step">
+        <div class="content">
+          <div class="title">1) Choose category</div>
+        </div>
+      </div>
+      <div class="disabled step">
+        <div class="content">
+          <div class="title">2) Familiarize</div>
+        </div>
+      </div>
+      <div class="disabled step">
+        <div class="content">
+          <div class="title">3) Validate</div>
+        </div>
+      </div>
+    </div>
+</center>
+
+<center>
+    <h1 class="ui header" style="margin-top:35px;">1) Choose category</h1>
+</center>
+    <div class="ui segment" style="padding: 0 0 0 0;">
+        <div class="ui bottom attached segment" id="search_table_placeholder">
+            <div class="ui active centered inline text loader">Loading data...</div>
+        </div>
+    </div>
+
+
+{% endblock %}
