@@ -210,7 +210,7 @@ class TaxonomyNode(models.Model):
     description = models.CharField(max_length=500)
     citation_uri = models.CharField(max_length=100, null=True, blank=True)
     abstract = models.BooleanField(default=False)
-    omitted = models.BooleanField(default=False)
+    omitted = models.BooleanField(default=False, db_index=True)
     freesound_examples = models.ManyToManyField(Sound, related_name='taxonomy_node')
     freesound_examples_verification = models.ManyToManyField(Sound, related_name='taxonomy_node_verification')
     positive_verification_examples_activated = models.BooleanField(default=True)
