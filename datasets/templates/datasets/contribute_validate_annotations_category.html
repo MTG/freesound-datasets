@@ -126,7 +126,7 @@
         {% endif %}
         </div>
         <div class="eight wide column right aligned">
-            {% if maintainer_task %}
+            {% if maintainer_task == '1' %}
                 <a href="{% url 'contribute-validate-annotations-all' dataset.short_name %}{% if new_annotations == '1' %}?na={{ new_annotations }}{% endif %}"
                    class="primary basic ui button right labeled icon">Choose another category <i class="refresh icon"></i></a>
             {% else %}
@@ -191,7 +191,7 @@
                 <div class="six wide column right aligned">
                     {% if annotations_forms %}
                         <a href="javascript:void(0);" onclick="$('#help_modal').modal('show');" class="ui orange button right labeled icon">Help <i class="help icon"></i></a>
-                        {% if maintainer_task %}
+                        {% if maintainer_task == '1' %}
                             <a href="{% url 'contribute-validate-annotations-category' dataset.short_name node.url_id %}?{{skip_tempo_parameter}}=True&mt=1{% if new_annotations == '1' %}&na={{ new_annotations }}{% endif %}"
                                class="ui button right labeled blue icon">Try other sounds <i class="refresh icon"></i></a>
                         {% else %}
