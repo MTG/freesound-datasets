@@ -282,9 +282,13 @@ def contribute_validate_annotations_category(request, short_name, node_id, html_
         .exclude(id__in=annotation_examples_ids) \
         .filter(sound_dataset__sound__deleted_in_freesound=False).annotate(num_votes=Count('votes'))
 
-    # Exclude annotations that have votes (for kaggle dataset)
+    # Exclude annotations that have votes (for kaggle dataset) and that have nc and sampling+ licenses
     if new_annotations == '1':
-        annotations = annotations.exclude(num_votes__gt=0)
+        annotations = annotations\
+            .exclude(num_votes__gt=0)\
+            .exclude(sound_dataset__sound__extra_data__license__in=('http://creativecommons.org/licenses/by-nc/3.0/',
+                                                                    'http://creativecommons.org/licenses/sampling+/1.0/'
+                                                                    ))
 
     # Extract the voted annotations ids
     annotation_with_vote_ids = annotations.filter(num_votes__gt=0).values_list('id', flat=True)
