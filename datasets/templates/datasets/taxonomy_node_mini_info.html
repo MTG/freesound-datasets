@@ -37,6 +37,14 @@
                 </td>
             </tr>
         {% endif %}
+        {% if show_num_gt > 0 %}
+            <tr><td># ground truth</td>
+                <td>
+                    {{ node.nb_ground_truth }} &emsp;&emsp;&emsp; (propagated from children: {{ node.nb_propagated_ground_truth }})
+                </td>
+            </tr>
+        {% endif %}
+
     </tbody>
 </table>
 {% if show_go_button > 0 %}
