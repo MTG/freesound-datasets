@@ -27,6 +27,7 @@ class Command(BaseCommand):
         vote_value_to_letter = {1: 'PP', 0.5: 'PNP', -1: 'NP', 0: 'U'}
 
         votes_with_info = Vote.objects.filter(candidate_annotation__sound_dataset__dataset=dataset)\
+            .exclude(test='FA')\
             .values('vote', 'candidate_annotation__taxonomy_node__node_id',
                     'candidate_annotation__sound_dataset__sound__freesound_id')
         candidate_annotations = CandidateAnnotation.objects.filter(sound_dataset__dataset=dataset)\
