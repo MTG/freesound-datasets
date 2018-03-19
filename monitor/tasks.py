@@ -74,12 +74,12 @@ def compute_dataset_bad_mapping(store_key, dataset_id):
             bad_mapping_categories_last_month.append((node.url_id, node.name, bad_mapping_score_last_month, node.omitted))
 
             bad_mapping_categories = sorted(bad_mapping_categories, key=lambda x: x[2], reverse=True)  # Sort by mapping score
-            bad_mapping_categories = [category_name_score for category_name_score in bad_mapping_categories  # keep bad ones
-                                      if category_name_score[2] >= 0.5]
+            bad_mapping_categories = [category_name_score for category_name_score in bad_mapping_categories]
 
-            bad_mapping_categories_last_month = sorted(bad_mapping_categories_last_month, key=lambda x: x[2], reverse=True)
-            bad_mapping_categories_last_month = [category_name_score for category_name_score in bad_mapping_categories_last_month
-                                                 if category_name_score[2] >= 0.5]
+            bad_mapping_categories_last_month = sorted(bad_mapping_categories_last_month,
+                                                       key=lambda x: x[2], reverse=True)
+            bad_mapping_categories_last_month = [category_name_score for category_name_score
+                                                 in bad_mapping_categories_last_month]
 
         store.set(store_key, {'bad_mapping_categories': bad_mapping_categories,
                               'bad_mapping_categories_last_month': bad_mapping_categories_last_month})
@@ -105,12 +105,12 @@ def compute_dataset_difficult_agreement(store_key, dataset_id):
             ground_truth_annotations_last_month = node.ground_truth_annotations.filter(from_propagation=False,
                                                                                        created_at__gt=reference_date)
             try:
-                mean_votes_agreement = mean([annotation.from_candidate_annotation.votes.count()
+                mean_votes_agreement = mean([annotation.from_candidate_annotation.votes.exclude(test='FA').count()
                                              for annotation in ground_truth_annotations])
             except StatisticsError:
                 mean_votes_agreement = 0
             try:
-                mean_votes_agreement_last_month = mean([annotation.from_candidate_annotation.votes.count()
+                mean_votes_agreement_last_month = mean([annotation.from_candidate_annotation.votes.exclude(test='FA').count()
                                                         for annotation in ground_truth_annotations_last_month])
             except StatisticsError:
                 mean_votes_agreement_last_month = 0

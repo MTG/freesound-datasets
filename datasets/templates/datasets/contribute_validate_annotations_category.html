@@ -21,7 +21,11 @@
                         document.getElementById("submitButton").disabled = false;
                     } else {
                         if ('{{nb_task1_pages}}' != '6' ){
-                            window.location.href = "{% url 'contribute-validate-annotations-category' dataset.short_name node.url_id %}?{{skip_tempo_parameter}}=True";
+                          {% if maintainer_task == '1' %}
+                              window.location.href = "{% url 'contribute-validate-annotations-category' dataset.short_name node.url_id %}?{{skip_tempo_parameter}}=True&mt=1{% if new_annotations == '1' %}&na={{ new_annotations }}{% endif %}";
+                          {% else %}
+                              window.location.href = "{% url 'contribute-validate-annotations-category' dataset.short_name node.url_id %}?{{skip_tempo_parameter}}=True";
+                          {% endif %}
                         } else {
                             $('#on_success_modal').modal({closable: false}).modal('show');
                         }
@@ -122,7 +126,13 @@
         {% endif %}
         </div>
         <div class="eight wide column right aligned">
-                <a href="{% url 'choose_category' dataset.short_name %}" class="primary basic ui button right labeled icon">Choose another category <i class="refresh icon"></i></a>
+            {% if maintainer_task == '1' %}
+                <a href="{% url 'contribute-validate-annotations-all' dataset.short_name %}{% if new_annotations == '1' %}?na={{ new_annotations }}{% endif %}"
+                   class="primary basic ui button right labeled icon">Choose another category <i class="refresh icon"></i></a>
+            {% else %}
+                <a href="{% url 'choose_category' dataset.short_name %}"
+                   class="primary basic ui button right labeled icon">Choose another category <i class="refresh icon"></i></a>
+            {% endif %}
         </div>
     </div>
     {% display_taxonomy_node_small_info dataset node.node_id 'cva' %}
@@ -135,7 +145,23 @@
 
                  <center><p>Read the description and listen to the examples to familiarise yourself with <span class="ui label">{{node.name}}</span></p>
 
-                     <p><b>Tip &ndash;</b> Understanding the siblings {% if node.children %} and direct children {% endif %} will help you distinguish <span class="ui label">{{node.name}}</span> from other similar categories.
+                     <p><b>Tip &ndash;</b> Understanding the
+                         {% if node.siblings.count > 0 and node.children.count > 0 and node.parents.count > 0 %}
+                            parents, siblings and direct children
+                         {% elif node.siblings.count > 0 and node.children.count > 0 %}
+                            siblings and direct children
+                         {% elif node.siblings.count > 0 and node.parents.count > 0 %}
+                            parents and siblings
+                         {% elif node.children.count > 0 and node.parents.count > 0 %}
+                             parents and direct children
+                         {% elif node.siblings.count > 0 %}
+                             siblings
+                         {% elif node.children.count > 0 %}
+                             direct children
+                         {% elif node.parents.count > 0 %}
+                             parents
+                         {% endif %}
+                         will help you distinguish <span class="ui label">{{node.name}}</span> from other similar categories.
               </p><p style="margin-top:-15px;">Click on any <span class="ui label">category</span> to check its description and examples!</p></center>
 
               <!--<p>If you don't feel comfortable with the chosen category, please: &nbsp;
@@ -165,7 +191,13 @@
                 <div class="six wide column right aligned">
                     {% if annotations_forms %}
                         <a href="javascript:void(0);" onclick="$('#help_modal').modal('show');" class="ui orange button right labeled icon">Help <i class="help icon"></i></a>
-                        <a href="{% url 'contribute-validate-annotations-category' dataset.short_name node.url_id %}?{{skip_tempo_parameter}}=True" class="ui button right labeled blue icon">Try other sounds <i class="refresh icon"></i></a>
+                        {% if maintainer_task == '1' %}
+                            <a href="{% url 'contribute-validate-annotations-category' dataset.short_name node.url_id %}?{{skip_tempo_parameter}}=True&mt=1{% if new_annotations == '1' %}&na={{ new_annotations }}{% endif %}"
+                               class="ui button right labeled blue icon">Try other sounds <i class="refresh icon"></i></a>
+                        {% else %}
+                            <a href="{% url 'contribute-validate-annotations-category' dataset.short_name node.url_id %}?{{skip_tempo_parameter}}=True"
+                               class="ui button right labeled blue icon">Try other sounds <i class="refresh icon"></i></a>
+                        {% endif %}
                     {% endif %}
                 </div>
             </div>
@@ -243,9 +275,16 @@
         </div>
         <div class="actions">
             {% if nb_task1_pages < 6 %}
-                <a href="{% url 'contribute-validate-annotations-category' dataset.short_name node.url_id %}?{{skip_tempo_parameter}}=True" class="green ui inverted right labeled button icon"><i class="plus icon"></i> Give me more sounds from this category</a>
+                <a href="{% url 'contribute-validate-annotations-category' dataset.short_name node.url_id %}?{{skip_tempo_parameter}}=True{% if new_annotations == '1' %}&na={{ new_annotations }}{% endif %}"
+                   class="green ui inverted right labeled button icon"><i class="plus icon"></i> Give me more sounds from this category</a>
             {% else %}
-                <a href="{% url 'choose_category' dataset.short_name %}" class="green ui inverted button right labeled icon"><i class="refresh icon"></i> Choose another category</a>
+                {% if maintainer_task %}
+                      <a href="{% url 'contribute-validate-annotations-all' dataset.short_name %}{% if new_annotations == '1' %}?na={{ new_annotations }}{% endif %}"
+                         class="green ui inverted button right labeled icon"><i class="refresh icon"></i> Choose another category</a>
+                  {% else %}
+                      <a href="{% url 'choose_category' dataset.short_name %}"
+                         class="green ui inverted button right labeled icon"><i class="refresh icon"></i> Choose another category</a>
+                  {% endif %}
             {% endif %}
             <a href="{% url 'dataset' dataset.short_name %}" class="blue ui inverted button right labeled icon"><i class="home icon"></i> Go back to the dataset page</a>
         </div>
@@ -287,7 +326,7 @@
                             <tbody>
                             <tr>
                                 <td>Present and predominant</td>
-                                <td>Clearly present in the audio clip and predominant, either isolated from other types of sound or with low/mild background noise.</td>
+                                <td>Clearly present in the audio clip and predominant. This means there are no other types of sound, with the exception of low/mild background noise.</td>
                             </tr>
                             <tr>
                                 <td>Present but not predominant</td>

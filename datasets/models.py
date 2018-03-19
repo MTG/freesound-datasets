@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 
 import collections
 from django.db import models
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.contrib.postgres.fields import JSONField
 from django.contrib.auth.models import User
 from django.conf import settings
@@ -71,21 +71,15 @@ class Taxonomy(models.Model):
         """
             Returns a list of all the children of the given node id
         """
-        def get_children(node_id, cur=list()):
-            children = self.get_children(node_id)
-            if not children:
-                yield cur
-            else:
-                for node in children:
-                    for child in get_children(node.node_id, [node] + cur):
-                        yield child
-        children_list = list(self.get_children(node_id))
-        for children in get_children(node_id):
-            for child in children:
-                if child.node_id not in [n.node_id for n in children_list]:
-                    children_list.append(child)
-
-        return children_list
+        node = self.taxonomynode_set.get(node_id=node_id)
+        return self.taxonomynode_set.filter(Q(parents=node) |
+                                            Q(parents__parents=node) |
+                                            Q(parents__parents__parents=node) |
+                                            Q(parents__parents__parents__parents=node) |
+                                            Q(parents__parents__parents__parents__parents=node) |
+                                            Q(parents__parents__parents__parents__parents__parents=node) |
+                                            Q(parents__parents__parents__parents__parents__parents__parents=node)
+                                            ).distinct()
 
     def get_all_propagate_from_children(self, node_id):
         """
@@ -111,24 +105,15 @@ class Taxonomy(models.Model):
         """
             Returns a list of all the children of the given node id
         """
-        def get_parents(node_id, cur=list()):
-            parents = self.get_parents(node_id)
-            if not parents:
-                yield cur
-            else:
-                for node in parents:
-                    for parent in get_parents(node.node_id, [node] + cur):
-                        yield parent
-
-        parents_list = list(self.get_parents(node_id))
-        # this double for loop is for checking if a parent is already in the list
-        # in this case, we do not append it to the list
-        for parents in get_parents(node_id):
-            for parent in parents:
-                if parent.node_id not in [n.node_id for n in parents_list]:
-                    parents_list.append(parent)
-
-        return parents_list
+        node = self.taxonomynode_set.get(node_id=node_id)
+        return self.taxonomynode_set.filter(Q(children=node) |
+                                            Q(children__children=node) |
+                                            Q(children__children__children=node) |
+                                            Q(children__children__children__children=node) |
+                                            Q(children__children__children__children__children=node) |
+                                            Q(children__children__children__children__children__children=node) |
+                                            Q(children__children__children__children__children__children__children=node)
+                                            ).distinct()
 
     def get_all_propagate_to_parents(self, node_id):
         """
@@ -225,7 +210,7 @@ class TaxonomyNode(models.Model):
     description = models.CharField(max_length=500)
     citation_uri = models.CharField(max_length=100, null=True, blank=True)
     abstract = models.BooleanField(default=False)
-    omitted = models.BooleanField(default=False)
+    omitted = models.BooleanField(default=False, db_index=True)
     freesound_examples = models.ManyToManyField(Sound, related_name='taxonomy_node')
     freesound_examples_verification = models.ManyToManyField(Sound, related_name='taxonomy_node_verification')
     positive_verification_examples_activated = models.BooleanField(default=True)
@@ -240,6 +225,7 @@ class TaxonomyNode(models.Model):
     list_freesound_examples = models.CharField(max_length=100, null=True, blank=True, validators=[validator_list_examples])
     list_freesound_examples_verification = models.CharField(max_length=100, null=True, blank=True, validators=[validator_list_examples])
     beginner_task = models.BooleanField(default=False)
+    advanced_task = models.BooleanField(default=False, db_index=True)
 
     app_label = 'datasets'
     model_name = 'taxonomynode'
@@ -285,7 +271,8 @@ class TaxonomyNode(models.Model):
                 "parent_ids": [parent.node_id for parent in parents],
                 "child_ids": [child.node_id for child in self.get_children()],
                 "sibling_ids": [sibling.node_id for sibling in self.get_siblings(parents)],
-                "nb_ground_truth": self.nb_ground_truth,
+                "nb_ground_truth": self.num_ground_truth_annotations,
+                "nb_propagated_ground_truth": self.num_propagated_ground_truth_annotations,
                 "nb_user_contributions": self.num_user_contributions,
                 "nb_verified_annotations": self.num_verified_annotations,
                 "faq": self.faq,
@@ -312,7 +299,13 @@ class TaxonomyNode(models.Model):
     def self_and_children_omitted(self):
         """ Returns True if the node and all its children are omitted """
         all_children = self.taxonomy.get_all_children(self.node_id)
-        return all(omitted for omitted in [child.omitted for child in all_children] + [self.omitted])
+        return not all_children.filter(omitted=False).exists() and self.omitted
+
+    @property
+    def self_and_children_advanced_task(self):
+        """ Returns False if the node and all its children have advanced_task False """
+        all_children = self.taxonomy.get_all_children(self.node_id)
+        return all_children.filter(advanced_task=True).exists() or self.advanced_task
 
     @property
     def num_user_contributions(self):
@@ -324,7 +317,11 @@ class TaxonomyNode(models.Model):
 
     @property
     def num_ground_truth_annotations(self):
-        return GroundTruthAnnotation.objects.filter(taxonomy_node=self).count()
+        return self.ground_truth_annotations.count()
+
+    @property
+    def num_propagated_ground_truth_annotations(self):
+        return self.ground_truth_annotations.filter(from_propagation=True).count()
 
     def get_parents(self):
         return self.parents.all()
@@ -336,6 +333,10 @@ class TaxonomyNode(models.Model):
         if not parents:
             parents = self.get_parents()
         return TaxonomyNode.objects.filter(parents__in=parents).exclude(node_id=self.node_id).distinct()
+
+    @property
+    def siblings(self):
+        return self.get_siblings()
 
     @property
     def valid_examples(self):
@@ -441,6 +442,9 @@ class Dataset(models.Model):
         """
         return self.candidate_annotations.filter(taxonomy_node__node_id=node_id).filter(ground_truth=None)
 
+    def get_categories(self):
+        return self.taxonomy.taxonomynode_set
+
     def get_categories_to_validate(self, user):
         """
         Returns a query set with the TaxonomyNode that can be validated by a user
@@ -482,12 +486,20 @@ class Dataset(models.Model):
 
     def num_votes_with_value(self, node_id, vote_value):
         return Vote.objects.filter(
-            candidate_annotation__sound_dataset__dataset=self, candidate_annotation__taxonomy_node__node_id=node_id, vote=vote_value).count()
+            candidate_annotation__sound_dataset__dataset=self,
+            candidate_annotation__taxonomy_node__node_id=node_id,
+            vote=vote_value)\
+            .exclude(test='FA')\
+            .count()
 
     def num_votes_with_value_after_date(self, node_id, vote_value, reference_date):
         return Vote.objects.filter(
-            candidate_annotation__sound_dataset__dataset=self, candidate_annotation__taxonomy_node__node_id=node_id,
-            vote=vote_value, created_at__gt=reference_date).count()
+            candidate_annotation__sound_dataset__dataset=self,
+            candidate_annotation__taxonomy_node__node_id=node_id,
+            vote=vote_value,
+            created_at__gt=reference_date)\
+            .exclude(test='FA')\
+            .count()
 
     def get_comments_per_taxonomy_node(self, node_id):
         return CategoryComment.objects.filter(dataset=self, category_id=node_id)
@@ -699,7 +711,7 @@ class Vote(models.Model):
         # here calculate ground truth for vote.annotation
         candidate_annotation = self.candidate_annotation
         ground_truth_state = candidate_annotation.ground_truth_state
-        if ground_truth_state:
+        if ground_truth_state in (0.5, 1.0):
             candidate_annotation.ground_truth = ground_truth_state
             candidate_annotation.save()
             ground_truth_annotation, created = GroundTruthAnnotation.objects.get_or_create(
@@ -721,9 +733,7 @@ class CategoryComment(models.Model):
     dataset = models.ForeignKey(Dataset)
     comment = models.TextField(blank=True)
     category_id = models.CharField(max_length=200)
-    # NOTE: currently categories are not stored as db objects, therefore we store a reference to the category (node) id
-    # as used in other parts of the application. At some point categories should be stored as db objects and this
-    # should refer to the db object id.
+    # NOTE: this should refer to the db object id.
 
 
 class Profile(models.Model):

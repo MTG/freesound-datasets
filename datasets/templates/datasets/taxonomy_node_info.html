@@ -42,7 +42,7 @@
                                     {% taxonomy_node dataset node_id as sub_node_data  %}
                                     <div class="item" style="margin-left:0px;margin-right:5px;">
                                         >
-                                        <a class="my-pop ui label" data-html='' ajax_done=0 ajax_url="{% url 'get-mini-node-info' dataset.short_name sub_node_data.url_id %}">{{ sub_node_data.name }}</a>
+                                        <a class="my-pop ui label" data-html='' ajax_done=0 ajax_url="{% url 'get-mini-node-info' dataset.short_name sub_node_data.url_id %}?sgt=1">{{ sub_node_data.name }}</a>
                                     </div>
                                 {% endfor %}
                             </div>
@@ -57,6 +57,10 @@
             <td class="three wide">Description</td>
             <td>{{ node.description }}</td>
         </tr>
+        <tr>
+            <td>URI</td>
+            <td>{% if node.citation_uri %}<a href="{{ node.citation_uri }}" target="_blank">{{ node.citation_uri }}</a>{% else %}-{% endif %}</td>
+        </tr>
         {% if node.sibling_ids %}
             <tr>
                 <td>Siblings</td>
@@ -64,7 +68,7 @@
                     {% for node_id in node.sibling_ids %}
                         {% taxonomy_node dataset node_id as sub_node_data %}
                         <div class="item" style="margin-left:0px;margin-right:5px;">
-                            <a class="my-pop ui label" data-html='' ajax_done=0 ajax_url = "{% url 'get-mini-node-info' dataset.short_name sub_node_data.url_id %}">{{ sub_node_data.name }}</a>
+                            <a class="my-pop ui label" data-html='' ajax_done=0 ajax_url = "{% url 'get-mini-node-info' dataset.short_name sub_node_data.url_id %}?sgt=1">{{ sub_node_data.name }}</a>
                         </div>
                     {% endfor %}
                 </div></td>
@@ -77,13 +81,12 @@
                     {% for node_id in node.child_ids %}
                         {% taxonomy_node dataset node_id as sub_node_data %}
                         <div class="item" style="margin-left:0px;margin-right:5px;">
-                            <a class="my-pop ui label" data-html='' ajax_done=0 ajax_url = "{% url 'get-mini-node-info' dataset.short_name sub_node_data.url_id %}">{{ sub_node_data.name }}</a>
+                            <a class="my-pop ui label" data-html='' ajax_done=0 ajax_url = "{% url 'get-mini-node-info' dataset.short_name sub_node_data.url_id %}?sgt=1">{{ sub_node_data.name }}</a>
                         </div>
                     {% endfor %}
                 </div></td>
             </tr>
         {% endif %}
-        <tr><td>URI</td><td>{% if node.citation_uri %}<a href="{{ node.citation_uri }}" target="_blank">{{ node.citation_uri }}</a>{% else %}-{% endif %}</td></tr>
         {% if node.freesound_examples %}
             <tr><td>Examples</td>
                 <td>
@@ -96,7 +99,7 @@
         <tr><td><div data-tooltip="Audio samples with candidate annotations for the '{{ node.name }}' category">
                 # audio samples</div></td><td>{{ node.num_sounds }}</td></tr>
         <tr><td><div data-tooltip="Candidate annotations validated by more than one user, with majority agreement on the presence of '{{ node.name }}'">
-            # ground truth</div></td><td>{{ node.nb_ground_truth }}</td></tr>
+            # ground truth</div></td><td>{{ node.nb_ground_truth }} &emsp;&emsp;&emsp; (propagated from children: {{ node.nb_propagated_ground_truth }})</td></tr>
         {% if user_is_maintainer %}
             {% if node.comments %}
                 <tr>
@@ -128,7 +131,7 @@
         {% if node.is_omitted %}
             <tr class="negative">
                 <td colspan="2">This AudioSet category is not considered for the first release of FSD. See our
-                    <a target="_blank" href="https://ismir2017.smcnus.org/wp-content/uploads/2017/10/161_Paper.pdf">
+                    <a target="_blank" href="https://repositori.upf.edu/handle/10230/33299">
                         ISMIR2017 paper</a> for more details.</td>
             </tr>
         {% endif %}

@@ -44,8 +44,37 @@
             </tr>
         </tbody>
     </table>
-    <br>
 
+    {% if user_is_maintainer %}
+        <div class="ui raised segment">
+            <div class="ui two column middle aligned very relaxed stackable grid">
+                <div class="eleven wide column"><p class="medium text"><b>Validate category annotations (maintainer):</b>
+                    This task includes all the non omitted categories.</p>
+                </div>
+                <div class="five wide right aligned column">
+                  <div style="margin-bottom: 6px">
+                      <a href="{% url 'contribute-validate-annotations-all' dataset.short_name %}" class="ui large right labeled icon blue button">
+                          <i class="right arrow box icon"></i>Maintainer task</a>
+                  </div>
+                </div>
+            </div>
+        </div>
+        <div class="ui raised segment">
+              <div class="ui two column middle aligned very relaxed stackable grid">
+                  <div class="eleven wide column"><p class="medium text"><b>Validate category annotations (new annotations):</b>
+                      This task includes all the non omitted categories and will propose only sounds that have not been voted (Kaggle dataset).</p>
+                  </div>
+                  <div class="five wide right aligned column">
+                    <div style="margin-bottom: 6px">
+                        <a href="{% url 'contribute-validate-annotations-all' dataset.short_name %}?na=1" class="ui large right labeled icon blue button">
+                            <i class="right arrow box icon"></i>Kaggle task</a>
+                    </div>
+                  </div>
+              </div>
+          </div>
+    {% endif %}
+
+    <br>
     <div class="ui grid">
         <div class="two column row">
             <div class="column">

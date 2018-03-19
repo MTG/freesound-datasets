@@ -103,7 +103,7 @@
                     examples_container.css({"transform": "translateX(" + translate_value + "px)"});
                     counter = (counter < 9) ? counter + 1 : 0;
                 }
-            }, 5000)
+            }, 3000)
 
         }
     </script>
@@ -151,7 +151,7 @@ that express the potential presence of sound sources in audio clips.
               <span class="ui segment" id="node_{{ forloop.counter }}" style="display: inline-block; width:294px;">
               <a href="{% url 'dataset-explore-taxonomy-node' dataset.short_name node.url_id %}"><p><b>{{ node.name }}</b></p></a>
               <div>
-                {% for sound in node.valid_examples %}
+                {% for sound in node.valid_examples|slice:"2" %}
                   <span>
                     {{ sound| fs_embed | safe }}
                   </span>
@@ -169,7 +169,7 @@ that express the potential presence of sound sources in audio clips.
               <!--To do so, we are now crowdsourcing annotations to build the first {{ dataset.short_name|upper }} release. Wanna contribute? :)-->
           <!--</p>-->
           <p style="text-align:justify">By creating this dataset, we seek promoting research that will enable machines to hear
-              and interpret similarly to humans.
+              and interpret sound similarly to humans.
           But to make {{ dataset.short_name|upper}} reliable enough for research, we need to verify the generated annotations.
               So we are now crowdsourcing annotations to build the first {{ dataset.short_name|upper }} release,
               which will include waveforms, audio features, ground truth and additional metadata. Wanna contribute?
@@ -261,7 +261,7 @@ that express the potential presence of sound sources in audio clips.
 </div>
 
 <div class="ui main center aligned container stackable" style="margin-top: 40px; margin-bottom: -30px;">
-<p><i>If you use this dataset in your work please cite our paper or check it out for more information:</i><br><b><a target="_blank" href="https://ismir2017.smcnus.org/wp-content/uploads/2017/10/161_Paper.pdf">Freesound Datasets: A Platform for the Creation of Open Audio Datasets</a></b><br>E. Fonseca, J. Pons, X. Favory, F. Font, D. Bogdanov, A. Ferraro, S. Oramas, A. Porter & X. Serra<br>In Proceedings of the 18th International Society for Music Information Retrieval Conference, Suzhou, China, 2017<b>
+<p><i>If you use this dataset in your work please cite our paper or check it out for more information:</i><br><b><a target="_blank" href="https://repositori.upf.edu/handle/10230/33299">Freesound Datasets: A Platform for the Creation of Open Audio Datasets</a></b><br>E. Fonseca, J. Pons, X. Favory, F. Font, D. Bogdanov, A. Ferraro, S. Oramas, A. Porter & X. Serra<br>In Proceedings of the 18th International Society for Music Information Retrieval Conference, Suzhou, China, 2017<b>
 <a href="{% static 'bibtex/fonseca2017freesound.bib'%}">[BiB]</a></b></p>
 </div>
 </center>
