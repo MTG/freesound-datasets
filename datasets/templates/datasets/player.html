@@ -9,25 +9,23 @@
                 format: 'rgb',
                 alpha: 1
             });
-            var height = 64;
 
+            var height = 64;
             var wavesurfer = Object.create(WaveSurfer);
             wavesurfer.init({
-
                 container: "#s{{ freesound_id }} .audio_visual",
                 waveColor: '#FF00FF',
                 progressColor: '#000000',
-                height: height,
+                height: height
             });
 
             wavesurfer.on('ready', function () {
 
                 $("#s{{ freesound_id }} .audio_visual wave").css({
-                    width: "101%",
+                    width: "100%",
                     overflow: "hidden"
                 });
 
-                $("#s{{ freesound_id }} .audio_visual wave").hide();
                 var spectrogram = Object.create(WaveSurfer.Spectrogram);
                 spectrogram.init({
                     wavesurfer: wavesurfer,
@@ -52,17 +50,19 @@
                 });
             });
 
-{#            // Create hiddenImage, an image that is slowly revealed to a user as they annotate#}
-{#            // (only for this.currentTask.feedback === 'hiddenImage')#}
-{#            var hiddenImage = new HiddenImg('.hidden_img', 100);#}
-{#            hiddenImage.create();#}
-
+            // Create hiddenImage, an image that is slowly revealed to a user as they annotate#}
+            // (only for this.currentTask.feedback === 'hiddenImage')
+            /*
+            var hiddenImage = new HiddenImg('.hidden_img', 100);
+            hiddenImage.create();
+            */
             wavesurfer.load('{{ sound_url }}');
         });
     </script>
 {% endblock %}
 
 <div class="soundplayer" id="s{{ freesound_id }}">
+    <a href="{{ spectrogram_url }}">View spectrogram</a>
     <div class="audio_visual">
         <div class="spectrogram"></div>
     </div>
@@ -81,7 +81,3 @@
         </button>
     </div>
 </div>
-
-
-
-

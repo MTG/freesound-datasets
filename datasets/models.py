@@ -198,6 +198,15 @@ class Sound(models.Model):
     def get_candidate_annotations(self, dataset):
         return CandidateAnnotation.objects.filter(sound_dataset__in=self.sounddataset_set.filter(dataset=dataset))
 
+    def get_spectrogram_url(self):
+        url_parts = self.extra_data['previews'].split('previews')
+        prefix = url_parts[0]
+        other_id = url_parts[1].split('/')[1]
+        user_id = url_parts[1].split('_')[-1].split('-')[0]
+        f_id = str(self.freesound_id)
+        output_ = "{}".format
+        return prefix + 'displays/' + other_id + '/' + f_id + '_' + user_id + '_spec_M.jpg'
+
     def __str__(self):
         return 'Sound {0} (freesound {1})'.format(self.id, self.freesound_id)
 

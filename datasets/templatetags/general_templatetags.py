@@ -54,4 +54,8 @@ def multiply(value, arg):
 def sound_player(dataset, freesound_sound_id):
     sound = dataset.sounds.get(freesound_id=freesound_sound_id)
     sound_url = sound.extra_data['previews']
-    return {'dataset': dataset, 'sound_url': sound_url, 'freesound_id': freesound_sound_id}
+    try:
+        spectrogram_url = sound.get_spectrogram_url()
+    except:
+        spectrogram_url = '#'
+    return {'dataset': dataset, 'sound_url': sound_url, 'freesound_id': freesound_sound_id, 'spectrogram_url': spectrogram_url}
