@@ -198,14 +198,55 @@ class Sound(models.Model):
     def get_candidate_annotations(self, dataset):
         return CandidateAnnotation.objects.filter(sound_dataset__in=self.sounddataset_set.filter(dataset=dataset))
 
-    def get_spectrogram_url(self):
+    def get_image_url(self, img_type, size):
+        img_types = ['spectrogram', 'waveform']
+        sizes = ['M', 'L']
+        if img_type not in img_types:
+            return '#'
+        if size not in sizes:
+            return '#'
         url_parts = self.extra_data['previews'].split('previews')
         prefix = url_parts[0]
-        other_id = url_parts[1].split('/')[1]
+        freesound_id_pref = url_parts[1].split('/')[1]
         user_id = url_parts[1].split('_')[-1].split('-')[0]
-        f_id = str(self.freesound_id)
-        output_ = "{}".format
-        return prefix + 'displays/' + other_id + '/' + f_id + '_' + user_id + '_spec_M.jpg'
+        params = {
+            'prefix': prefix,
+            'freesound_id_pref': freesound_id_pref,
+            'freesound_id': self.freesound_id,
+            'user_id': user_id,
+            'size': size
+        }
+        if img_type == 'spectrogram':
+            img_url = self.build_spectrogram_url(params)
+        elif img_type == 'waveform':
+            img_url = self.build_waveform_url(params)
+        return img_url
+
+    def build_spectrogram_url(self, params):
+        prefix = params['prefix']
+        freesound_id_pref = params['freesound_id_pref']
+        freesound_id = params['freesound_id']
+        user_id = params['user_id']
+        size = params['size']
+        spec_url = "{0}displays/{1}/{2}_{3}_spec_{4}.jpg".format(prefix,
+                                                                freesound_id_pref,
+                                                                freesound_id,
+                                                                user_id,
+                                                                size)
+        return spec_url
+
+    def build_waveform_url(self, params):
+        prefix = params['prefix']
+        freesound_id_pref = params['freesound_id_pref']
+        freesound_id = params['freesound_id']
+        user_id = params['user_id']
+        size = params['size']
+        wave_url = "{0}displays/{1}/{2}_{3}_wave_{4}.png".format(prefix,
+                                                                freesound_id_pref,
+                                                                freesound_id,
+                                                                user_id,
+                                                                size)
+        return wave_url
 
     def __str__(self):
         return 'Sound {0} (freesound {1})'.format(self.id, self.freesound_id)

@@ -3,29 +3,28 @@
         $('#waveform_{{ freesound_id }}').ready(function () {
 
             // Create color map for spectrogram
+            /*
             var spectrogramColorMap = colormap({
                 colormap: magma,
                 nshades: 256,
                 format: 'rgb',
                 alpha: 1
             });
+            */
 
             var height = 64;
             var wavesurfer = Object.create(WaveSurfer);
             wavesurfer.init({
-                container: "#s{{ freesound_id }} .audio_visual",
-                waveColor: '#FF00FF',
-                progressColor: '#000000',
+                container: "#s{{ freesound_id }} .wavesurfer",
+                //waveColor: '#000000',
+                //progressColor: '#FF0000',
                 height: height
             });
 
-            wavesurfer.on('ready', function () {
+            //$("#s{{ freesound_id }} .audio_visual wave").hide();
+            $("#s{{ freesound_id }} .audio_visual .waveform").hide();
 
-                $("#s{{ freesound_id }} .audio_visual wave").css({
-                    width: "100%",
-                    overflow: "hidden"
-                });
-
+                /*
                 var spectrogram = Object.create(WaveSurfer.Spectrogram);
                 spectrogram.init({
                     wavesurfer: wavesurfer,
@@ -34,6 +33,17 @@
                     fftSamples: height * 2,
                     height: height,
                     colorMap: spectrogramColorMap
+                });
+                */
+
+            wavesurfer.on('ready', function () {
+
+                $("#s{{ freesound_id }} .wavesurfer wave").css({
+                    "background-image": "url({{ waveform_url }})",
+                    "background-repeat": "no-repeat",
+                    "background-size": "100% 100%",
+                    "width": "100%",
+                    "overflow": "hidden"
                 });
 
                 $("#s{{ freesound_id }} .controls .play_pause").click(function() {
@@ -45,12 +55,13 @@
                 });
 
                 $("#s{{ freesound_id }} .controls .switch").click(function() {
-                    $("#s{{ freesound_id }} .audio_visual wave").toggle();
-                    $("#s{{ freesound_id }} .audio_visual spectrogram").toggle();
+                    //$("#s{{ freesound_id }} .audio_visual wave").toggle();
+                    $("#s{{ freesound_id }} .audio_visual .waveform").toggle();
+                    $("#s{{ freesound_id }} .audio_visual .spectrogram").toggle();
                 });
             });
 
-            // Create hiddenImage, an image that is slowly revealed to a user as they annotate#}
+            // Create hiddenImage, an image that is slowly revealed to a user as they annotate
             // (only for this.currentTask.feedback === 'hiddenImage')
             /*
             var hiddenImage = new HiddenImg('.hidden_img', 100);
@@ -62,9 +73,14 @@
 {% endblock %}
 
 <div class="soundplayer" id="s{{ freesound_id }}">
-    <a href="{{ spectrogram_url }}">View spectrogram</a>
+    <div class="wavesurfer"></div>
     <div class="audio_visual">
-        <div class="spectrogram"></div>
+        <div class="spectrogram">
+            <img src="{{ spectrogram_url }}" height="64" width="100%"/>
+        </div>
+        <div class="waveform" style="display: none;">
+            <img src="{{ waveform_url }}" height="64" width="100%"/>
+        </div>
     </div>
     <div class="ui horizontal buttons controls">
         <button class="ui icon blue button play_pause">
@@ -81,3 +97,7 @@
         </button>
     </div>
 </div>
+
+
+
+
