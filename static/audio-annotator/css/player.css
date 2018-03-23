@@ -2,17 +2,11 @@
     position: relative;
 }
 
-.wavesurfer .spectrogram,
-.wavesurfer .waveform {
+.wavesurfer .view {
     position: absolute;
     bottom: 0;
     left: 0;
     width: 100%;
-    background-color: red;
-}
-
-.wavesurfer .waveform {
-    display: none;
 }
 
 .soundplayer .controls {

@@ -1,7 +1,18 @@
 {% block page_js %}
     <script type="text/javascript">
+    $("#s{{ freesound_id }}").ready(function () {
 
-        $("#s{{ freesound_id }}").ready(function () {
+        var fs_id = "{{ freesound_id }}";
+        var sound_url = "{{ sound_url }}";
+        var waveform_url = "{{ waveform_url }}";
+        var spectrogram_url = "{{ spectrogram_url }}";
+
+        var player = new Player(64, fs_id, sound_url, waveform_url, spectrogram_url);
+    })
+    </script>
+    <!--script type="text/javascript">
+
+        $('#waveform_{{ freesound_id }}').ready(function () {
 
             // Create color map for spectrogram
             /*
@@ -12,15 +23,14 @@
                 alpha: 1
             });
             */
-            var freesound_id = "{{ freesound_id }}";
-            var player_container = "#s" + freesound_id;
 
+            var freesound_id = "#s{{ freesound_id }}";
             var waveform_url = "{{ waveform_url }}";
             var spectrogram_url = "{{ spectrogram_url }}";
 
             var height = 64;
             var height_px = height + "px";
-            var ws_container = player_container + " .wavesurfer";
+            var ws_container = freesound_id + " .wavesurfer";
             var wavesurfer = Object.create(WaveSurfer);
             wavesurfer.init({
                 container: ws_container,
@@ -48,47 +58,43 @@
                     "overflow": "hidden"
                 });
 
-                var controls_container = $(player_container + " .controls");
-                var play_pause = $(player_container + " .controls .play_pause");
+                var controls_container = $(freesound_id + " .controls");
+                var play_pause = $(freesound_id + " .controls .play_pause");
 
                 play_pause.click(function() {
                     wavesurfer.playPause();
                     play_pause.children(".icon").toggle();
                 });
 
-                $(player_container + " .controls .stop").click(function() {
+                $(freesound_id + " .controls .stop").click(function() {
                     wavesurfer.stop();
                 });
 
-                $(player_container + " .controls .switch").click(function() {
-                    $(player_container + " .wavesurfer .waveform").toggle();
-                    $(player_container + " .wavesurfer .spectrogram").toggle();
+                $("#s{{ freesound_id }} .controls .switch").click(function() {
+                    $("#s{{ freesound_id }} .wavesurfer .waveform").toggle();
+                    $("#s{{ freesound_id }} .wavesurfer .spectrogram").toggle();
                 });
             });
 
             wavesurfer.load('{{ sound_url }}');
         });
+    </script-->
+    <script>
+
     </script>
 {% endblock %}
 
 <div class="soundplayer" id="s{{ freesound_id }}">
     <div class="wavesurfer">
-        <div class="spectrogram"></div>
-        <div class="waveform"></div>
+        <div class="view spectrogram"></div>
+        <!--div class="waveform"></div-->
     </div>
     <div class="ui horizontal buttons controls">
-        <button class="ui icon blue button play_pause">
-            <i class="play icon"></i>
-            <i class="pause icon" style="display: none;"></i>
-        </button>
-
-        <button class="ui icon blue button step_back">
-            <i class="stop icon"></i>
-        </button>
-
+        <!--
         <button class="ui red button switch">
             Switch view
         </button>
+        -->
     </div>
 </div>
 
