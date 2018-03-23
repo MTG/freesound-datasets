@@ -1,6 +1,7 @@
 {% block page_js %}
     <script type="text/javascript">
-        $('#waveform_{{ freesound_id }}').ready(function () {
+
+        $("#s{{ freesound_id }}").ready(function () {
 
             // Create color map for spectrogram
             /*
@@ -11,76 +12,69 @@
                 alpha: 1
             });
             */
+            var freesound_id = "{{ freesound_id }}";
+            var player_container = "#s" + freesound_id;
+
+            var waveform_url = "{{ waveform_url }}";
+            var spectrogram_url = "{{ spectrogram_url }}";
 
             var height = 64;
+            var height_px = height + "px";
+            var ws_container = player_container + " .wavesurfer";
             var wavesurfer = Object.create(WaveSurfer);
             wavesurfer.init({
-                container: "#s{{ freesound_id }} .wavesurfer",
-                //waveColor: '#000000',
-                //progressColor: '#FF0000',
+                container: ws_container,
                 height: height
             });
 
-            //$("#s{{ freesound_id }} .audio_visual wave").hide();
-            $("#s{{ freesound_id }} .audio_visual .waveform").hide();
+            $(ws_container).find(".spectrogram").css({
+                "height": height_px,
+                "background-image": "url(" + spectrogram_url + ")",
+                "background-repeat": "no-repeat",
+                "background-size": "100% 100%"
+            });
 
-                /*
-                var spectrogram = Object.create(WaveSurfer.Spectrogram);
-                spectrogram.init({
-                    wavesurfer: wavesurfer,
-                    container: "#s{{ freesound_id }} .audio_visual .spectrogram",
-                    // For the spectrogram the height is half the number of fftSamples
-                    fftSamples: height * 2,
-                    height: height,
-                    colorMap: spectrogramColorMap
-                });
-                */
+            $(ws_container).find(".waveform").css({
+                "height": height_px,
+                "background-image": "url(" + waveform_url + ")",
+                "background-repeat": "no-repeat",
+                "background-size": "100% 100%"
+            });
 
             wavesurfer.on('ready', function () {
 
-                $("#s{{ freesound_id }} .wavesurfer wave").css({
-                    "background-image": "url({{ waveform_url }})",
-                    "background-repeat": "no-repeat",
-                    "background-size": "100% 100%",
+                $(ws_container).children("wave").css({
                     "width": "100%",
                     "overflow": "hidden"
                 });
 
-                $("#s{{ freesound_id }} .controls .play_pause").click(function() {
+                var controls_container = $(player_container + " .controls");
+                var play_pause = $(player_container + " .controls .play_pause");
+
+                play_pause.click(function() {
                     wavesurfer.playPause();
+                    play_pause.children(".icon").toggle();
                 });
 
-                $("#s{{ freesound_id }} .controls .stop").click(function() {
+                $(player_container + " .controls .stop").click(function() {
                     wavesurfer.stop();
                 });
 
-                $("#s{{ freesound_id }} .controls .switch").click(function() {
-                    //$("#s{{ freesound_id }} .audio_visual wave").toggle();
-                    $("#s{{ freesound_id }} .audio_visual .waveform").toggle();
-                    $("#s{{ freesound_id }} .audio_visual .spectrogram").toggle();
+                $(player_container + " .controls .switch").click(function() {
+                    $(player_container + " .wavesurfer .waveform").toggle();
+                    $(player_container + " .wavesurfer .spectrogram").toggle();
                 });
             });
 
-            // Create hiddenImage, an image that is slowly revealed to a user as they annotate
-            // (only for this.currentTask.feedback === 'hiddenImage')
-            /*
-            var hiddenImage = new HiddenImg('.hidden_img', 100);
-            hiddenImage.create();
-            */
             wavesurfer.load('{{ sound_url }}');
         });
     </script>
 {% endblock %}
 
 <div class="soundplayer" id="s{{ freesound_id }}">
-    <div class="wavesurfer"></div>
-    <div class="audio_visual">
-        <div class="spectrogram">
-            <img src="{{ spectrogram_url }}" height="64" width="100%"/>
-        </div>
-        <div class="waveform" style="display: none;">
-            <img src="{{ waveform_url }}" height="64" width="100%"/>
-        </div>
+    <div class="wavesurfer">
+        <div class="spectrogram"></div>
+        <div class="waveform"></div>
     </div>
     <div class="ui horizontal buttons controls">
         <button class="ui icon blue button play_pause">
@@ -88,7 +82,7 @@
             <i class="pause icon" style="display: none;"></i>
         </button>
 
-        <button class="ui icon blue button stop">
+        <button class="ui icon blue button step_back">
             <i class="stop icon"></i>
         </button>
 
