@@ -12,12 +12,12 @@
         };
 
         var player = new Player(playerOptions);
-        //var player = new Player(80, fs_id, sound_url, waveform_url, spectrogram_url);
     })
     </script>
 {% endblock %}
 
 <div class="soundplayer" id="s{{ freesound_id }}">
+    <!-- TODO: loader? -->
     <div class="wavesurfer"></div>
     <div class="ui horizontal buttons controls"></div>
 </div>

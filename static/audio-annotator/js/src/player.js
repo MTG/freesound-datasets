@@ -1,5 +1,4 @@
 // Player prototype
-//function Player(height, freesound_id, sound_url, waveform_url, spectrogram_url)
 function Player(Options)
 {
     this.wavesurfer;
@@ -36,7 +35,6 @@ function Player(Options)
     this.addEvents();
 
     this.wavesurfer.load(this.sound_url);
-
 }
 
 Player.prototype = {
@@ -47,6 +45,8 @@ Player.prototype = {
         });
     },
 };
+
+Player.activePlayer = null;
 
 // View prototype
 function View(player) {
@@ -60,11 +60,9 @@ function View(player) {
 }
 
 View.prototype = {
-
     create: function () {
         var pl = this;
-        // TODO
-        // pl.createWaveSurferEvents
+        // TODO: pl.createWaveSurferEvents
 
         // Create background element
         var view_el = $("<div>", {
@@ -88,7 +86,6 @@ View.prototype = {
         view.css({
             "background-image": "url(" + bckg_img + ")",
         });
-
     }
 };
 
@@ -101,7 +98,6 @@ function PlayBar(player) {
 }
 
 PlayBar.prototype = {
-
     create: function() {
         var pl = this;
         pl.addWaveSurferEvents();
@@ -161,6 +157,11 @@ PlayBar.prototype = {
 
         pl.wavesurfer.on("play", function () {
             var playerDom = pl.playerDom;
+            // Stop all and store current player
+            if(Player.activePlayer !== null)
+                Player.activePlayer.wavesurfer.stop();
+            Player.activePlayer = pl.player;
+            // Change icon
             var button = $(playerDom).find(".play_pause");
             button.find(".play").removeClass("play").addClass("pause");
         });
@@ -171,5 +172,4 @@ PlayBar.prototype = {
             button.find(".pause").removeClass("pause").addClass("play");
         });
     }
-
 };
