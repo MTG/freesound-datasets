@@ -1,12 +1,16 @@
+// Player prototype
 function Player(height, freesound_id, sound_url, waveform_url, spectrogram_url)
 {
 
     this.wavesurfer;
     this.playBar;
+    this.view;
     this.fs_id = freesound_id;
     this.playerDom = "#s" + this.fs_id;
     this.height = height;
     this.ws_container = this.playerDom + " .wavesurfer";
+    this.spectrogram = spectrogram_url;
+    this.waveform = waveform_url;
 
     // Create wavesurfer object (playback and mouse interaction)
     this.wavesurfer = Object.create(WaveSurfer);
@@ -15,24 +19,23 @@ function Player(height, freesound_id, sound_url, waveform_url, spectrogram_url)
         height: this.height
     });
 
+    // Create view
+    this.view = new View(this);
+    this.view.create();
+
     // Create play bar
     this.playBar = new PlayBar(this);
     this.playBar.create();
+    //var height_px = this.height + "px";
 
-    var height_px = this.height + "px";
-    $(this.ws_container).find(".spectrogram").css({
-        "height": height_px,
-        "background-image": "url(" + spectrogram_url + ")",
-        "background-repeat": "no-repeat",
-        "background-size": "100% 100%"
-    });
-
+/*
     $(this.ws_container).find(".waveform").css({
         "height": height_px,
         "background-image": "url(" + waveform_url + ")",
         "background-repeat": "no-repeat",
         "background-size": "100% 100%"
     });
+*/
 
     //this.wavesurfer.on('ready', function () {
 
@@ -41,15 +44,6 @@ function Player(height, freesound_id, sound_url, waveform_url, spectrogram_url)
         "overflow": "hidden"
     });
 
-            /*
-            var controls_container = $(player_container + " .controls");
-            var play_pause = $(player_container + " .controls .play_pause");
-
-            $(player_container + " .controls .switch").click(function() {
-                $(player_container + " .wavesurfer .waveform").toggle();
-                $(player_container + " .wavesurfer .spectrogram").toggle();
-            });
-            */
     this.addEvents();
 
     this.wavesurfer.load(sound_url);
@@ -59,20 +53,57 @@ function Player(height, freesound_id, sound_url, waveform_url, spectrogram_url)
 Player.prototype = {
     addEvents: function() {
         var pl = this;
-
         pl.wavesurfer.on("ready", function() {
             pl.playBar.update();
         });
     },
+};
 
-    switchView: function() {
+// View prototype
+function View(player) {
+    this.player = player;
+    this.playerDom = this.player.playerDom;
+    this.wavesurfer = this.player.wavesurfer;
+    this.ws_container = this.player.ws_container;
+    this.height = this.player.height;
+    this.spectrogram = this.player.spectrogram;
+    this.waveform = this.player.waveform;
+}
+
+View.prototype = {
+
+    create: function () {
         var pl = this;
-        var view = $(pl.playerDom).find(".view");
-        view.toggleClass("waveform");
-        view.toggleClass("spectrogram");
+        // TODO
+        // pl.createWaveSurferEvents
+
+        // Create background element
+        var view_el = $("<div>", {
+            class: "view spectrogram"
+        });
+        var height_px = pl.height + "px";
+        view_el.css({
+            "height": height_px,
+            "background-image": "url(" + pl.spectrogram + ")",
+            "background-repeat": "no-repeat",
+            "background-size": "100% 100%"
+        });
+        $(pl.ws_container).append(view_el);
+    },
+
+    switch: function () {
+        var pl = this;
+        var view = $(pl.ws_container).find(".view");
+        var bckg_img = (view.hasClass("spectrogram") ? pl.waveform : pl.spectrogram);
+        view.toggleClass("spectrogram").toggleClass("waveform");
+        view.css({
+            "background-image": "url(" + bckg_img + ")",
+        });
+
     }
 };
 
+// Play bar prototype
 function PlayBar(player) {
     this.player = player;
     this.playerDom = this.player.playerDom;
@@ -112,14 +143,14 @@ PlayBar.prototype = {
 
         // Create switch view button
         var switchButton = $("<button>", {
-            class: "ui red button switch"
+            class: "ui icon red button switch"
         });
         var switchIcon = $("<i>", {
             class: "eye icon"
         });
-        switchButton.append(stopIcon);
+        switchButton.append(switchIcon);
         switchButton.click(function () {
-            pl.player.switchView();
+            pl.player.view.switch();
         });
         /*
         var timer = $("<span>", {

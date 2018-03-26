@@ -7,7 +7,7 @@
         var waveform_url = "{{ waveform_url }}";
         var spectrogram_url = "{{ spectrogram_url }}";
 
-        var player = new Player(64, fs_id, sound_url, waveform_url, spectrogram_url);
+        var player = new Player(80, fs_id, sound_url, waveform_url, spectrogram_url);
     })
     </script>
     <!--script type="text/javascript">
@@ -86,7 +86,7 @@
 
 <div class="soundplayer" id="s{{ freesound_id }}">
     <div class="wavesurfer">
-        <div class="view spectrogram"></div>
+        <!--div class="view spectrogram"></div-->
         <!--div class="waveform"></div-->
     </div>
     <div class="ui horizontal buttons controls">
