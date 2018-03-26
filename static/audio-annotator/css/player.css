@@ -9,8 +9,23 @@
     width: 100%;
 }
 
-.soundplayer .controls {
+.wavesurfer wave wave {
+    width: 3px;
+    background-color: red;
+    z-index: 3;
+}
+
+.soundplayer .playbar {
     position: absolute;
     bottom: 0;
     z-index: 2;
+    width: 100%;
+}
+
+.soundplayer .playbar .timer {
+    font-size: 12px;
+    color: #FFF;
+    position: absolute;
+    right: 0;
+    bottom: 0;
 }

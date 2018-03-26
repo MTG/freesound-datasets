@@ -43,7 +43,7 @@ Player.prototype = {
         pl.wavesurfer.on("ready", function() {
             pl.playBar.update();
         });
-    },
+    }
 };
 
 Player.activePlayer = null;
@@ -57,25 +57,29 @@ function View(player) {
     this.height = this.player.height;
     this.spectrogram = this.player.spectrogram;
     this.waveform = this.player.waveform;
+    this.viewDom = null;
 }
 
 View.prototype = {
     create: function () {
         var pl = this;
+        var height_px = pl.height + "px";
         // TODO: pl.createWaveSurferEvents
 
         // Create background element
-        var view_el = $("<div>", {
+        var viewBckg = $("<div>", {
             class: "view spectrogram"
         });
-        var height_px = pl.height + "px";
-        view_el.css({
+        viewBckg.css({
             "height": height_px,
             "background-image": "url(" + pl.spectrogram + ")",
             "background-repeat": "no-repeat",
             "background-size": "100% 100%"
         });
-        $(pl.ws_container).append(view_el);
+
+        pl.viewDom = [viewBckg];
+
+        $(pl.ws_container).append(pl.viewDom);
     },
 
     switch: function () {
@@ -86,6 +90,12 @@ View.prototype = {
         view.css({
             "background-image": "url(" + bckg_img + ")",
         });
+    },
+
+    updateProgressBar: function() {
+        var pl = this;
+        //var progress = pl.wavesurfer.getCurrentTime() / pl.wavesurfer.getDuration();
+        //pl.wavesurfer.seekTo(progress);
     }
 };
 
@@ -137,19 +147,51 @@ PlayBar.prototype = {
         switchButton.click(function () {
             pl.player.view.switch();
         });
-        /*
-        var timer = $("<span>", {
-            class: "timer",
-        });
-        */
 
-        this.playBarDom = [playButton, stopButton, switchButton];
+        var controls = [playButton, stopButton, switchButton];
+
+        var controlsDiv = $("<div>", {
+            class: "controls"
+        });
+        controlsDiv.append(controls);
+
+        var timer = $("<div>", {
+            class: "timer"
+        });
+        timer.text(pl.wavesurfer.getDuration());
+
+        this.playBarDom = [controlsDiv, timer];
     },
 
     update: function() {
         pl = this;
         $(pl.playBarDom).detach();
-        $(pl.playerDom).find(".controls").append(pl.playBarDom);
+        $(pl.playerDom).find(".playbar").append(pl.playBarDom);
+    },
+
+    updateTimer: function() {
+        pl = this;
+        timerText = this.getTimerText();
+        $(pl.playerDom).find(".playbar").find(".timer").text(timerText);
+    },
+
+    getTimerText: function() {
+        var pl = this;
+        var secondsToString = function(seconds) {
+            if (seconds === null) {
+                return '';
+            }
+            var timeStr = '00:';
+            if (seconds >= 10) {
+                timestr += seconds.toFixed(2);
+            } else {
+                timeStr += '0' + seconds.toFixed(2);
+            }
+            return timeStr;
+        }
+
+        return secondsToString(pl.wavesurfer.getCurrentTime()) +
+            ' / ' + secondsToString(pl.wavesurfer.getDuration());
     },
 
     addWaveSurferEvents: function() {
@@ -157,19 +199,29 @@ PlayBar.prototype = {
 
         pl.wavesurfer.on("play", function () {
             var playerDom = pl.playerDom;
+            var button = $(playerDom).find(".play_pause");
             // Stop all and store current player
-            if(Player.activePlayer !== null)
+            if(Player.activePlayer !== null && Player.activePlayer !== pl.player)
                 Player.activePlayer.wavesurfer.stop();
             Player.activePlayer = pl.player;
             // Change icon
-            var button = $(playerDom).find(".play_pause");
             button.find(".play").removeClass("play").addClass("pause");
         });
 
         pl.wavesurfer.on("pause", function () {
             var playerDom = pl.playerDom;
             var button = $(playerDom).find(".play_pause");
+            // Change icon
             button.find(".pause").removeClass("pause").addClass("play");
+        });
+
+        pl.wavesurfer.on("seek", function () {
+            pl.updateTimer();
+            pl.player.view.updateProgressBar();
+        });
+
+        pl.wavesurfer.on("audioprocess", function () {
+            pl.updateTimer();
         });
     }
 };
