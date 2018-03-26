@@ -2,102 +2,22 @@
     <script type="text/javascript">
     $("#s{{ freesound_id }}").ready(function () {
 
-        var fs_id = "{{ freesound_id }}";
-        var sound_url = "{{ sound_url }}";
-        var waveform_url = "{{ waveform_url }}";
-        var spectrogram_url = "{{ spectrogram_url }}";
+        // All parameters are required
+        var playerOptions = {
+            height: 80,
+            freesound_id: "{{ freesound_id }}",
+            sound_url: "{{ sound_url }}",
+            waveform_url: "{{ waveform_url }}",
+            spectrogram_url: "{{ spectrogram_url }}"
+        };
 
-        var player = new Player(80, fs_id, sound_url, waveform_url, spectrogram_url);
+        var player = new Player(playerOptions);
+        //var player = new Player(80, fs_id, sound_url, waveform_url, spectrogram_url);
     })
-    </script>
-    <!--script type="text/javascript">
-
-        $('#waveform_{{ freesound_id }}').ready(function () {
-
-            // Create color map for spectrogram
-            /*
-            var spectrogramColorMap = colormap({
-                colormap: magma,
-                nshades: 256,
-                format: 'rgb',
-                alpha: 1
-            });
-            */
-
-            var freesound_id = "#s{{ freesound_id }}";
-            var waveform_url = "{{ waveform_url }}";
-            var spectrogram_url = "{{ spectrogram_url }}";
-
-            var height = 64;
-            var height_px = height + "px";
-            var ws_container = freesound_id + " .wavesurfer";
-            var wavesurfer = Object.create(WaveSurfer);
-            wavesurfer.init({
-                container: ws_container,
-                height: height
-            });
-
-            $(ws_container).find(".spectrogram").css({
-                "height": height_px,
-                "background-image": "url(" + spectrogram_url + ")",
-                "background-repeat": "no-repeat",
-                "background-size": "100% 100%"
-            });
-
-            $(ws_container).find(".waveform").css({
-                "height": height_px,
-                "background-image": "url(" + waveform_url + ")",
-                "background-repeat": "no-repeat",
-                "background-size": "100% 100%"
-            });
-
-            wavesurfer.on('ready', function () {
-
-                $(ws_container).children("wave").css({
-                    "width": "100%",
-                    "overflow": "hidden"
-                });
-
-                var controls_container = $(freesound_id + " .controls");
-                var play_pause = $(freesound_id + " .controls .play_pause");
-
-                play_pause.click(function() {
-                    wavesurfer.playPause();
-                    play_pause.children(".icon").toggle();
-                });
-
-                $(freesound_id + " .controls .stop").click(function() {
-                    wavesurfer.stop();
-                });
-
-                $("#s{{ freesound_id }} .controls .switch").click(function() {
-                    $("#s{{ freesound_id }} .wavesurfer .waveform").toggle();
-                    $("#s{{ freesound_id }} .wavesurfer .spectrogram").toggle();
-                });
-            });
-
-            wavesurfer.load('{{ sound_url }}');
-        });
-    </script-->
-    <script>
-
     </script>
 {% endblock %}
 
 <div class="soundplayer" id="s{{ freesound_id }}">
-    <div class="wavesurfer">
-        <!--div class="view spectrogram"></div-->
-        <!--div class="waveform"></div-->
-    </div>
-    <div class="ui horizontal buttons controls">
-        <!--
-        <button class="ui red button switch">
-            Switch view
-        </button>
-        -->
-    </div>
+    <div class="wavesurfer"></div>
+    <div class="ui horizontal buttons controls"></div>
 </div>
-
-
-
-

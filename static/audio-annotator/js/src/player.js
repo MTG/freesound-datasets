@@ -1,16 +1,17 @@
 // Player prototype
-function Player(height, freesound_id, sound_url, waveform_url, spectrogram_url)
+//function Player(height, freesound_id, sound_url, waveform_url, spectrogram_url)
+function Player(Options)
 {
-
     this.wavesurfer;
     this.playBar;
     this.view;
-    this.fs_id = freesound_id;
+    this.fs_id = Options.freesound_id;
     this.playerDom = "#s" + this.fs_id;
-    this.height = height;
+    this.height = Options.height;
     this.ws_container = this.playerDom + " .wavesurfer";
-    this.spectrogram = spectrogram_url;
-    this.waveform = waveform_url;
+    this.spectrogram = Options.spectrogram_url;
+    this.waveform = Options.waveform_url;
+    this.sound_url = Options.sound_url;
 
     // Create wavesurfer object (playback and mouse interaction)
     this.wavesurfer = Object.create(WaveSurfer);
@@ -26,18 +27,6 @@ function Player(height, freesound_id, sound_url, waveform_url, spectrogram_url)
     // Create play bar
     this.playBar = new PlayBar(this);
     this.playBar.create();
-    //var height_px = this.height + "px";
-
-/*
-    $(this.ws_container).find(".waveform").css({
-        "height": height_px,
-        "background-image": "url(" + waveform_url + ")",
-        "background-repeat": "no-repeat",
-        "background-size": "100% 100%"
-    });
-*/
-
-    //this.wavesurfer.on('ready', function () {
 
     $(this.ws_container).children("wave").css({
         "width": "100%",
@@ -46,7 +35,7 @@ function Player(height, freesound_id, sound_url, waveform_url, spectrogram_url)
 
     this.addEvents();
 
-    this.wavesurfer.load(sound_url);
+    this.wavesurfer.load(this.sound_url);
 
 }
 
