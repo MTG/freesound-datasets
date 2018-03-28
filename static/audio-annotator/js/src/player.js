@@ -233,7 +233,7 @@ PlayBar.prototype = {
                 timeStr += '0' + seconds.toFixed(0);
             }
             return timeStr;
-        }
+        };
 
         return secondsToString(pl.wavesurfer.getCurrentTime()) +
             ' / ' + secondsToString(pl.wavesurfer.getDuration());
