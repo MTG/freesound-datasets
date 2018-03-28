@@ -33,11 +33,15 @@ function Player(Options)
     });
 
     this.addEvents();
-
-    this.wavesurfer.load(this.sound_url);
+    this.load();
 }
 
 Player.prototype = {
+    load: function() {
+        var pl = this;
+        pl.wavesurfer.load(pl.sound_url);
+    },
+
     addEvents: function() {
         var pl = this;
         pl.wavesurfer.on("ready", function() {
@@ -58,15 +62,18 @@ function View(player) {
     this.spectrogram = this.player.spectrogram;
     this.waveform = this.player.waveform;
     this.viewDom = null;
+    this.clickable = $(this.ws_container).find("> wave");
+    this.progressBar = $(this.ws_container).find("wave wave");
+    this.progressBar.addClass("progress-bar");
 }
 
 View.prototype = {
     create: function () {
         var pl = this;
-        var height_px = pl.height + "px";
-        // TODO: pl.createWaveSurferEvents
+        pl.addWaveSurferEvents();
 
         // Create background element
+        var height_px = pl.height + "px";
         var viewBckg = $("<div>", {
             class: "view spectrogram"
         });
@@ -88,14 +95,43 @@ View.prototype = {
         var bckg_img = (view.hasClass("spectrogram") ? pl.waveform : pl.spectrogram);
         view.toggleClass("spectrogram").toggleClass("waveform");
         view.css({
-            "background-image": "url(" + bckg_img + ")",
+            "background-image": "url(" + bckg_img + ")"
         });
     },
 
-    updateProgressBar: function() {
+    getHorizontalCoordinates: function(e) {
         var pl = this;
-        //var progress = pl.wavesurfer.getCurrentTime() / pl.wavesurfer.getDuration();
-        //pl.wavesurfer.seekTo(progress);
+        var offset = pl.clickable.offset();
+        var width = pl.clickable.width();
+        return (e.pageX - offset.left) / width;
+    },
+
+    updateProgressBar: function(pos) {
+        var pl = this;
+        var progress = pos || pl.wavesurfer.getCurrentTime() / pl.wavesurfer.getDuration();
+        progress *= 100;
+
+        pl.progressBar.css({
+            "width": progress + "%"
+        });
+    },
+
+    addWaveSurferEvents: function () {
+        var pl = this;
+
+        pl.wavesurfer.on("audioprocess", function () {
+            pl.updateProgressBar();
+        });
+
+        pl.wavesurfer.on("finish", function () {
+            pl.updateProgressBar();
+        });
+
+        pl.clickable.on("click", function (e) {
+            var x = pl.getHorizontalCoordinates(e);
+            pl.wavesurfer.seekTo(x);
+            pl.updateProgressBar(x);
+        })
     }
 };
 
@@ -114,10 +150,11 @@ PlayBar.prototype = {
 
         // Create play button
         var playButton = $("<button>", {
-            class: "ui icon blue button play_pause"
+            class: "ui icon button play_pause",
+            title: "Play/pause clip"
         });
         var playIcon = $("<i>", {
-            class: "play icon"
+            class: "play icon",
         });
         playButton.append(playIcon);
         playButton.click(function() {
@@ -125,20 +162,23 @@ PlayBar.prototype = {
         });
 
         // Create stop button
-        var stopButton = $("<button>", {
-            class: "ui icon blue button stop"
+        var restartButton = $("<button>", {
+            class: "ui icon button restart",
+            title: "Restart clip"
         });
-        var stopIcon = $("<i>", {
-            class: "stop icon"
+        var restartIcon = $("<i>", {
+            class: "step backward icon"
         });
-        stopButton.append(stopIcon);
-        stopButton.click(function() {
+        restartButton.append(restartIcon);
+        restartButton.click(function() {
            pl.wavesurfer.stop();
+           pl.wavesurfer.play();
         });
 
         // Create switch view button
         var switchButton = $("<button>", {
-            class: "ui icon red button switch"
+            class: "ui icon button switch",
+            title: "Switch view"
         });
         var switchIcon = $("<i>", {
             class: "eye icon"
@@ -148,44 +188,49 @@ PlayBar.prototype = {
             pl.player.view.switch();
         });
 
-        var controls = [playButton, stopButton, switchButton];
+        var controls = [playButton, restartButton, switchButton];
 
         var controlsDiv = $("<div>", {
-            class: "controls"
+            class: "ui horizontal buttons controls"
         });
         controlsDiv.append(controls);
 
-        var timer = $("<div>", {
+        var timerDiv = $("<div>", {
+            class: "ui right floated"
+        });
+        var timer = $("<span>", {
             class: "timer"
         });
-        timer.text(pl.wavesurfer.getDuration());
+        //timer.text(pl.wavesurfer.getDuration());
+        timerDiv.append(timer);
 
-        this.playBarDom = [controlsDiv, timer];
+        this.playBarDom = [controlsDiv, timerDiv];
     },
 
     update: function() {
         pl = this;
         $(pl.playBarDom).detach();
         $(pl.playerDom).find(".playbar").append(pl.playBarDom);
+        pl.updateTimer();
     },
 
     updateTimer: function() {
         pl = this;
-        timerText = this.getTimerText();
+        timerText = pl.getTimerText();
         $(pl.playerDom).find(".playbar").find(".timer").text(timerText);
     },
 
     getTimerText: function() {
         var pl = this;
-        var secondsToString = function(seconds) {
+        var secondsToString = function (seconds) {
             if (seconds === null) {
                 return '';
             }
             var timeStr = '00:';
             if (seconds >= 10) {
-                timestr += seconds.toFixed(2);
+                timestr += seconds.toFixed(0);
             } else {
-                timeStr += '0' + seconds.toFixed(2);
+                timeStr += '0' + seconds.toFixed(0);
             }
             return timeStr;
         }

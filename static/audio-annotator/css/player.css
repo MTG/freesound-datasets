@@ -9,10 +9,8 @@
     width: 100%;
 }
 
-.wavesurfer wave wave {
-    width: 3px;
-    background-color: red;
-    z-index: 3;
+.wavesurfer .progress-bar {
+    display: block !important;
 }
 
 .soundplayer .playbar {
@@ -20,12 +18,25 @@
     bottom: 0;
     z-index: 2;
     width: 100%;
+    padding: 2px 5px 2px 2px;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.soundplayer .playbar .button {
+    background-color: transparent;
+    padding: 5px;
+}
+
+.soundplayer .playbar .button .icon {
+    color: rgb(256,256,256);
+}
+
+.soundplayer .playbar .button:hover .icon {
+    color: #db2828;
 }
 
 .soundplayer .playbar .timer {
     font-size: 12px;
     color: #FFF;
-    position: absolute;
-    right: 0;
-    bottom: 0;
+    height: 100%;
 }

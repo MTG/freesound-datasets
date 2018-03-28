@@ -46,11 +46,11 @@
             var b = this;
             this.drawer = Object.create(a.Drawer[this.params.renderer]), this.drawer.init(this.container, this.params), this.drawer.on("redraw", function () {
                 b.drawBuffer(), b.drawer.progress(b.backend.getPlayedPercents())
-            }), this.drawer.on("click", function (a, c) {
+            }), /*this.drawer.on("click", function (a, c) {
                 setTimeout(function () {
                     b.seekTo(c)
                 }, 0)
-            }), this.drawer.on("scroll", function (a) {
+            }),*/ this.drawer.on("scroll", function (a) {
                 b.fireEvent("scroll", a)
             })
         },
@@ -112,7 +112,7 @@
         seekTo: function (a) {
             var b = this.backend.isPaused(),
                 c = this.params.scrollParent;
-            b && (this.params.scrollParent = !1), this.backend.seekTo(a * this.getDuration()), this.drawer.progress(this.backend.getPlayedPercents()), b || (this.backend.pause(), this.backend.play()), this.params.scrollParent = c, this.fireEvent("seek", a)
+            b && (this.params.scrollParent = !1), this.backend.seekTo(a * this.getDuration()), /*this.drawer.progress(this.backend.getPlayedPercents()),*/ b || (this.backend.pause(), this.backend.play()), this.params.scrollParent = c, this.fireEvent("seek", a)
         },
         stop: function () {
             this.pause(), this.seekTo(0), this.drawer.progress(0)
