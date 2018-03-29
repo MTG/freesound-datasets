@@ -50,12 +50,17 @@ def dataset(request, short_name):
 
     random_taxonomy_nodes = dataset.get_random_taxonomy_node_with_examples()
 
+    # Get previously stored dataset release stats
+    dataset_basic_stats = data_from_async_task(compute_dataset_basic_stats, [dataset.id], {},
+                                               DATASET_BASIC_STATS_KEY_TEMPLATE.format(dataset.id), 60)
+
     return render(request, 'datasets/dataset.html', {
         'dataset': dataset,
         'dataset_page': True,
         'user_is_maintainer': user_is_maintainer,
         'dataset_release_form': form, 'dataset_release_form_errors': form_errors,
         'random_nodes': random_taxonomy_nodes,
+        'dataset_basic_stats': dataset_basic_stats,
     })
 
 

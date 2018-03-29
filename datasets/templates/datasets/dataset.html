@@ -123,8 +123,8 @@
         <div class="right floated left aligned nine wide column">
           <h3 class="ui header">{{ dataset.short_name|upper }}: a dataset of everyday sounds</h3>
           <p style="text-align:justify">The AudioSet Ontology is a hierarchical collection of over 600 sound classes and
-              we have filled them with {{ dataset.num_sounds|intcomma }} audio samples from Freesound.
-              This process generated {{ dataset.num_annotations|intcomma }} candidate annotations
+              we have filled them with {{ dataset_basic_stats.num_sounds|intcomma }} audio samples from Freesound.
+              This process generated {{ dataset_basic_stats.num_annotations|intcomma }} candidate annotations
 that express the potential presence of sound sources in audio clips.
           {{ dataset.short_name|upper }}  includes a variety of everyday sounds, from human and animal sounds to music and sounds made by things,
               all under Creative Commons licenses.
@@ -248,7 +248,7 @@ that express the potential presence of sound sources in audio clips.
  <div class="ui one statistics">
   <div class="ui blue statistic">
     <div class="value">
-      {{ dataset.percentage_verified_annotations|floatformat:1 }}%
+      {{ dataset_basic_stats.percentage_verified_annotations|floatformat:1 }}%
     </div>
     <div class="label">
       annotations<br> verified
