@@ -26,7 +26,7 @@
     <!-- HEADER -->
     {% block header %}
         {% if home %}
-        <div id="header_home" class="ui red inverted menu" style="border-radius: 0 !important;">
+        <div id="header_home" class="ui red inverted menu" style="border-radius: 0 !important; height: 50px !important;">
         {% else %}
         <div id="header_other" class="ui fixed red inverted menu">
         {% endif %}
@@ -62,7 +62,7 @@
                     <a class="item" href="{% url 'login' %}"><i class="user icon"></i>Login</a>
                 {% endif %}
                 <a class="{% active_if_current 'index' %}item" href="{% url 'index' %}"><i class="home icon"></i>Home</a>
-                <div style="border-left:1px solid #C82727;height:76px"></div>
+                <div style="border-left:1px solid #C82727;height:60px"></div>
             </div>
           </div>
         </div>
