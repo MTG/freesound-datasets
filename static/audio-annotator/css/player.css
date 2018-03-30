@@ -1,5 +1,15 @@
+.ui .card .header .meta {
+    font-size: 0.75em;
+    font-weight: normal;
+}
+
 .soundplayer {
     position: relative;
+}
+
+.wavesurfer canvas {
+    height: 100%;
+    width: 100%;
 }
 
 .wavesurfer .view {

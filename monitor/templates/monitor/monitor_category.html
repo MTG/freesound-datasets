@@ -55,12 +55,12 @@
         {% for sound in examples %}
             <div class="card {% if sound.deleted_in_freesound %} red {% endif %}">
                 <div class="content">
-                    <div class="right floated meta"><a href="javascript:void(0);" onclick="openFreesoundSoundPage('{{ sound.freesound_id }}');">
-                        see in <img class="ui image" style="width: 80px;" src="{% static 'img/freesound_logo_color.png' %}"></a></div>
                     <div class="header">#{{ sound.freesound_id }}
                         {% if request.user.profile.is_fsd_maintainer %}
                             &nbsp<a title="Edit in administration page" href="{% url sound|admin_urlname:'change' sound.pk %}" target="_blank"><i class="edit small icon"></i></a>
                         {% endif %}
+                        <div class="right floated meta"><a href="javascript:void(0);" onclick="openFreesoundSoundPage('{{ sound.freesound_id }}');">
+                        see in <img class="ui image" style="width: 80px;" src="{% static 'img/freesound_logo_color.png' %}"></a></div>
                     </div>
                     {% sound_player dataset sound.freesound_id %}
 {#                  {{ sound.freesound_id| fs_embed | safe }}#}
