@@ -195,13 +195,13 @@ PlayBar.prototype = {
         });
         controlsDiv.append(controls);
 
+        // Create timer indicator
         var timerDiv = $("<div>", {
             class: "ui right floated"
         });
         var timer = $("<span>", {
             class: "timer"
         });
-        //timer.text(pl.wavesurfer.getDuration());
         timerDiv.append(timer);
 
         this.playBarDom = [controlsDiv, timerDiv];
@@ -223,12 +223,20 @@ PlayBar.prototype = {
     getTimerText: function() {
         var pl = this;
         var secondsToString = function (seconds) {
-            if (seconds === null) {
+            if (seconds === null || seconds < 0) {
                 return '';
             }
-            var timeStr = '00:';
+            var timeStr;
+            var minutes = Math.floor(seconds / 60);
+            if (minutes >= 10) {
+                timeStr = minutes;
+            } else {
+                timeStr = '0' + minutes;
+            }
+            timeStr += ':';
+            seconds -= minutes * 60;
             if (seconds >= 10) {
-                timestr += seconds.toFixed(0);
+                timeStr += seconds.toFixed(0);
             } else {
                 timeStr += '0' + seconds.toFixed(0);
             }

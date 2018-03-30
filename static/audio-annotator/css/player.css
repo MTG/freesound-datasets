@@ -11,6 +11,7 @@
 
 .wavesurfer .progress-bar {
     display: block !important;
+    border-right-color: rgb(200,200,200) !important;
 }
 
 .soundplayer .playbar {
