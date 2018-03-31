@@ -44,9 +44,22 @@ Player.prototype = {
 
     addEvents: function() {
         var pl = this;
-        pl.wavesurfer.on("ready", function() {
-            pl.playBar.update();
+
+        pl.wavesurfer.on("ready", function () {
+            // Make sure the loader is removed only after
+            // loading all the GUI components
+            $.when(
+                pl.view.update(),
+                pl.playBar.update()
+            ).then(
+                pl.removeLoader()
+            );
         });
+    },
+
+    removeLoader: function() {
+        var pl = this;
+        $(pl.playerDom).find(".dimmer").removeClass("active");
     }
 };
 
@@ -70,23 +83,29 @@ function View(player) {
 View.prototype = {
     create: function () {
         var pl = this;
-        pl.addWaveSurferEvents();
+        pl.addEvents();
 
         // Create background element
         var height_px = pl.height + "px";
         var viewBckg = $("<div>", {
             class: "view spectrogram"
         });
-        viewBckg.css({
-            "height": height_px,
-            "background-image": "url(" + pl.spectrogram + ")",
-            "background-repeat": "no-repeat",
-            "background-size": "100% 100%"
+
+        // This trick loads the image before setting it as background
+        var img = $("<img/>", {
+            src: pl.spectrogram
+        });
+        img.on("load", function () {
+            $(this).remove();
+            viewBckg.css({
+                "height": height_px,
+                "background-image": "url(" + pl.spectrogram + ")",
+                "background-repeat": "no-repeat",
+                "background-size": "100% 100%"
+            });
         });
 
         pl.viewDom = [viewBckg];
-
-        $(pl.ws_container).append(pl.viewDom);
     },
 
     switch: function () {
@@ -97,6 +116,12 @@ View.prototype = {
         view.css({
             "background-image": "url(" + bckg_img + ")"
         });
+    },
+
+    update: function() {
+        pl = this;
+        $(pl.viewDom).detach();
+        $(pl.ws_container).append(pl.viewDom);
     },
 
     getHorizontalCoordinates: function(e) {
@@ -116,6 +141,18 @@ View.prototype = {
         });
     },
 
+    addEvents: function () {
+        var pl = this;
+        pl.addWaveSurferEvents();
+
+        // Other events
+        pl.clickable.on("click", function (e) {
+            var x = pl.getHorizontalCoordinates(e);
+            pl.wavesurfer.seekTo(x);
+            pl.updateProgressBar(x);
+        })
+    },
+
     addWaveSurferEvents: function () {
         var pl = this;
 
@@ -126,12 +163,6 @@ View.prototype = {
         pl.wavesurfer.on("finish", function () {
             pl.updateProgressBar();
         });
-
-        pl.clickable.on("click", function (e) {
-            var x = pl.getHorizontalCoordinates(e);
-            pl.wavesurfer.seekTo(x);
-            pl.updateProgressBar(x);
-        })
     }
 };
 
@@ -204,7 +235,7 @@ PlayBar.prototype = {
         });
         timerDiv.append(timer);
 
-        this.playBarDom = [controlsDiv, timerDiv];
+        pl.playBarDom = [controlsDiv, timerDiv];
     },
 
     update: function() {

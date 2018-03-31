@@ -11,13 +11,15 @@
             spectrogram_url: "{{ spectrogram_url }}"
         };
 
-        var player = new Player(playerOptions);
+        var player = new Player(playerOptions)
     });
     </script>
 {% endblock %}
 
 <div class="soundplayer" id="s{{ freesound_id }}">
-    <!-- TODO: loader? -->
     <div class="wavesurfer"></div>
     <div class="playbar"></div>
+    <div class="ui active dimmer" style="height: 100px">
+        <div class="ui loader"></div>
+    </div>
 </div>
