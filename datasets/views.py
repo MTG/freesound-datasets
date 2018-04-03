@@ -598,8 +598,11 @@ def contribute_generate_annotations(request, short_name):
 def taxonomy_table_extended(request, short_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
     nodes = dataset.taxonomy.taxonomynode_set.all()
+    dataset_taxonomy_stats = data_from_async_task(compute_dataset_taxonomy_stats, [dataset.id], {},
+                                                  DATASET_TAXONOMY_STATS_KEY_TEMPLATE.format(dataset.id), 60)
+    nodes_data = dataset_taxonomy_stats['nodes_data']
     return render(request, 'datasets/dataset_taxonomy_table_extended.html',
-                  {'dataset': dataset, 'nodes': nodes})
+                  {'dataset': dataset, 'nodes_data': nodes_data})
 
 
 ########################

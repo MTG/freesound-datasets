@@ -31,6 +31,10 @@ def calculate_taxonomy_node_stats(
     else:
         percentage_validated_annotations = 0.0
 
+    if hierarchy_paths is None:
+        taxonomy = dataset.taxonomy
+        hierarchy_paths = taxonomy.get_hierarchy_paths(node['node_id'])
+
     return {
         'num_sounds': num_sounds,
         'num_annotations': num_annotations,
@@ -51,6 +55,7 @@ def calculate_taxonomy_node_stats(
         'num_verified_annotations': node['nb_verified_annotations'],
         'num_user_contributions': node['nb_user_contributions'],
         'faq': node['faq'],
+        'description': node['description']
     }
 
 
