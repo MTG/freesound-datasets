@@ -171,3 +171,7 @@ ul {
 .blanched_yellow {
 	color: #f9efe0;
 }
+
+.generated-label {
+	margin: 5px!important;
+}

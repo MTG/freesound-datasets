@@ -43,7 +43,10 @@
                 {{ node.description }}
             </td>
             <td class="right aligned">
-              <button class="blue ui button right labeled icon"> Add <i class="plus box icon"></i></button>
+              <button label-name="{{ node.name }}" label-id="{{ node.node_id }}" event-added=0
+                      class="add-label-button blue ui button right labeled icon">
+                Add <i class="plus box icon"></i>
+              </button>
             </td>
         </tr>
     {% endfor %}

@@ -39,11 +39,42 @@
             });
         }
 
+        function addLabel(label_name, label_id) {
+            $('#label-container').append('<div class="generated-label ui large label" label-name="'+label_name+'">'+label_name+'</div>');
+            $('button[label-name="'+label_name+'"]').html('Remove<i class="minus box icon"></i>');
+        }
+
+        function removeLabel(label_name) {
+             $('div[label-name="'+label_name+'"]').remove();
+             $('button[label-name="'+label_name+'"]').html('Add<i class="plus box icon"></i>');
+        }
+
+        function addButtonClickEvents(targets) {
+            if (typeof targets === 'undefined') {
+                var my_buttons = $('.add-label-button[event-added=0]');
+            } else {
+                var my_buttons = targets;
+            }
+            my_buttons.attr('event-added', 1);
+            $(my_buttons).click(function() {
+                var label_name = $(this).attr('label-name');
+                var label_id = $(this).attr('label-id');
+                if ($(this).children().eq(0).hasClass('plus')) {
+                    addLabel(label_name, label_id);
+                } else {
+                    removeLabel(label_name);
+                }
+            });
+        }
+
         function loadDatasetTaxonomyTable(){
             $( "#search_table_placeholder" ).load( "{% url 'taxonomy-table-extended' dataset.short_name %}", function() {
                 $('#dataset_contents').DataTable({
                     'paging': true,
                     'info': true,
+                    'search': {
+                        "smart": false
+                    },
                     'columnDefs': [
                         {
                             "targets": [1, 2],
@@ -54,17 +85,25 @@
                 $('#dataset_contents_paginate').parent().attr('style', 'width: 100% !important');
                 $('#dataset_contents').on('draw.dt', function () {
                     addPopUpEvent($(this).find('.my-pop'));
+                    addButtonClickEvents();
                 });
                 addPopUpEvent();
+                addButtonClickEvents();
             });
         }
     </script>
 {% endblock %}
 {% block content %}
     {{ freesound_sound_id| fs_embed | safe }}
-    <div class="ui segment" id="search_table_placeholder">
-          <div class="ui active inverted dimmer">
-              <div class="ui text loader">Loading data...</div>
-          </div>
+    <div class="ui grid">
+        <div id="label-container" class="seven wide column">
+        </div>
+        <div class="nine wide column">
+            <div class="ui segment" id="search_table_placeholder">
+                  <div class="ui active inverted dimmer">
+                      <div class="ui text loader">Loading data...</div>
+                  </div>
+            </div>
+        </div>
     </div>
 {% endblock %}
