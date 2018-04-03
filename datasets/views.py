@@ -588,6 +588,20 @@ def get_mini_node_info(request, short_name, node_id):
                    'show_go_button': show_go_button, 'show_num_gt': show_num_gt})
 
 
+def contribute_generate_annotations(request, short_name):
+    dataset = get_object_or_404(Dataset, short_name=short_name)
+    sound = dataset.sounds.first()
+    return render(request, 'datasets/contribute_generate_annotations.html',
+                  {'dataset': dataset, 'freesound_sound_id': sound.freesound_id})
+
+
+def taxonomy_table_extended(request, short_name):
+    dataset = get_object_or_404(Dataset, short_name=short_name)
+    nodes = dataset.taxonomy.taxonomynode_set.all()
+    return render(request, 'datasets/dataset_taxonomy_table_extended.html',
+                  {'dataset': dataset, 'nodes': nodes})
+
+
 ########################
 # DOWNLOAD DATASET VIEWS
 ########################

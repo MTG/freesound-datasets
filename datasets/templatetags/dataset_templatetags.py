@@ -134,3 +134,8 @@ def fs_embed(value):
     embed_code = '<iframe frameborder="0" scrolling="no" src="https://www.freesound.org/embed/sound/iframe/{0}/simple/medium_no_info/?spec=1&td=1" width="130" height="80"></iframe>'
     return embed_code.format(str(value))
 
+
+@register.inclusion_tag('datasets/dataset_taxonomy_table_extended.html')
+def taxonomy_table_extended(dataset):
+    nodes = dataset.taxonomy.taxonomynode_set.all()
+    return {'dataset': dataset, 'nodes': nodes}

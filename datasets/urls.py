@@ -36,4 +36,8 @@ urlpatterns = [
     url(r'^(?P<short_name>[^\/]+)/annotate/choose_category_table_search_all/$', dataset_taxonomy_table_search_all,
         name='taxonomy-table-search-all'),
     url(r'^(?P<short_name>[^\/]+)/mini-node-info/(?P<node_id>[^\/]+)/$', get_mini_node_info, name='get-mini-node-info'),
+    url(r'^(?P<short_name>[^\/]+)/annotate/generate_annotations/', contribute_generate_annotations,
+        name='contribute-generate-annotations'),
+    url(r'^(?P<short_name>[^\/]+)/annotate/taxonomy_table_extended/', taxonomy_table_extended,
+        name='taxonomy-table-extended')
 ]

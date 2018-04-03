@@ -1,0 +1,51 @@
+{% load dataset_templatetags %}
+<table id="dataset_contents" class="ui unstackable table" width="100%">
+    <thead>
+        <tr>
+            <th>Categories </th>
+            <th>Hierarchies</th>
+            <th>Descriptions</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for node in nodes %}
+        <tr>
+            <td>{{ node.name }}
+                <span class="my-pop ui" data-html='' event-added=0 ajax_done=0 style="margin-left:5px;"
+                      ajax_url="{% url 'get-mini-node-info' dataset.short_name node.url_id %}?se=0&sb=0">
+                    <i class="help grey circle icon"></i>
+                </span>
+            </td>
+            <td>
+                <div class="ui list">
+                    {% for hierarchy_path in node.hierarchy_paths %}
+                        <div class="item">
+                            <div class="ui horizontal list">
+                                <div class="item">
+                                    <i class="tree icon"></i>
+                                </div>
+                                {% for node_id in hierarchy_path %}
+                                    {% taxonomy_node dataset node_id as sub_node_data  %}
+                                    <div class="item" style="margin-left:0px;margin-right:5px;">
+                                        >
+                                        {{ sub_node_data.name }}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="item">-</div>
+                    {% endfor %}
+                </div>
+            </td>
+            <td>
+                {{ node.description }}
+            </td>
+            <td class="right aligned">
+              <button class="blue ui button right labeled icon"> Add <i class="plus box icon"></i></button>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>

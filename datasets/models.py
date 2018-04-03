@@ -342,6 +342,10 @@ class TaxonomyNode(models.Model):
     def valid_examples(self):
         return self.freesound_examples.filter(deleted_in_freesound=False).values_list('freesound_id', flat=True)
 
+    @property
+    def hierarchy_paths(self):
+        return self.taxonomy.get_hierarchy_paths(self.node_id)
+
     def __str__(self):
         return '{0} ({1})'.format(self.name, self.node_id)
 
