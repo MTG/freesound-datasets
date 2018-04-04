@@ -4,6 +4,7 @@
 {% load dataset_templatetags %}
 {% load general_templatetags %}
 {% block title %}{{dataset.short_name|upper}}{% endblock title %}
+
 {% block page_js %}
 
     <script type="text/javascript">
@@ -153,7 +154,8 @@ that express the potential presence of sound sources in audio clips.
               <div>
                 {% for sound in node.valid_examples|slice:"2" %}
                   <span>
-                    {{ sound| fs_embed | safe }}
+                    {% sound_player dataset sound "mini" %}
+{#                    {{ sound| fs_embed | safe }}#}
                   </span>
                 {% endfor %}
               </div>

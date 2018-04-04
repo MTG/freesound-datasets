@@ -51,13 +51,15 @@ def multiply(value, arg):
 
 
 @register.inclusion_tag('datasets/player.html')
-def sound_player(dataset, freesound_sound_id):
+def sound_player(dataset, freesound_sound_id, player_size):
     sound = dataset.sounds.get(freesound_id=freesound_sound_id)
     sound_url = sound.extra_data['previews']
-    spectrogram_url = sound.get_image_url('spectrogram', 'L')
+    spec_size = 'M' if player_size in ("mini", "small") else 'L'
+    spectrogram_url = sound.get_image_url('spectrogram', spec_size)
     waveform_url = sound.get_image_url('waveform', 'M')
     return {'sound_url': sound_url,
             'freesound_id': freesound_sound_id,
             'spectrogram_url': spectrogram_url,
-            'waveform_url': waveform_url
+            'waveform_url': waveform_url,
+            'player_size': player_size
             }

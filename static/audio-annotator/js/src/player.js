@@ -6,7 +6,8 @@ function Player(Options)
     this.view;
     this.fs_id = Options.freesound_id;
     this.playerDom = "#s" + this.fs_id;
-    this.height = Options.height;
+    this.size = Options.size || "medium";
+    this.height = Options.height || this.getHeightFromSize(this.size);
     this.ws_container = this.playerDom + " .wavesurfer";
     this.spectrogram = Options.spectrogram_url;
     this.waveform = Options.waveform_url;
@@ -60,6 +61,31 @@ Player.prototype = {
     removeLoader: function() {
         var pl = this;
         $(pl.playerDom).find(".dimmer").removeClass("active");
+    },
+
+    getHeightFromSize: function () {
+        var pl = this;
+        var height;
+
+        switch (pl.size) {
+            case "mini":
+                height = 70;
+                break;
+            case "small":
+                height = 80;
+                break;
+            case "medium":
+                height = 100;
+                break;
+            case "big":
+                height = 200;
+                break;
+            default:
+                // medium
+                height = 100;
+        }
+
+        return height;
     }
 };
 
@@ -182,10 +208,11 @@ PlayBar.prototype = {
         // Create play button
         var playButton = $("<button>", {
             class: "ui icon button play_pause",
+            type: "button",
             title: "Play/pause clip"
         });
         var playIcon = $("<i>", {
-            class: "play icon",
+            class: "play icon"
         });
         playButton.append(playIcon);
         playButton.click(function() {
@@ -195,6 +222,7 @@ PlayBar.prototype = {
         // Create stop button
         var restartButton = $("<button>", {
             class: "ui icon button restart",
+            type: "button",
             title: "Restart clip"
         });
         var restartIcon = $("<i>", {
@@ -209,6 +237,7 @@ PlayBar.prototype = {
         // Create switch view button
         var switchButton = $("<button>", {
             class: "ui icon button switch",
+            type: "button",
             title: "Switch view"
         });
         var switchIcon = $("<i>", {
@@ -227,8 +256,12 @@ PlayBar.prototype = {
         controlsDiv.append(controls);
 
         // Create timer indicator
+        var floatClass = "";
+        if (pl.player.size !== "small" && pl.player.size !== "mini") {
+            floatClass = " right floated";
+        }
         var timerDiv = $("<div>", {
-            class: "ui right floated"
+            class: "ui" + floatClass
         });
         var timer = $("<span>", {
             class: "timer"
@@ -241,7 +274,7 @@ PlayBar.prototype = {
     update: function() {
         pl = this;
         $(pl.playBarDom).detach();
-        $(pl.playerDom).find(".playbar").append(pl.playBarDom);
+        $(pl.playerDom).find(".playbar").addClass("active").append(pl.playBarDom);
         pl.updateTimer();
     },
 

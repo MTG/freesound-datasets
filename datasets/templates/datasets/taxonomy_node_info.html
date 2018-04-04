@@ -1,4 +1,7 @@
+{% load staticfiles %}
 {% load dataset_templatetags %}
+{% load general_templatetags %}
+
 {% block page_js %}
     <script type="text/javascript">
     var popupLoading = '<div style="height:310px; width:730px" class="ui loading segment">Loading</div>';
@@ -91,7 +94,8 @@
             <tr><td>Examples</td>
                 <td>
                     {% for fsid in node.freesound_examples %}
-                        {{ fsid| fs_embed | safe }}
+{#                        {{ fsid| fs_embed | safe }}#}
+                        {% sound_player dataset fsid "small" %}
                     {% endfor %}
                 </td>
             </tr>
