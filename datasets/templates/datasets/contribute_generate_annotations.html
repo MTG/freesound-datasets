@@ -6,7 +6,20 @@
     <script type="text/javascript">
         $(document).ready(function() {
             loadDatasetTaxonomyTable();
+            loadDatasetTaxonomyTableChoose(0);
+            $('.menu .item').tab();
+            getHierarchyPaths();
         });
+
+        function getHierarchyPaths(){
+            $.ajax({url: "{% url 'get_hierachy_paths' dataset.short_name %}",
+            type: "GET",
+            success: function(result) {
+                console.log('yo')
+                hierarchy_paths = result;}
+            });
+        }
+
         function addPopUpEvent(targets) {
             var popupLoading = '<div style="height:180px; width:500px" class="ui loading segment">Loading</div>';
             $('.my-pop').ready(function() {
@@ -37,6 +50,27 @@
                     }
                 });
             });
+        }
+
+        function loadDatasetTaxonomyTableChoose(node_id){
+            $.ajax({url: "{% url 'dataset_taxonomy_table_choose' dataset.short_name %}",
+                    type: "POST",
+                    beforeSend: function(){ timeoutID = setTimeout( function() {
+                        $( "#choose_table_placeholder" ).html('<div class="ui active centered inline text loader">Loading data...</div>')}, 500)
+                    },
+                    data: {node_id: node_id, add_label_or_choose_category: 'add_label', csrfmiddlewaretoken: "{{csrf_token}}"},
+                    success: function(result){
+                        clearTimeout(timeoutID);
+                        $( "#choose_table_placeholder" ).html(result);
+                        $(".loadButton").on("click", function(e) {
+                            var thisId = $(this).data("node_id");
+                            loadDatasetTaxonomyTableChoose(thisId)
+                        });
+                        addPopUpEvent();
+                        addButtonClickEvents();
+                        // TODO: add fix sync between tables
+                    }
+            })
         }
 
         function addLabel(label_name, label_id) {
@@ -89,6 +123,7 @@
                 });
                 addPopUpEvent();
                 addButtonClickEvents();
+                // TODO: add fix sync between tables
             });
         }
     </script>
@@ -99,10 +134,23 @@
         <div id="label-container" class="seven wide column">
         </div>
         <div class="nine wide column">
-            <div class="ui segment" id="search_table_placeholder">
-                  <div class="ui active inverted dimmer">
-                      <div class="ui text loader">Loading data...</div>
-                  </div>
+            <div class="ui segment" style="padding: 0 0 0 0;">
+                <div class="ui two item top attached tabular menu">
+                  <a class="item active" data-tab="first">
+                      <div style="margin-left:25px;"><i class="sitemap icon big white"></i></div>
+                      <div style="margin-right:15px;"><p> <b>Navigate</b> the first two levels of the ontology & choose a category</p></div>
+                  </a>
+                  <a class="item" data-tab="third">
+                      <div style="margin-left:25px;margin-right:25px;"><i class="search icon big white"></i></div>
+                      <div style="margin-right:15px;"><p><b>Search</b> a category by its name</p></div>
+                  </a>
+                </div>
+                <div class="ui bottom attached tab segment active" data-tab="first" id="choose_table_placeholder">
+                    <div class="ui active centered inline text loader">Loading data...</div>
+                </div>
+                <div class="ui bottom attached tab segment" data-tab="third" id="search_table_placeholder">
+                    <div class="ui active centered inline text loader">Loading data...</div>
+                </div>
             </div>
         </div>
     </div>

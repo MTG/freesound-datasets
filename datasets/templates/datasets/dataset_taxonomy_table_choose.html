@@ -57,17 +57,24 @@
         {% else %}
             {% for node in nodes %}
                 <tr>
-                    <td>{{ node.name_with_parent }}
+                    <td>{% if add_label_or_choose_category == 'choose_category' %}{{ node.name_with_parent }}{% else %}{{ node.name }}{% endif %}
                         <span class="my-pop ui" data-html='' event-added=0 ajax_done=0 style="margin-left:5px;"
                               ajax_url="{% url 'get-mini-node-info' dataset.short_name node.url_id %}?se=0&sb=0">
                             <i class="help grey circle icon"></i></span>
                         </span>
                     </td>
                     <td class="right aligned">
-                        <a href= "{% url 'contribute-validate-annotations-category' dataset.short_name node.url_id %}"
-                           class="blue ui button right labeled icon"> Choose
-                            <i class="checkmark box icon"></i>
-                        </a>
+                        {% if add_label_or_choose_category == 'choose_category' %}
+                            <a href= "{% url 'contribute-validate-annotations-category' dataset.short_name node.url_id %}"
+                               class="blue ui button right labeled icon"> Choose
+                                <i class="checkmark box icon"></i>
+                            </a>
+                        {% else %}
+                            <button label-name="{{ node.name }}" label-id="{{ node.node_id }}" event-added=0
+                                class="add-label-button blue ui button right labeled icon">
+                                Add <i class="plus box icon"></i>
+                            </button>
+                        {% endif %}
                     </td>
                 </tr>
             {% endfor %}

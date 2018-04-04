@@ -512,6 +512,7 @@ def dataset_taxonomy_table_choose(request, short_name):
     taxonomy = dataset.taxonomy
     hierarchy_paths = []
     end_of_table = False
+    add_label_or_choose_category = request.POST.get('add_label_or_choose_category', 'choose_category')
 
     # nodes for Free choose table
     if request.method == 'POST':
@@ -550,7 +551,8 @@ def dataset_taxonomy_table_choose(request, short_name):
             .exclude(omitted=True).order_by('nb_ground_truth')[:20]
 
     return render(request, 'datasets/dataset_taxonomy_table_choose.html', {
-        'dataset': dataset, 'end_of_table': end_of_table, 'hierarchy_paths': hierarchy_paths, 'nodes': nodes})
+        'dataset': dataset, 'end_of_table': end_of_table, 'hierarchy_paths': hierarchy_paths, 'nodes': nodes,
+        'add_label_or_choose_category': add_label_or_choose_category})
 
 
 def dataset_taxonomy_table_search(request, short_name):
@@ -590,7 +592,7 @@ def get_mini_node_info(request, short_name, node_id):
 
 def contribute_generate_annotations(request, short_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
-    sound = dataset.sounds.first()
+    sound = dataset.sounds.first()  # TODO: choose a sound
     return render(request, 'datasets/contribute_generate_annotations.html',
                   {'dataset': dataset, 'freesound_sound_id': sound.freesound_id})
 
@@ -603,6 +605,16 @@ def taxonomy_table_extended(request, short_name):
     nodes_data = dataset_taxonomy_stats['nodes_data']
     return render(request, 'datasets/dataset_taxonomy_table_extended.html',
                   {'dataset': dataset, 'nodes_data': nodes_data})
+
+
+def get_hierachy_paths(request, short_name):
+    dataset = get_object_or_404(Dataset, short_name=short_name)
+    leaf_nodes_id = TaxonomyNode.objects.filter(children__isnull=True).distinct().values_list('node_id', flat=True)
+    dataset_taxonomy_stats = data_from_async_task(compute_dataset_taxonomy_stats, [dataset.id], {},
+                                                  DATASET_TAXONOMY_STATS_KEY_TEMPLATE.format(dataset.id), 60)
+    nodes_data = dataset_taxonomy_stats['nodes_data']
+    hierachy_paths = [node_data['hierarchy_paths'] for node_data in nodes_data if node_data['id'] in leaf_nodes_id]
+    return JsonResponse(hierachy_paths, safe=False)
 
 
 ########################
