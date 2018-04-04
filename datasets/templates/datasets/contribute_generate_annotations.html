@@ -121,18 +121,20 @@
             var parent_paths = parentPaths(paths, label_id);
             var children_paths = childrenPaths(paths, label_id);  // TODO: propose these labels to the user
             for (var i=0; i < parent_paths.length; i++) {
-                $('#label-container').append('<div class="group-label ui segment" group-id="'+ label_id + i +'"></div>');
+                var group_id = label_id + i;
+                $('#label-container').append('<div class="group-label ui message" group-id="'+ group_id +'"><i class="close icon"></i></div>');
                 for (var j=0; j < parent_paths[i].length; j++) {
-                    addLabel(id_to_name[parent_paths[i][j]], parent_paths[i][j], label_id + i);
+                    addLabel(id_to_name[parent_paths[i][j]], parent_paths[i][j], group_id);
+                    $('div[group-id="'+group_id+'"]').append('>');
                 }
-                addLabel(label_name, label_id,  label_id + i);
+                addLabel(label_name, label_id,  group_id);
                 addLabelGroupClickEvent(label_id + i);
             }
         }
 
         function removeGroupLabel(group_id) {
             var group_div = $('div[group-id="'+group_id+'"]');
-            var children = group_div.children();
+            var children = group_div.children('.generated-label');
             for (i=0 ; i<children.length; i++) {
                 removeLabel(children.eq(i).attr('label-name'));
             }
@@ -150,8 +152,8 @@
         }
 
         function addLabelGroupClickEvent(group_id) {
-            var group = $('div[group-id="'+group_id+'"]');
-            group.click(function() {
+            var group_delete = $('div[group-id="'+group_id+'"] > i');
+            group_delete.click(function() {
                 removeGroupLabel(group_id);
             });
         }
@@ -200,8 +202,6 @@
 {% block content %}
     {{ freesound_sound_id| fs_embed | safe }}
     <div class="ui grid">
-        <div id="label-container" class="seven wide column">
-        </div>
         <div class="nine wide column">
             <div class="ui segment" style="padding: 0 0 0 0;">
                 <div class="ui two item top attached tabular menu">
@@ -221,6 +221,9 @@
                     <div class="ui active centered inline text loader">Loading data...</div>
                 </div>
             </div>
+        </div>
+
+        <div id="label-container" class="seven wide column">
         </div>
     </div>
 {% endblock %}
