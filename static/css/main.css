@@ -172,6 +172,12 @@ ul {
 	color: #f9efe0;
 }
 
+
+/* GENERATE LABEL TASK*/
 .generated-label {
 	margin: 5px!important;
+}
+
+.group-label {
+	margin: 10px!important;
 }

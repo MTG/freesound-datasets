@@ -525,16 +525,22 @@ def dataset_taxonomy_table_choose(request, short_name):
                 # Here we should remove also the categories which all its children have no more annotations tu validate.
                 # Doing it with dataset.get_categories_to_validate() or with dataset.user_can_annotated() on all
                 # children would be too slow
-                nodes = [node for node in taxonomy.get_children(node_id) if node.self_and_children_advanced_task
-                         and not node.self_and_children_omitted]
+                if add_label_or_choose_category == 'choose_category':
+                    nodes = [node for node in taxonomy.get_children(node_id) if node.self_and_children_advanced_task
+                             and not node.self_and_children_omitted]
+                else:
+                    nodes = [node for node in taxonomy.get_children(node_id)]
             else:
                 end_of_table = True  # end of continue, now the user will choose a category to annotate
                 nodes = list(taxonomy.get_all_children(node_id)) + [taxonomy.get_element_at_id(node_id)] \
                     + list(taxonomy.get_all_parents(node_id))
                 # we should remove the nodes that have no more annotations to validate for the user
                 # by using dataset.user_can_annotate(), but it is too slow
-                nodes = [node for node in nodes
-                         if node.advanced_task and not node.omitted]
+                if add_label_or_choose_category == 'choose_category':
+                    nodes = [node for node in nodes
+                             if node.advanced_task and not node.omitted]
+                else:
+                    pass
             hierarchy_paths = dataset.taxonomy.get_hierarchy_paths(node_id)
 
         # start choosing category
@@ -614,7 +620,8 @@ def get_hierachy_paths(request, short_name):
                                                   DATASET_TAXONOMY_STATS_KEY_TEMPLATE.format(dataset.id), 60)
     nodes_data = dataset_taxonomy_stats['nodes_data']
     hierachy_paths = [node_data['hierarchy_paths'] for node_data in nodes_data if node_data['id'] in leaf_nodes_id]
-    return JsonResponse(hierachy_paths, safe=False)
+    id_to_name = {node.node_id: node.name for node in TaxonomyNode.objects.all()}
+    return JsonResponse({"hierachy_paths": hierachy_paths, "id_to_name": id_to_name}, safe=False)
 
 
 ########################
