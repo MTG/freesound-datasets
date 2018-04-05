@@ -78,7 +78,9 @@
             var paths = searchPaths(node_id);
             for (var i=0; i < paths.length; i++) {
                 var index = paths[i].indexOf(node_id);
-                children.push(paths[i][index+1]);
+                if (paths[i][index+1] !== undefined) {
+                    children.push(paths[i][index + 1]);
+                }
             }
             return Array.from(new Set(children));
         }
@@ -127,9 +129,9 @@
         }
 
         function addGroupLabel(label_name, label_id) {
+            // add all the group label corresponding to the selected label (multiple parents creates several label groups)
             var paths = searchPaths(label_id);
             var parent_paths = parentPaths(paths, label_id);
-            var children_paths = childrenPaths(paths, label_id);  // TODO: propose these labels to the user
             for (var i=0; i < parent_paths.length; i++) {
                 var group_id = label_id + i;
                 $('#label-container').append('<div class="group-label ui message" group-id="'+ group_id +'"><i class="close icon"></i></div>');
@@ -138,6 +140,7 @@
                     $('div[group-id="'+group_id+'"]').append('>');
                 }
                 addLastLabel(label_name, label_id,  group_id);
+                addChildrenLabel(label_name, label_id,  group_id);
                 addLabelGroupClickEvent(label_id + i);
             }
         }
@@ -161,7 +164,7 @@
             var siblings = getSiblings(label_id);
             var ajax_url = $('button[label-id="'+label_id+'"]').parents('tr').find('.my-pop').attr('ajax_url');
             var el = '';
-            el += '<div class="generated-label ui compact inline scrolling dropdown button" label-name="';
+            el += '<div class="current generated-label ui compact inline scrolling dropdown button" label-name="';
             el += label_name + '" ';
             el += 'label-id="'+ label_id +'">';
             el += '<div class="text">' + label_name;
@@ -183,18 +186,15 @@
             el += '</div>';
 
             $('div[group-id="'+group_id+'"]').append(el);
-            $('div[group-id="'+group_id+'"] > .ui.dropdown').dropdown({
+            $('div[group-id="'+group_id+'"] > .current').dropdown({
                 onChange: function(value, text, $selectedItem) {
                     // update label attributes
                     var current_label = $selectedItem.parents('.generated-label');
                     var old_label_name = current_label.attr('label-name');
                     var new_label_name = id_to_name[value];
-                    current_label.attr('label-id', value);
-                    current_label.attr('label-name', new_label_name);
-                    // update table
-                    $('button[label-name="'+old_label_name+'"]').prop( "disabled", false );
-                    $('button[label-name="'+new_label_name+'"]').prop( "disabled", true );
-                    addPopUpEvent(current_label.find('span'));
+                    // remove the old group label and add the new one
+                    removeGroupLabel(group_id);
+                    addGroupLabel(new_label_name, value);
                 },
                 onHide: function() {
                     // don't hide the dorpdown when clicking on an popup (= when a popup is visible)
@@ -203,6 +203,48 @@
             });
             addPopUpEvent();
             $('button[label-name="'+label_name+'"]').prop( "disabled", true );
+        }
+
+        function addChildrenLabel(label_name, label_id, group_id) {
+            var children = getChildren(label_id);
+            if (children.length > 0) {
+                var el = '>';
+                el += '<div class="children generated-label ui compact inline scrolling dropdown button" label-name=""';
+                el += 'label-id="">';
+                el += '<div class="text">';
+                el += '</div>';
+                el += '<i class="dropdown icon"></i>';
+                el += '<div class="menu">';
+                for (var i=0; i < children.length; i++) {
+                    ajax_url = $('button[label-id="'+children[i]+'"]').parents('tr').find('.my-pop').attr('ajax_url');
+                    el += '<div data-value="'+ children[i] +'" class="item" label-id="'+ children[i] +'">'
+                        + id_to_name[children[i]]
+                        + '<span class="my-pop ui" event-added=0 data-html="" ajax_done=0 style="margin-left:5px;" ajax_url="'
+                        + ajax_url
+                        + '"><i class="help grey circle icon"></i></span>'
+                        + '</div>';
+                }
+                el += '</div>';
+
+                $('div[group-id="'+group_id+'"]').append(el);
+                $('div[group-id="'+group_id+'"] > .children').dropdown({
+                    onChange: function(value, text, $selectedItem) {
+                        // update label attributes
+                        var current_label = $selectedItem.parents('.generated-label');
+                        var old_label_name = current_label.attr('label-name');
+                        var new_label_name = id_to_name[value];
+                        // remove the old group label and add the new one
+                        removeGroupLabel(group_id);
+                        addGroupLabel(new_label_name, value);
+                    },
+                    onHide: function() {
+                        // don't hide the dorpdown when clicking on an popup (= when a popup is visible)
+                        return $('.my-pop.visible').length === 0
+                    }
+                });
+                addPopUpEvent();
+                $('button[label-name="'+label_name+'"]').prop( "disabled", true );
+            }
         }
 
         function removeLabel(label_name, group_id) {
