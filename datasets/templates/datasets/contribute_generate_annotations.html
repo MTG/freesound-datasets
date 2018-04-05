@@ -49,7 +49,7 @@
             var parent_paths = [];
             for (var i=0; i < paths.length; i++) {
                 var index = paths[i].indexOf(node_id);
-                parent_paths.push(paths[i].slice(0, index))
+                parent_paths.push(paths[i].slice(0, index));
             }
             return uniq(parent_paths)
         }
@@ -58,9 +58,38 @@
             var children_paths = [];
             for (var i=0; i < paths.length; i++) {
                 var index = paths[i].indexOf(node_id);
-                children_paths.push(paths[i].slice(index+1, paths[i].length))
+                children_paths.push(paths[i].slice(index+1, paths[i].length));
             }
             return children_paths
+        }
+
+        function getParents(node_id) {
+            var parents = [];
+            var paths = searchPaths(node_id);
+            for (var i=0; i < paths.length; i++) {
+                var index = paths[i].indexOf(node_id);
+                parents.push(paths[i][index-1]);
+            }
+            return Array.from(new Set(parents));
+        }
+
+        function getChildren(node_id) {
+            var children = [];
+            var paths = searchPaths(node_id);
+            for (var i=0; i < paths.length; i++) {
+                var index = paths[i].indexOf(node_id);
+                children.push(paths[i][index+1]);
+            }
+            return Array.from(new Set(children));
+        }
+
+        function getSiblings(node_id) {
+            var siblings = [];
+            var parents = getParents(node_id);
+            for (var i=0; i < parents.length; i++) {
+                Array.prototype.push.apply(siblings, getChildren(parents[i]));
+            }
+            return Array.from(new Set(siblings))
         }
 
         function addPopUpEvent(targets) {
@@ -127,7 +156,7 @@
                     addLabel(id_to_name[parent_paths[i][j]], parent_paths[i][j], group_id);
                     $('div[group-id="'+group_id+'"]').append('>');
                 }
-                addLabel(label_name, label_id,  group_id);
+                addLastLabel(label_name, label_id,  group_id);
                 addLabelGroupClickEvent(label_id + i);
             }
         }
@@ -138,11 +167,44 @@
             for (i=0 ; i<children.length; i++) {
                 removeLabel(children.eq(i).attr('label-name'));
             }
-            $('div[group-id="'+group_id+'"]').remove();
+            group_div.remove();
         }
 
         function addLabel(label_name, label_id, group_id) {
-            $('div[group-id="'+group_id+'"]').append('<div class="generated-label ui large label" label-name="'+label_name+'">'+label_name+'</div>');
+            $('div[group-id="'+group_id+'"]').append('<div class="generated-label ui large label" label-name="'
+                                                     + label_name+'">'+label_name+'</div>');
+            $('button[label-name="'+label_name+'"]').prop( "disabled", true );
+        }
+
+        function addLastLabel(label_name, label_id, group_id) {
+            var siblings = getSiblings(label_id);
+
+            var el = '';
+            el += '<div class="generated-label ui compact inline scrolling dropdown button" label-name="';
+            el += label_name + '" ';
+            el += 'label-id="'+ label_id +'">';
+            el += '<div class="text">' + label_name + '</div>';
+            el += '<i class="dropdown icon"></i>';
+            el += '<div class="menu">';
+            for (var i=0; i < siblings.length; i++) {
+                el += '<div data-value="'+ siblings[i] +'" class="item" label-id="'+ siblings[i] +'">' + id_to_name[siblings[i]] + '</div>';
+            }
+            el += '</div>';
+
+            $('div[group-id="'+group_id+'"]').append(el);
+            $('div[group-id="'+group_id+'"] > .ui.dropdown').dropdown({
+                onChange: function(value, text, $selectedItem) {
+                    // update label attributes
+                    var current_label = $selectedItem.parents('.generated-label');
+                    var old_label_name = current_label.attr('label-name');
+                    var new_label_name = id_to_name[value];
+                    current_label.attr('label-id', value);
+                    current_label.attr('label-name', new_label_name);
+                    // update table
+                    $('button[label-name="'+old_label_name+'"]').prop( "disabled", false );
+                    $('button[label-name="'+new_label_name+'"]').prop( "disabled", true );
+                }
+            });
             $('button[label-name="'+label_name+'"]').prop( "disabled", true );
         }
 
