@@ -102,13 +102,15 @@
                 }
                 my_pops.attr('event-added', 1);
                 my_pops.popup({
+                    position: 'top right',
                     on: 'hover',
                     html: popupLoading,
+                    hoverable: true,
                     onShow: function(el){
                         var ajax_done = el.getAttribute('ajax_done');
                         if (ajax_done == 0) {
                             var popup = this;
-                            var ajax_url = el.getAttribute('ajax_url');
+                            var ajax_url = el.getAttribute('ajax_url').replace('se=0', 'se=1');
                             $.ajax({
                                 url: ajax_url
                             }).done(function(result) {
@@ -166,7 +168,13 @@
             el += '<i class="dropdown icon"></i>';
             el += '<div class="menu">';
             for (var i=0; i < siblings.length; i++) {
-                el += '<div data-value="'+ siblings[i] +'" class="item" label-id="'+ siblings[i] +'">' + id_to_name[siblings[i]] + '</div>';
+                var ajax_url = $('button[label-id="'+siblings[i]+'"]').parents('tr').find('.my-pop').attr('ajax_url');
+                el += '<div data-value="'+ siblings[i] +'" class="item" label-id="'+ siblings[i] +'">'
+                    + id_to_name[siblings[i]]
+                    + '<span class="my-pop ui" event-added=0 data-html="" ajax_done=0 style="margin-left:5px;" ajax_url="'
+                    + ajax_url
+                    + '"><i class="help grey circle icon"></i></span>'
+                    + '</div>';
             }
             el += '</div>';
 
@@ -182,8 +190,13 @@
                     // update table
                     $('button[label-name="'+old_label_name+'"]').prop( "disabled", false );
                     $('button[label-name="'+new_label_name+'"]').prop( "disabled", true );
+                },
+                onHide: function() {
+                    // don't hide the dorpdown when clicking on an popup (= when a popup is visible)
+                    return $('.my-pop.visible').length === 0
                 }
             });
+            addPopUpEvent();
             $('button[label-name="'+label_name+'"]').prop( "disabled", true );
         }
 
