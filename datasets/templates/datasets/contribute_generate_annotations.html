@@ -15,11 +15,11 @@
             var hash = {};
             var out = [];
             for (var i = 0, l = a.length; i < l; i++) {
-              var key = a[i].join('|');
-              if (!hash[key]) {
-                out.push(a[i]);
-                hash[key] = 'found';
-              }
+                var key = a[i].join('|');
+                if (!hash[key]) {
+                    out.push(a[i]);
+                    hash[key] = 'found';
+                }
             }
             return out
         }
@@ -122,27 +122,6 @@
                     }
                 });
             });
-        }
-
-        function loadDatasetTaxonomyTableChoose(node_id){
-            $.ajax({url: "{% url 'dataset_taxonomy_table_choose' dataset.short_name %}",
-                    type: "POST",
-                    beforeSend: function(){ timeoutID = setTimeout( function() {
-                        $( "#choose_table_placeholder" ).html('<div class="ui active centered inline text loader">Loading data...</div>')}, 500)
-                    },
-                    data: {node_id: node_id, add_label_or_choose_category: 'add_label', csrfmiddlewaretoken: "{{csrf_token}}"},
-                    success: function(result){
-                        clearTimeout(timeoutID);
-                        $( "#choose_table_placeholder" ).html(result);
-                        $(".loadButton").on("click", function(e) {
-                            var thisId = $(this).data("node_id");
-                            loadDatasetTaxonomyTableChoose(thisId);
-                        });
-                        addPopUpEvent();
-                        addButtonClickEvents();
-                        syncTables();
-                    }
-            })
         }
 
         function addGroupLabel(label_name, label_id) {
@@ -254,6 +233,27 @@
                 return results;
             }
         });
+
+        function loadDatasetTaxonomyTableChoose(node_id){
+            $.ajax({url: "{% url 'dataset_taxonomy_table_choose' dataset.short_name %}",
+                    type: "POST",
+                    beforeSend: function(){ timeoutID = setTimeout( function() {
+                        $( "#choose_table_placeholder" ).html('<div class="ui active centered inline text loader">Loading data...</div>')}, 500)
+                    },
+                    data: {node_id: node_id, add_label_or_choose_category: 'add_label', csrfmiddlewaretoken: "{{csrf_token}}"},
+                    success: function(result){
+                        clearTimeout(timeoutID);
+                        $( "#choose_table_placeholder" ).html(result);
+                        $(".loadButton").on("click", function(e) {
+                            var thisId = $(this).data("node_id");
+                            loadDatasetTaxonomyTableChoose(thisId);
+                        });
+                        addPopUpEvent();
+                        addButtonClickEvents();
+                        syncTables();
+                    }
+            })
+        }
 
         function loadDatasetTaxonomyTable(){
             $( "#search_table_placeholder" ).load( "{% url 'taxonomy-table-extended' dataset.short_name %}", function() {
