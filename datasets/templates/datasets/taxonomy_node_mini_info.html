@@ -1,6 +1,7 @@
 {% load dataset_templatetags %}
 <table class="ui unstackable table bottom attached" width="100%" style="margin-bottom:7px;">
     <tbody>
+    {% if show_hierarchy > 0 %}
     <td>Hierarchy</td>
     <td>
         <div class="ui list">
@@ -24,6 +25,7 @@
             {% endfor %}
         </div>
     </td>
+    {% endif %}
         <tr>
             <td class="three wide">Description</td>
             <td>{{ node.description }}</td>
