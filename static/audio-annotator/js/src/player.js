@@ -100,8 +100,6 @@ Player.prototype = {
     }
 };
 
-Player.activePlayer = null;
-
 // View prototype
 function View(player) {
     this.player = player;
@@ -329,9 +327,9 @@ PlayBar.prototype = {
             var playerDom = pl.playerDom;
             var button = $(playerDom).find(".play_pause");
             // Stop all and store current player
-            if(Player.activePlayer !== null && Player.activePlayer !== pl.player)
-                Player.activePlayer.wavesurfer.stop();
-            Player.activePlayer = pl.player;
+            if(window.activePlayer && window.activePlayer !== pl.player)
+                window.activePlayer.wavesurfer.stop();
+            window.activePlayer = pl.player;
             // Change icon
             button.find(".play").removeClass("play").addClass("pause");
         });
