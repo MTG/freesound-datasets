@@ -1,6 +1,7 @@
 from django import template
 from django.core import urlresolvers
 import datetime
+import random
 import time
 
 register = template.Library()
@@ -49,7 +50,6 @@ def timestamp_to_datetime(value):
 def multiply(value, arg):
     return value*arg
 
-
 @register.inclusion_tag('datasets/player.html')
 def sound_player(dataset, freesound_sound_id, player_size):
     sound = dataset.sounds.get(freesound_id=freesound_sound_id)
@@ -61,5 +61,6 @@ def sound_player(dataset, freesound_sound_id, player_size):
             'freesound_id': freesound_sound_id,
             'spectrogram_url': spectrogram_url,
             'waveform_url': waveform_url,
-            'player_size': player_size
+            'player_size': player_size,
+            'player_id': random.randint(1000,9999)
             }

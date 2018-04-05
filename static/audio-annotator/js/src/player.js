@@ -5,7 +5,8 @@ function Player(Options)
     this.playBar;
     this.view;
     this.fs_id = Options.freesound_id;
-    this.playerDom = "#s" + this.fs_id;
+    this.player_id = Options.player_id;
+    this.playerDom = "#s" + this.fs_id + "_" + this.player_id;
     this.size = Options.size || "medium";
     this.height = Options.height || this.getHeightFromSize(this.size);
     this.ws_container = this.playerDom + " .wavesurfer";
@@ -86,7 +87,7 @@ Player.prototype = {
         }
 
         return height;
-    }
+    },
 };
 
 Player.activePlayer = null;
