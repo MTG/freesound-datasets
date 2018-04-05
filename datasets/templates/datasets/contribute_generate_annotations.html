@@ -136,11 +136,11 @@
                         $( "#choose_table_placeholder" ).html(result);
                         $(".loadButton").on("click", function(e) {
                             var thisId = $(this).data("node_id");
-                            loadDatasetTaxonomyTableChoose(thisId)
+                            loadDatasetTaxonomyTableChoose(thisId);
                         });
                         addPopUpEvent();
                         addButtonClickEvents();
-                        // TODO: add fix sync between tables
+                        syncTables();
                     }
             })
         }
@@ -172,7 +172,7 @@
 
         function addLabel(label_name, label_id, group_id) {
             $('div[group-id="'+group_id+'"]').append('<div class="generated-label ui large label" label-name="'
-                                                     + label_name+'">'+label_name+'</div>');
+                                                     + label_name+'" label-id="'+ label_id +'">'+label_name+'</div>');
             $('button[label-name="'+label_name+'"]').prop( "disabled", true );
         }
 
@@ -234,6 +234,27 @@
             });
         }
 
+        function getAddedLabels() {
+            return Array.from(new Set($('.generated-label').attrs('label-id')))
+        }
+
+        function syncTables() {
+            var label_ids = getAddedLabels();
+            for (var i=0; i < label_ids.length; i++) {
+                $('button[label-id="'+label_ids[i]+'"]').prop( "disabled", true );
+            }
+        }
+
+        jQuery.fn.extend({
+            attrs: function (attributeName) {
+                var results = [];
+                $.each(this, function (i, item) {
+                    results.push(item.getAttribute(attributeName));
+                });
+                return results;
+            }
+        });
+
         function loadDatasetTaxonomyTable(){
             $( "#search_table_placeholder" ).load( "{% url 'taxonomy-table-extended' dataset.short_name %}", function() {
                 $('#dataset_contents').DataTable({
@@ -253,10 +274,11 @@
                 $('#dataset_contents').on('draw.dt', function () {
                     addPopUpEvent($(this).find('.my-pop'));
                     addButtonClickEvents();
+                    syncTables();
                 });
                 addPopUpEvent();
                 addButtonClickEvents();
-                // TODO: add fix sync between tables
+                syncTables();
             });
         }
     </script>
