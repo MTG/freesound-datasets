@@ -159,16 +159,20 @@
 
         function addLastLabel(label_name, label_id, group_id) {
             var siblings = getSiblings(label_id);
-
+            var ajax_url = $('button[label-id="'+label_id+'"]').parents('tr').find('.my-pop').attr('ajax_url');
             var el = '';
             el += '<div class="generated-label ui compact inline scrolling dropdown button" label-name="';
             el += label_name + '" ';
             el += 'label-id="'+ label_id +'">';
-            el += '<div class="text">' + label_name + '</div>';
+            el += '<div class="text">' + label_name;
+            el += '<span class="my-pop ui" event-added=0 data-html="" ajax_done=0 style="margin-left:5px;" ajax_url="';
+            el += ajax_url;
+            el += '"><i class="help grey circle icon"></i></span>';
+            el += '</div>';
             el += '<i class="dropdown icon"></i>';
             el += '<div class="menu">';
             for (var i=0; i < siblings.length; i++) {
-                var ajax_url = $('button[label-id="'+siblings[i]+'"]').parents('tr').find('.my-pop').attr('ajax_url');
+                ajax_url = $('button[label-id="'+siblings[i]+'"]').parents('tr').find('.my-pop').attr('ajax_url');
                 el += '<div data-value="'+ siblings[i] +'" class="item" label-id="'+ siblings[i] +'">'
                     + id_to_name[siblings[i]]
                     + '<span class="my-pop ui" event-added=0 data-html="" ajax_done=0 style="margin-left:5px;" ajax_url="'
@@ -190,6 +194,7 @@
                     // update table
                     $('button[label-name="'+old_label_name+'"]').prop( "disabled", false );
                     $('button[label-name="'+new_label_name+'"]').prop( "disabled", true );
+                    addPopUpEvent(current_label.find('span'));
                 },
                 onHide: function() {
                     // don't hide the dorpdown when clicking on an popup (= when a popup is visible)
