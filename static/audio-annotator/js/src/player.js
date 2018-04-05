@@ -18,7 +18,8 @@ function Player(Options)
     this.wavesurfer = Object.create(WaveSurfer);
     this.wavesurfer.init({
         container: this.ws_container,
-        height: this.height
+        height: this.height,
+        audioContext: this.getAudioContext()
     });
 
     // Create view
@@ -63,6 +64,15 @@ Player.prototype = {
         var pl = this;
         $(pl.playerDom).find(".dimmer").removeClass("active");
     },
+    
+    getAudioContext: function () {
+        if (!window.audioCtx) {
+            window.audioCtx = new (
+                window.AudioContext || window.webkitAudioContext
+            );
+        }
+        return window.audioCtx;
+    },
 
     getHeightFromSize: function () {
         var pl = this;
@@ -87,7 +97,7 @@ Player.prototype = {
         }
 
         return height;
-    },
+    }
 };
 
 Player.activePlayer = null;
