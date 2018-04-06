@@ -85,7 +85,9 @@ def compute_dataset_basic_stats(store_key, dataset_id):
             'num_ground_truth_annotations': dataset.num_ground_truth_annotations,
             'num_verified_annotations': dataset.num_verified_annotations,
             'num_user_contributions': dataset.num_user_contributions,
-            'percentage_verified_annotations': dataset.percentage_verified_annotations
+            'percentage_verified_annotations': dataset.percentage_verified_annotations,
+            'num_categories_reached_goal': dataset.num_categories_reached_goal,
+            'num_non_omitted_nodes': dataset.num_non_omitted_nodes
         })
         logger.info('Finished computing data for {0}'.format(store_key))
     except Dataset.DoesNotExist:

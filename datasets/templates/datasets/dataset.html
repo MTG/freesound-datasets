@@ -14,6 +14,9 @@
             {% endif %}
             $('.menu .item').tab();
             start_auto_scroll();
+            $('#category-progress').progress({
+                percent: '{% widthratio dataset_basic_stats.num_categories_reached_goal dataset_basic_stats.num_non_omitted_nodes 100 %}'
+            });
         });
 
         function loadDatasetReleasesTable() {
@@ -160,6 +163,12 @@ that express the potential presence of sound sources in audio clips.
               </span>
             {% endfor %}
           </div>
+          <div id="category-progress" class="ui red progress" style="width: 95%;" align="left">
+            <div class="bar"></div>
+          </div>
+          <h5 style="margin-top: -25px; text-align: center">
+              {{ dataset_basic_stats.num_categories_reached_goal }}/{{ dataset_basic_stats.num_non_omitted_nodes }} categories have reached our first goal!
+          </h5>
         </div>
         <div class="right floated left aligned nine wide column">
           <h3 class="ui header">Crowdsourcing annotations</h3>
@@ -169,10 +178,13 @@ that express the potential presence of sound sources in audio clips.
               <!--To do so, we are now crowdsourcing annotations to build the first {{ dataset.short_name|upper }} release. Wanna contribute? :)-->
           <!--</p>-->
           <p style="text-align:justify">By creating this dataset, we seek promoting research that will enable machines to hear
-              and interpret sound similarly to humans.
-          But to make {{ dataset.short_name|upper}} reliable enough for research, we need to verify the generated annotations.
+              and interpret sound similarly to humans. But to make {{ dataset.short_name|upper}} reliable enough for
+              research, we need to verify the generated annotations.
               So we are now crowdsourcing annotations to build the first {{ dataset.short_name|upper }} release,
-              which will include waveforms, audio features, ground truth and additional metadata. Wanna contribute?
+              which will include waveforms, audio features, ground truth and additional metadata.
+              Our first goal is to gather (whenever possible) more than 100 annotations for every of
+              <a href="{% url 'dataset-explore' dataset.short_name %}"> our {{ dataset_basic_stats.num_non_omitted_nodes }} categories</a>.
+              Wanna contribute?
           </p>
         </div>
       </div>
@@ -214,7 +226,7 @@ that express the potential presence of sound sources in audio clips.
 
 <div class="ui grid">
 
-<div class="twelve wide column"><h2>Our goals</h2>
+<div class="twelve wide column"><h2>Our long-term goals</h2>
  <br>
  <div class="ui three statistics">
   <div class="ui blue statistic">
