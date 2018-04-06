@@ -50,12 +50,17 @@ def dataset(request, short_name):
 
     random_taxonomy_nodes = dataset.get_random_taxonomy_node_with_examples()
 
+    # Get previously stored dataset release stats
+    dataset_basic_stats = data_from_async_task(compute_dataset_basic_stats, [dataset.id], {},
+                                               DATASET_BASIC_STATS_KEY_TEMPLATE.format(dataset.id), 60)
+
     return render(request, 'datasets/dataset.html', {
         'dataset': dataset,
         'dataset_page': True,
         'user_is_maintainer': user_is_maintainer,
         'dataset_release_form': form, 'dataset_release_form_errors': form_errors,
         'random_nodes': random_taxonomy_nodes,
+        'dataset_basic_stats': dataset_basic_stats,
     })
 
 
@@ -142,12 +147,15 @@ def taxonomy_node(request, short_name, node_id):
 def contribute(request, short_name, beginner_task_finished=False):
     dataset = get_object_or_404(Dataset, short_name=short_name)
 
+    user_is_maintainer = dataset.user_is_maintainer(request.user)
+
     # Get previously stored annotators ranking
     annotators_ranking = data_from_async_task(compute_annotators_ranking, [dataset.id], {},
                                               DATASET_ANNOTATORS_RANKING_TEMPLATE.format(dataset.id), 60 * 1)
 
     return render(request, 'datasets/contribute.html', {'dataset': dataset, 'annotators_ranking': annotators_ranking,
-                                                        'beginner_task_finished': beginner_task_finished})
+                                                        'beginner_task_finished': beginner_task_finished,
+                                                        'user_is_maintainer': user_is_maintainer})
 
 
 @login_required
@@ -180,6 +188,19 @@ def contribute_validate_annotations_easy(request, short_name):
         return contribute(request, short_name, beginner_task_finished=True)
     return contribute_validate_annotations_category(request, short_name, node_id,
                                                     html_url='datasets/contribute_validate_annotations_category_easy.html')
+
+
+@login_required
+def contribute_validate_annotations_all(request, short_name):
+    dataset = get_object_or_404(Dataset, short_name=short_name)
+    user_is_maintainer = dataset.user_is_maintainer(request.user)
+    request.session['nb_task1_pages'] = 0
+    new_annotations = request.GET.get('na', 0)  # new annotations (for Kaggle dataset)
+    if user_is_maintainer:
+        return render(request, 'datasets/dataset_taxonomy_choose_category_all.html',
+                      {'dataset': dataset, 'new_annotations': new_annotations})
+    else:
+        return contribute(request, short_name)
 
 
 def get_candidate_annotations_complete_ids_random_from(candidate_annotation_ids):
@@ -221,6 +242,8 @@ def contribute_validate_annotations_category(request, short_name, node_id, html_
     node = dataset.taxonomy.get_element_at_id(node_id)
     skip_tempo = True if user_last_category == node and user.profile.contributed_recently or \
                          request.GET.get(settings.SKIP_TEMPO_PARAMETER, False) else False
+    maintainer_task = request.GET.get('mt', 0)
+    new_annotations = request.GET.get('na', 0)  # new annotations (for Kaggle dataset)
 
     annotation_ids = []
     # check if user annotate a new category or has not annotate for a long time
@@ -263,6 +286,14 @@ def contribute_validate_annotations_category(request, short_name, node_id, html_
         .exclude(votes__created_by=user).exclude(id__in=annotation_examples_verification_ids) \
         .exclude(id__in=annotation_examples_ids) \
         .filter(sound_dataset__sound__deleted_in_freesound=False).annotate(num_votes=Count('votes'))
+
+    # Exclude annotations that have votes (for kaggle dataset) and that have nc and sampling+ licenses
+    if new_annotations == '1':
+        annotations = annotations\
+            .exclude(num_votes__gt=0)\
+            .exclude(sound_dataset__sound__extra_data__license__in=('http://creativecommons.org/licenses/by-nc/3.0/',
+                                                                    'http://creativecommons.org/licenses/sampling+/1.0/'
+                                                                    ))
 
     # Extract the voted annotations ids
     annotation_with_vote_ids = annotations.filter(num_votes__gt=0).values_list('id', flat=True)
@@ -323,16 +354,22 @@ def contribute_validate_annotations_category(request, short_name, node_id, html_
                 if N_with_no_vote_long:
                     annotation_ids += annotation_with_no_vote_complete_ids[:N_with_no_vote_long]
 
+    # If not candidate annotations left, remove test annotations
+    if annotations.count() == 0:
+        annotation_ids = list()
+        negative_annotation_example = list()
+
     # Get the selected annotations
     N = len(annotation_ids)
-    annotations = list(CandidateAnnotation.objects.filter(id__in=annotation_ids).select_related('sound_dataset__sound'))
+    annotations_to_validate = list(CandidateAnnotation.objects.filter(id__in=annotation_ids)
+                                   .select_related('sound_dataset__sound'))
     if negative_annotation_example:  # add the "dummy" negative example annotation if it exists
-        annotations.append(negative_annotation_example)
-    random.shuffle(annotations)
+        annotations_to_validate.append(negative_annotation_example)
+    random.shuffle(annotations_to_validate)
 
     formset = PresentNotPresentUnsureFormSet(
-        initial=[{'annotation_id': annotation.id} for annotation in annotations])
-    annotations_forms = list(zip(list(annotations), formset))
+        initial=[{'annotation_id': annotation.id} for annotation in annotations_to_validate])
+    annotations_forms = list(zip(list(annotations_to_validate), formset))
 
     category_comment_form = CategoryCommentForm()
 
@@ -349,7 +386,9 @@ def contribute_validate_annotations_category(request, short_name, node_id, html_
                    'formset': formset, 'N': N, 'user_is_maintainer': user_is_maintainer,
                    'category_comment_form': category_comment_form, 'skip_tempo': skip_tempo,
                    'skip_tempo_parameter': settings.SKIP_TEMPO_PARAMETER,
-                   'nb_task1_pages': nb_task1_pages})
+                   'nb_task1_pages': nb_task1_pages,
+                   'maintainer_task': maintainer_task,
+                   'new_annotations': new_annotations})
 
 
 @login_required
@@ -458,6 +497,14 @@ def choose_category(request, short_name):
     return render(request, 'datasets/dataset_taxonomy_choose_category.html', {'dataset': dataset})
 
 
+@login_required
+def choose_category_all(request, short_name):
+    dataset = get_object_or_404(Dataset, short_name=short_name)
+    request.session['read_instructions'] = True
+    request.session['nb_task1_pages'] = 0
+    return render(request, 'datasets/dataset_taxonomy_choose_category_all.html', {'dataset': dataset})
+
+
 def dataset_taxonomy_table_choose(request, short_name):
     if not request.user.is_authenticated:
         return HttpResponse('Unauthorized', status=401)
@@ -473,25 +520,34 @@ def dataset_taxonomy_table_choose(request, short_name):
         # choose a category at the given node_id level
         if node_id != str(0):
             if node_id in taxonomy.get_nodes_at_level(0).values_list('node_id', flat=True):
-                # remove node that them and all their children are omitted
-                nodes = [node for node in taxonomy.get_children(node_id) if not node.self_and_children_omitted]
+                # remove node that them and all their children are omitted.
+                # Here we should remove also the categories which all its children have no more annotations tu validate.
+                # Doing it with dataset.get_categories_to_validate() or with dataset.user_can_annotated() on all
+                # children would be too slow
+                nodes = [node for node in taxonomy.get_children(node_id) if node.self_and_children_advanced_task
+                         and not node.self_and_children_omitted]
             else:
                 end_of_table = True  # end of continue, now the user will choose a category to annotate
-                nodes = taxonomy.get_all_children(node_id) + [taxonomy.get_element_at_id(node_id)] + taxonomy.get_all_parents(node_id)
-                # remove the nodes that have no more annotations to validate for the user, or are omitted
+                nodes = list(taxonomy.get_all_children(node_id)) + [taxonomy.get_element_at_id(node_id)] \
+                    + list(taxonomy.get_all_parents(node_id))
+                # we should remove the nodes that have no more annotations to validate for the user
+                # by using dataset.user_can_annotate(), but it is too slow
                 nodes = [node for node in nodes
-                         if dataset.user_can_annotate(node.node_id, request.user) and not node.omitted]
+                         if node.advanced_task and not node.omitted]
             hierarchy_paths = dataset.taxonomy.get_hierarchy_paths(node_id)
 
         # start choosing category
         else:
             nodes = taxonomy.get_nodes_at_level(0)
+            nodes = [node for node in nodes if node.self_and_children_advanced_task
+                     and not node.self_and_children_omitted]
         nodes = sorted(nodes, key=lambda n: n.nb_ground_truth)
 
     # GET request, nodes for Our priority table
     else:
         end_of_table = True
-        nodes = dataset.get_categories_to_validate(request.user).exclude(omitted=True).order_by('nb_ground_truth')[:20]
+        nodes = dataset.get_categories_to_validate(request.user).filter(advanced_task=True)\
+            .exclude(omitted=True).order_by('nb_ground_truth')[:20]
 
     return render(request, 'datasets/dataset_taxonomy_table_choose.html', {
         'dataset': dataset, 'end_of_table': end_of_table, 'hierarchy_paths': hierarchy_paths, 'nodes': nodes})
@@ -501,18 +557,35 @@ def dataset_taxonomy_table_search(request, short_name):
     if not request.user.is_authenticated:
         return HttpResponse('Unauthorized', status=401)
     dataset = get_object_or_404(Dataset, short_name=short_name)
-    taxonomy = dataset.taxonomy
-    nodes = dataset.get_categories_to_validate(request.user).exclude(omitted=True)
-    return render(request, 'datasets/dataset_taxonomy_table_search.html', {'dataset': dataset, 'nodes': nodes})
+    nodes = dataset.get_categories().filter(advanced_task=True).exclude(omitted=True)  # sould use get_categories_to_validate() but it is too slow
+    return render(request, 'datasets/dataset_taxonomy_table_search.html',
+                  {'dataset': dataset, 'nodes': nodes, 'maintainer_task': 0, 'new_annotations': 0})
+
+
+def dataset_taxonomy_table_search_all(request, short_name):
+    if not request.user.is_authenticated:
+        return HttpResponse('Unauthorized', status=401)
+    new_annotations = request.GET.get('na', 0)  # new annotations (for Kaggle dataset)
+    dataset = get_object_or_404(Dataset, short_name=short_name)
+    nodes = dataset.get_categories().exclude(omitted=True)  # sould use get_categories_to_validate() but it is too slow
+    return render(request, 'datasets/dataset_taxonomy_table_search.html',
+                  {'dataset': dataset, 'nodes': nodes,
+                   'maintainer_task': 1,
+                   'new_annotations': new_annotations})
 
 
 def get_mini_node_info(request, short_name, node_id):
+    show_examples = int(request.GET.get('se', 1))
+    show_go_button = int(request.GET.get('sb', 1))
+    show_num_gt = int(request.GET.get('sgt', 0))
     node_id = unquote(node_id)
     dataset = get_object_or_404(Dataset, short_name=short_name)
     node = dataset.taxonomy.get_element_at_id(node_id).as_dict()
     hierarchy_paths = dataset.taxonomy.get_hierarchy_paths(node['node_id'])
     node['hierarchy_paths'] = hierarchy_paths if hierarchy_paths is not None else []
-    return render(request, 'datasets/taxonomy_node_mini_info.html', {'dataset': dataset, 'node': node})
+    return render(request, 'datasets/taxonomy_node_mini_info.html',
+                  {'dataset': dataset, 'node': node, 'show_examples': show_examples,
+                   'show_go_button': show_go_button, 'show_num_gt': show_num_gt})
 
 
 ########################

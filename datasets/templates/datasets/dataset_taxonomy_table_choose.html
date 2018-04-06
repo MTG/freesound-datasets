@@ -1,16 +1,27 @@
 {% load dataset_templatetags %}
+
 {% for hierarchy_path in hierarchy_paths %}
     <div class="item">
         <div class="ui horizontal list">
             <div class="item">
-                <a data-node_id=0 class="loadButton"> Ontology </a>
+                <a data-node_id=0 class="medium text loadButton"> Ontology </a>
             </div>
             {% for node_id in hierarchy_path %}
                 {% taxonomy_node dataset node_id as sub_node_data  %}
                 <div class="item" style="margin-left:3px;margin-right:5px;">
                     &gt;
-                    <a data-node_id={{ node_id }} class="loadButton" >{{ sub_node_data.name }}</a>
+                    <a data-node_id="{{ node_id }}" class="medium text loadButton">{{ sub_node_data.name }}</a>
                 </div>
+                {% if forloop.last %}
+                    <button style="margin-left:10px;" class="ui mini button loadButton"
+                            {% if hierarchy_path|length == 1 %}
+                                data-node_id="0"
+                            {% else %}
+                                data-node_id="{{ hierarchy_path.0 }}"
+                            {% endif %}>
+                        <i class="reply icon"></i>
+                    </button>
+                {% endif %}
             {% endfor %}
         </div>
     </div>
@@ -32,18 +43,29 @@
         {% if not end_of_table %}
             {% for node in nodes %}
                 <tr>
-                    <td>{{ node.name }}</td>
+                    <td>{{ node.name }}
+                        <span class="my-pop ui" event-added=0 data-html='' ajax_done=0 style="margin-left:5px;"
+                              ajax_url="{% url 'get-mini-node-info' dataset.short_name node.url_id %}?se=0&sb=0">
+                            <i class="help grey circle icon"></i></span>
+                    </td>
                     <td class="right aligned">
-                        <button data-node_id={{ node.node_id }} class="loadButton teal ui button right labeled icon" > Continue <i class="right arrow icon"></i> </button>
+                        <button data-node_id="{{ node.node_id }}" class="loadButton teal ui button right labeled icon">
+                            Continue <i class="right arrow icon"></i> </button>
                     </td>
                 </tr>
             {% endfor %}
         {% else %}
             {% for node in nodes %}
                 <tr>
-                    <td>{{ node.name_with_parent }}</td>
+                    <td>{{ node.name_with_parent }}
+                        <span class="my-pop ui" data-html='' event-added=0 ajax_done=0 style="margin-left:5px;"
+                              ajax_url="{% url 'get-mini-node-info' dataset.short_name node.url_id %}?se=0&sb=0">
+                            <i class="help grey circle icon"></i></span>
+                        </span>
+                    </td>
                     <td class="right aligned">
-                        <a href= "{% url 'contribute-validate-annotations-category' dataset.short_name node.url_id %}" class="blue ui button right labeled icon"> Choose
+                        <a href= "{% url 'contribute-validate-annotations-category' dataset.short_name node.url_id %}"
+                           class="blue ui button right labeled icon"> Choose
                             <i class="checkmark box icon"></i>
                         </a>
                     </td>

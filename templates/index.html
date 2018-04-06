@@ -15,9 +15,9 @@
   <br><br><br><br><br><br><br><br>
 </div>
 
-<div class="ui vertical segment center aligned" style="background-color: #f8f6f3">
+<div class="ui vertical segment center aligned" style="background-color: #f8f6f3;">
 <h2 style="margin-top: 45px; margin-bottom: 25px; text-align: center;">Explore, download and contribute to our datasets</h2>
-<div class="ui main center aligned raised container" style="margin-top: 20px; margin-bottom: 20px; width:40%;">
+<div class="ui main center aligned raised container" style="margin-top: 20px; margin-bottom: 20px; width:40%;  min-width:500px;">
   <div class="ui raised segment">
     <div class="ui two column middle aligned compact stackable grid">
       <div class="ten wide column">
@@ -27,7 +27,7 @@
       </div>
       <div class="six wide column">
         <a title="go to FreesoundDataset" class="fluid ui huge red button right labeled icon" href="{% url 'dataset' 'fsd' %}">
-        FSD<i class="right arrow icon"></i></a>
+        FSD &nbsp; &nbsp; &nbsp;<i class="right arrow icon"></i></a>
       </div>
     </div>
   </div>
@@ -145,9 +145,31 @@
 </div>
 </center>
 </div>
+
+<div class="ui vertical basic segment center aligned" style="margin-top: 50px; margin-bottom:-10px;">
+  Supported by:
+  <div class="ui center aligned container">
+    <div class="ui horizontal inverted small link list">
+      <a title="The Audio Commons Initiative is funded by the European Commission through the Horizon 2020 programme, research and innovation grant 688382."
+         class="item" href="https://www.audiocommons.org/" target="_blank" style="padding: 10px;">
+        <img class="ui image" style="width: 100px;" src="{% static "img/funding_logos/audio-commons-logo-square_1000px.png" %}">
+      </a>
+      <a class="item" href="https://research.googleblog.com/2018/03/google-faculty-research-awards-2017.html" target="_blank" style="padding: 10px;" >
+        <img class="ui image" style="width: 210px;" src="{% static "img/funding_logos/google_faculty_research_awards.png" %}">
+      </a>
+      <a class="item" href="https://aigrant.org/" target="_blank" style="padding: 10px;">
+        <img class="ui image" style="width: 100px;" src="{% static "img/funding_logos/ai_grant.png" %}">
+      </a>
+      <a class="item" href="https://www.upf.edu/web/mdm-dtic" target="_blank" style="padding: 10px;">
+        <img class="ui image" style="width: 110px;" src="{% static "img/funding_logos/logo_mdm.png" %}">
+      </a>
+    </div>
+  </div>
+</div>
+
 <div class="ui vertical basic segment center aligned" style="margin-top: 20px; margin-bottom:-35px;">
 <p  style="margin-bottom: 0px;"> If you use this platform or any of the hosted datasets in your work please cite our paper: </p>
- E. Fonseca, J. Pons, X. Favory, F. Font, D. Bogdanov, A. Ferraro, S. Oramas, A. Porter & X. Serra. <a target="_blank" href="https://ismir2017.smcnus.org/wp-content/uploads/2017/10/161_Paper.pdf">Freesound Datasets: A Platform for the Creation of Open Audio Datasets</a>. <br>In Proceedings of the 18th International Society for Music Information Retrieval Conference, Suzhou, China, 2017 <b>
+ E. Fonseca, J. Pons, X. Favory, F. Font, D. Bogdanov, A. Ferraro, S. Oramas, A. Porter & X. Serra. <a target="_blank" href="https://repositori.upf.edu/handle/10230/33299">Freesound Datasets: A Platform for the Creation of Open Audio Datasets</a>. <br>In Proceedings of the 18th International Society for Music Information Retrieval Conference, Suzhou, China, 2017 <b>
 <a href="{% static 'bibtex/fonseca2017freesound.bib'%}">[BiB]</a></b>
 </div>
 

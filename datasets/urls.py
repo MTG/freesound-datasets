@@ -30,6 +30,10 @@ urlpatterns = [
     url(r'^(?P<short_name>[^\/]+)/annotate/choose_category_table/$', dataset_taxonomy_table_choose,
         name='dataset_taxonomy_table_choose'),
     url(r'^(?P<short_name>[^\/]+)/annotate/choose_category_table_search/$', dataset_taxonomy_table_search,
-        name= 'taxonomy-table-search'),
+        name='taxonomy-table-search'),
+    url(r'^(?P<short_name>[^\/]+)/annotate/validate_annotations_all/$', contribute_validate_annotations_all,
+        name='contribute-validate-annotations-all'),
+    url(r'^(?P<short_name>[^\/]+)/annotate/choose_category_table_search_all/$', dataset_taxonomy_table_search_all,
+        name='taxonomy-table-search-all'),
     url(r'^(?P<short_name>[^\/]+)/mini-node-info/(?P<node_id>[^\/]+)/$', get_mini_node_info, name='get-mini-node-info'),
 ]

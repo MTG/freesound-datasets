@@ -1,7 +1,10 @@
-from datasets.models import Dataset, Vote
+from datasets.models import Dataset, Vote, GroundTruthAnnotation, CandidateAnnotation
 from celery import shared_task
 from utils.redis_store import store
 from statistics import mean, StatisticsError
+from django.db.models.functions import TruncDay
+from django.db.models import Count
+import json
 import logging
 import datetime
 
@@ -71,12 +74,12 @@ def compute_dataset_bad_mapping(store_key, dataset_id):
             bad_mapping_categories_last_month.append((node.url_id, node.name, bad_mapping_score_last_month, node.omitted))
 
             bad_mapping_categories = sorted(bad_mapping_categories, key=lambda x: x[2], reverse=True)  # Sort by mapping score
-            bad_mapping_categories = [category_name_score for category_name_score in bad_mapping_categories  # keep bad ones
-                                      if category_name_score[2] >= 0.5]
+            bad_mapping_categories = [category_name_score for category_name_score in bad_mapping_categories]
 
-            bad_mapping_categories_last_month = sorted(bad_mapping_categories_last_month, key=lambda x: x[2], reverse=True)
-            bad_mapping_categories_last_month = [category_name_score for category_name_score in bad_mapping_categories_last_month
-                                                 if category_name_score[2] >= 0.5]
+            bad_mapping_categories_last_month = sorted(bad_mapping_categories_last_month,
+                                                       key=lambda x: x[2], reverse=True)
+            bad_mapping_categories_last_month = [category_name_score for category_name_score
+                                                 in bad_mapping_categories_last_month]
 
         store.set(store_key, {'bad_mapping_categories': bad_mapping_categories,
                               'bad_mapping_categories_last_month': bad_mapping_categories_last_month})
@@ -102,12 +105,12 @@ def compute_dataset_difficult_agreement(store_key, dataset_id):
             ground_truth_annotations_last_month = node.ground_truth_annotations.filter(from_propagation=False,
                                                                                        created_at__gt=reference_date)
             try:
-                mean_votes_agreement = mean([annotation.from_candidate_annotation.votes.count()
+                mean_votes_agreement = mean([annotation.from_candidate_annotation.votes.exclude(test='FA').count()
                                              for annotation in ground_truth_annotations])
             except StatisticsError:
                 mean_votes_agreement = 0
             try:
-                mean_votes_agreement_last_month = mean([annotation.from_candidate_annotation.votes.count()
+                mean_votes_agreement_last_month = mean([annotation.from_candidate_annotation.votes.exclude(test='FA').count()
                                                         for annotation in ground_truth_annotations_last_month])
             except StatisticsError:
                 mean_votes_agreement_last_month = 0
@@ -157,6 +160,89 @@ def compute_remaining_annotations_with_duration(store_key, dataset_id):
         remaining_categories = sorted(remaining_categories, key=lambda x: x[3])
 
         store.set(store_key, {'remaining_categories': remaining_categories})
+
+        logger.info('Finished computing data for {0}'.format(store_key))
+
+    except Dataset.DoesNotExist:
+        pass
+
+
+@shared_task
+def compute_dataset_num_contributions_per_day(store_key, dataset_id):
+    logger.info('Start computing data for {0}'.format(store_key))
+    try:
+        dataset = Dataset.objects.get(id=dataset_id)
+
+        contributions = Vote.objects\
+            .filter(candidate_annotation__sound_dataset__dataset=dataset)\
+            .annotate(day=TruncDay('created_at'))\
+            .values('day')\
+            .annotate(count=Count('id'))\
+            .values('day', 'count')
+
+        start_date = Vote.objects\
+            .filter(candidate_annotation__sound_dataset__dataset=dataset)\
+            .order_by('created_at')[0].created_at.replace(tzinfo=None)
+        end_date = datetime.datetime.now()
+        dates = [str(start_date + datetime.timedelta(days=x))[:10] for x in range(0, (end_date - start_date).days)]
+
+        contributions_per_day = {d: 0 for d in dates}
+        contributions_per_day.update({str(o['day'])[:10]: o['count'] for o in contributions})
+
+        store.set(store_key, {'contribution_per_day': json.dumps([[day, count]
+                                                                  for day, count in contributions_per_day.items()])})
+
+        logger.info('Finished computing data for {0}'.format(store_key))
+
+    except Dataset.DoesNotExist:
+        pass
+
+
+@shared_task
+def compute_dataset_num_ground_truth_per_day(store_key, dataset_id):
+    logger.info('Start computing data for {0}'.format(store_key))
+    try:
+        dataset = Dataset.objects.get(id=dataset_id)
+
+        num_ground_truth_not_from_propagation = GroundTruthAnnotation.objects\
+            .filter(sound_dataset__dataset=dataset)\
+            .filter(from_propagation=False)\
+            .annotate(day=TruncDay('created_at'))\
+            .values('day')\
+            .annotate(count=Count('id'))\
+            .values('day', 'count')
+
+        num_ground_truth_from_propagation = GroundTruthAnnotation.objects\
+            .filter(sound_dataset__dataset=dataset)\
+            .filter(from_propagation=True)\
+            .annotate(day=TruncDay('created_at'))\
+            .values('day')\
+            .annotate(count=Count('id'))\
+            .values('day', 'count')
+
+        start_date = GroundTruthAnnotation.objects\
+            .filter(sound_dataset__dataset=dataset)\
+            .order_by('created_at')[0].created_at.replace(tzinfo=None)
+        end_date = datetime.datetime.now()
+        dates = [str(start_date + datetime.timedelta(days=x))[:10] for x in range(0, (end_date - start_date).days)]
+
+        num_ground_truth_not_from_propagation_per_day = {d: 0 for d in dates}
+        num_ground_truth_not_from_propagation_per_day.update({str(o['day'])[:10]: o['count']
+                                                              for o in num_ground_truth_not_from_propagation})
+        num_ground_truth_from_propagation_per_day = {d: 0 for d in dates}
+        num_ground_truth_from_propagation_per_day.update({str(o['day'])[:10]: o['count']
+                                                          for o in num_ground_truth_from_propagation})
+
+        store.set(store_key, {
+            'num_ground_truth_not_from_propagation_per_day':
+                json.dumps(sorted([[day, count]
+                                   for day, count in num_ground_truth_not_from_propagation_per_day.items()],
+                                  key=lambda x: x[0])),
+            'num_ground_truth_from_propagation_per_day':
+                json.dumps(sorted([[day, count]
+                                   for day, count in num_ground_truth_from_propagation_per_day.items()],
+                                  key=lambda x: x[0]))
+        })
 
         logger.info('Finished computing data for {0}'.format(store_key))
 
