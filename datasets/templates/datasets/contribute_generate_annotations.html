@@ -241,7 +241,6 @@
                 el += '<div class="menu">';
                 for (var i=0; i < children.length; i++) {
                     ajax_url = getEncodedUrl(children[i]);
-                    console.log(ajax_url)
 {#                        $('button[label-id="'+children[i]+'"]').parents('tr').find('.my-pop').attr('ajax_url');#}
                     el += '<div data-value="'+ children[i] +'" class="item" label-id="'+ children[i] +'">'
                         + id_to_name[children[i]]

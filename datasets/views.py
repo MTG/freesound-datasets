@@ -610,7 +610,7 @@ def taxonomy_table_extended(request, short_name):
     nodes = dataset.taxonomy.taxonomynode_set.all()
     dataset_taxonomy_stats = data_from_async_task(compute_dataset_taxonomy_stats, [dataset.id], {},
                                                   DATASET_TAXONOMY_STATS_KEY_TEMPLATE.format(dataset.id), 60)
-    nodes_data = dataset_taxonomy_stats['nodes_data']
+    nodes_data = dataset_taxonomy_stats.get('nodes_data', {})
     return render(request, 'datasets/dataset_taxonomy_table_extended.html',
                   {'dataset': dataset, 'nodes_data': nodes_data})
 
