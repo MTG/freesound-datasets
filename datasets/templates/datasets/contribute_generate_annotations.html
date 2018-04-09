@@ -36,11 +36,9 @@
 
         function searchPaths(node_id) {
             var found_paths = [];
-            for (var i=0; i < hierarchy_paths.length; i++) {
-                for (j=0; j < hierarchy_paths[i].length; j++) {
-                    var found = hierarchy_paths[i][j].find(k => k === node_id);
-                    if (found) found_paths.push(hierarchy_paths[i][j]);
-                }
+            for (j=0; j < hierarchy_paths.length; j++) {
+                var found = hierarchy_paths[j].find(k => k === node_id);
+                if (found) found_paths.push(hierarchy_paths[j]);
             }
             return found_paths
         }
@@ -132,6 +130,7 @@
             // add all the group label corresponding to the selected label (multiple parents creates several label groups)
             var paths = searchPaths(label_id);
             var parent_paths = parentPaths(paths, label_id);
+            console.log(paths, parent_paths)
             for (var i=0; i < parent_paths.length; i++) {
                 var group_id = label_id + i;
                 $('#label-container').append('<div class="group-label ui message" group-id="'+ group_id +'"><i class="close icon"></i></div>');

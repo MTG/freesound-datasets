@@ -18,9 +18,9 @@ from pygments import highlight
 from pygments.lexers import PythonLexer
 from pygments.formatters import HtmlFormatter
 from datasets.tasks import generate_release_index, compute_dataset_basic_stats, compute_dataset_taxonomy_stats, \
-    compute_annotators_ranking
+    compute_annotators_ranking, compute_hierarchy_paths
 from utils.redis_store import store, DATASET_BASIC_STATS_KEY_TEMPLATE, DATASET_TAXONOMY_STATS_KEY_TEMPLATE, \
-    DATASET_ANNOTATORS_RANKING_TEMPLATE
+    DATASET_ANNOTATORS_RANKING_TEMPLATE, DATASET_HIERARCHY_PATHS
 from utils.async_tasks import data_from_async_task
 import os
 import random
@@ -618,10 +618,11 @@ def taxonomy_table_extended(request, short_name):
 def get_hierachy_paths(request, short_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
     leaf_nodes_id = TaxonomyNode.objects.filter(children__isnull=True).distinct().values_list('node_id', flat=True)
-    dataset_taxonomy_stats = data_from_async_task(compute_dataset_taxonomy_stats, [dataset.id], {},
-                                                  DATASET_TAXONOMY_STATS_KEY_TEMPLATE.format(dataset.id), 60)
-    nodes_data = dataset_taxonomy_stats['nodes_data']
-    hierachy_paths = [node_data['hierarchy_paths'] for node_data in nodes_data if node_data['id'] in leaf_nodes_id]
+    nodes_hierarchy_paths = data_from_async_task(compute_hierarchy_paths, [dataset.id], {},
+                                                 DATASET_HIERARCHY_PATHS.format(dataset.id), 60)
+    hierachy_paths = [path for node_id, paths in nodes_hierarchy_paths['hierarchy_paths'].items()
+                      if node_id in leaf_nodes_id
+                      for path in paths]
     id_to_name = {node.node_id: node.name for node in TaxonomyNode.objects.all()}
     return JsonResponse({"hierachy_paths": hierachy_paths, "id_to_name": id_to_name}, safe=False)
 
