@@ -304,6 +304,7 @@
 
         function syncTables() {
             var label_ids = getAddedLabels();
+            $('.add-label-button').prop( "disabled", false );
             for (var i=0; i < label_ids.length; i++) {
                 $('button[label-id="'+label_ids[i]+'"]').prop( "disabled", true );
             }
