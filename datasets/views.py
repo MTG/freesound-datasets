@@ -1,6 +1,6 @@
 from urllib.request import urlopen
 from urllib.error import HTTPError
-from urllib.parse import urlencode, unquote
+from urllib.parse import urlencode, unquote, quote
 from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse, HttpResponseNotAllowed, HttpResponseRedirect
 from django.views.decorators.cache import cache_page
 from django.shortcuts import render, get_object_or_404
@@ -624,7 +624,12 @@ def get_hierachy_paths(request, short_name):
                       if node_id in leaf_nodes_id
                       for path in paths]
     id_to_name = {node.node_id: node.name for node in TaxonomyNode.objects.all()}
-    return JsonResponse({"hierachy_paths": hierachy_paths, "id_to_name": id_to_name}, safe=False)
+
+    all_node_ids = dataset.taxonomy.get_all_node_ids()
+    id_to_ajax = {node_id: '/fsd/mini-node-info/' + quote(node_id, safe='') + '/?se=1&sb=0&sh=0' for node_id in all_node_ids}
+    return JsonResponse({'hierachy_paths': hierachy_paths,
+                         'id_to_name': id_to_name,
+                         'id_to_ajax': id_to_ajax}, safe=False)
 
 
 ########################
