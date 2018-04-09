@@ -126,25 +126,46 @@
             });
         }
 
-        function addGroupLabel(label_name, label_id) {
+        function addLabelGroups(label_name, label_id) {
             // add all the group label corresponding to the selected label (multiple parents creates several label groups)
             var paths = searchPaths(label_id);
             var parent_paths = parentPaths(paths, label_id);
-            console.log(paths, parent_paths)
             for (var i=0; i < parent_paths.length; i++) {
                 var group_id = label_id + i;
-                $('#label-container').append('<div class="group-label ui message" group-id="'+ group_id +'"><i class="close icon"></i></div>');
-                for (var j=0; j < parent_paths[i].length; j++) {
-                    addLabel(id_to_name[parent_paths[i][j]], parent_paths[i][j], group_id);
-                    $('div[group-id="'+group_id+'"]').append('>');
-                }
-                addLastLabel(label_name, label_id,  group_id);
-                addChildrenLabel(label_name, label_id,  group_id);
-                addLabelGroupClickEvent(label_id + i);
+                addLabelGroup(parent_paths[i], group_id, label_name, label_id);
             }
         }
 
-        function removeGroupLabel(group_id) {
+        function addLabelGroup(path, group_id, label_name, label_id) {
+            $('#label-container').append('<div class="group-label ui message" group-id="'+ group_id +'"><i class="close icon"></i></div>');
+            for (var j=0; j < path.length; j++) {
+                addLabel(id_to_name[path[j]], path[j], group_id);
+                $('div[group-id="'+group_id+'"]').append('>');
+            }
+            addLastLabel(label_name, label_id,  group_id);
+            addChildrenLabel(label_name, label_id,  group_id);
+            addLabelGroupClickEvent(group_id);
+        }
+
+        function updateLabelGroup(group_id, old_label_id, new_label_id) {
+            var group_div = $('div[group-id="'+group_id+'"]');
+            var path = group_div.find('.generated-label').attrs('label-id');
+            var idx = path.indexOf(old_label_id);
+            path[idx] = new_label_id;
+            group_div.empty();
+            $('button[label-name="'+id_to_name[old_label_id]+'"]').prop( "disabled", false );
+            group_div.append('<i class="close icon"></i>');
+            for (var j=0; j < idx; j++) {
+                addLabel(id_to_name[path[j]], path[j], group_id);
+                group_div.append('>');
+            }
+            var label_name = id_to_name[new_label_id];
+            addLastLabel(label_name, new_label_id, group_id);
+            addChildrenLabel(label_name, new_label_id, group_id);
+            addLabelGroupClickEvent(group_id);
+        }
+
+        function removeLabelGroup(group_id) {
             var group_div = $('div[group-id="'+group_id+'"]');
             var children = group_div.children('.generated-label');
             for (i=0 ; i<children.length; i++) {
@@ -189,11 +210,11 @@
                 onChange: function(value, text, $selectedItem) {
                     // update label attributes
                     var current_label = $selectedItem.parents('.generated-label');
-                    var old_label_name = current_label.attr('label-name');
-                    var new_label_name = id_to_name[value];
-                    // remove the old group label and add the new one
-                    removeGroupLabel(group_id);
-                    addGroupLabel(new_label_name, value);
+                    var old_label_id = current_label.attr('label-id');
+                    var new_label_id = value;
+                    // update label group
+                    updateLabelGroup(group_id, old_label_id, new_label_id);
+
                 },
                 onHide: function() {
                     // don't hide the dorpdown when clicking on an popup (= when a popup is visible)
@@ -230,11 +251,10 @@
                     onChange: function(value, text, $selectedItem) {
                         // update label attributes
                         var current_label = $selectedItem.parents('.generated-label');
-                        var old_label_name = current_label.attr('label-name');
-                        var new_label_name = id_to_name[value];
-                        // remove the old group label and add the new one
-                        removeGroupLabel(group_id);
-                        addGroupLabel(new_label_name, value);
+                        var old_label_id = current_label.attr('label-id');
+                        var new_label_id = value;
+                        // update label group
+                        updateLabelGroup(group_id, old_label_id, new_label_id);
                     },
                     onHide: function() {
                         // don't hide the dorpdown when clicking on an popup (= when a popup is visible)
@@ -254,7 +274,7 @@
         function addLabelGroupClickEvent(group_id) {
             var group_delete = $('div[group-id="'+group_id+'"] > i');
             group_delete.click(function() {
-                removeGroupLabel(group_id);
+                removeLabelGroup(group_id);
             });
         }
 
@@ -268,7 +288,7 @@
             $(my_buttons).click(function() {
                 var label_name = $(this).attr('label-name');
                 var label_id = $(this).attr('label-id');
-                addGroupLabel(label_name, label_id);
+                addLabelGroups(label_name, label_id);
             });
         }
 
