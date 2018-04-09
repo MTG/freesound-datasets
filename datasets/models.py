@@ -379,6 +379,10 @@ class Dataset(models.Model):
         return self.sounds.all().count()
 
     @property
+    def num_non_omitted_nodes(self):
+        return self.taxonomy.taxonomynode_set.filter(omitted=False).count()
+
+    @property
     def num_annotations(self):
         return self.candidate_annotations.count()
 
@@ -529,6 +533,16 @@ class Dataset(models.Model):
             .filter(nb_examples__gte=2)
         random_idx = random.sample(range(len(nodes)), min(num_nodes, len(nodes)))
         return [nodes[idx] for idx in random_idx]
+
+    @property
+    def num_categories_reached_goal(self):
+        num_nodes_reached_goal = self.taxonomy.taxonomynode_set.filter(omitted=False, nb_ground_truth__gte=100).count()
+        nodes_pk = self.sounds.filter(sounddataset__candidate_annotations__ground_truth=None)\
+            .filter(taxonomy_node=None, taxonomy_node_verification=None)\
+            .values_list('sounddataset__candidate_annotations__taxonomy_node', flat=True)
+        num_nodes_finished_verifying = self.taxonomy.taxonomynode_set.filter(omitted=False, nb_ground_truth__lt=100)\
+            .exclude(pk__in=set(nodes_pk)).count()
+        return num_nodes_reached_goal + num_nodes_finished_verifying
 
 
 class DatasetRelease(models.Model):
