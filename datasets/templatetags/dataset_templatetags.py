@@ -44,6 +44,7 @@ def calculate_taxonomy_node_stats(
         'is_omitted': node["omitted"],#'omittedTT' in node['restrictions'],
         'freesound_examples': node['freesound_examples'],
         'url_id': quote(node['node_id'], safe=''),
+        'hierarchy_paths': hierarchy_paths if hierarchy_paths is not None else [],
         'votes_stats': votes_stats if votes_stats is not None else {},
         'comments': comments,
         'num_ground_truth': node['nb_ground_truth'],
