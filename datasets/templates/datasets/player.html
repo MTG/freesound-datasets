@@ -14,27 +14,7 @@
 {% endblock %}
 
 {% block page_js %}
-    <script type="text/javascript">
-    $("#s{{ freesound_id }}_{{ player_id }}").ready(function () {
 
-        // All parameters are required apart from:
-        //      size -> can be  "small"
-        //                      "medium" (default)
-        //                      "big"
-        //      height (default: "100"), overrides size
-        var playerOptions = {
-            size: "{{ player_size }}",
-            //height: 100,
-            player_id: "{{ player_id }}",
-            freesound_id: "{{ freesound_id }}",
-            sound_url: "{{ sound_url }}",
-            waveform_url: "{{ waveform_url }}",
-            spectrogram_url: "{{ spectrogram_url }}",
-        };
-
-        var player = new Player(playerOptions)
-    });
-    </script>
 {% endblock %}
 
 <div class="player_container">
@@ -45,4 +25,18 @@
         <div class="wavesurfer"></div>
         <div class="playbar"></div>
     </div>
+
+    <script type="text/javascript">
+    var playerOptions = {
+        size: "{{ player_size }}",
+        //height: 100,
+        player_id: "{{ player_id }}",
+        freesound_id: "{{ freesound_id }}",
+        sound_url: "{{ sound_url }}",
+        waveform_url: "{{ waveform_url }}",
+        spectrogram_url: "{{ spectrogram_url }}",
+    };
+
+    var player = new Player(playerOptions)
+    </script>
 </div>

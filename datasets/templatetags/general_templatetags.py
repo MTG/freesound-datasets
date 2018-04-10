@@ -1,6 +1,6 @@
 from django import template
 from django.core import urlresolvers
-from itertools import cycle
+from uuid import uuid4
 import datetime
 import time
 
@@ -51,8 +51,6 @@ def multiply(value, arg):
     return value*arg
 
 
-player_ids = cycle(range(1000))
-
 @register.inclusion_tag('datasets/player.html')
 def sound_player(dataset, freesound_sound_id, player_size):
     sound = dataset.sounds.get(freesound_id=freesound_sound_id)
@@ -65,5 +63,5 @@ def sound_player(dataset, freesound_sound_id, player_size):
             'spectrogram_url': spectrogram_url,
             'waveform_url': waveform_url,
             'player_size': player_size,
-            'player_id': next(player_ids)
+            'player_id': uuid4()
             }
