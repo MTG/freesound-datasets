@@ -186,13 +186,13 @@
             var ajax_url = getEncodedUrl(label_id);
 {#            var ajax_url = $('button[label-id="'+label_id+'"]').parents('tr').find('.my-pop').attr('ajax_url');#}
             var el = '';
-            el += '<div class="current generated-label ui compact inline scrolling dropdown button" label-name="';
+            el += '<div class="current generated-label ui compact inverted blue inline scrolling dropdown button" label-name="';
             el += label_name + '" ';
             el += 'label-id="'+ label_id +'">';
             el += '<div class="text">' + label_name;
             el += '<span class="my-pop ui" event-added=0 data-html="" ajax_done=0 style="margin-left:5px;" ajax_url="';
             el += ajax_url;
-            el += '"><i class="help grey circle icon"></i></span>';
+            el += '"><i class="help inverted blue circle icon"></i></span>';
             el += '</div>';
             el += '<i class="dropdown icon"></i>';
             el += '<div class="menu">';
@@ -233,7 +233,7 @@
             var ajax_url;
             if (children.length > 0) {
                 var el = '>';
-                el += '<div class="children generated-label ui compact inline scrolling dropdown button" label-name=""';
+                el += '<div class="children generated-label ui compact inverted teal inline scrolling dropdown button" label-name=""';
                 el += 'label-id="">';
                 el += '<div class="text">';
                 el += '</div>';
