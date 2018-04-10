@@ -587,6 +587,7 @@ def get_mini_node_info(request, short_name, node_id):
     show_go_button = int(request.GET.get('sb', 1))
     show_num_gt = int(request.GET.get('sgt', 0))
     show_hierarchy = int(request.GET.get('sh', 1))
+    show_name_table_lines = int(request.GET.get('sn', 1))
     node_id = unquote(node_id)
     dataset = get_object_or_404(Dataset, short_name=short_name)
     node = dataset.taxonomy.get_element_at_id(node_id).as_dict()
@@ -595,7 +596,7 @@ def get_mini_node_info(request, short_name, node_id):
     return render(request, 'datasets/taxonomy_node_mini_info.html',
                   {'dataset': dataset, 'node': node, 'show_examples': show_examples,
                    'show_go_button': show_go_button, 'show_num_gt': show_num_gt,
-                   'show_hierarchy': show_hierarchy})
+                   'show_hierarchy': show_hierarchy, 'show_name_table_lines': show_name_table_lines})
 
 
 def contribute_generate_annotations(request, short_name):
