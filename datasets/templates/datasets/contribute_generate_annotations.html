@@ -233,9 +233,9 @@
             var ajax_url;
             if (children.length > 0) {
                 var el = '>';
-                el += '<div class="children generated-label ui compact inverted teal inline scrolling dropdown button" label-name=""';
+                el += '<div class="children generated-label ui compact inverted blue inline scrolling dropdown button" label-name=""';
                 el += 'label-id="">';
-                el += '<div class="text">';
+                el += '<div class="text"> Select';
                 el += '</div>';
                 el += '<i class="dropdown icon"></i>';
                 el += '<div class="menu">';
@@ -373,9 +373,14 @@
     </script>
 {% endblock %}
 {% block content %}
-    <center>{{ freesound_sound_id| fs_embed_large | safe }}</center>
+    <center>
+        <h3>Listen to the following sound and annotate it!</h3>
+        {{ freesound_sound_id| fs_embed_large | safe }}
+    </center>
+    <br>
     <div class="ui grid">
         <div class="nine wide column">
+            <h3>Category exploration tables</h3>
             <div class="ui segment" style="padding: 0 0 0 0;">
                 <div class="ui two item top attached tabular menu">
                   <a class="item active" data-tab="first">
@@ -396,7 +401,9 @@
             </div>
         </div>
 
-        <div id="label-container" class="seven wide column">
+        <div class="seven wide column">
+            <h3>Added Labels</h3>
+            <div id="label-container"></div>
         </div>
     </div>
 {% endblock %}
