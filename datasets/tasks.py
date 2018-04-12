@@ -173,7 +173,7 @@ def compute_dataset_taxonomy_stats(store_key, dataset_id):
 
 
 @shared_task
-def compute_annotators_ranking(store_key, dataset_id, N=5):
+def compute_annotators_ranking(store_key, dataset_id, N=10):
     logger.info('Start computing data for {0}'.format(store_key))
     try:
         dataset = Dataset.objects.get(id=dataset_id)
