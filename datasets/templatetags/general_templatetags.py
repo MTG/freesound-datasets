@@ -51,6 +51,11 @@ def multiply(value, arg):
     return value*arg
 
 
+@register.inclusion_tag('datasets/include_player_resources.html')
+def load_sound_player_files():
+    return
+
+
 @register.inclusion_tag('datasets/player.html')
 def sound_player(dataset, freesound_sound_id, player_size):
     sound = dataset.sounds.get(freesound_id=freesound_sound_id)

@@ -1,6 +1,9 @@
 {% load staticfiles %}
 {% load dataset_templatetags %}
 {% load general_templatetags %}
+{% block extra_head %}
+    {% load_sound_player_files %}
+{% endblock %}
 
 {% block page_js %}
     <script type="text/javascript">
@@ -15,7 +18,8 @@
                     var popup = this
                     var ajax_url = el.getAttribute('ajax_url')
                     $.ajax({
-                        url: ajax_url
+                        url: ajax_url,
+                        cache: true
                     }).done(function(result) {
                         popup.html(result);
                         el.setAttribute("data-html", result);
