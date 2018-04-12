@@ -1,8 +1,24 @@
 # Freesound Datasets
 
-A platform for the collaborative creation of open audio datasets based on Freesound content. Please find more information in our paper:
+The [Freesound Datasets platform](https://datasets.freesound.org/) is a platform for the collaborative creation of open audio collections labeled by humans and based on Freesound content. The Freesound Datasets platform allows the following functionalites:
+- **explore** the contents of datasets
+- **contribute** to the creation of the datasets by providing annotations
+- it will allow to **download** different _timestamped_ releases of the datasets
+- it also promotes **discussions** around both platform and datasets
+
+This repository serves the following main purposes:
+- **development and maintenance** of the Freesound Datasets platform
+- allow people to see the ongoing progress in a **transparent** manner
+- concentrate **discussion** from the community
+
+We would like the community to get involved and to share comments and suggestions with us and other users. Feel free to take a look at the issues and join ongoing discussions, or create a new issue. We encourage discussion about several aspects of the datasets and the platform, including but not limited to: faulty audio samples, wrong annotations, annotation tasks protocol, etc. You can check the [Discussion page](https://datasets.freesound.org/fsd/discussion/) on the Freesound Datasets platform for some more ideas for discussion.
+
+The first dataset created through the Freesound Datasets platform is [FSD](https://datasets.freesound.org/fsd/), which is a large-scale, general-purpose dataset composed of Freesound content annotated with labels from Google’s [AudioSet Ontology](https://research.google.com/audioset/ontology/index.html). All datasets collected through the platform will be openly available under Creative Commons licenses.
+
+You can find more information about the platform and the creation of FSD in our paper:
 
 >  E. Fonseca, J. Pons, X. Favory, F. Font, D. Bogdanov, A. Ferraro, S. Oramas, A. Porter and X. Serra. “Freesound Datasets: A Platform for the Creation of Open Audio Datasets” In *Proceedings of the 18th International Society for Music Information Retrieval Conference*, Suzhou, China, 2017.
+ 
 
 
 ## Configuration
