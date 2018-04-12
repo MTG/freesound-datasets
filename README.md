@@ -21,7 +21,11 @@ You can find more information about the platform and the creation of FSD in our 
  
 
 
-## Configuration
+## Getting Started
+
+You'll need to have [`docker`](https://docs.docker.com/install/) and [`docker-compose`](https://docs.docker.com/compose/install/) installed.
+
+### Configuration
 
 Copy `freesound_datasets/local_settings.example.py` to `freesound_datasets/local_settings.py`
 and follow the instructions in the file to fill in services credentials for your project.
@@ -37,7 +41,8 @@ Otherwise, to create a user using Django's models you can run
 
     docker-compose run --rm web python manage.py createsuperuser
 
-## Running
+
+### Running
 
 The first time you load the application you will need to perform migrations:
 
@@ -48,6 +53,7 @@ Run Freesound datasets using docker-compose:
     docker-compose up
 
 And point your browser at `http://localhost:8000`.
+
 
 ### Dummy data
 
