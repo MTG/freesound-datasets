@@ -315,11 +315,11 @@ PlayBar.prototype = {
                 timeStr = '0' + minutes;
             }
             timeStr += ':';
-            seconds -= minutes * 60;
+            seconds = Math.floor(seconds - (minutes * 60));
             if (seconds >= 10) {
-                timeStr += Math.floor(seconds);
+                timeStr += seconds;
             } else {
-                timeStr += '0' + Math.floor(seconds);
+                timeStr += '0' + seconds;
             }
             return timeStr;
         };
