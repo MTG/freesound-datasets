@@ -259,18 +259,26 @@ PlayBar.prototype = {
 
         var controls = [playButton, restartButton, switchButton];
 
+        var floatClass = "";
+        if (pl.player.size !== "small" && pl.player.size !== "mini") {
+            floatClass = " left floated";
+        }
         var controlsDiv = $("<div>", {
+            class: "ui controls-container" + floatClass
+        });
+        var controlsInnerDiv = $("<div>", {
             class: "ui horizontal buttons controls"
         });
-        controlsDiv.append(controls);
+        controlsInnerDiv.append(controls);
+        controlsDiv.append(controlsInnerDiv);
 
         // Create timer indicator
-        var floatClass = "";
+        floatClass = "";
         if (pl.player.size !== "small" && pl.player.size !== "mini") {
             floatClass = " right floated";
         }
         var timerDiv = $("<div>", {
-            class: "ui" + floatClass
+            class: "ui timer-container" + floatClass
         });
         var timer = $("<span>", {
             class: "timer"

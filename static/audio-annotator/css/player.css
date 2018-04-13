@@ -66,7 +66,6 @@
     bottom: 0;
     z-index: 2;
     width: 100%;
-    padding: 2px 5px 2px 2px;
     background-color: rgba(0,0,0,0);
     -webkit-transition: 0.1s;
     -moz-transition: 0.1s;
@@ -77,11 +76,8 @@
 
 .soundplayer.small .playbar,
 .soundplayer.mini .playbar {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    text-align: center;
     height: 100%;
-    padding: 0;
 }
 
 .soundplayer:hover .playbar {
@@ -91,6 +87,14 @@
     -ms-transition: 0.1s;
     -o-transition: 0.1s;
     transition: 0.1s;
+}
+
+.soundplayer.small .playbar {
+    padding: 27px 0 5px;
+}
+
+.soundplayer.mini .playbar {
+    padding: 23px 0 5px;
 }
 
 .soundplayer .playbar .button {
@@ -129,8 +133,25 @@
     height: 30%;
 }
 
-.soundplayer.medium .controls {
-    float: left;
+.soundplayer.medium .controls-container {
+    padding: 2px;
+    position: absolute;
+    bottom: 0;
+    background-color: rgba(0,0,0,0);
+    -webkit-transition: 0.1s;
+    -moz-transition: 0.1s;
+    -ms-transition: 0.1s;
+    -o-transition: 0.1s;
+    transition: 0.1s;
+}
+
+.soundplayer.medium:hover .playbar {
+    background-color: rgba(0,0,0,0.5);
+    -webkit-transition: 0.1s;
+    -moz-transition: 0.1s;
+    -ms-transition: 0.1s;
+    -o-transition: 0.1s;
+    transition: 0.1s;
 }
 
 .soundplayer.small .playbar .button .icon {
@@ -138,7 +159,18 @@
 }
 
 .soundplayer.mini .playbar .button .icon {
-    font-size: 1.2em;
+    font-size: 1.3em;
+}
+
+.soundplayer.mini .playbar .timer-container,
+.soundplayer.small .playbar .timer-container {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+}
+
+.soundplayer.medium .timer-container {
+    padding: 2px 5px 5px;
 }
 
 .soundplayer .playbar .timer {
@@ -146,10 +178,4 @@
     color: #FFF;
     height: 100%;
     cursor: default;
-}
-
-.soundplayer.small .playbar .controls + div,
-.soundplayer.mini .playbar .controls + div {
-    position: absolute;
-    bottom: 0;
 }
