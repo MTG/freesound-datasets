@@ -317,9 +317,9 @@ PlayBar.prototype = {
             timeStr += ':';
             seconds -= minutes * 60;
             if (seconds >= 10) {
-                timeStr += seconds.toFixed(0);
+                timeStr += Math.floor(seconds);
             } else {
-                timeStr += '0' + seconds.toFixed(0);
+                timeStr += '0' + Math.floor(seconds);
             }
             return timeStr;
         };
