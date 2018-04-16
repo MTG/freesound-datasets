@@ -14,6 +14,8 @@ function Player(Options)
     this.waveform = Options.waveform_url;
     this.sound_url = Options.sound_url;
 
+    this.setupWaveSurferInstance();
+
     // Create wavesurfer object (playback and mouse interaction)
     this.wavesurfer = Object.create(WaveSurfer);
     this.wavesurfer.init({
@@ -103,6 +105,20 @@ Player.prototype = {
         var pl = this;
         if (pl.wavesurfer.isPlaying()) {
             pl.wavesurfer.stop();
+        }
+    },
+
+    setupWaveSurferInstance: function () {
+
+        WaveSurfer.drawBuffer = function () {
+            // empty function, do not draw buffer
+        };
+
+        WaveSurfer.createDrawer = function () {
+            var my = this;
+
+            this.drawer = Object.create(WaveSurfer.Drawer[this.params.renderer]);
+            this.drawer.init(this.container, this.params);
         }
     }
 };
