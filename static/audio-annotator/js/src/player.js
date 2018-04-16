@@ -97,6 +97,13 @@ Player.prototype = {
         }
 
         return height;
+    },
+
+    stop: function () {
+        var pl = this;
+        if (pl.wavesurfer.isPlaying()) {
+            pl.wavesurfer.stop();
+        }
     }
 };
 
@@ -315,11 +322,11 @@ PlayBar.prototype = {
                 timeStr = '0' + minutes;
             }
             timeStr += ':';
-            seconds = Math.floor(seconds - (minutes * 60));
-            if (seconds >= 10) {
-                timeStr += seconds;
+            var secs = Math.round(seconds - (minutes * 60));
+            if (secs >= 10) {
+                timeStr += secs;
             } else {
-                timeStr += '0' + seconds;
+                timeStr += '0' + secs;
             }
             return timeStr;
         };

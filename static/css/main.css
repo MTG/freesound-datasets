@@ -86,26 +86,39 @@ ul {
     text-shadow: none
 }
 
-.eight.wide.column.vote_card_form {
-	overflow:hidden;
-	padding-top:0;
+.ui .card .header .meta {
+    font-size: 0.75em;
+    font-weight: normal;
 }
 
-.eight.wide.column.vote_card_form label {
-	display: block;
-	margin-left: 15px;
-	padding-left: 7px;
-	text-indent: -19px;
+.vote_card_form ul {
+    margin: 0;
+    padding: 0 20px;
 }
 
-.eight.wide.column.vote_card_form input {
-	margin-right: 4px;
-	margin-top: 10px;
+.vote_card_form li {
+    position: relative;
+    height: 30px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
 }
 
-.eight.wide.column.vote_card_form li:hover {
-	background-color:#f0f0f0;
-	border-radius: 5px;
+.vote_card_form li:hover {
+    background-color: #f0f0f0;
+}
+
+.vote_card_form label {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    padding: 5px;
+}
+
+.vote_card_form input[type="radio"] {
+    margin-right: 5px;
 }
 
 .ui.list>.item>i.icon {

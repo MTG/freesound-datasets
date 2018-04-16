@@ -106,6 +106,10 @@
                     var translate_value = translate_values[counter];
                     examples_container.css({"transform": "translateX(" + translate_value + "px)"});
                     counter = (counter < 9) ? counter + 1 : 0;
+                    // stop currently playing sound
+                    if (window.activePlayer) {
+                        window.activePlayer.stop();
+                    }
                 }
             }, 3000)
 

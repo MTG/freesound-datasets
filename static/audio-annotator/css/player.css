@@ -1,41 +1,3 @@
-/* EXTRA STUFF - TO BE MOVED IN MAIN.CSS */
-.ui .card .header .meta {
-    font-size: 0.75em;
-    font-weight: normal;
-}
-
-.vote_card_form ul {
-    margin: 0;
-    padding: 0 20px;
-}
-
-.vote_card_form li {
-    position: relative;
-    height: 30px;
-    -webkit-border-radius: 5px;
-    -moz-border-radius: 5px;
-    border-radius: 5px;
-}
-
-.vote_card_form li:hover {
-    background-color: #f0f0f0;
-}
-
-.vote_card_form label {
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    padding: 5px;
-}
-
-.vote_card_form input[type="radio"] {
-    margin-right: 5px;
-}
-/* /EXTRA STUFF*/
-
-
 .player_container {
     padding: 4px;
     display: inline-block;
@@ -200,6 +162,10 @@
     position: absolute;
     bottom: 0;
     width: 100%;
+}
+
+.soundplayer.mini .playbar .timer-container {
+    display: none;
 }
 
 .soundplayer.medium .timer-container {
