@@ -121,9 +121,10 @@ Player.prototype = {
 
     destroy: function () {
         var pl = this;
-        if(window.activePlayer && window.activePlayer !== pl) {
+        if(window.activePlayer && window.activePlayer === pl) {
             window.activePlayer = null;
         }
+        pl.stop();
         pl.wavesurfer.destroy();
     }
 };
