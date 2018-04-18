@@ -27,6 +27,26 @@
                         popup.html('error')
                     });
                 }
+            },
+
+            onHide: function() {
+                var popup = this;
+                $(popup).find(".soundplayer").each( function () {
+                    var plId = '#' + this.id;
+                    if (typeof(window.players) !== "undefined") {
+                        var players = window.players;
+                        for (var i = 0; i < players.length; i++) {
+                            var player = players[i];
+                            if (player.playerDom === plId) {
+                                player.destroy();
+                                var idx = players.indexOf(player);
+                                if (idx > -1) {
+                                    players.splice(idx, 1);
+                                }
+                            }
+                        }
+                    }
+                });
             }
         });
     });

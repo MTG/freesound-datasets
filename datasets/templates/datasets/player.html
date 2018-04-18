@@ -18,7 +18,11 @@
         spectrogram_url: "{{ spectrogram_url }}",
     };
 
-    var player = new Player(playerOptions)
+    var player = new Player(playerOptions);
+    if (typeof(window.players) === "undefined") {
+        window.players = [];
+    }
+    window.players.push(player);
     </script>
 
 </div>

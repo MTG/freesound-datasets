@@ -76,11 +76,10 @@ Player.prototype = {
         return window.audioCtx;
     },
 
-    getHeightFromSize: function () {
-        var pl = this;
+    getHeightFromSize: function (size) {
         var height;
 
-        switch (pl.size) {
+        switch (size) {
             case "mini":
                 height = 70;
                 break;
@@ -118,6 +117,14 @@ Player.prototype = {
             this.drawer = Object.create(WaveSurfer.Drawer[this.params.renderer]);
             this.drawer.init(this.container, this.params);
         }
+    },
+
+    destroy: function () {
+        var pl = this;
+        if(window.activePlayer && window.activePlayer !== pl) {
+            window.activePlayer = null;
+        }
+        pl.wavesurfer.destroy();
     }
 };
 
