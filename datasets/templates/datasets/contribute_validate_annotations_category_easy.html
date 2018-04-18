@@ -1,7 +1,12 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 {% load dataset_templatetags %}
+{% load general_templatetags %}
 {% block title %}Validate category {{ node.name }}{% endblock title %}
+{% block extra_head %}
+    {% load_sound_player_files %}
+{% endblock %}
+
 {% block page_js %}
     <script type="text/javascript">
         function submitForm(){
@@ -184,22 +189,24 @@
                         <div class="card" id="row_annotation_{{ forloop.counter0 }}">
                             {% with annotation.sound_dataset.sound.freesound_id as fsid  %}
                                 <div class="content">
-                                    <div class="right floated meta"><a href="javascript:void(0);" onclick="openFreesoundSoundPage('{{ fsid }}', '{{ forloop.counter0 }}');">
+                                    <div class="header">
+                                        #{{ forloop.counter }}
+                                        <div class="right floated meta"><a href="javascript:void(0);" onclick="openFreesoundSoundPage('{{ fsid }}', '{{ forloop.counter0 }}');">
                                         see in <img class="ui image" style="width: 80px;" src="{% static 'img/freesound_logo_color.png' %}"></a></div>
-                                    <div class="header">#{{ forloop.counter }}</div>
-
+                                    </div>
                                     <div class="description">
+                                        <div class="ui container center aligned">
+                                            {% sound_player dataset fsid "medium" %}
+                                        </div>
                                         <div class="ui grid">
-                                            <div class="eight wide column">
-                                                {{ fsid| fs_embed | safe }}
-                                            </div>
-                                            <div class="eight wide column vote_card_form">
-                                                {{ form.vote }}
-                                                {{ form.annotation_id }}
-                                                {{ form.visited_sound }}
+                                            <div class="centered row">
+                                                <div class="sixteen wide column vote_card_form">
+                                                    {{ form.vote }}
+                                                    {{ form.annotation_id }}
+                                                    {{ form.visited_sound }}
+                                                </div>
                                             </div>
                                         </div>
-
                                     </div>
                                 </div>
                             {% endwith %}
