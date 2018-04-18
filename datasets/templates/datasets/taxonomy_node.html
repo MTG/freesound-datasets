@@ -32,7 +32,6 @@
             {% for sound in sounds %}
                 <tr>
                     <td>
-{#                        {{ sound.freesound_id | fs_embed | safe }}#}
                         {% sound_player dataset sound.freesound_id "small" %}
                     </td>
                     <td><a href="http://freesound.org/s/{{ sound.freesound_id }}" target="_blank">http://freesound.org/s/{{ sound.freesound_id }}</a></td>

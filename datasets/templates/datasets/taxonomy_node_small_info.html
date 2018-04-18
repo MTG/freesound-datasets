@@ -71,7 +71,6 @@
                 <td>
                     {% for fsid in node.freesound_examples %}
                         {% sound_player dataset fsid "small" %}
-{#                        {{ fsid| fs_embed | safe }}#}
                     {% endfor %}
                 </td>
             </tr>

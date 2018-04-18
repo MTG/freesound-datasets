@@ -202,9 +202,9 @@ class Sound(models.Model):
         img_types = ['spectrogram', 'waveform']
         sizes = ['M', 'L']
         if img_type not in img_types:
-            return '#'
+            raise ValueError
         if size not in sizes:
-            return '#'
+            raise ValueError
         url_parts = self.extra_data['previews'].split('previews')
         prefix = url_parts[0]
         freesound_id_pref = url_parts[1].split('/')[1]

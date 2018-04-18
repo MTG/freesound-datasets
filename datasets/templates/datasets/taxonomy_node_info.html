@@ -19,7 +19,6 @@
                     var ajax_url = el.getAttribute('ajax_url')
                     $.ajax({
                         url: ajax_url,
-                        cache: true
                     }).done(function(result) {
                         popup.html(result);
                         el.setAttribute("data-html", result);
@@ -98,7 +97,6 @@
             <tr><td>Examples</td>
                 <td>
                     {% for fsid in node.freesound_examples %}
-{#                        {{ fsid| fs_embed | safe }}#}
                         {% sound_player dataset fsid "small" %}
                     {% endfor %}
                 </td>

@@ -115,8 +115,6 @@ Player.prototype = {
         };
 
         WaveSurfer.createDrawer = function () {
-            var my = this;
-
             this.drawer = Object.create(WaveSurfer.Drawer[this.params.renderer]);
             this.drawer.init(this.container, this.params);
         }
