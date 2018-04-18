@@ -13,6 +13,7 @@ function Player(Options)
     this.spectrogram = Options.spectrogram_url;
     this.waveform = Options.waveform_url;
     this.sound_url = Options.sound_url;
+    this.ready = false;
 
     this.setupWaveSurferInstance();
 
@@ -57,7 +58,8 @@ Player.prototype = {
                 pl.view.update(),
                 pl.playBar.update()
             ).then(
-                pl.removeLoader()
+                pl.removeLoader(),
+                pl.ready = true
             );
         });
     },
@@ -125,7 +127,9 @@ Player.prototype = {
             window.activePlayer = null;
         }
         pl.stop();
-        pl.wavesurfer.destroy();
+        if (pl.ready) {
+            pl.wavesurfer.destroy();
+        }
     }
 };
 
