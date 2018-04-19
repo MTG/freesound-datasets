@@ -60,7 +60,6 @@ def load_sound_player_files():
 def sound_player(dataset, freesound_sound_id, player_size):
     sound = dataset.sounds.get(freesound_id=freesound_sound_id)
     sound_url = sound.extra_data['previews'][5:]
-    print(sound_url)
     spec_size = 'M' if player_size in ("mini", "small") else 'L'
     spectrogram_url = sound.get_image_url('spectrogram', spec_size)
     waveform_url = sound.get_image_url('waveform', 'M')
