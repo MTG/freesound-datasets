@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 {% load dataset_templatetags %}
+{% load general_templatetags %}
 {% block title %}Generate annotations{% endblock title %}
 {% block page_js %}
     <script type="text/javascript">
@@ -122,6 +123,25 @@
                                 popup.html('error')
                             });
                         }
+                    },
+                    onHide: function() {
+                        var popup = this;
+                        $(popup).find(".soundplayer").each( function () {
+                            var plId = '#' + this.id;
+                            if (typeof(window.players) !== "undefined") {
+                                var players = window.players;
+                                for (var i = 0; i < players.length; i++) {
+                                    var player = players[i];
+                                    if (player.playerDom === plId) {
+                                        player.destroy();
+                                        var idx = players.indexOf(player);
+                                        if (idx > -1) {
+                                            players.splice(idx, 1);
+                                        }
+                                    }
+                                }
+                            }
+                        });
                     }
                 });
             });
@@ -220,6 +240,23 @@
 
                 },
                 onHide: function() {
+                    var popup = this;
+                    $(popup).find(".soundplayer").each( function () {
+                        var plId = '#' + this.id;
+                        if (typeof(window.players) !== "undefined") {
+                            var players = window.players;
+                            for (var i = 0; i < players.length; i++) {
+                                var player = players[i];
+                                if (player.playerDom === plId) {
+                                    player.destroy();
+                                    var idx = players.indexOf(player);
+                                    if (idx > -1) {
+                                        players.splice(idx, 1);
+                                    }
+                                }
+                            }
+                        }
+                    });
                     // don't hide the dorpdown when clicking on an popup (= when a popup is visible)
                     return $('.my-pop.visible').length === 0
                 }
@@ -262,6 +299,23 @@
                         updateLabelGroup(group_id, old_label_id, new_label_id);
                     },
                     onHide: function() {
+                        var popup = this;
+                        $(popup).find(".soundplayer").each( function () {
+                            var plId = '#' + this.id;
+                            if (typeof(window.players) !== "undefined") {
+                                var players = window.players;
+                                for (var i = 0; i < players.length; i++) {
+                                    var player = players[i];
+                                    if (player.playerDom === plId) {
+                                        player.destroy();
+                                        var idx = players.indexOf(player);
+                                        if (idx > -1) {
+                                            players.splice(idx, 1);
+                                        }
+                                    }
+                                }
+                            }
+                        });
                         // don't hide the dorpdown when clicking on an popup (= when a popup is visible)
                         return $('.my-pop.visible').length === 0
                     }
@@ -455,4 +509,5 @@
             margin: 30px;
         }
     </style>
+    {% load_sound_player_files %}
 {% endblock extra_head%}
