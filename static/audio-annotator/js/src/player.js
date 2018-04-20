@@ -340,13 +340,9 @@ PlayBar.prototype = {
             if (seconds === null || seconds < 0) {
                 return '';
             }
-            var timeStr;
+            //var timeStr;
             var minutes = Math.floor(seconds / 60);
-            if (minutes >= 10) {
-                timeStr = minutes;
-            } else {
-                timeStr = '0' + minutes;
-            }
+            var timeStr = minutes;
             timeStr += ':';
             var secs = Math.round(seconds - (minutes * 60));
             if (secs >= 10) {
