@@ -601,9 +601,9 @@ def get_mini_node_info(request, short_name, node_id):
 
 def contribute_generate_annotations(request, short_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
-    sound = dataset.sounds.first()  # TODO: choose a sound
+    sound_id = request.GET.get('fsid', dataset.sounds.first().freesound_id)
     return render(request, 'datasets/contribute_generate_annotations.html',
-                  {'dataset': dataset, 'freesound_sound_id': sound.freesound_id})
+                  {'dataset': dataset, 'freesound_sound_id': sound_id})
 
 
 def taxonomy_table_extended(request, short_name):
