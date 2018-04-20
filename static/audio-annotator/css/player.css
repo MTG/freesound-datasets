@@ -89,11 +89,21 @@
 .soundplayer.small .playbar {
     padding: 4px;
     background: linear-gradient(rgba(0,0,0,0), rgba(0,0,0,0));
+    -webkit-transition: 0.1s;
+    -moz-transition: 0.1s;
+    -ms-transition: 0.1s;
+    -o-transition: 0.1s;
+    transition: 0.1s;
 }
 
 .soundplayer.medium .playbar {
     padding: 5px 8px;
     background: linear-gradient(rgba(0,0,0,0), rgba(0,0,0,0));
+    -webkit-transition: 0.1s;
+    -moz-transition: 0.1s;
+    -ms-transition: 0.1s;
+    -o-transition: 0.1s;
+    transition: 0.1s;
 }
 
 .soundplayer.small:hover .playbar,
