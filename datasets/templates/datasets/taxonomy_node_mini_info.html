@@ -1,4 +1,6 @@
 {% load dataset_templatetags %}
+{% load general_templatetags %}
+
 <table class="ui unstackable table bottom attached" width="100%" style="margin-bottom:7px;">
     <tbody>
     {% if show_hierarchy > 0 %}
@@ -34,7 +36,7 @@
             <tr>{% if show_name_table_lines > 0 %}<td>Examples</td>{% endif %}
                 <td>
                     {% for fsid in node.freesound_examples %}
-                        {{ fsid| fs_embed | safe }}
+                        {% sound_player dataset fsid "small" %}
                     {% endfor %}
                 </td>
             </tr>

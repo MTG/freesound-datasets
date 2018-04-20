@@ -4,6 +4,10 @@
 {% load dataset_templatetags %}
 {% load general_templatetags %}
 {% block title %}{{dataset.short_name|upper}}{% endblock title %}
+{% block extra_head %}
+    {% load_sound_player_files %}
+{% endblock %}
+
 {% block page_js %}
 
     <script type="text/javascript">
@@ -105,6 +109,10 @@
                     var translate_value = translate_values[counter];
                     examples_container.css({"transform": "translateX(" + translate_value + "px)"});
                     counter = (counter < 9) ? counter + 1 : 0;
+                    // stop currently playing sound
+                    if (window.activePlayer) {
+                        window.activePlayer.stop();
+                    }
                 }
             }, 3000)
 
@@ -148,7 +156,7 @@ that express the potential presence of sound sources in audio clips.
   <div class="ui container" style="width:90%;">
     <div class="ui middle aligned stackable grid container">
       <div class="row">
-        <div id="category_examples" class="six wide right floated column" style="overflow-x: hidden;">
+        <div id="category_examples" class="six wide right floated column" style="overflow-x: hidden; overflow-y: hidden;">
           <div id="examples_container" style="width: 3000px; transition: transform 1s ease;">
             {% for node in random_nodes %}
               <span class="ui segment" id="node_{{ forloop.counter }}" style="display: inline-block; width:294px;">
@@ -156,7 +164,8 @@ that express the potential presence of sound sources in audio clips.
               <div>
                 {% for sound in node.valid_examples|slice:"2" %}
                   <span>
-                    {{ sound| fs_embed | safe }}
+                    {% sound_player dataset sound "mini" %}
+{#                    {{ sound| fs_embed | safe }}#}
                   </span>
                 {% endfor %}
               </div>
@@ -182,8 +191,7 @@ that express the potential presence of sound sources in audio clips.
               research, we need to verify the generated annotations.
               So we are now crowdsourcing annotations to build the first {{ dataset.short_name|upper }} release,
               which will include waveforms, audio features, ground truth and additional metadata.
-              Our first goal is to gather (whenever possible) more than 100 annotations for every of
-              <a href="{% url 'dataset-explore' dataset.short_name %}"> our {{ dataset_basic_stats.num_non_omitted_nodes }} categories</a>.
+              Our first goal is to gather at least 100 verified samples per category (whenever available).
               Wanna contribute?
           </p>
         </div>

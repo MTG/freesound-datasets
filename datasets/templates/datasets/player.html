@@ -1,0 +1,28 @@
+<div class="player_container">
+
+    <div class="soundplayer {{ player_size }}" id="s{{ freesound_id }}_{{ player_id }}">
+        <div class="ui active dimmer">
+            <div class="ui loader"></div>
+        </div>
+        <div class="wavesurfer"></div>
+        <div class="playbar"></div>
+    </div>
+
+    <script type="text/javascript">
+    var playerOptions = {
+        size: "{{ player_size }}",
+        player_id: "{{ player_id }}",
+        freesound_id: "{{ freesound_id }}",
+        sound_url: "{{ sound_url }}",
+        waveform_url: "{{ waveform_url }}",
+        spectrogram_url: "{{ spectrogram_url }}",
+    };
+
+    var player = new Player(playerOptions);
+    if (typeof(window.players) === "undefined") {
+        window.players = [];
+    }
+    window.players.push(player);
+    </script>
+
+</div>

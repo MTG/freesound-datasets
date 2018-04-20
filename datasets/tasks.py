@@ -191,7 +191,7 @@ def compute_hierarchy_paths(store_key, dataset_id):
 
 
 @shared_task
-def compute_annotators_ranking(store_key, dataset_id, N=5):
+def compute_annotators_ranking(store_key, dataset_id, N=10):
     logger.info('Start computing data for {0}'.format(store_key))
     try:
         dataset = Dataset.objects.get(id=dataset_id)
@@ -247,3 +247,16 @@ def refresh_sound_deleted_state():
             sound.deleted_in_freesound = True
             sound.save()
     logger.info('Finished refreshing freesound sound deleted state')
+
+
+@shared_task
+def refresh_sound_extra_data():
+    logger.info('Start refreshing freesound sound extra data')
+    sound_ids = Sound.objects.all().values_list('freesound_id', flat=True)
+    results = query_freesound_by_id(sound_ids, fields="id,name,analysis,images", descriptors="lowlevel.average_loudness")
+    with transaction.atomic():
+        for freesound_sound in results:
+            sound = Sound.objects.get(freesound_id=freesound_sound.id)
+            sound.extra_data.update(freesound_sound.as_dict())
+            sound.save()
+    logger.info('Finished refreshing freesound sound extra data')

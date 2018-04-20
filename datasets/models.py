@@ -198,6 +198,56 @@ class Sound(models.Model):
     def get_candidate_annotations(self, dataset):
         return CandidateAnnotation.objects.filter(sound_dataset__in=self.sounddataset_set.filter(dataset=dataset))
 
+    def get_image_url(self, img_type, size):
+        img_types = ['spectrogram', 'waveform']
+        sizes = ['M', 'L']
+        if img_type not in img_types:
+            raise ValueError
+        if size not in sizes:
+            raise ValueError
+        url_parts = self.extra_data['previews'].split('previews')
+        prefix = url_parts[0][5:]
+        freesound_id_pref = url_parts[1].split('/')[1]
+        user_id = url_parts[1].split('_')[-1].split('-')[0]
+        params = {
+            'prefix': prefix,
+            'freesound_id_pref': freesound_id_pref,
+            'freesound_id': self.freesound_id,
+            'user_id': user_id,
+            'size': size
+        }
+        if img_type == 'spectrogram':
+            img_url = self.build_spectrogram_url(params)
+        elif img_type == 'waveform':
+            img_url = self.build_waveform_url(params)
+        return img_url
+
+    def build_spectrogram_url(self, params):
+        prefix = params['prefix']
+        freesound_id_pref = params['freesound_id_pref']
+        freesound_id = params['freesound_id']
+        user_id = params['user_id']
+        size = params['size']
+        spec_url = "{0}displays/{1}/{2}_{3}_spec_{4}.jpg".format(prefix,
+                                                                freesound_id_pref,
+                                                                freesound_id,
+                                                                user_id,
+                                                                size)
+        return spec_url
+
+    def build_waveform_url(self, params):
+        prefix = params['prefix']
+        freesound_id_pref = params['freesound_id_pref']
+        freesound_id = params['freesound_id']
+        user_id = params['user_id']
+        size = params['size']
+        wave_url = "{0}displays/{1}/{2}_{3}_wave_{4}.png".format(prefix,
+                                                                freesound_id_pref,
+                                                                freesound_id,
+                                                                user_id,
+                                                                size)
+        return wave_url
+
     def __str__(self):
         return 'Sound {0} (freesound {1})'.format(self.id, self.freesound_id)
 
@@ -685,14 +735,18 @@ class GroundTruthAnnotation(models.Model):
     def propagate_annotation(self):
         propagate_to_parents = self.taxonomy_node.taxonomy.get_all_propagate_to_parents(self.taxonomy_node.node_id)
         for parent in propagate_to_parents:
-            GroundTruthAnnotation.objects.get_or_create(start_time=self.start_time,
-                                                        end_time=self.end_time,
-                                                        ground_truth=self.ground_truth,
-                                                        created_by=self.created_by,
-                                                        sound_dataset=self.sound_dataset,
-                                                        taxonomy_node=parent,
-                                                        from_candidate_annotation=self.from_candidate_annotation,
-                                                        from_propagation=True)
+            annotation_exists = GroundTruthAnnotation.objects.filter(sound_dataset=self.sound_dataset,
+                                                                     taxonomy_node=parent) \
+                .count() > 0
+            if not annotation_exists:
+                GroundTruthAnnotation.objects.get_or_create(start_time=self.start_time,
+                                                            end_time=self.end_time,
+                                                            ground_truth=self.ground_truth,
+                                                            created_by=self.created_by,
+                                                            sound_dataset=self.sound_dataset,
+                                                            taxonomy_node=parent,
+                                                            from_candidate_annotation=self.from_candidate_annotation,
+                                                            from_propagation=True)
 
 
 # choices for quality control test used in Vote and User Profile
@@ -732,17 +786,21 @@ class Vote(models.Model):
         if ground_truth_state in (0.5, 1.0):
             candidate_annotation.ground_truth = ground_truth_state
             candidate_annotation.save()
-            ground_truth_annotation, created = GroundTruthAnnotation.objects.get_or_create(
-                start_time=candidate_annotation.start_time,
-                end_time=candidate_annotation.end_time,
-                ground_truth=candidate_annotation.ground_truth,
-                created_by=candidate_annotation.created_by,
-                sound_dataset=candidate_annotation.sound_dataset,
-                taxonomy_node=candidate_annotation.taxonomy_node,
-                from_candidate_annotation=candidate_annotation,
-                from_propagation=False)
-            if created:
-                ground_truth_annotation.propagate_annotation()
+            annotation_exists = GroundTruthAnnotation.objects.filter(sound_dataset=candidate_annotation.sound_dataset,
+                                                                     taxonomy_node=candidate_annotation.taxonomy_node)\
+                .count() > 0
+            if not annotation_exists:
+                ground_truth_annotation, created = GroundTruthAnnotation.objects.get_or_create(
+                    start_time=candidate_annotation.start_time,
+                    end_time=candidate_annotation.end_time,
+                    ground_truth=candidate_annotation.ground_truth,
+                    created_by=candidate_annotation.created_by,
+                    sound_dataset=candidate_annotation.sound_dataset,
+                    taxonomy_node=candidate_annotation.taxonomy_node,
+                    from_candidate_annotation=candidate_annotation,
+                    from_propagation=False)
+                if created:
+                    ground_truth_annotation.propagate_annotation()
 
 
 class CategoryComment(models.Model):

@@ -5,6 +5,9 @@
 {% load general_templatetags %}
 {% load dataset_templatetags %}
 {% block title %}Monitor category page{% endblock title %}
+{% block extra_head %}
+    {% load_sound_player_files %}
+{% endblock %}
 
 {% block page_js %}
     <script type="text/javascript">
@@ -43,20 +46,24 @@
         {% for sound in examples %}
             <div class="card {% if sound.deleted_in_freesound %} red {% endif %}">
                 <div class="content">
-                    <div class="right floated meta"><a href="javascript:void(0);" onclick="openFreesoundSoundPage('{{ sound.freesound_id }}');">
-                        see in <img class="ui image" style="width: 80px;" src="{% static 'img/freesound_logo_color.png' %}"></a></div>
-                    <div class="header">#{{ sound.freesound_id }}
+                    <div class="header">
+                        #{{ sound.freesound_id }}
                         {% if request.user.profile.is_fsd_maintainer %}
                             &nbsp<a title="Edit in administration page" href="{% url sound|admin_urlname:'change' sound.pk %}" target="_blank"><i class="edit small icon"></i></a>
                         {% endif %}
+                        <div class="right floated meta"><a href="javascript:void(0);" onclick="openFreesoundSoundPage('{{ sound.freesound_id }}');">
+                        see in <img class="ui image" style="width: 80px;" src="{% static 'img/freesound_logo_color.png' %}"></a></div>
                     </div>
-                        {{ sound.freesound_id| fs_embed | safe }}
+                    <div class="ui container center aligned">
+                        {% sound_player dataset sound.freesound_id "medium" %}
+                    </div>
                 </div>
             </div>
         {% endfor %}
         </div>
     </div>
     <br>
+
     {#  Freesound verification examples  #}
     <div class="ui basic segment">
         <h2>Freesound verification examples</h2>
@@ -64,14 +71,16 @@
         {% for sound in verification_examples %}
             <div class="card {% if sound.deleted_in_freesound %} red {% endif %}">
                 <div class="content">
-                    <div class="right floated meta"><a href="javascript:void(0);" onclick="openFreesoundSoundPage('{{ sound.freesound_id }}');">
-                        see in <img class="ui image" style="width: 80px;" src="{% static 'img/freesound_logo_color.png' %}"></a></div>
                     <div class="header">#{{ sound.freesound_id }}
                         {% if request.user.profile.is_fsd_maintainer %}
                             &nbsp<a title="Edit in administration page" href="{% url sound|admin_urlname:'change' sound.pk %}" target="_blank"><i class="edit small icon"></i></a>
                         {% endif %}
+                        <div class="right floated meta"><a href="javascript:void(0);" onclick="openFreesoundSoundPage('{{ sound.freesound_id }}');">
+                        see in <img class="ui image" style="width: 80px;" src="{% static 'img/freesound_logo_color.png' %}"></a></div>
                     </div>
-                        {{ sound.freesound_id| fs_embed | safe }}
+                    <div class="ui container center aligned">
+                        {% sound_player dataset sound.freesound_id "medium" %}
+                    </div>
                 </div>
             </div>
         {% endfor %}
@@ -85,14 +94,16 @@
         {% for sound in false_verification_examples %}
             <div class="card {% if sound.deleted_in_freesound %} red {% endif %}">
                 <div class="content">
-                    <div class="right floated meta"><a href="javascript:void(0);" onclick="openFreesoundSoundPage('{{ sound.freesound_id }}');">
-                        see in <img class="ui image" style="width: 80px;" src="{% static 'img/freesound_logo_color.png' %}"></a></div>
                     <div class="header">#{{ sound.freesound_id }}
                         {% if request.user.profile.is_fsd_maintainer %}
                             &nbsp<a title="Edit in administration page" href="{% url sound|admin_urlname:'change' sound.pk %}" target="_blank"><i class="edit small icon"></i></a>
                         {% endif %}
+                        <div class="right floated meta"><a href="javascript:void(0);" onclick="openFreesoundSoundPage('{{ sound.freesound_id }}');">
+                        see in <img class="ui image" style="width: 80px;" src="{% static 'img/freesound_logo_color.png' %}"></a></div>
                     </div>
-                        {{ sound.freesound_id| fs_embed | safe }}
+                    <div class="ui container center aligned">
+                        {% sound_player dataset sound.freesound_id "medium" %}
+                    </div>
                 </div>
             </div>
         {% endfor %}

@@ -1,4 +1,7 @@
+{% load staticfiles %}
 {% load dataset_templatetags %}
+{% load general_templatetags %}
+
 {% block page_js %}
     <script type="text/javascript">
     var popupLoading = '<div style="height:310px; width:730px" class="ui loading segment">Loading</div>';
@@ -7,10 +10,10 @@
             on: 'click',
             html: popupLoading,
             onShow: function(el){
-                var ajax_done = el.getAttribute('ajax_done')
+                var ajax_done = el.getAttribute('ajax_done');
                 if (ajax_done == 0) {
-                    var popup = this
-                    var ajax_url = el.getAttribute('ajax_url')
+                    var popup = this;
+                    var ajax_url = el.getAttribute('ajax_url');
                     $.ajax({
                         url: ajax_url
                     }).done(function(result) {
@@ -18,9 +21,28 @@
                         el.setAttribute("data-html", result);
                         el.setAttribute("ajax_done", 1);
                     }).fail(function() {
-                        popup.html('error')
+                        popup.html('error');
                     });
                 }
+            },
+            onHide: function() {
+                var popup = this;
+                $(popup).find(".soundplayer").each( function () {
+                    var plId = '#' + this.id;
+                    if (typeof(window.players) !== "undefined") {
+                        var players = window.players;
+                        for (var i = 0; i < players.length; i++) {
+                            var player = players[i];
+                            if (player.playerDom === plId) {
+                                player.destroy();
+                                var idx = players.indexOf(player);
+                                if (idx > -1) {
+                                    players.splice(idx, 1);
+                                }
+                            }
+                        }
+                    }
+                });
             }
         });
     });
@@ -67,7 +89,7 @@
             <tr><td>Examples</td>
                 <td>
                     {% for fsid in node.freesound_examples %}
-                        {{ fsid| fs_embed | safe }}
+                        {% sound_player dataset fsid "small" %}
                     {% endfor %}
                 </td>
             </tr>
