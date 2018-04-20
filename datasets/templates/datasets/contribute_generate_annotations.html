@@ -385,16 +385,21 @@
             var addedGroupLabels = getAddedGroupLabels();
             var labelIds = addedGroupLabels[0];
             var labelNames = addedGroupLabels[1];
+            var jsonData = JSON.stringify({
+                freesound_sound_id: "{{ freesound_sound_id }}",
+                labelIds: labelIds,
+                labelNames: labelNames
+            });
             var data = {
-                    freesound_sound_id: "{{ freesound_sound_id }}",
-                    labelIds: labelIds,
-                    labelNames: labelNames,
+                    jsonData : jsonData,
                     csrfmiddlewaretoken: "{{csrf_token}}"
                 };
+            console.log(data)
             $.ajax({
                 type: "POST",
                 url: "{% url 'save-contribute-generate-annotations' dataset.short_name %}",
-                data: data
+                data: data,
+                traditional:true
             }).done(function(result) {
                 document.getElementById("submitButton").disabled = true;
             });

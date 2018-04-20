@@ -608,8 +608,10 @@ def contribute_generate_annotations(request, short_name):
 
 def save_generate_annotations(request, short_name):
     if request.method == 'POST':
-        print(request.POST)
-        # TODO: save data in JSON file, save username
+        data = json.loads(request.POST.dict()['jsonData'])
+        data['username'] = request.user.username
+        num_files = len(os.listdir('./json/'))
+        json.dump(data, open('/code/json/{}.json'.format(num_files), 'w'))
     return JsonResponse({'errors': False})
 
 
