@@ -606,6 +606,13 @@ def contribute_generate_annotations(request, short_name):
                   {'dataset': dataset, 'freesound_sound_id': sound_id})
 
 
+def save_generate_annotations(request, short_name):
+    if request.method == 'POST':
+        print(request.POST)
+        # TODO: save data in JSON file, save username
+    return JsonResponse({'errors': False})
+
+
 def taxonomy_table_extended(request, short_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
     nodes = dataset.taxonomy.taxonomynode_set.all()

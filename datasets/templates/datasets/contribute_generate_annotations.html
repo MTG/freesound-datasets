@@ -301,6 +301,16 @@
             return Array.from(new Set($('.generated-label').attrs('label-id')))
         }
 
+        function getAddedGroupLabels() {
+            var addedGroupLabelIds = [];
+            var addedGroupLabelNames = [];
+            $('.group-label').each(function() {
+                addedGroupLabelIds.push($(this).children('.generated-label').attrs('label-id'));
+                addedGroupLabelNames.push($(this).children('.generated-label').attrs('label-name'));
+            });
+            return [addedGroupLabelIds, addedGroupLabelNames]
+        }
+
         function syncTables() {
             var label_ids = getAddedLabels();
             $('.add-label-button').prop( "disabled", false );
@@ -370,6 +380,25 @@
                 syncTables();
             });
         }
+
+        function submitForm() {
+            var addedGroupLabels = getAddedGroupLabels();
+            var labelIds = addedGroupLabels[0];
+            var labelNames = addedGroupLabels[1];
+            var data = {
+                    freesound_sound_id: "{{ freesound_sound_id }}",
+                    labelIds: labelIds,
+                    labelNames: labelNames,
+                    csrfmiddlewaretoken: "{{csrf_token}}"
+                };
+            $.ajax({
+                type: "POST",
+                url: "{% url 'save-contribute-generate-annotations' dataset.short_name %}",
+                data: data
+            }).done(function(result) {
+                document.getElementById("submitButton").disabled = true;
+            });
+        }
     </script>
 {% endblock %}
 {% block content %}
@@ -406,12 +435,19 @@
             <div id="label-container"></div>
         </div>
     </div>
+
+<center>
+    <button id="submitButton" class="ui green big button" onclick="submitForm();">Submit</button>
+</center>
 {% endblock %}
 
 {% block extra_head %}
     <style>
         .ui.popup {
             max-width: 400px;
+        }
+        #submitButton {
+            margin: 30px;
         }
     </style>
 {% endblock extra_head%}

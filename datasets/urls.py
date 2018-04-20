@@ -42,4 +42,6 @@ urlpatterns = [
         name='taxonomy-table-extended'),
     url(r'^(?P<short_name>[^\/]+)/hierarchy_paths/', get_hierachy_paths,
         name='get_hierachy_paths'),
+    url(r'^(?P<short_name>[^\/]+)/annotate/save_generated_annotations/', save_generate_annotations,
+        name='save-contribute-generate-annotations'),
 ]
