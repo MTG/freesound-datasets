@@ -206,7 +206,7 @@ class Sound(models.Model):
         if size not in sizes:
             raise ValueError
         url_parts = self.extra_data['previews'].split('previews')
-        prefix = url_parts[0]
+        prefix = url_parts[0][5:]
         freesound_id_pref = url_parts[1].split('/')[1]
         user_id = url_parts[1].split('_')[-1].split('-')[0]
         params = {
@@ -425,6 +425,10 @@ class Dataset(models.Model):
         return self.sounds.all().count()
 
     @property
+    def num_non_omitted_nodes(self):
+        return self.taxonomy.taxonomynode_set.filter(omitted=False).count()
+
+    @property
     def num_annotations(self):
         return self.candidate_annotations.count()
 
@@ -576,6 +580,16 @@ class Dataset(models.Model):
         random_idx = random.sample(range(len(nodes)), min(num_nodes, len(nodes)))
         return [nodes[idx] for idx in random_idx]
 
+    @property
+    def num_categories_reached_goal(self):
+        num_nodes_reached_goal = self.taxonomy.taxonomynode_set.filter(omitted=False, nb_ground_truth__gte=100).count()
+        nodes_pk = self.sounds.filter(sounddataset__candidate_annotations__ground_truth=None)\
+            .filter(taxonomy_node=None, taxonomy_node_verification=None)\
+            .values_list('sounddataset__candidate_annotations__taxonomy_node', flat=True)
+        num_nodes_finished_verifying = self.taxonomy.taxonomynode_set.filter(omitted=False, nb_ground_truth__lt=100)\
+            .exclude(pk__in=set(nodes_pk)).count()
+        return num_nodes_reached_goal + num_nodes_finished_verifying
+
 
 class DatasetRelease(models.Model):
     dataset = models.ForeignKey(Dataset)
@@ -717,14 +731,18 @@ class GroundTruthAnnotation(models.Model):
     def propagate_annotation(self):
         propagate_to_parents = self.taxonomy_node.taxonomy.get_all_propagate_to_parents(self.taxonomy_node.node_id)
         for parent in propagate_to_parents:
-            GroundTruthAnnotation.objects.get_or_create(start_time=self.start_time,
-                                                        end_time=self.end_time,
-                                                        ground_truth=self.ground_truth,
-                                                        created_by=self.created_by,
-                                                        sound_dataset=self.sound_dataset,
-                                                        taxonomy_node=parent,
-                                                        from_candidate_annotation=self.from_candidate_annotation,
-                                                        from_propagation=True)
+            annotation_exists = GroundTruthAnnotation.objects.filter(sound_dataset=self.sound_dataset,
+                                                                     taxonomy_node=parent) \
+                .count() > 0
+            if not annotation_exists:
+                GroundTruthAnnotation.objects.get_or_create(start_time=self.start_time,
+                                                            end_time=self.end_time,
+                                                            ground_truth=self.ground_truth,
+                                                            created_by=self.created_by,
+                                                            sound_dataset=self.sound_dataset,
+                                                            taxonomy_node=parent,
+                                                            from_candidate_annotation=self.from_candidate_annotation,
+                                                            from_propagation=True)
 
 
 # choices for quality control test used in Vote and User Profile
@@ -764,17 +782,21 @@ class Vote(models.Model):
         if ground_truth_state in (0.5, 1.0):
             candidate_annotation.ground_truth = ground_truth_state
             candidate_annotation.save()
-            ground_truth_annotation, created = GroundTruthAnnotation.objects.get_or_create(
-                start_time=candidate_annotation.start_time,
-                end_time=candidate_annotation.end_time,
-                ground_truth=candidate_annotation.ground_truth,
-                created_by=candidate_annotation.created_by,
-                sound_dataset=candidate_annotation.sound_dataset,
-                taxonomy_node=candidate_annotation.taxonomy_node,
-                from_candidate_annotation=candidate_annotation,
-                from_propagation=False)
-            if created:
-                ground_truth_annotation.propagate_annotation()
+            annotation_exists = GroundTruthAnnotation.objects.filter(sound_dataset=candidate_annotation.sound_dataset,
+                                                                     taxonomy_node=candidate_annotation.taxonomy_node)\
+                .count() > 0
+            if not annotation_exists:
+                ground_truth_annotation, created = GroundTruthAnnotation.objects.get_or_create(
+                    start_time=candidate_annotation.start_time,
+                    end_time=candidate_annotation.end_time,
+                    ground_truth=candidate_annotation.ground_truth,
+                    created_by=candidate_annotation.created_by,
+                    sound_dataset=candidate_annotation.sound_dataset,
+                    taxonomy_node=candidate_annotation.taxonomy_node,
+                    from_candidate_annotation=candidate_annotation,
+                    from_propagation=False)
+                if created:
+                    ground_truth_annotation.propagate_annotation()
 
 
 class CategoryComment(models.Model):

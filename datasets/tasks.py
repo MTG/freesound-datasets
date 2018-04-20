@@ -84,7 +84,10 @@ def compute_dataset_basic_stats(store_key, dataset_id):
             'percentage_validated_annotations': dataset.percentage_validated_annotations,
             'num_ground_truth_annotations': dataset.num_ground_truth_annotations,
             'num_verified_annotations': dataset.num_verified_annotations,
-            'num_user_contributions': dataset.num_user_contributions
+            'num_user_contributions': dataset.num_user_contributions,
+            'percentage_verified_annotations': dataset.percentage_verified_annotations,
+            'num_categories_reached_goal': dataset.num_categories_reached_goal,
+            'num_non_omitted_nodes': dataset.num_non_omitted_nodes
         })
         logger.info('Finished computing data for {0}'.format(store_key))
     except Dataset.DoesNotExist:
@@ -170,7 +173,7 @@ def compute_dataset_taxonomy_stats(store_key, dataset_id):
 
 
 @shared_task
-def compute_annotators_ranking(store_key, dataset_id, N=5):
+def compute_annotators_ranking(store_key, dataset_id, N=10):
     logger.info('Start computing data for {0}'.format(store_key))
     try:
         dataset = Dataset.objects.get(id=dataset_id)

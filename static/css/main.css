@@ -4,12 +4,14 @@ body {
 }
 
 #header_home {
-	min-height: 76px;
+	min-height: 60px;
 	margin: 0 0;
+	font-size: 13px;
 }
 
 #header_other {
-	height: 76px;
+	height: 60px;
+	font-size: 13px;
 }
 
 /* flex tricks to have footer always at bottom */
@@ -38,7 +40,7 @@ p {
 }
 
 .main.container {
-	margin-top: 6em;
+	margin-top: 5em;
 	padding: 1em;
 }
 
@@ -180,5 +182,5 @@ ul {
 }
 
 .blanched_yellow {
-	color: #ffebcd;
+	color: #f9efe0;
 }

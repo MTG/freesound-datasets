@@ -4,6 +4,9 @@ from django.conf import settings
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from datasets.models import Dataset
+from datasets.tasks import compute_dataset_basic_stats
+from utils.redis_store import DATASET_BASIC_STATS_KEY_TEMPLATE
+from utils.async_tasks import data_from_async_task
 
 
 @login_required
@@ -13,7 +16,15 @@ def crash_me(request):
 
 
 def index(request):
-    return render(request, 'index.html', {'home':True})
+    dataset = Dataset.objects.get(short_name='fsd')
+    dataset_basic_stats = data_from_async_task(compute_dataset_basic_stats, [dataset.id], {},
+                                               DATASET_BASIC_STATS_KEY_TEMPLATE.format(dataset.id), 60)
+    num_categories_reached_goal = dataset_basic_stats.get('num_categories_reached_goal', None)
+    num_non_omitted_nodes = dataset_basic_stats.get('num_non_omitted_nodes', None)
+    
+    return render(request, 'index.html', {'home': True,
+                                          'num_categories_reached_goal': num_categories_reached_goal,
+                                          'num_non_omitted_nodes': num_non_omitted_nodes})
 
 
 def faq(request):

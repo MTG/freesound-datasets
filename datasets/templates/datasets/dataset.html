@@ -18,6 +18,9 @@
             {% endif %}
             $('.menu .item').tab();
             start_auto_scroll();
+            $('#category-progress').progress({
+                percent: '{% widthratio dataset_basic_stats.num_categories_reached_goal dataset_basic_stats.num_non_omitted_nodes 100 %}'
+            });
         });
 
         function loadDatasetReleasesTable() {
@@ -131,8 +134,8 @@
         <div class="right floated left aligned nine wide column">
           <h3 class="ui header">{{ dataset.short_name|upper }}: a dataset of everyday sounds</h3>
           <p style="text-align:justify">The AudioSet Ontology is a hierarchical collection of over 600 sound classes and
-              we have filled them with {{ dataset.num_sounds|intcomma }} audio samples from Freesound.
-              This process generated {{ dataset.num_annotations|intcomma }} candidate annotations
+              we have filled them with {{ dataset_basic_stats.num_sounds|intcomma }} audio samples from Freesound.
+              This process generated {{ dataset_basic_stats.num_annotations|intcomma }} candidate annotations
 that express the potential presence of sound sources in audio clips.
           {{ dataset.short_name|upper }}  includes a variety of everyday sounds, from human and animal sounds to music and sounds made by things,
               all under Creative Commons licenses.
@@ -153,7 +156,7 @@ that express the potential presence of sound sources in audio clips.
   <div class="ui container" style="width:90%;">
     <div class="ui middle aligned stackable grid container">
       <div class="row">
-        <div id="category_examples" class="six wide right floated column" style="overflow-x: hidden;">
+        <div id="category_examples" class="six wide right floated column" style="overflow-x: hidden; overflow-y: hidden;">
           <div id="examples_container" style="width: 3000px; transition: transform 1s ease;">
             {% for node in random_nodes %}
               <span class="ui segment" id="node_{{ forloop.counter }}" style="display: inline-block; width:294px;">
@@ -169,6 +172,12 @@ that express the potential presence of sound sources in audio clips.
               </span>
             {% endfor %}
           </div>
+          <div id="category-progress" class="ui red progress" style="width: 95%;" align="left">
+            <div class="bar"></div>
+          </div>
+          <h5 style="margin-top: -25px; text-align: center">
+              {{ dataset_basic_stats.num_categories_reached_goal }}/{{ dataset_basic_stats.num_non_omitted_nodes }} categories have reached our first goal!
+          </h5>
         </div>
         <div class="right floated left aligned nine wide column">
           <h3 class="ui header">Crowdsourcing annotations</h3>
@@ -178,10 +187,12 @@ that express the potential presence of sound sources in audio clips.
               <!--To do so, we are now crowdsourcing annotations to build the first {{ dataset.short_name|upper }} release. Wanna contribute? :)-->
           <!--</p>-->
           <p style="text-align:justify">By creating this dataset, we seek promoting research that will enable machines to hear
-              and interpret sound similarly to humans.
-          But to make {{ dataset.short_name|upper}} reliable enough for research, we need to verify the generated annotations.
+              and interpret sound similarly to humans. But to make {{ dataset.short_name|upper}} reliable enough for
+              research, we need to verify the generated annotations.
               So we are now crowdsourcing annotations to build the first {{ dataset.short_name|upper }} release,
-              which will include waveforms, audio features, ground truth and additional metadata. Wanna contribute?
+              which will include waveforms, audio features, ground truth and additional metadata.
+              Our first goal is to gather at least 100 verified samples per category (whenever available).
+              Wanna contribute?
           </p>
         </div>
       </div>
@@ -223,7 +234,7 @@ that express the potential presence of sound sources in audio clips.
 
 <div class="ui grid">
 
-<div class="twelve wide column"><h2>Our goals</h2>
+<div class="twelve wide column"><h2>Our long-term goals</h2>
  <br>
  <div class="ui three statistics">
   <div class="ui blue statistic">
@@ -257,7 +268,7 @@ that express the potential presence of sound sources in audio clips.
  <div class="ui one statistics">
   <div class="ui blue statistic">
     <div class="value">
-      {{ dataset.percentage_verified_annotations|floatformat:1 }}%
+      {{ dataset_basic_stats.percentage_verified_annotations|floatformat:1 }}%
     </div>
     <div class="label">
       annotations<br> verified
