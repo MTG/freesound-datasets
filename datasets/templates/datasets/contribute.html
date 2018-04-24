@@ -145,6 +145,80 @@
         </div>
     </div>
 
+    <br>
+    <div class="ui grid">
+        <div class="two column row">
+            <div class="column">
+                <h2>Tagathon: Contributions</h2>
+                <table class="ui unstackable table" width="100%">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th class="center aligned">Username</th>
+                            <th class="center aligned">Number of contributions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for username, n_annotations in annotators_ranking.ranking_today %}
+                        {% if n_annotations > 0 %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td class="center aligned">
+                                {% if forloop.counter == 1 %}
+                                    <i class="yellow star icon"></i>
+                                {% elif forloop.counter == 2 %}
+                                    <i class="grey star icon"></i>
+                                {% elif forloop.counter == 3 %}
+                                    <i class="brown star icon"></i>
+                                {% endif %}
+                                {{ username }}
+                            </td>
+                            <td class="center aligned">{{ n_annotations}}</td>
+                        </tr>
+                        {% endif %}
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="column">
+                <h2>Tagathon: Agreement scores</h2>
+                <table class="ui unstackable table" width="100%">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th class="center aligned">Username</th>
+                            <th class="center aligned">Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for username, agreement_score in annotators_ranking.ranking_agreement_today %}
+                        {% if agreement_score > 0 %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td class="center aligned">
+                                    {% if forloop.counter == 1 %}
+                                        <i class="yellow star icon"></i>
+                                    {% elif forloop.counter == 2 %}
+                                        <i class="grey star icon"></i>
+                                    {% elif forloop.counter == 3 %}
+                                        <i class="brown star icon"></i>
+                                    {% endif %}
+                                    {{ username }}
+                                </td>
+                                <td class="center aligned">{{ agreement_score}}</td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                    </tbody>
+                </table>
+                <div class="ui grid">
+                    <div class="right aligned column">
+                        <span class="small_gray_text">Last updated {{ annotators_ranking.redis_timestamp | timestamp_to_datetime | timesince  }} ago</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     
 {% endblock %}
