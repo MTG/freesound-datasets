@@ -174,7 +174,7 @@
             var idx = path.indexOf(old_label_id);
             path[idx] = new_label_id;
             group_div.empty();
-            $('button[label-name="'+id_to_name[old_label_id]+'"]').prop( "disabled", false );
+{#            $('button[label-name="'+id_to_name[old_label_id]+'"]').prop( "disabled", false );#}
             group_div.append('<i class="close icon"></i>');
             for (var j=0; j < idx; j++) {
                 addLabel(id_to_name[path[j]], path[j], group_id);
@@ -198,7 +198,7 @@
         function addLabel(label_name, label_id, group_id) {
             $('div[group-id="'+group_id+'"]').append('<div class="generated-label ui large label" label-name="'
                                                      + label_name+'" label-id="'+ label_id +'">'+label_name+'</div>');
-            $('button[label-name="'+label_name+'"]').prop( "disabled", true );
+{#            $('button[label-name="'+label_name+'"]').prop( "disabled", true );#}
         }
 
         function addLastLabel(label_name, label_id, group_id) {
@@ -262,7 +262,7 @@
                 }
             });
             addPopUpEvent();
-            $('button[label-name="'+label_name+'"]').prop( "disabled", true );
+{#            $('button[label-name="'+label_name+'"]').prop( "disabled", true );#}
         }
 
         function addChildrenLabel(label_name, label_id, group_id) {
@@ -321,13 +321,13 @@
                     }
                 });
                 addPopUpEvent();
-                $('button[label-name="'+label_name+'"]').prop( "disabled", true );
+{#                $('button[label-name="'+label_name+'"]').prop( "disabled", true );#}
             }
         }
 
         function removeLabel(label_name, group_id) {
              $('div[group-id="'+group_id+'"] > div[label-name="'+label_name+'"]').remove();
-             $('button[label-name="'+label_name+'"]').prop( "disabled", false );
+{#             $('button[label-name="'+label_name+'"]').prop( "disabled", false );#}
         }
 
         function addLabelGroupClickEvent(group_id) {
@@ -369,7 +369,7 @@
             var label_ids = getAddedLabels();
             $('.add-label-button').prop( "disabled", false );
             for (var i=0; i < label_ids.length; i++) {
-                $('button[label-id="'+label_ids[i]+'"]').prop( "disabled", true );
+{#                $('button[label-id="'+label_ids[i]+'"]').prop( "disabled", true );#}
             }
         }
 
@@ -448,7 +448,6 @@
                     jsonData : jsonData,
                     csrfmiddlewaretoken: "{{csrf_token}}"
                 };
-            console.log(data)
             $.ajax({
                 type: "POST",
                 url: "{% url 'save-contribute-generate-annotations' dataset.short_name %}",
