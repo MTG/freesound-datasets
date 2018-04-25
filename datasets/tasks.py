@@ -223,7 +223,7 @@ def compute_annotators_ranking(store_key, dataset_id, N=10):
                 else:
                     agreement_score += 0.5
             ranking_agreement_today.append(
-                (user.username, agreement_score)
+                (user.username, agreement_score/float(n_votes_today))
             )
 
         ranking = sorted(ranking, key=lambda x: x[1], reverse=True)  # Sort by number of annotations
