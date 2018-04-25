@@ -222,9 +222,14 @@ def compute_annotators_ranking(store_key, dataset_id, N=10):
                     pass
                 else:
                     agreement_score += 0.5
-            ranking_agreement_today.append(
-                (user.username, agreement_score/float(n_votes_today))
-            )
+            try:
+                ranking_agreement_today.append(
+                    (user.username, agreement_score/float(n_votes_today))
+                )
+            except ZeroDivisionError:
+                ranking_agreement_today.append(
+                    (user.username, 0)
+                )
 
         ranking = sorted(ranking, key=lambda x: x[1], reverse=True)  # Sort by number of annotations
         ranking_last_week = sorted(ranking_last_week, key=lambda x: x[1], reverse=True)

@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load staticfiles %}
+{% load humanize %}
 {% load general_templatetags %}
 {% block title %}Contribute{% endblock title %}
 
@@ -178,7 +179,7 @@
                                 {% endif %}
                                 {{ username }}
                             </td>
-                            <td class="center aligned">{{ n_annotations}}</td>
+                            <td class="center aligned">{{ n_annotations }}</td>
                         </tr>
                         {% endif %}
                     {% endfor %}
@@ -210,7 +211,7 @@
                                     {% endif %}
                                     {{ username }}
                                 </td>
-                                <td class="center aligned">{{ agreement_score}}</td>
+                                <td class="center aligned">{{ agreement_score|floatformat:2|intcomma }}</td>
                             </tr>
                         {% endif %}
                     {% endfor %}
