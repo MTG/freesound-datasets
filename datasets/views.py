@@ -374,7 +374,7 @@ def contribute_validate_annotations_category(request, short_name, node_id, html_
     category_comment_form = CategoryCommentForm()
 
     nb_task1_pages = request.session.get('nb_task1_pages', False)
-    if not nb_task1_pages:
+    if not nb_task1_pages or nb_task1_pages > 6:
         request.session['nb_task1_pages'] = 1
         nb_task1_pages = 1
 
