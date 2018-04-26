@@ -207,31 +207,30 @@ def compute_annotators_ranking(store_key, dataset_id, N=10):
             n_votes_today = Vote.objects.filter(
                 created_at__gt=current_day_date, created_by=user, candidate_annotation__sound_dataset__dataset=dataset).count()
 
-            if n_votes_today > 30:  # only add them if they voted more than 30 times
-                ranking_today.append(
-                    (user.username, n_annotations_today + n_votes_today)
-                )
+            ranking_today.append(
+                (user.username, n_annotations_today + n_votes_today)
+            )
 
-                # agreement score today
-                votes = Vote.objects.filter(created_by=user,
-                                            candidate_annotation__sound_dataset__dataset=dataset,
-                                            created_at__gt=current_day_date)
-                for vote in votes:
-                    all_vote_values = [v.vote for v in vote.candidate_annotation.votes.all()]
-                    if all_vote_values.count(vote.vote) > 1:
-                        agreement_score += 1
-                    elif len(all_vote_values) > 1:
-                        pass
-                    else:
-                        agreement_score += 0.5
-                try:
-                    ranking_agreement_today.append(
-                        (user.username, agreement_score/float(n_votes_today))
-                    )
-                except ZeroDivisionError:
-                    ranking_agreement_today.append(
-                        (user.username, 0)
-                    )
+            # agreement score today
+            votes = Vote.objects.filter(created_by=user,
+                                        candidate_annotation__sound_dataset__dataset=dataset,
+                                        created_at__gt=current_day_date)
+            for vote in votes:
+                all_vote_values = [v.vote for v in vote.candidate_annotation.votes.all()]
+                if all_vote_values.count(vote.vote) > 1:
+                    agreement_score += 1
+                elif len(all_vote_values) > 1:
+                    pass
+                else:
+                    agreement_score += 0.5
+            try:
+                ranking_agreement_today.append(
+                    (user.username, agreement_score/float(n_votes_today))
+                )
+            except ZeroDivisionError:
+                ranking_agreement_today.append(
+                    (user.username, 0)
+                )
 
         ranking = sorted(ranking, key=lambda x: x[1], reverse=True)  # Sort by number of annotations
         ranking_last_week = sorted(ranking_last_week, key=lambda x: x[1], reverse=True)

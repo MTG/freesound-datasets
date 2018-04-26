@@ -146,59 +146,23 @@
         </div>
     </div>
 
-    <br><br>
-    <p>
-        We are organizing a Tagathon event at the Music Technology Group in Barcelona. For now, this event is not opened
-        to the crowd. However, we may organize a world-wide Tagathon in the future, for allowing people to contribute to
-        the FSD dataset.
-    </p>
-    <div class="ui grid">
-        <div class="two column row">
-            <div class="column">
-                <h2>Tagathon: Contributions</h2>
-                <table class="ui unstackable table" width="100%">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th class="center aligned">Username</th>
-                            <th class="center aligned">Number of contributions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    {% for username, n_annotations in annotators_ranking.ranking_today %}
-                        {% if n_annotations > 0 %}
-                        <tr>
-                            <td>{{ forloop.counter }}</td>
-                            <td class="center aligned">
-                                {% if forloop.counter == 1 %}
-                                    <i class="yellow star icon"></i>
-                                {% elif forloop.counter == 2 %}
-                                    <i class="grey star icon"></i>
-                                {% elif forloop.counter == 3 %}
-                                    <i class="brown star icon"></i>
-                                {% endif %}
-                                {{ username }}
-                            </td>
-                            <td class="center aligned">{{ n_annotations }}</td>
-                        </tr>
-                        {% endif %}
-                    {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            <div class="column">
-                <h2>Tagathon: Quality scores</h2>
-                <table class="ui unstackable table" width="100%">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th class="center aligned">Username</th>
-                            <th class="center aligned">Score</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    {% for username, agreement_score in annotators_ranking.ranking_agreement_today %}
-                        {% if agreement_score > 0 %}
+    {% if user_is_maintainer %}
+        <br><br>
+        <div class="ui grid">
+            <div class="two column row">
+                <div class="column">
+                    <h2>Today's contributions</h2>
+                    <table class="ui unstackable table" width="100%">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th class="center aligned">Username</th>
+                                <th class="center aligned">Number of contributions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for username, n_annotations in annotators_ranking.ranking_today %}
+                            {% if n_annotations > 0 %}
                             <tr>
                                 <td>{{ forloop.counter }}</td>
                                 <td class="center aligned">
@@ -211,20 +175,53 @@
                                     {% endif %}
                                     {{ username }}
                                 </td>
-                                <td class="center aligned">{{ agreement_score|floatformat:2|intcomma }}</td>
+                                <td class="center aligned">{{ n_annotations }}</td>
                             </tr>
-                        {% endif %}
-                    {% endfor %}
-                    </tbody>
-                </table>
-                <div class="ui grid">
-                    <div class="right aligned column">
-                        <span class="small_gray_text">Last updated {{ annotators_ranking.redis_timestamp | timestamp_to_datetime | timesince  }} ago</span>
+                            {% endif %}
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="column">
+                    <h2>Today's quality scores</h2>
+                    <table class="ui unstackable table" width="100%">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th class="center aligned">Username</th>
+                                <th class="center aligned">Score</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for username, agreement_score in annotators_ranking.ranking_agreement_today %}
+                            {% if agreement_score > 0 %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td class="center aligned">
+                                        {% if forloop.counter == 1 %}
+                                            <i class="yellow star icon"></i>
+                                        {% elif forloop.counter == 2 %}
+                                            <i class="grey star icon"></i>
+                                        {% elif forloop.counter == 3 %}
+                                            <i class="brown star icon"></i>
+                                        {% endif %}
+                                        {{ username }}
+                                    </td>
+                                    <td class="center aligned">{{ agreement_score|floatformat:2|intcomma }}</td>
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    <div class="ui grid">
+                        <div class="right aligned column">
+                            <span class="small_gray_text">Last updated {{ annotators_ranking.redis_timestamp | timestamp_to_datetime | timesince  }} ago</span>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    {% endif %}
 
     
 {% endblock %}
