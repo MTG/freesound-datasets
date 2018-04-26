@@ -14,6 +14,7 @@ function Player(Options)
     this.waveform = Options.waveform_url;
     this.sound_url = Options.sound_url;
     this.ready = false;
+    this.error_dimmer = null;
 
     this.setupWaveSurferInstance();
 
@@ -48,6 +49,15 @@ Player.prototype = {
         pl.wavesurfer.load(pl.sound_url);
     },
 
+    reloadSound: function () {
+        var pl = this;
+        pl.removeErrorMessage();
+        pl.addLoader();
+        setTimeout(function() {
+            pl.load();
+        }, 500);
+    },
+
     addEvents: function() {
         var pl = this;
 
@@ -70,15 +80,29 @@ Player.prototype = {
         });
     },
 
+    addLoader: function() {
+        var pl = this;
+        $(pl.playerDom).find(".load-dimmer").addClass("active");
+    },
+
     removeLoader: function() {
         var pl = this;
-        $(pl.playerDom).find(".dimmer").removeClass("active");
+        $(pl.playerDom).find(".load-dimmer").removeClass("active");
     },
 
     addErrorMessage: function() {
         var pl = this;
-        var dimmer = pl.view.createErrorMessage();
-        $(pl.playerDom).prepend(dimmer);
+        if (!pl.error_dimmer) {
+            pl.error_dimmer = pl.view.createErrorMessage();
+        }
+        $(pl.playerDom).prepend(pl.error_dimmer);
+    },
+
+    removeErrorMessage: function() {
+        var pl = this;
+        if (pl.error_dimmer) {
+            pl.error_dimmer.detach();
+        }
     },
 
     getAudioContext: function () {
@@ -246,6 +270,8 @@ View.prototype = {
     },
 
     createErrorMessage: function () {
+        var pl = this;
+
         // Create gray overlay
         var dimmer = $("<div>", {
             class: "ui dimmer active player-error"
@@ -283,6 +309,9 @@ View.prototype = {
             }),
             "Reload"
         );
+        reloadBtn.click(function () {
+            pl.player.reloadSound()
+        });
 
         errDescription.append(errTitle, errMsg, reloadBtn);
         content.append(errIcon, errDescription);
