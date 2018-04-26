@@ -62,13 +62,25 @@ Player.prototype = {
                 pl.ready = true
             );
         });
+
+        pl.wavesurfer.on("error", function (e) {
+            pl.removeLoader();
+            pl.addErrorMessage();
+            console.log(e);
+        });
     },
 
     removeLoader: function() {
         var pl = this;
         $(pl.playerDom).find(".dimmer").removeClass("active");
     },
-    
+
+    addErrorMessage: function() {
+        var pl = this;
+        var dimmer = pl.view.createErrorMessage();
+        $(pl.playerDom).prepend(dimmer);
+    },
+
     getAudioContext: function () {
         if (!window.audioCtx) {
             window.audioCtx = new (
@@ -231,6 +243,52 @@ View.prototype = {
         pl.wavesurfer.on("finish", function () {
             pl.updateProgressBar();
         });
+    },
+
+    createErrorMessage: function () {
+        // Create gray overlay
+        var dimmer = $("<div>", {
+            class: "ui dimmer active player-error"
+        });
+        var content = $("<div>", {
+            class: "content"
+        });
+
+        // Create background icon
+        var errIcon = $("<i>", {
+            class: "exclamation circle icon"
+        });
+
+        // Create error description
+        var errDescription = $("<div>", {
+            class: "error-description"
+        });
+        var errTitle = $("<h4>", {
+            class: "ui inverted sub header"
+        });
+        errTitle.append(
+            "An error occurred"
+        );
+        var errMsg = $("<p>", {
+            class: "ui inverted error-message"
+        }).text("Try reloading the player.");
+
+        // Create reload button
+        var reloadBtn = $("<button>", {
+            type: "button",
+            class: "ui inverted labeled icon basic mini button reload-sound"
+        }).append(
+            $("<i>", {
+                class: "inverted undo icon"
+            }),
+            "Reload"
+        );
+
+        errDescription.append(errTitle, errMsg, reloadBtn);
+        content.append(errIcon, errDescription);
+        dimmer.append(content);
+
+        return dimmer;
     }
 };
 

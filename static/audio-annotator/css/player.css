@@ -35,6 +35,42 @@
     margin: 0;
 }
 
+.soundplayer.medium .player-error .content {
+    display: flex;
+    align-items: center;
+}
+
+.soundplayer.medium .player-error .exclamation {
+    position: absolute;
+    opacity: 0.1;
+    font-size: 5em;
+}
+
+.soundplayer.medium .player-error .error-description {
+    text-align: right;
+    padding-right: 10px;
+    z-index: 100;
+    position: absolute;
+    right: 0;
+}
+
+.soundplayer.medium .player-error .reload-sound {
+    margin: 0;
+}
+
+.soundplayer.medium .player-error .reload-sound:hover i {
+    -webkit-transform: rotate(-360deg);
+    -moz-transform: rotate(-360deg);
+    -ms-transform: rotate(-360deg);
+    -o-transform: rotate(-360deg);
+    transform: rotate(-360deg);
+    -webkit-transition: transform 0.5s;
+    -moz-transition: transform 0.5s;
+    -ms-transition: transform 0.5s;
+    -o-transition: transform 0.5s;
+    transition: transform 0.5s;
+}
+
 .soundplayer .playbar:not(.active) {
     visibility: hidden;
 }
