@@ -36,6 +36,46 @@
     margin: 0;
 }
 
+.soundplayer .player-error .content {
+    display: flex;
+    align-items: center;
+}
+
+.soundplayer .player-error .exclamation {
+    position: absolute;
+    opacity: 0.1;
+    font-size: 5em;
+}
+
+.soundplayer .player-error .error-description {
+    text-align: right;
+    padding-right: 10px;
+    z-index: 100;
+    position: absolute;
+    right: 0;
+}
+
+.soundplayer.small .player-error .error-description {
+    font-size: 10px;
+}
+
+.soundplayer .player-error .reload-sound {
+    margin: 0;
+}
+
+.soundplayer .player-error .reload-sound:hover i {
+    -webkit-transform: rotate(-360deg);
+    -moz-transform: rotate(-360deg);
+    -ms-transform: rotate(-360deg);
+    -o-transform: rotate(-360deg);
+    transform: rotate(-360deg);
+    -webkit-transition: transform 0.5s;
+    -moz-transition: transform 0.5s;
+    -ms-transition: transform 0.5s;
+    -o-transition: transform 0.5s;
+    transition: transform 0.5s;
+}
+
 .soundplayer .playbar:not(.active) {
     visibility: hidden;
 }

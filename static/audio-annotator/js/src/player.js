@@ -14,6 +14,7 @@ function Player(Options)
     this.waveform = Options.waveform_url;
     this.sound_url = Options.sound_url;
     this.ready = false;
+    this.error_dimmer = null;
 
     this.setupWaveSurferInstance();
 
@@ -48,6 +49,16 @@ Player.prototype = {
         pl.wavesurfer.load(pl.sound_url);
     },
 
+    reloadSound: function () {
+        var pl = this;
+        pl.removeErrorMessage();
+        pl.addLoader();
+        setTimeout(function() {
+            pl.sound_url = pl.sound_url.substring(1);
+            pl.load();
+        }, 500);
+    },
+
     addEvents: function() {
         var pl = this;
 
@@ -62,13 +73,39 @@ Player.prototype = {
                 pl.ready = true
             );
         });
+
+        pl.wavesurfer.on("error", function (e) {
+            pl.removeLoader();
+            pl.addErrorMessage();
+            console.log(e);
+        });
+    },
+
+    addLoader: function() {
+        var pl = this;
+        $(pl.playerDom).find(".load-dimmer").addClass("active");
     },
 
     removeLoader: function() {
         var pl = this;
-        $(pl.playerDom).find(".dimmer").removeClass("active");
+        $(pl.playerDom).find(".load-dimmer").removeClass("active");
     },
-    
+
+    addErrorMessage: function() {
+        var pl = this;
+        if (!pl.error_dimmer) {
+            pl.error_dimmer = pl.view.createErrorMessage();
+        }
+        $(pl.playerDom).prepend(pl.error_dimmer);
+    },
+
+    removeErrorMessage: function() {
+        var pl = this;
+        if (pl.error_dimmer) {
+            pl.error_dimmer.detach();
+        }
+    },
+
     getAudioContext: function () {
         if (!window.audioCtx) {
             window.audioCtx = new (
@@ -231,6 +268,57 @@ View.prototype = {
         pl.wavesurfer.on("finish", function () {
             pl.updateProgressBar();
         });
+    },
+
+    createErrorMessage: function () {
+        var pl = this;
+
+        // Create gray overlay
+        var dimmer = $("<div>", {
+            class: "ui dimmer active player-error"
+        });
+        var content = $("<div>", {
+            class: "content"
+        });
+
+        // Create background icon
+        var errIcon = $("<i>", {
+            class: "exclamation circle icon"
+        });
+
+        // Create error description
+        var errDescription = $("<div>", {
+            class: "error-description"
+        });
+        var errTitle = $("<h4>", {
+            class: "ui inverted sub header"
+        });
+        errTitle.append(
+            "An error occurred"
+        );
+        var errMsg = $("<p>", {
+            class: "ui inverted error-message"
+        }).text("Try reloading the player.");
+
+        // Create reload button
+        var reloadBtn = $("<button>", {
+            type: "button",
+            class: "ui inverted labeled icon basic mini button reload-sound"
+        }).append(
+            $("<i>", {
+                class: "inverted undo icon"
+            }),
+            "Reload"
+        );
+        reloadBtn.click(function () {
+            pl.player.reloadSound()
+        });
+
+        errDescription.append(errTitle, errMsg, reloadBtn);
+        content.append(errIcon, errDescription);
+        dimmer.append(content);
+
+        return dimmer;
     }
 };
 
