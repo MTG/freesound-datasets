@@ -54,6 +54,7 @@ Player.prototype = {
         pl.removeErrorMessage();
         pl.addLoader();
         setTimeout(function() {
+            pl.sound_url = pl.sound_url.substring(1);
             pl.load();
         }, 500);
     },
