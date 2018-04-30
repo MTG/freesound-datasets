@@ -15,6 +15,7 @@ function Player(Options)
     this.sound_url = Options.sound_url;
     this.ready = false;
     this.error_dimmer = null;
+    this.N_MAX_ATTEMPTS = 3;
 
     this.setupWaveSurferInstance();
 
@@ -46,6 +47,7 @@ function Player(Options)
 Player.prototype = {
     load: function() {
         var pl = this;
+        //console.log(pl.sound_url);
         pl.wavesurfer.load(pl.sound_url);
     },
 
@@ -53,14 +55,12 @@ Player.prototype = {
         var pl = this;
         pl.removeErrorMessage();
         pl.addLoader();
-        setTimeout(function() {
-            pl.sound_url = pl.sound_url.substring(1);
-            pl.load();
-        }, 500);
+        pl.load();
     },
 
     addEvents: function() {
         var pl = this;
+        var attempts = pl.N_MAX_ATTEMPTS;
 
         pl.wavesurfer.on("ready", function () {
             // Make sure the loader is removed only after
@@ -75,9 +75,20 @@ Player.prototype = {
         });
 
         pl.wavesurfer.on("error", function (e) {
-            pl.removeLoader();
-            pl.addErrorMessage();
             console.log(e);
+            if (attempts) {
+                attempts--;
+                // Next line for testing, to be removed
+                //pl.sound_url = pl.sound_url.substring(1);
+                //
+                setTimeout(function() {
+                    pl.load();
+                }, 500);
+            } else {
+                attempts = pl.N_MAX_ATTEMPTS;
+                pl.removeLoader();
+                pl.addErrorMessage();
+            }
         });
     },
 
