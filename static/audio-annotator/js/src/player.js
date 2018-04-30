@@ -20,8 +20,7 @@ function Player(Options)
     this.setupWaveSurferInstance();
 
     // Create wavesurfer object (playback and mouse interaction)
-    this.wavesurfer = Object.create(WaveSurfer);
-    this.wavesurfer.init({
+    this.wavesurfer = WaveSurfer.create({
         container: this.ws_container,
         height: this.height,
         audioContext: this.getAudioContext()
@@ -159,14 +158,15 @@ Player.prototype = {
 
     setupWaveSurferInstance: function () {
 
-        WaveSurfer.drawBuffer = function () {
+        WaveSurfer.prototype.drawBuffer = function () {
             // empty function, do not draw buffer
         };
 
-        WaveSurfer.createDrawer = function () {
-            this.drawer = Object.create(WaveSurfer.Drawer[this.params.renderer]);
-            this.drawer.init(this.container, this.params);
-        }
+        WaveSurfer.prototype.createDrawer = function () {
+            this.drawer = new this.Drawer(this.container, this.params);
+            this.drawer.init();
+        };
+
     },
 
     destroy: function () {
@@ -193,6 +193,8 @@ function View(player) {
     this.viewDom = null;
     this.clickable = $(this.ws_container).find("> wave");
     this.progressBar = $(this.ws_container).find("wave wave");
+
+    this.clickable.addClass("clickable");
     this.progressBar.addClass("progress-bar");
 }
 
@@ -263,6 +265,7 @@ View.prototype = {
 
         // Other events
         pl.clickable.on("click", function (e) {
+            console.log("clicked");
             var x = pl.getHorizontalCoordinates(e);
             pl.wavesurfer.seekTo(x);
             pl.updateProgressBar(x);

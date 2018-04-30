@@ -93,8 +93,8 @@
     transition: transform 0.5s;
 }
 
-.soundplayer .playbar:not(.active) {
-    visibility: hidden;
+.wavesurfer .clickable {
+    z-index: 1;
 }
 
 .wavesurfer canvas {
@@ -112,6 +112,10 @@
 .wavesurfer .progress-bar {
     display: block !important;
     border-right-color: rgb(200,200,200) !important;
+}
+
+.soundplayer .playbar:not(.active) {
+    visibility: hidden;
 }
 
 .soundplayer .playbar {
