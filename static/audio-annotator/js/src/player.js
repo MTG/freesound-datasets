@@ -305,7 +305,7 @@ View.prototype = {
             class: "ui inverted sub header"
         });
         errTitle.append(
-            "An error occurred"
+            "Something's wrong :-("
         );
         var errMsg = $("<p>", {
             class: "ui inverted error-message"

@@ -34,6 +34,7 @@
     border: 0;
     padding: 0;
     margin: 0;
+    z-index: 2;
 }
 
 .soundplayer .player-error .content {
@@ -41,7 +42,7 @@
     align-items: center;
 }
 
-.soundplayer.small .player-error .content {
+.soundplayer:not(.medium) .player-error .content {
     justify-content: center;
 }
 
@@ -51,17 +52,29 @@
     font-size: 5em;
 }
 
-.soundplayer.medium .player-error .error-description {
-    text-align: right;
-    padding-right: 10px;
-    z-index: 100;
+.soundplayer .player-error .error-description {
+    //z-index: 100;
     position: absolute;
-    right: 0;
+}
+
+.soundplayer.mini .player-error .error-description {
+    /*font-size: 10px;*/
 }
 
 .soundplayer.small .player-error .error-description {
     text-align: center;
     font-size: 12px;
+}
+
+.soundplayer.medium .player-error .error-description {
+    text-align: right;
+    padding-right: 10px;
+    right: 0;
+}
+
+.soundplayer.mini .error-message,
+.soundplayer.mini .reload-sound {
+    display: none;
 }
 
 .soundplayer.small .player-error .error-message {
