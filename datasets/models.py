@@ -779,7 +779,10 @@ class Vote(models.Model):
         # here calculate ground truth for vote.annotation
         candidate_annotation = self.candidate_annotation
         ground_truth_state = candidate_annotation.ground_truth_state
-        if ground_truth_state in (0.5, 1.0):
+        if ground_truth_state in (-1.0, 0):     # annotation reach NP or U state
+            candidate_annotation.ground_truth = ground_truth_state
+            candidate_annotation.save()
+        elif ground_truth_state in (0.5, 1.0):  # annotation reach PP or PNP state
             candidate_annotation.ground_truth = ground_truth_state
             candidate_annotation.save()
             annotation_exists = GroundTruthAnnotation.objects.filter(sound_dataset=candidate_annotation.sound_dataset,
