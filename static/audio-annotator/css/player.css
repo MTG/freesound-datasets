@@ -53,12 +53,7 @@
 }
 
 .soundplayer .player-error .error-description {
-    //z-index: 100;
     position: absolute;
-}
-
-.soundplayer.mini .player-error .error-description {
-    /*font-size: 10px;*/
 }
 
 .soundplayer.small .player-error .error-description {
