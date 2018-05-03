@@ -36,4 +36,5 @@ urlpatterns = [
     url(r'^(?P<short_name>[^\/]+)/annotate/choose_category_table_search_all/$', dataset_taxonomy_table_search_all,
         name='taxonomy-table-search-all'),
     url(r'^(?P<short_name>[^\/]+)/mini-node-info/(?P<node_id>[^\/]+)/$', get_mini_node_info, name='get-mini-node-info'),
+    url(r'^(?P<short_name>[^\/]+)/sound_examples/$', sound_examples, name='sound-examples'),
 ]

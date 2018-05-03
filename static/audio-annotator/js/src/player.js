@@ -17,6 +17,10 @@ function Player(Options)
     this.ready = false;
     this.error_dimmer = null;
     this.N_MAX_ATTEMPTS = 3;
+    // For testing normalization methods
+    this.normalization_method = Options.normalization_method;
+    this.ebur128 = Options.ebur128;
+    this.replayGain = Options.replayGain;
 
     this.setupWaveSurferInstance();
 
@@ -156,7 +160,15 @@ Player.prototype = {
 
     normalizeVolume: function () {
         var pl = this;
-        var factor = pl.processor.normalizeRMS();
+        var factor = 1;
+        console.log("method: " + this.normalization_method);
+        if (this.normalization_method === '1') {
+            factor = pl.processor.normalizeRMS();
+        } else if (this.normalization_method === '2') {
+            factor = this.replayGain
+        } else if (this.normalization_method === '3'){
+            factor = this.ebur128
+        }
         console.log("RMS: " + pl.processor.rootMeanSquare());
         //if (factor <= 1) {
             pl.wavesurfer.setVolume(factor);

@@ -588,10 +588,36 @@ def get_mini_node_info(request, short_name, node_id):
                    'show_go_button': show_go_button, 'show_num_gt': show_num_gt})
 
 
+def sound_examples(request, short_name):
+    dataset = get_object_or_404(Dataset, short_name=short_name)
+    # normalization methods: 0: None, 1: lorenzo, 2: replayGain, 3: ebur128
+    normalization_method = request.GET.get('m', 1)
+    fs_ids = [259169,
+              118078,
+              366895,
+              185631,
+              186427,
+              239583,
+              21412,
+              162703,
+              135000,
+              364734,
+              263829,
+              76276,
+              100850,
+              213856,
+              118962,
+              ]
+    sounds = Sound.objects.filter(freesound_id__in=fs_ids)
+    return render(request, 'datasets/sound_examples.html',
+           {'dataset': dataset,
+            'sounds': sounds,
+            'normalization_method': normalization_method})
+
+
 ########################
 # DOWNLOAD DATASET VIEWS
 ########################
-
 def get_access_token(request):
     code = request.GET.get('code', None)
     refresh_token = request.GET.get('refresh_token', None)
