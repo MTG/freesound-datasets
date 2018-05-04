@@ -19,8 +19,8 @@ function Player(Options)
     this.N_MAX_ATTEMPTS = 3;
     // For testing normalization methods
     this.normalization_method = Options.normalization_method;
-    this.ebur128 = Options.ebur128;
-    this.replayGain = Options.replayGain;
+    this.ebur128 = parseFloat(Options.ebur128);
+    this.replayGain = parseFloat(Options.replayGain);
 
     this.setupWaveSurferInstance();
 
@@ -512,14 +512,14 @@ PlayBar.prototype = {
     }
 };
 
+// Signal processor prototype
+// (implements some basic DSP routines, such as RMS normalization)
 function Processor(player) {
     this.player = player;
     this.wavesurfer = this.player.wavesurfer;
-    this.REFERENCE_RMS = 0.2;
+    this.REFERENCE_RMS = Math.pow(10, -23.0/20);
 }
 
-// Signal processor prototype
-// (implements some basic DSP routines, such as RMS normalization)
 Processor.prototype = {
     create: function() {},
 

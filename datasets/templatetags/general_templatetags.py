@@ -65,7 +65,7 @@ def sound_player(dataset, freesound_sound_id, player_size, normalization_method)
     waveform_url = sound.get_image_url('waveform', 'M')
     ebur128_ratio = sound.get_loudness_normalizing_ratio('ebur128')
     replayGain_ratio = sound.get_loudness_normalizing_ratio('replayGain')
-
+    
     return {'sound_url': sound_url,
             'freesound_id': freesound_sound_id,
             'spectrogram_url': spectrogram_url,
