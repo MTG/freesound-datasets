@@ -63,12 +63,8 @@ def sound_player(dataset, freesound_sound_id, player_size, normalization_method)
     spec_size = 'M' if player_size in ("mini", "small") else 'L'
     spectrogram_url = sound.get_image_url('spectrogram', spec_size)
     waveform_url = sound.get_image_url('waveform', 'M')
-    try:
-        ebur128 = sound.extra_data['analysis'].get('ebur128', 1)
-        replayGain = sound.extra_data['analysis'].get('replayGain', 1)
-    except AttributeError:
-        ebur128 = 1
-        replayGain = 1
+    ebur128_ratio = sound.get_loudness_normalizing_ratio('ebur128')
+    replayGain_ratio = sound.get_loudness_normalizing_ratio('replayGain')
 
     return {'sound_url': sound_url,
             'freesound_id': freesound_sound_id,
@@ -77,6 +73,6 @@ def sound_player(dataset, freesound_sound_id, player_size, normalization_method)
             'player_size': player_size,
             'player_id': uuid4(),
             'normalization_method': normalization_method,
-            'ebur128': ebur128,
-            'replayGain': replayGain
+            'ebur128': ebur128_ratio,
+            'replayGain': replayGain_ratio
             }
