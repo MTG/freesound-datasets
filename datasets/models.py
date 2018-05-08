@@ -744,6 +744,12 @@ class GroundTruthAnnotation(models.Model):
                                                             from_candidate_annotation=self.from_candidate_annotation,
                                                             from_propagation=True)
 
+    # Update number of ground truth annotations per taxonomy node each time a ground truth annotations is generated
+    def save(self, *args, **kwargs):
+        super(GroundTruthAnnotation, self).save(*args, **kwargs)
+        self.taxonomy_node.nb_ground_truth = self.taxonomy_node.num_ground_truth_annotations
+        self.taxonomy_node.save()
+
 
 # choices for quality control test used in Vote and User Profile
 TEST_CHOICES = (
