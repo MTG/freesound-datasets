@@ -4,7 +4,6 @@ function Player(Options)
     this.wavesurfer;
     this.playBar;
     this.view;
-    this.processor;
     this.fs_id = Options.freesound_id;
     this.player_id = Options.player_id;
     this.playerDom = "#s" + this.fs_id + "_" + this.player_id;
@@ -34,9 +33,6 @@ function Player(Options)
     // Create play bar
     this.playBar = new PlayBar(this);
     this.playBar.create();
-
-    // Create processor
-    this.processor = new Processor(this);
 
     $(this.ws_container).children("wave").css({
         "width": "100%",
@@ -73,7 +69,6 @@ Player.prototype = {
                 pl.playBar.update()
             ).then(
                 pl.removeLoader(),
-                pl.normalizeVolume(),
                 pl.ready = true
             );
         });
@@ -152,16 +147,6 @@ Player.prototype = {
         }
 
         return height;
-    },
-
-    normalizeVolume: function () {
-        var pl = this;
-        var factor = pl.processor.normalizeRMS();
-        console.log("RMS: " + pl.processor.rootMeanSquare());
-        //if (factor <= 1) {
-            pl.wavesurfer.setVolume(factor);
-        //}
-        console.log("factor: " + factor);
     },
 
     stop: function () {
@@ -497,48 +482,5 @@ PlayBar.prototype = {
         pl.wavesurfer.on("audioprocess", function () {
             pl.updateTimer();
         });
-    }
-};
-
-function Processor(player) {
-    this.player = player;
-    this.wavesurfer = this.player.wavesurfer;
-    this.REFERENCE_RMS = 0.2;
-}
-
-// Signal processor prototype
-// (implements some basic DSP routines, such as RMS normalization)
-Processor.prototype = {
-    create: function() {},
-
-    normalizeRMS: function(targetRMS) {
-        var pl = this;
-        var signal = this.getPCM();
-        var RMS = this.rootMeanSquare(signal);
-        var target = targetRMS || pl.REFERENCE_RMS;
-
-        return target / RMS;
-    },
-
-    getPCM: function() {
-        var pl = this;
-        var PCM = pl.wavesurfer.exportPCM(
-            length = 1024,
-            accuracy = 10000,
-            noWindow = true,
-            start = 0
-        );
-
-        return JSON.parse(PCM);
-    },
-
-    rootMeanSquare: function(signal) {
-        var sig = signal || this.getPCM();
-
-        var sumOfSquares = sig.reduce(function (s, x) {
-            return (s + x * x);
-        }, 0);
-
-        return Math.sqrt(sumOfSquares / sig.length);
     }
 };
