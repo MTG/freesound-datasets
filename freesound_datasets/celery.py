@@ -33,6 +33,9 @@ def run_django_management_command(self, command, *args, **kwargs):
 
 
 # Configure periodic tasks here
+# This task is not needed anymore (number of ground truth annotations per taxonomy node is real time:
+# updated at each generation of ground truth)
+# However this can serve as an example for possibly future periodic tasks.
 # @app.on_after_configure.connect
 # def setup_periodic_tasks(sender, **kwargs):
 #     sender.add_periodic_task(
