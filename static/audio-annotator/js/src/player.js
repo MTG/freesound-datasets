@@ -54,6 +54,8 @@ Player.prototype = {
         var pl = this;
         pl.removeErrorMessage();
         pl.addLoader();
+        pl.view.createBackground();
+        pl.addEvents();
         pl.load();
     },
 
@@ -201,7 +203,13 @@ function View(player) {
 View.prototype = {
     create: function () {
         var pl = this;
+
+        pl.createBackground();
         pl.addEvents();
+    },
+
+    createBackground: function () {
+        var pl = this;
 
         // Create background element
         var height_px = pl.height + "px";
@@ -436,7 +444,6 @@ PlayBar.prototype = {
             if (seconds === null || seconds < 0) {
                 return '';
             }
-            //var timeStr;
             var minutes = Math.floor(seconds / 60);
             var timeStr = minutes;
             timeStr += ':';
