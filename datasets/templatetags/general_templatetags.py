@@ -1,7 +1,10 @@
 from django import template
 from django.core import urlresolvers
+from django.utils.safestring import mark_safe
+from django.conf import settings
 from uuid import uuid4
 import datetime
+import re
 import time
 
 register = template.Library()
@@ -70,3 +73,18 @@ def sound_player(dataset, freesound_sound_id, player_size):
             'player_size': player_size,
             'player_id': uuid4()
             }
+
+
+@register.simple_tag(takes_context=False)
+def raven_install():
+    sentry_full_dsn = settings.RAVEN_CONFIG['dsn']
+    if sentry_full_dsn:
+        sentry_dsn = ':'.join(sentry_full_dsn.split(':')[:2]) + '@' + sentry_full_dsn.split('@')[-1]
+        return mark_safe('''
+            <script src="https://cdn.ravenjs.com/3.25.1/raven.min.js" crossorigin="anonymous"></script>
+            <script>
+                Raven.config('{}').install();
+            </script>
+               '''.format(sentry_dsn))
+    else:
+        return ''
