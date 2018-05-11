@@ -1,3 +1,4 @@
+/**/
 .player_container {
     padding: 4px;
     display: inline-block;
@@ -33,10 +34,67 @@
     border: 0;
     padding: 0;
     margin: 0;
+    z-index: 2;
 }
 
-.soundplayer .playbar:not(.active) {
-    visibility: hidden;
+.soundplayer .player-error .content {
+    display: flex;
+    align-items: center;
+}
+
+.soundplayer:not(.medium) .player-error .content {
+    justify-content: center;
+}
+
+.soundplayer .player-error .exclamation {
+    position: absolute;
+    opacity: 0.1;
+    font-size: 5em;
+}
+
+.soundplayer .player-error .error-description {
+    position: absolute;
+}
+
+.soundplayer.small .player-error .error-description {
+    text-align: center;
+    font-size: 12px;
+}
+
+.soundplayer.medium .player-error .error-description {
+    text-align: right;
+    padding-right: 10px;
+    right: 0;
+}
+
+.soundplayer.mini .error-message,
+.soundplayer.mini .reload-sound {
+    display: none;
+}
+
+.soundplayer.small .player-error .error-message {
+    margin: 0;
+}
+
+.soundplayer .player-error .reload-sound {
+    margin: 0;
+}
+
+.soundplayer .player-error .reload-sound:hover i {
+    -webkit-transform: rotate(-360deg);
+    -moz-transform: rotate(-360deg);
+    -ms-transform: rotate(-360deg);
+    -o-transform: rotate(-360deg);
+    transform: rotate(-360deg);
+    -webkit-transition: transform 0.5s;
+    -moz-transition: transform 0.5s;
+    -ms-transition: transform 0.5s;
+    -o-transition: transform 0.5s;
+    transition: transform 0.5s;
+}
+
+.wavesurfer .clickable {
+    z-index: 1;
 }
 
 .wavesurfer canvas {
@@ -54,6 +112,10 @@
 .wavesurfer .progress-bar {
     display: block !important;
     border-right-color: rgb(200,200,200) !important;
+}
+
+.soundplayer .playbar:not(.active) {
+    visibility: hidden;
 }
 
 .soundplayer .playbar {

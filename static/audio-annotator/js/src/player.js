@@ -14,12 +14,13 @@ function Player(Options)
     this.waveform = Options.waveform_url;
     this.sound_url = Options.sound_url;
     this.ready = false;
+    this.error_dimmer = null;
+    this.N_MAX_ATTEMPTS = 3;
 
     this.setupWaveSurferInstance();
 
     // Create wavesurfer object (playback and mouse interaction)
-    this.wavesurfer = Object.create(WaveSurfer);
-    this.wavesurfer.init({
+    this.wavesurfer = WaveSurfer.create({
         container: this.ws_container,
         height: this.height,
         audioContext: this.getAudioContext()
@@ -45,11 +46,22 @@ function Player(Options)
 Player.prototype = {
     load: function() {
         var pl = this;
+        //console.log(pl.sound_url);
         pl.wavesurfer.load(pl.sound_url);
+    },
+
+    reloadSound: function () {
+        var pl = this;
+        pl.removeErrorMessage();
+        pl.addLoader();
+        pl.view.createBackground();
+        pl.addEvents();
+        pl.load();
     },
 
     addEvents: function() {
         var pl = this;
+        var attempts = pl.N_MAX_ATTEMPTS;
 
         pl.wavesurfer.on("ready", function () {
             // Make sure the loader is removed only after
@@ -62,13 +74,50 @@ Player.prototype = {
                 pl.ready = true
             );
         });
+
+        pl.wavesurfer.on("error", function (e) {
+            console.log(e);
+            if (attempts) {
+                attempts--;
+                // Next line for testing, to be removed
+                //pl.sound_url = pl.sound_url.substring(1);
+                //
+                setTimeout(function() {
+                    pl.load();
+                }, 500);
+            } else {
+                attempts = pl.N_MAX_ATTEMPTS;
+                pl.removeLoader();
+                pl.addErrorMessage();
+            }
+        });
+    },
+
+    addLoader: function() {
+        var pl = this;
+        $(pl.playerDom).find(".load-dimmer").addClass("active");
     },
 
     removeLoader: function() {
         var pl = this;
-        $(pl.playerDom).find(".dimmer").removeClass("active");
+        $(pl.playerDom).find(".load-dimmer").removeClass("active");
     },
-    
+
+    addErrorMessage: function() {
+        var pl = this;
+        if (!pl.error_dimmer) {
+            pl.error_dimmer = pl.view.createErrorMessage();
+        }
+        $(pl.playerDom).prepend(pl.error_dimmer);
+    },
+
+    removeErrorMessage: function() {
+        var pl = this;
+        if (pl.error_dimmer) {
+            pl.error_dimmer.detach();
+        }
+    },
+
     getAudioContext: function () {
         if (!window.audioCtx) {
             window.audioCtx = new (
@@ -111,14 +160,15 @@ Player.prototype = {
 
     setupWaveSurferInstance: function () {
 
-        WaveSurfer.drawBuffer = function () {
+        WaveSurfer.prototype.drawBuffer = function () {
             // empty function, do not draw buffer
         };
 
-        WaveSurfer.createDrawer = function () {
-            this.drawer = Object.create(WaveSurfer.Drawer[this.params.renderer]);
-            this.drawer.init(this.container, this.params);
-        }
+        WaveSurfer.prototype.createDrawer = function () {
+            this.drawer = new this.Drawer(this.container, this.params);
+            this.drawer.init();
+        };
+
     },
 
     destroy: function () {
@@ -145,13 +195,21 @@ function View(player) {
     this.viewDom = null;
     this.clickable = $(this.ws_container).find("> wave");
     this.progressBar = $(this.ws_container).find("wave wave");
+
+    this.clickable.addClass("clickable");
     this.progressBar.addClass("progress-bar");
 }
 
 View.prototype = {
     create: function () {
         var pl = this;
+
+        pl.createBackground();
         pl.addEvents();
+    },
+
+    createBackground: function () {
+        var pl = this;
 
         // Create background element
         var height_px = pl.height + "px";
@@ -231,6 +289,57 @@ View.prototype = {
         pl.wavesurfer.on("finish", function () {
             pl.updateProgressBar();
         });
+    },
+
+    createErrorMessage: function () {
+        var pl = this;
+
+        // Create gray overlay
+        var dimmer = $("<div>", {
+            class: "ui dimmer active player-error"
+        });
+        var content = $("<div>", {
+            class: "content"
+        });
+
+        // Create background icon
+        var errIcon = $("<i>", {
+            class: "exclamation circle icon"
+        });
+
+        // Create error description
+        var errDescription = $("<div>", {
+            class: "error-description"
+        });
+        var errTitle = $("<h4>", {
+            class: "ui inverted sub header"
+        });
+        errTitle.append(
+            "Something's wrong :-("
+        );
+        var errMsg = $("<p>", {
+            class: "ui inverted error-message"
+        }).text("Try reloading the player.");
+
+        // Create reload button
+        var reloadBtn = $("<button>", {
+            type: "button",
+            class: "ui inverted labeled icon basic mini button reload-sound"
+        }).append(
+            $("<i>", {
+                class: "inverted undo icon"
+            }),
+            "Reload"
+        );
+        reloadBtn.click(function () {
+            pl.player.reloadSound()
+        });
+
+        errDescription.append(errTitle, errMsg, reloadBtn);
+        content.append(errIcon, errDescription);
+        dimmer.append(content);
+
+        return dimmer;
     }
 };
 
@@ -335,7 +444,6 @@ PlayBar.prototype = {
             if (seconds === null || seconds < 0) {
                 return '';
             }
-            //var timeStr;
             var minutes = Math.floor(seconds / 60);
             var timeStr = minutes;
             timeStr += ':';
