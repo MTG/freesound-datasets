@@ -1,4 +1,8 @@
 {% load general_templatetags %}
+{% load dataset_templatetags %}
+{% block extra_head %}
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+{% endblock %}
 <table id="dataset_contents" class="ui unstackable table" width="100%" style="margin-bottom:5px;">
     <thead>
         <tr>
@@ -17,7 +21,11 @@
         <tr {% if node.is_omitted %}class="negative"{% endif %}>
             <td>{{ node.name }}</td>
             <td>{{ node.num_sounds }}</td>
-            <td>{{ node.num_ground_truth }}</td>
+            <td>
+                <div class="w3-light-grey w3-round" style="width: 150px;" >
+                   <div class="w3-container w3-round w3-blue" style="width:{{ node.num_ground_truth|percent_goal }}%; text-align: center; padding-left:0px; padding-right:0px; min-width:15%;">{{ node.num_ground_truth }}</div>
+                </div>
+            </td>
             <td class="right aligned"><a href="{% url category_link_to.0 dataset.short_name node.url_id %}" class="blue ui button right labeled icon">{{ category_link_to.1 }} <i class="right arrow icon"></i></a></td>
         </tr>
     {% endfor %}

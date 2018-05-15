@@ -134,3 +134,10 @@ def fs_embed(value):
     embed_code = '<iframe frameborder="0" scrolling="no" src="https://www.freesound.org/embed/sound/iframe/{0}/simple/medium_no_info/?spec=1&td=1" width="130" height="80"></iframe>'
     return embed_code.format(str(value))
 
+
+@register.filter()
+def percent_goal(value):
+    if value < 100:
+        return value
+    else:
+        return 100
