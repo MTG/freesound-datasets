@@ -1,7 +1,10 @@
+{% load dataset_templatetags %}
+
 <table id="dataset_contents" class="ui unstackable table" width="100%">
     <thead>
         <tr>
-            <th>Categories </th>
+            <th>Category</th>
+            <th><div data-tooltip="Indicates how close we are from reaching our first goal (100 ground truth in each category)">Goal</div></th>
             <th></th>
         </tr>
     </thead>
@@ -13,6 +16,11 @@
                       ajax_url="{% url 'get-mini-node-info' dataset.short_name node.url_id %}?se=0&sb=0">
                     <i class="help grey circle icon"></i>
                 </span>
+            </td>
+            <td>
+                <div class="w3-light-grey w3-round" style="width: 150px;">
+                    <div class="w3-container w3-round w3-blue" style="width:{{ node.nb_ground_truth|percent_goal }}%; text-align: center; padding-left:0px; padding-right:0px; min-width:15%;">{{ node.nb_ground_truth }}</div>
+                </div>
             </td>
             <td class="right aligned"><a href="{% url 'contribute-validate-annotations-category' dataset.short_name node.url_id %}?na={{ new_annotations }}&mt={{ maintainer_task }}"
                                          class="blue ui button right labeled icon"> Choose <i class="checkmark box icon"></i></a></td>
