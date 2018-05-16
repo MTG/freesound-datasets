@@ -7,11 +7,9 @@
     <thead>
         <tr>
             <th>Category</th>
-            <!--<th><div data-tooltip="Audio samples which are candidate annotations for this category">-->
             <th><div data-tooltip="Audio samples with candidate annotations for this category">
-            <!--<th><div data-tooltip="Candidate audio sample for this category">-->
                 # audio samples</div></th>
-            <th><div data-tooltip="Candidate annotations validated by more than one user. The progress bar indicates how close we are from reaching our first goal (100 ground truth in each category)">
+            <th><div data-tooltip="Candidate annotations validated by more than one user, with majority agreement on the presence of a sound category in an audio sample">
             # ground truth</div></th>
             <th></th>
         </tr>
@@ -22,9 +20,7 @@
             <td>{{ node.name }}</td>
             <td>{{ node.num_sounds }}</td>
             <td>
-                <div class="w3-light-grey w3-round" style="width: 150px;" >
-                   <div class="w3-container w3-round w3-blue" style="width:{{ node.num_ground_truth|percent_goal }}%; text-align: center; padding-left:0px; padding-right:0px; min-width:15%;">{{ node.num_ground_truth }}</div>
-                </div>
+                {% goal_progress_bar node.num_ground_truth %}
             </td>
             <td class="right aligned"><a href="{% url category_link_to.0 dataset.short_name node.url_id %}" class="blue ui button right labeled icon">{{ category_link_to.1 }} <i class="right arrow icon"></i></a></td>
         </tr>

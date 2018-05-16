@@ -141,3 +141,8 @@ def percent_goal(value):
         return value
     else:
         return 100
+
+
+@register.inclusion_tag('datasets/goal_progress_bar.html', takes_context=False)
+def goal_progress_bar(value):
+    return {'num_ground_truth': value}
