@@ -478,7 +478,8 @@ def save_contribute_validate_annotations_category(request):
                 comment.created_by = request.user
                 comment.save()
 
-            request.session['nb_task1_pages'] += 1
+            if request.session.get('nb_task1_pages', False):
+                request.session['nb_task1_pages'] += 1
 
             if update_test_state:
                 request.user.profile.test = 'FA'
