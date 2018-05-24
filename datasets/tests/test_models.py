@@ -125,3 +125,24 @@ class TaxonomyTestAdvanced(TestCase):
         all_children_ids = [n.node_id for n in self.taxobj.get_all_propagate_from_children("1")]
         self.assertCountEqual(all_children_ids, expected)
         self.assertSetEqual(set(all_children_ids), set(expected))
+
+    def test_get_hierarchy_paths(self):
+        expected = sorted([["1", "2", "3"], ["5", "3"]])
+        paths = sorted(self.taxobj.get_hierarchy_paths("3"))
+        self.assertListEqual(expected, paths)
+
+    def test_get_nodes_at_level_0(self):
+        expected = sorted(["1", "5"])  # first level
+        nodes = sorted([n.node_id for n in self.taxobj.get_nodes_at_level(0)])
+        self.assertListEqual(expected, nodes)
+
+    def test_get_nodes_at_level_1(self):
+        expected = sorted(["2", "4", "3"])  # second level
+        nodes = sorted([n.node_id for n in self.taxobj.get_nodes_at_level(1)])
+        self.assertListEqual(expected, nodes)
+
+    def test_get_nodes_at_level_2(self):
+        expected = sorted(["3"])  # third level
+        nodes = sorted([n.node_id for n in self.taxobj.get_nodes_at_level(2)])
+        self.assertListEqual(expected, nodes)
+
