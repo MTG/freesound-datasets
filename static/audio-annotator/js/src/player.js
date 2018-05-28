@@ -20,11 +20,12 @@ function Player(Options)
     this.setupWaveSurferInstance();
 
     // Create wavesurfer object (playback and mouse interaction)
-    this.wavesurfer = WaveSurfer.create({
+    this.options = {
         container: this.ws_container,
         height: this.height,
         audioContext: this.getAudioContext()
-    });
+    };
+    this.wavesurfer = WaveSurfer.create(this.options);
 
     // Create view
     this.view = new View(this);
@@ -77,11 +78,16 @@ Player.prototype = {
 
         pl.wavesurfer.on("error", function (e) {
             console.log(e);
+            //console.log("Player: " + pl.fs_id);
             if (attempts) {
                 attempts--;
                 // Next line for testing, to be removed
                 //pl.sound_url = pl.sound_url.substring(1);
                 //
+                if(e === "Error decoding audiobuffer") {
+                    console.log("Trying another format...");
+                    pl.tryOtherFormat();
+                }
                 setTimeout(function() {
                     pl.load();
                 }, 500);
@@ -159,7 +165,6 @@ Player.prototype = {
     },
 
     setupWaveSurferInstance: function () {
-
         WaveSurfer.prototype.drawBuffer = function () {
             // empty function, do not draw buffer
         };
@@ -169,6 +174,25 @@ Player.prototype = {
             this.drawer.init();
         };
 
+    },
+
+    tryOtherFormat: function() {
+        var pl = this;
+        var url = pl.sound_url;
+        var splitted = url.split("/");
+        var format = splitted[splitted.length - 1].split('.')[1];
+        var new_format = '';
+        switch (format) {
+            case 'mp3':
+                new_format = '.ogg';
+                break;
+            case 'ogg':
+                new_format = '.mp3';
+                break;
+            default:
+                new_format = '.ogg';
+        }
+        pl.sound_url = pl.sound_url.split('.' + format)[0] + new_format;
     },
 
     destroy: function () {
