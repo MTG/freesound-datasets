@@ -1,4 +1,4 @@
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.conf import settings
 from django.http import HttpResponseRedirect
@@ -7,6 +7,8 @@ from datasets.models import Dataset
 from datasets.tasks import compute_dataset_basic_stats
 from utils.redis_store import DATASET_BASIC_STATS_KEY_TEMPLATE
 from utils.async_tasks import data_from_async_task
+from social_core.pipeline.partial import partial
+from django.template.context_processors import csrf
 
 
 @login_required
@@ -53,3 +55,21 @@ def login(request):
              'show_google': show_google
              }
     return render(request, 'login.html', tvars)
+
+
+@partial
+def accept_terms(strategy, details, user=None, is_new=False, *args, **kwargs):
+    backend = kwargs.get('current_partial').backend
+    accepted = strategy.session_get('terms_accepted', None)
+    if not accepted:
+        return redirect("accept-terms-form")
+    return
+
+
+def accept_terms_form(request):
+    if request.method == 'POST':
+        request.session['terms_accepted'] = request.POST.get('terms_accepted')
+        return redirect('social:complete', backend='freesound')  # TODO: get the backend automatically
+    else:
+        pass
+    return render(request, 'terms.html', {})

@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block title %}Terms and conditions{% endblock title %}
+
+
+{% block content %}
+
+    <div class="ui middle center aligned grid" style="margin-top: 10%;">
+        <p>This is a text!</p>
+    </div>
+
+    <form action="{% url 'accept-terms-form' %}" method="post">
+        {% csrf_token %}
+        <input type="checkbox" name="terms_accepted">
+        <input type="submit" value="OK">
+    </form>
+
+{% endblock %}
