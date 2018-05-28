@@ -615,6 +615,76 @@ def sound_examples(request, short_name):
             'normalization_method': normalization_method})
 
 
+def loudness_normalization_test(request, short_name):
+    dataset = get_object_or_404(Dataset, short_name=short_name)
+    # normalization methods: 0: None, 1: lorenzo, 2: replayGain, 3: ebur128
+    normalization_method = request.GET.get('m', 1)
+    page = int(request.GET.get('p', 0))
+    target = float(request.GET.get('t', -23.0))
+    max_gain_ratio = float(request.GET.get('r', 15.0))
+    normal = [  233454, 102379, 315646, 140210,
+                32854,  166436, 60770,  33160,
+                117883, 378357, 152954, 256595,
+                335896, 32632,  365634, 320919,
+                323699, 214416, 381373, 235380
+              ]
+    weird_or_harmonic_narrow = [ 344729, 189552, 262312, 232104, 319768 ]
+    loud = [ 330667, 2515, 339901, 61319,
+            75992, 21885, 361235, 266782,
+            189620,340725
+            ]
+    quiet = [ 348013, 269636, 237215, 266380, 266372 ]
+    loud_slice_is_short = [ 49807, 327934, 6990, 244783,
+                           256299, 363613, 340048, 2287,
+                           67455, 333062, 352773, 198605,
+                           95946, 95957, 319397
+                           ]
+    sound_pages = [
+        [
+            normal[6],
+            weird_or_harmonic_narrow[3],
+            loud[8],
+            quiet[1],
+            loud_slice_is_short[0],
+            normal[12],
+            loud[5],
+            quiet[4],
+            loud_slice_is_short[7]
+        ],
+        [
+            normal[5],
+            weird_or_harmonic_narrow[2],
+            loud[7],
+            quiet[0],
+            loud_slice_is_short[-1],
+            normal[11],
+            loud[4],
+            quiet[3],
+            loud_slice_is_short[6]
+        ],
+        [
+            normal[7],
+            weird_or_harmonic_narrow[4],
+            loud[9],
+            quiet[2],
+            loud_slice_is_short[1],
+            normal[13],
+            loud[6],
+            weird_or_harmonic_narrow[0],
+            loud_slice_is_short[8]
+        ]
+    ]
+    sounds = Sound.objects.filter(freesound_id__in=sound_pages[page])
+    return render(request, 'datasets/sound_examples.html',
+                  {'dataset': dataset,
+                   'sounds': sounds,
+                   'normalization': {'method': normalization_method,
+                                     'target': target,
+                                     'max_gain_ratio': max_gain_ratio
+                                    }
+                   })
+
+
 ########################
 # DOWNLOAD DATASET VIEWS
 ########################

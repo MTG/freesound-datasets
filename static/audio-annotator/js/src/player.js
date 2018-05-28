@@ -161,19 +161,33 @@ Player.prototype = {
     normalizeVolume: function () {
         var pl = this;
         var factor = 1;
+        console.log("ID: " + pl.fs_id);
         console.log("method: " + this.normalization_method);
-        if (this.normalization_method === '1') {
-            factor = pl.processor.normalizeRMS();
-        } else if (this.normalization_method === '2') {
-            factor = this.replayGain
-        } else if (this.normalization_method === '3'){
-            factor = this.ebur128
+
+        switch (this.normalization_method) {
+            case '1':
+                factor = pl.processor.normalizeRMS();
+                break;
+            case '2':
+                factor = this.replayGain;
+                break;
+            case '3':
+                factor = this.ebur128;
+                break;
         }
-        console.log("RMS: " + pl.processor.rootMeanSquare());
-        //if (factor <= 1) {
-            pl.wavesurfer.setVolume(factor);
-        //}
-        console.log("factor: " + factor);
+
+        if (pl.processor.isClipping(factor)) {
+            console.log("Clipping!!");
+        }
+
+        gain = Math.min(factor, pl.processor.getFactorForFullScale());
+        //gain = factor;
+
+        console.log("calculated factor: ", factor);
+        console.log("factor for full scale: ", pl.processor.getFactorForFullScale());
+        console.log("selected factor: " + gain);
+
+        pl.wavesurfer.setVolume(gain);
     },
 
     stop: function () {
@@ -525,18 +539,32 @@ Processor.prototype = {
 
     normalizeRMS: function(targetRMS) {
         var pl = this;
-        var signal = this.getPCM();
-        var RMS = this.rootMeanSquare(signal);
+        var signal = pl.getPCM();
+        var RMS = pl.rootMeanSquare(signal);
         var target = targetRMS || pl.REFERENCE_RMS;
 
         return target / RMS;
     },
 
+    getFactorForFullScale: function () {
+        var pl = this;
+        var maxVal = pl.getMaxSampleValue(pl.getPCM());
+        return 1 / maxVal;
+    },
+
+    isClipping: function(gain) {
+        var pl = this;
+        var maxVal = pl.getMaxSampleValue(pl.getPCM());
+        console.log("Max value: ", maxVal);
+        console.log("Max value with gain: ", maxVal * gain);
+        return maxVal * gain > 1;
+    },
+
     getPCM: function() {
         var pl = this;
         var PCM = pl.wavesurfer.exportPCM(
-            length = 1024,
-            accuracy = 10000,
+            length = 4096,
+            accuracy = 1000,
             noWindow = true,
             start = 0
         );
@@ -552,5 +580,10 @@ Processor.prototype = {
         }, 0);
 
         return Math.sqrt(sumOfSquares / sig.length);
+    },
+
+    getMaxSampleValue: function(signal) {
+        return Math.max.apply(null, signal.map(Math.abs))
     }
+
 };
