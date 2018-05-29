@@ -819,6 +819,7 @@ class CategoryComment(models.Model):
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+    accepted_terms = models.BooleanField(default=False)
     test = models.CharField(max_length=2, choices=TEST_CHOICES, default='UN')  # Store test result
     countdown_trustable = models.IntegerField(default=0)  # count for make the user pass the test again
     last_category_annotated = models.ForeignKey(TaxonomyNode, null=True, blank=True, default=None)
