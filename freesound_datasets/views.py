@@ -59,14 +59,14 @@ def login(request):
 
 
 @partial
-def accept_terms(strategy, details, user=None, is_new=False, *args, **kwargs):
+def registration(strategy, details, user=None, is_new=False, *args, **kwargs):
     backend = kwargs.get('current_partial').backend
     # new user
     if is_new:
         accepted = strategy.session_get('terms_accepted', None)
         if not accepted:
             strategy.session_set('social_username', details.get('username', ''))
-            return redirect("accept-terms-form", backend=backend)
+            return redirect("registration-form", backend=backend)
 
         # user accepted, after user creation
         if user:
@@ -88,7 +88,7 @@ def accept_terms(strategy, details, user=None, is_new=False, *args, **kwargs):
         return
 
 
-def accept_terms_form(request, backend):
+def registration_form(request, backend):
     social_username = request.session.get('social_username')
     if request.method == 'POST':
         terms_accepted = request.POST.get('terms_accepted', False)
@@ -100,11 +100,23 @@ def accept_terms_form(request, backend):
             return redirect('social:complete', backend=backend)
         else:
             username = request.POST.get('username', social_username)
-            return render(request, 'terms.html', {'backend': backend,
-                                                  'terms_accepted': terms_accepted,
-                                                  'social_username': username,
-                                                  'username_already_exists': username_already_exists})
-    return render(request, 'terms.html', {'backend': backend,
-                                          'terms_accepted': None,
-                                          'social_username': social_username,
-                                          'username_already_exists': None})
+            return render(request, 'registration.html', {'backend': backend,
+                                                         'terms_accepted': terms_accepted,
+                                                         'social_username': username,
+                                                         'username_already_exists': username_already_exists})
+    return render(request, 'registration.html', {'backend': backend,
+                                                 'terms_accepted': None,
+                                                 'social_username': social_username,
+                                                 'username_already_exists': None})
+
+
+def terms_acceptance_form(request):
+    if request.method == 'POST':
+        terms_accepted = request.POST.get('terms_accepted', False)
+        if terms_accepted:
+            request.user.profile.accepted_terms = True
+            request.user.save()
+            return redirect(reverse('index'))
+        else:
+            return render(request, 'terms_acceptance.html', {'terms_accepted': terms_accepted})
+    return render(request, 'terms_acceptance.html', {'terms_accepted': None})

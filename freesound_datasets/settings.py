@@ -79,6 +79,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'freesound_datasets.middleware.TosAcceptanceHandler',
 ]
 
 ROOT_URLCONF = 'freesound_datasets.urls'
@@ -154,10 +155,10 @@ SOCIAL_AUTH_PIPELINE = (
     'social_core.pipeline.social_auth.social_uid',
     'social_core.pipeline.social_auth.auth_allowed',
     'social_core.pipeline.social_auth.social_user',
-    'freesound_datasets.views.accept_terms',
+    'freesound_datasets.views.registration',
     'social_core.pipeline.user.get_username',
     'social_core.pipeline.user.create_user',
-    'freesound_datasets.views.accept_terms',  # repeated here to store that new user accepted terms
+    'freesound_datasets.views.registration',  # repeated here to store that new user accepted terms
     'social_core.pipeline.social_auth.associate_user',
     'social_core.pipeline.social_auth.load_extra_data',
     'social_core.pipeline.user.user_details',

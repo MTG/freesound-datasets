@@ -9,7 +9,7 @@
         <p>Welcome to Freesound Datasets website!</p>
     </div>
 
-    <form action="{% url 'accept-terms-form' backend %}" method="post" style="margin-top: 50px;">
+    <form action="{% url 'registration-form' backend %}" method="post" style="margin-top: 50px;">
         {% csrf_token %}
         <label for="id_username">Username: </label>
         <span data-tooltip="This username will be the one used in the Freesound Datasets platform
