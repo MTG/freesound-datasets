@@ -60,10 +60,16 @@ def login(request):
 @partial
 def accept_terms(strategy, details, user=None, is_new=False, *args, **kwargs):
     backend = kwargs.get('current_partial').backend
-    accepted = strategy.session_get('terms_accepted', None)
-    if not accepted:
-        return redirect("accept-terms-form", backend=backend)
-    return
+    # new user
+    if is_new:
+        accepted = strategy.session_get('terms_accepted', None)
+        if not accepted:
+            return redirect("accept-terms-form", backend=backend)
+        return
+
+    # already registered user, check if they accepted terms
+    else:
+        return
 
 
 def accept_terms_form(request, backend):
