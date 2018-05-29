@@ -62,14 +62,14 @@ def accept_terms(strategy, details, user=None, is_new=False, *args, **kwargs):
     backend = kwargs.get('current_partial').backend
     accepted = strategy.session_get('terms_accepted', None)
     if not accepted:
-        return redirect("accept-terms-form")
+        return redirect("accept-terms-form", backend=backend)
     return
 
 
-def accept_terms_form(request):
+def accept_terms_form(request, backend):
     if request.method == 'POST':
         request.session['terms_accepted'] = request.POST.get('terms_accepted')
-        return redirect('social:complete', backend='freesound')  # TODO: get the backend automatically
+        return redirect('social:complete', backend=backend)
     else:
         pass
-    return render(request, 'terms.html', {})
+    return render(request, 'terms.html', {'backend': backend})

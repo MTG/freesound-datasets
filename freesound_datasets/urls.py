@@ -15,7 +15,7 @@ urlpatterns = [
     url(r'^social/', include('social_django.urls', namespace='social')),
     url(r'^get-access-token/$', get_access_token, name='get_access_token'),
     url(r'^accept-terms/', accept_terms, name='accept-terms'),
-    url(r'^accept_terms_form/', accept_terms_form, name='accept-terms-form'),
+    url(r'^accept_terms_form/(?P<backend>[^\/]+)/$', accept_terms_form, name='accept-terms-form'),
     url(r'^faq/', faq, name='faq'),
     url(r'^discussion/', discussion, name='discussion'),
     url(r'', include('datasets.urls')),

@@ -9,7 +9,7 @@
         <p>This is a text!</p>
     </div>
 
-    <form action="{% url 'accept-terms-form' %}" method="post">
+    <form action="{% url 'accept-terms-form' backend %}" method="post">
         {% csrf_token %}
         <input type="checkbox" name="terms_accepted">
         <input type="submit" value="OK">
