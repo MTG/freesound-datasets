@@ -29,6 +29,12 @@
         <input type="submit" value="OK" style="margin-top: 30px;">
     </form>
 
+    {% if username_already_exists == True %}
+        <div class="ui warning message">
+            <p>The submitted username already exists, please select another one</p>
+        </div>
+    {% endif %}
+
     {% if terms_accepted == False %}
         <div class="ui warning message">
             <p>You need to accept the terms and conditions to be able to register to our website</p>

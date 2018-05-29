@@ -1,5 +1,6 @@
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.models import User
 from django.conf import settings
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
@@ -76,13 +77,14 @@ def accept_terms(strategy, details, user=None, is_new=False, *args, **kwargs):
 
     # already registered user, check if they accepted terms
     else:
-        accepted = strategy.session_get('terms_accepted', None)
-        if user:
-            if not user.profile.accepted_terms and not accepted:
-                return redirect("accept-terms-form", backend=backend)
-            user.profile.accepted_terms = True
-            user.username = strategy.session_get('username', user.username)
-            user.save()
+        # accepted = strategy.session_get('terms_accepted', None)
+        # if user:
+        #     if not user.profile.accepted_terms and not accepted:
+        #         strategy.session_set('social_username', details.get('username', ''))
+        #         return redirect("accept-terms-form", backend=backend)
+        #     user.profile.accepted_terms = True
+        #     user.username = strategy.session_get('username', user.username)
+        #     user.save()
         return
 
 
@@ -91,15 +93,18 @@ def accept_terms_form(request, backend):
     if request.method == 'POST':
         terms_accepted = request.POST.get('terms_accepted', False)
         request.session['terms_accepted'] = request.POST.get('terms_accepted')
-        if terms_accepted:
-            username = request.POST.get('username', social_username)
+        username = request.POST.get('username', social_username)
+        username_already_exists = User.objects.filter(username=username).exists()
+        if terms_accepted and not username_already_exists:
             request.session['username'] = username
             return redirect('social:complete', backend=backend)
         else:
             username = request.POST.get('username', social_username)
             return render(request, 'terms.html', {'backend': backend,
                                                   'terms_accepted': terms_accepted,
-                                                  'social_username': username})
+                                                  'social_username': username,
+                                                  'username_already_exists': username_already_exists})
     return render(request, 'terms.html', {'backend': backend,
                                           'terms_accepted': None,
-                                          'social_username': social_username})
+                                          'social_username': social_username,
+                                          'username_already_exists': None})
