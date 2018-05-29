@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 {% load staticfiles %}
-{% block title %}Terms and conditions{% endblock title %}
-
+{% block title %}Register{% endblock title %}
 
 {% block content %}
 
@@ -12,12 +11,17 @@
 
     <form action="{% url 'accept-terms-form' backend %}" method="post" style="margin-top: 50px;">
         {% csrf_token %}
-        <label for="id_username">Username: </label><br>
+        <label for="id_username">Username: </label>
+        <span data-tooltip="This username will be the one used in the Freesound Datasets platform
+            {% if backend == 'freesound' %}(does not affect Freesound)
+            {% endif %}"><i class="question circle icon"></i>
+        </span>
+        <br>
         <div class="ui small input">
             <input id="id_username" name="username" value="{{ social_username }}" type="text">
         </div>
         <br>
-        <div class="ui red checkbox" style="margin-top: 30px;">
+        <div class="ui checkbox" style="margin-top: 30px;">
             <input type="checkbox" name="terms_accepted">
             <label>Check this box to accept the <a href="#">terms of use</a> of the Freesound Datasets website</label>
         </div>

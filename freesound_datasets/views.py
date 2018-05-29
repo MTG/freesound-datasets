@@ -96,7 +96,7 @@ def accept_terms_form(request, backend):
             request.session['username'] = username
             return redirect('social:complete', backend=backend)
         else:
-            username = terms_accepted = request.POST.get('username', social_username)
+            username = request.POST.get('username', social_username)
             return render(request, 'terms.html', {'backend': backend,
                                                   'terms_accepted': terms_accepted,
                                                   'social_username': username})
