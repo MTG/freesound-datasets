@@ -65,10 +65,21 @@ def accept_terms(strategy, details, user=None, is_new=False, *args, **kwargs):
         accepted = strategy.session_get('terms_accepted', None)
         if not accepted:
             return redirect("accept-terms-form", backend=backend)
+
+        # user accepted
+        if user:
+            user.profile.accepted_terms = True
+            user.save()
         return
 
     # already registered user, check if they accepted terms
     else:
+        accepted = strategy.session_get('terms_accepted', None)
+        if user:
+            if not user.profile.accepted_terms and not accepted:
+                return redirect("accept-terms-form", backend=backend)
+            user.profile.accepted_terms = True
+            user.save()
         return
 
 

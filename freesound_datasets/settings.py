@@ -157,6 +157,7 @@ SOCIAL_AUTH_PIPELINE = (
     'freesound_datasets.views.accept_terms',
     'social_core.pipeline.user.get_username',
     'social_core.pipeline.user.create_user',
+    'freesound_datasets.views.accept_terms',  # repeated here to store that new user accepted terms
     'social_core.pipeline.social_auth.associate_user',
     'social_core.pipeline.social_auth.load_extra_data',
     'social_core.pipeline.user.user_details',
