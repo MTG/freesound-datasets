@@ -74,17 +74,7 @@ def registration(strategy, details, user=None, is_new=False, *args, **kwargs):
             user.username = strategy.session_get('username', user.username)
             user.save()
         return
-
-    # already registered user, check if they accepted terms
     else:
-        # accepted = strategy.session_get('terms_accepted', None)
-        # if user:
-        #     if not user.profile.accepted_terms and not accepted:
-        #         strategy.session_set('social_username', details.get('username', ''))
-        #         return redirect("accept-terms-form", backend=backend)
-        #     user.profile.accepted_terms = True
-        #     user.username = strategy.session_get('username', user.username)
-        #     user.save()
         return
 
 
