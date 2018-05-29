@@ -5,14 +5,30 @@
 
 {% block content %}
 
-    <div class="ui middle center aligned grid" style="margin-top: 10%;">
-        <p>This is a text!</p>
+    <div class="ui" style="margin-top:30px;">
+        <h2 class="ui header">Registration</h2>
+        <p>Welcome to Freesound Datasets website!</p>
     </div>
 
-    <form action="{% url 'accept-terms-form' backend %}" method="post">
+    <form action="{% url 'accept-terms-form' backend %}" method="post" style="margin-top: 50px;">
         {% csrf_token %}
-        <input type="checkbox" name="terms_accepted">
-        <input type="submit" value="OK">
+        <label for="id_username">Username: </label><br>
+        <div class="ui small input">
+            <input id="id_username" name="username" value="{{ social_username }}" type="text">
+        </div>
+        <br>
+        <div class="ui red checkbox" style="margin-top: 30px;">
+            <input type="checkbox" name="terms_accepted">
+            <label>Check this box to accept the <a href="#">terms of use</a> of the Freesound Datasets website</label>
+        </div>
+        <br>
+        <input type="submit" value="OK" style="margin-top: 30px;">
     </form>
+
+    {% if terms_accepted == False %}
+        <div class="ui warning message">
+            <p>You need to accept the terms and conditions to be able to register to our website</p>
+        </div>
+    {% endif %}
 
 {% endblock %}

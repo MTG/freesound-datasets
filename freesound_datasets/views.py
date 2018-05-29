@@ -64,11 +64,13 @@ def accept_terms(strategy, details, user=None, is_new=False, *args, **kwargs):
     if is_new:
         accepted = strategy.session_get('terms_accepted', None)
         if not accepted:
+            strategy.session_set('social_username', details.get('username', ''))
             return redirect("accept-terms-form", backend=backend)
 
-        # user accepted
+        # user accepted, after user creation
         if user:
             user.profile.accepted_terms = True
+            user.username = strategy.session_get('username', user.username)
             user.save()
         return
 
@@ -79,14 +81,25 @@ def accept_terms(strategy, details, user=None, is_new=False, *args, **kwargs):
             if not user.profile.accepted_terms and not accepted:
                 return redirect("accept-terms-form", backend=backend)
             user.profile.accepted_terms = True
+            user.username = strategy.session_get('username', user.username)
             user.save()
         return
 
 
 def accept_terms_form(request, backend):
+    social_username = request.session.get('social_username')
     if request.method == 'POST':
+        terms_accepted = request.POST.get('terms_accepted', False)
         request.session['terms_accepted'] = request.POST.get('terms_accepted')
-        return redirect('social:complete', backend=backend)
-    else:
-        pass
-    return render(request, 'terms.html', {'backend': backend})
+        if terms_accepted:
+            username = request.POST.get('username', social_username)
+            request.session['username'] = username
+            return redirect('social:complete', backend=backend)
+        else:
+            username = terms_accepted = request.POST.get('username', social_username)
+            return render(request, 'terms.html', {'backend': backend,
+                                                  'terms_accepted': terms_accepted,
+                                                  'social_username': username})
+    return render(request, 'terms.html', {'backend': backend,
+                                          'terms_accepted': None,
+                                          'social_username': social_username})
