@@ -1,0 +1,14 @@
+language: python
+python:
+    - 3.6.2
+
+services:
+    - docker
+
+install:
+    - docker build -t MTG/freesound-datasets .
+    - docker run -d -p 127.0.0.1:80:80 --name freesound-datasets freesound-datasets
+
+script:
+    - docker ps | grep -q blog
+
