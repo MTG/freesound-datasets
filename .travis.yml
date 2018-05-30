@@ -6,8 +6,8 @@ services:
     - docker
 
 install:
-    - docker build -t mtgupf/freesound-datasets-web .
-    - docker run -d -p 127.0.0.1:80:80 --name freesound-datasets freesound-datasets
+    - docker build -t freesound-datasets-web .
+    - docker run -d -p 127.0.0.1:80:80 --name freesound-datasets-web freesound-datasets-web
 
 script:
     - docker ps | grep -q blog
