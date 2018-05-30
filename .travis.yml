@@ -10,7 +10,7 @@ before_install:
     - touch freesound_datasets/local_settings.py
 
 install:
-    - docker build -t mtgupf/freesound-datasets-web .
+    - docker-compose build
 
 script:
     -  docker-compose run --rm web python manage.py test
