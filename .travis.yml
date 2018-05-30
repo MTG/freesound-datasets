@@ -12,3 +12,4 @@ install:
 script:
     - docker ps | grep -q blog
 
+
