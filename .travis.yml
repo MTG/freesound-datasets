@@ -6,7 +6,7 @@ services:
     - docker
 
 install:
-    - docker build -t MTG/freesound-datasets .
+    - docker build -t mtgupf/freesound-datasets-web .
     - docker run -d -p 127.0.0.1:80:80 --name freesound-datasets freesound-datasets
 
 script:
