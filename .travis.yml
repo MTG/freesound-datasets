@@ -4,12 +4,12 @@ python:
 
 services:
     - docker
+    - docker-compose
 
 install:
-    - docker build -t freesound-datasets-web .
-    - docker run -d -p 127.0.0.1:80:80 --name freesound-datasets-web freesound-datasets-web
+    - docker build -t mtgupf/freesound-datasets-web .
+    - docker-compose up
 
 script:
-    - docker ps | grep -q blog
-    - python manage.py test
+    -  docker-compose run --rm web python manage.py test
 
