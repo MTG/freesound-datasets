@@ -138,20 +138,28 @@ def add_taxonomy_nodes(taxonomy):
         abstract = 'abstract' in node['restrictions']
         omitted = 'omittedTT' in node['restrictions']
         taxonomy_node = TaxonomyNode.objects.get_or_create(node_id=node_id,
-                                      name=node['name'], 
-                                      description=node['description'], 
-                                      citation_uri=node['citation_uri'], 
-                                      abstract=abstract,
-                                      omitted=omitted, 
-                                      taxonomy=taxonomy)
+                                                           name=node['name'],
+                                                           description=node['description'],
+                                                           citation_uri=node['citation_uri'],
+                                                           abstract=abstract,
+                                                           omitted=omitted,
+                                                           taxonomy=taxonomy,
+                                                           )
+    all_taxonomy_nodes = TaxonomyNode.objects.all()
 
     # loop for adding parent relations
-    all_taxonomy_nodes = TaxonomyNode.objects.all()
     for taxonomy_node in all_taxonomy_nodes:
         if 'parent_ids' in taxonomy.data[taxonomy_node.node_id]:
             for node_id in taxonomy.data[taxonomy_node.node_id]['parent_ids']:
                 parent_node = TaxonomyNode.objects.get(node_id=node_id)
                 taxonomy_node.parents.add(parent_node)
+
+    # loop for adding propagate_to_parents relations
+    for taxonomy_node in all_taxonomy_nodes:
+        if 'propagate_to_parent_ids' in taxonomy.data[taxonomy_node.node_id]:
+            for node_id in taxonomy.data[taxonomy_node.node_id]['propagate_to_parent_ids']:
+                parent_node = TaxonomyNode.objects.get(node_id=node_id)
+                taxonomy_node.propagate_to_parents.add(parent_node)
 
 
 class Command(BaseCommand):

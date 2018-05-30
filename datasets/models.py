@@ -146,7 +146,7 @@ class Taxonomy(models.Model):
             return [item for sublist in l for item in sublist]
 
         if level == 0:
-            return self.taxonomynode_set.filter(parents=None)
+            return list(self.taxonomynode_set.filter(parents=None))
         else:
             parent_node_ids = self.get_nodes_at_level(level-1)
             return flat_list([parent.children.all() for parent in parent_node_ids])
