@@ -140,6 +140,13 @@ def taxonomy_node(request, short_name, node_id):
                                                            'sounds': annotations})
 
 
+def explore_taxonomy(request, short_name):
+    dataset = get_object_or_404(Dataset, short_name=short_name)
+    return render(request, 'datasets/explore_taxonomy.html', {
+        'dataset': dataset
+    })
+
+
 #############################
 # CONTRIBUTE TO DATASET VIEWS
 #############################
