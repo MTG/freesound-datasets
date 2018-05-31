@@ -248,9 +248,7 @@ class Sound(models.Model):
                                                                 size)
         return wave_url
 
-    def get_loudness_normalizing_ratio(self, descriptor, options):
-        target_loudness_value = options['target']
-        max_gain_ratio = options['max_gain_ratio']
+    def get_loudness_normalizing_ratio(self, descriptor, target_loudness_value, max_gain_ratio):
         try:
             if descriptor == 'ebur128':
                 loudness_value = self.extra_data.get('analysis', dict()).get('ebur128', target_loudness_value)

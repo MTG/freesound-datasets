@@ -18,9 +18,7 @@ function Player(Options)
     this.error_dimmer = null;
     this.N_MAX_ATTEMPTS = 3;
     // For testing normalization methods
-    this.normalization_method = Options.normalization_method;
-    this.ebur128 = parseFloat(Options.ebur128);
-    this.replayGain = parseFloat(Options.replayGain);
+    this.loudness_normalization_ratio = parseFloat(Options.loudness_normalization_ratio);
 
     this.setupWaveSurferInstance();
 
@@ -160,21 +158,7 @@ Player.prototype = {
 
     normalizeVolume: function () {
         var pl = this;
-        var factor = 1;
-        console.log("ID: " + pl.fs_id);
-        console.log("method: " + this.normalization_method);
-
-        switch (this.normalization_method) {
-            case '1':
-                factor = pl.processor.normalizeRMS();
-                break;
-            case '2':
-                factor = this.replayGain;
-                break;
-            case '3':
-                factor = this.ebur128;
-                break;
-        }
+        var factor = this.loudness_normalization_ratio;
 
         if (pl.processor.isClipping(factor)) {
             console.log("Clipping!!");
@@ -183,9 +167,9 @@ Player.prototype = {
         gain = Math.min(factor, pl.processor.getFactorForFullScale());
         //gain = factor;
 
-        console.log("calculated factor: ", factor);
-        console.log("factor for full scale: ", pl.processor.getFactorForFullScale());
-        console.log("selected factor: " + gain);
+        // console.log("calculated factor: ", factor);
+        // console.log("factor for full scale: ", pl.processor.getFactorForFullScale());
+        // console.log("selected factor: " + gain);
 
         pl.wavesurfer.setVolume(gain);
     },
@@ -549,7 +533,7 @@ Processor.prototype = {
     getFactorForFullScale: function () {
         var pl = this;
         var maxVal = pl.getMaxSampleValue(pl.getPCM());
-        return 1 / maxVal;
+        return 0.8 / maxVal;
     },
 
     isClipping: function(gain) {
