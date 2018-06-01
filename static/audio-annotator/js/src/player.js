@@ -37,6 +37,9 @@ function Player(Options)
     this.playBar = new PlayBar(this);
     this.playBar.create();
 
+    // Create processor
+    this.processor = new Processor(this);
+
     $(this.ws_container).children("wave").css({
         "width": "100%",
         "overflow": "hidden"
@@ -566,8 +569,8 @@ Processor.prototype = {
     isClipping: function(gain) {
         var pl = this;
         var maxVal = pl.getMaxSampleValue(pl.getPCM());
-        console.log("Max value: ", maxVal);
-        console.log("Max value with gain: ", maxVal * gain);
+        // console.log("Max value: ", maxVal);
+        // console.log("Max value with gain: ", maxVal * gain);
         return maxVal * gain > 1;
     },
 
