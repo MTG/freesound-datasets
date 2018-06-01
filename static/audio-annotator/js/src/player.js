@@ -4,7 +4,6 @@ function Player(Options)
     this.wavesurfer;
     this.playBar;
     this.view;
-    this.processor;
     this.fs_id = Options.freesound_id;
     this.player_id = Options.player_id;
     this.playerDom = "#s" + this.fs_id + "_" + this.player_id;
@@ -23,11 +22,12 @@ function Player(Options)
     this.setupWaveSurferInstance();
 
     // Create wavesurfer object (playback and mouse interaction)
-    this.wavesurfer = WaveSurfer.create({
+    this.options = {
         container: this.ws_container,
         height: this.height,
         audioContext: this.getAudioContext()
-    });
+    };
+    this.wavesurfer = WaveSurfer.create(this.options);
 
     // Create view
     this.view = new View(this);
@@ -36,9 +36,6 @@ function Player(Options)
     // Create play bar
     this.playBar = new PlayBar(this);
     this.playBar.create();
-
-    // Create processor
-    this.processor = new Processor(this);
 
     $(this.ws_container).children("wave").css({
         "width": "100%",
@@ -60,6 +57,8 @@ Player.prototype = {
         var pl = this;
         pl.removeErrorMessage();
         pl.addLoader();
+        pl.view.createBackground();
+        pl.addEvents();
         pl.load();
     },
 
@@ -82,11 +81,16 @@ Player.prototype = {
 
         pl.wavesurfer.on("error", function (e) {
             console.log(e);
+            //console.log("Player: " + pl.fs_id);
             if (attempts) {
                 attempts--;
                 // Next line for testing, to be removed
                 //pl.sound_url = pl.sound_url.substring(1);
                 //
+                if(e === "Error decoding audiobuffer") {
+                    console.log("Trying another format...");
+                    pl.tryOtherFormat();
+                }
                 setTimeout(function() {
                     pl.load();
                 }, 500);
@@ -173,7 +177,7 @@ Player.prototype = {
 
         pl.wavesurfer.setVolume(gain);
     },
-
+  
     stop: function () {
         var pl = this;
         if (pl.wavesurfer.isPlaying()) {
@@ -182,7 +186,6 @@ Player.prototype = {
     },
 
     setupWaveSurferInstance: function () {
-
         WaveSurfer.prototype.drawBuffer = function () {
             // empty function, do not draw buffer
         };
@@ -192,6 +195,25 @@ Player.prototype = {
             this.drawer.init();
         };
 
+    },
+
+    tryOtherFormat: function() {
+        var pl = this;
+        var url = pl.sound_url;
+        var splitted = url.split("/");
+        var format = splitted[splitted.length - 1].split('.')[1];
+        var new_format = '';
+        switch (format) {
+            case 'mp3':
+                new_format = '.ogg';
+                break;
+            case 'ogg':
+                new_format = '.mp3';
+                break;
+            default:
+                new_format = '.ogg';
+        }
+        pl.sound_url = pl.sound_url.split('.' + format)[0] + new_format;
     },
 
     destroy: function () {
@@ -226,7 +248,13 @@ function View(player) {
 View.prototype = {
     create: function () {
         var pl = this;
+
+        pl.createBackground();
         pl.addEvents();
+    },
+
+    createBackground: function () {
+        var pl = this;
 
         // Create background element
         var height_px = pl.height + "px";
@@ -461,7 +489,6 @@ PlayBar.prototype = {
             if (seconds === null || seconds < 0) {
                 return '';
             }
-            //var timeStr;
             var minutes = Math.floor(seconds / 60);
             var timeStr = minutes;
             timeStr += ':';
@@ -569,5 +596,4 @@ Processor.prototype = {
     getMaxSampleValue: function(signal) {
         return Math.max.apply(null, signal.map(Math.abs))
     }
-
 };

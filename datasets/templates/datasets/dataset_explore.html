@@ -36,6 +36,12 @@
                 $('#dataset_contents').DataTable({
                     'paging': true,
                     'info': true,
+                    'columns': [
+                        null,
+                        { "width": "70px" },
+                        { "width": "170px" },
+                        { "width": "100px" },
+                    ]
                 });
                 $('#dataset_contents_paginate').parent().attr('style', 'width: 100% !important');
             });

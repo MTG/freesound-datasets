@@ -146,7 +146,7 @@ class Taxonomy(models.Model):
             return [item for sublist in l for item in sublist]
 
         if level == 0:
-            return self.taxonomynode_set.filter(parents=None)
+            return list(self.taxonomynode_set.filter(parents=None))
         else:
             parent_node_ids = self.get_nodes_at_level(level-1)
             return flat_list([parent.children.all() for parent in parent_node_ids])
@@ -759,6 +759,12 @@ class GroundTruthAnnotation(models.Model):
                                                             taxonomy_node=parent,
                                                             from_candidate_annotation=self.from_candidate_annotation,
                                                             from_propagation=True)
+
+    # Update number of ground truth annotations per taxonomy node each time a ground truth annotations is generated
+    def save(self, *args, **kwargs):
+        super(GroundTruthAnnotation, self).save(*args, **kwargs)
+        self.taxonomy_node.nb_ground_truth = self.taxonomy_node.num_ground_truth_annotations
+        self.taxonomy_node.save()
 
 
 # choices for quality control test used in Vote and User Profile

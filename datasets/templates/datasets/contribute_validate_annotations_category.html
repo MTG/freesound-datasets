@@ -4,12 +4,15 @@
 {% load general_templatetags %}
 {% block title %}Validate category {{ node.name }}{% endblock title %}
 {% block extra_head %}
+    {% raven_install %}
     {% load_sound_player_files %}
 {% endblock %}
 
 {% block page_js %}
     <script type="text/javascript">
+    var num_submit_trials = 0;
         function submitForm(){
+            num_submit_trials += 1;
             document.getElementById("submitButton").disabled = true; 
             $.ajax({
                 type: "POST",
@@ -36,8 +39,25 @@
                         }
                     }
                 },
-                error: function() {
-                    $('#on_request_error_modal').modal({closable: false}).modal('show');
+                error: function(e) {
+                    Raven.captureMessage('Error AJAX POST request votes submission', {
+                        tags: {
+                            status: e.status,
+                            status_text: e.statusText,
+                            response_text: e.responseText
+                        },
+                        extra: {
+                            response_text: e.responseText
+                        }
+                    });
+                    if (num_submit_trials < 3) {
+                        setTimeout(function() {submitForm();}, 500);
+                    } else if (num_submit_trials < 5) {
+                        $('#on_request_retry_modal').modal({closable: false}).modal('show');
+                        document.getElementById("submitButton").disabled = false;
+                    } else {
+                        $('#on_request_error_modal').modal({closable: false}).modal('show');
+                    }
                 },
                 dataType: 'json'
             });
@@ -401,6 +421,22 @@
         </div>
     </div>
     <!-- end help modal -->
+
+    <!-- retry error modal, connexion problem for instance -->
+    <div id="on_request_retry_modal" class="ui basic modal">
+        <div class="ui icon header"><i class="meh icon"></i>
+            Meh!
+        </div>
+        <div class="content">
+            <p>
+                There was an error with your submission.<br>
+                Please check your internet connexion and retry.
+            </p>
+        </div>
+        <div class="actions">
+            <div class="green ui inverted button icon cancel">Ok</div>
+        </div>
+    </div>
 
     <!-- error modal, cookie expired for instance -->
     <div id="on_request_error_modal" class="ui basic modal">
