@@ -1,4 +1,5 @@
 from django import template
+from django.conf import settings
 from django.core import urlresolvers
 from django.utils.safestring import mark_safe
 from django.conf import settings
@@ -60,18 +61,24 @@ def load_sound_player_files():
 
 
 @register.inclusion_tag('datasets/player.html')
-def sound_player(dataset, freesound_sound_id, player_size):
+def sound_player(dataset, freesound_sound_id, player_size, normalization=None):
     sound = dataset.sounds.get(freesound_id=freesound_sound_id)
     sound_url = sound.extra_data['previews'][5:]
     spec_size = 'M' if player_size in ("mini", "small") else 'L'
     spectrogram_url = sound.get_image_url('spectrogram', spec_size)
     waveform_url = sound.get_image_url('waveform', 'M')
+    loudness_target = settings.PLAYER_LOUDNESS_NORMALIZATION_TARGET
+    max_ratio = settings.PLAYER_LOUDNESS_NORMALIZATION_MAX_RATIO
+    loudness_method = settings.PLAYER_LOUDNESS_NORMALIZATION_METHOD
+    loudness_normalization_ratio = sound.get_loudness_normalizing_ratio(loudness_method, loudness_target, max_ratio)
     return {'sound_url': sound_url,
             'freesound_id': freesound_sound_id,
             'spectrogram_url': spectrogram_url,
             'waveform_url': waveform_url,
             'player_size': player_size,
-            'player_id': uuid4()
+            'player_id': uuid4(),
+            'normalization_method': loudness_method,
+            'loudness_normalization_ratio': loudness_normalization_ratio,
             }
 
 

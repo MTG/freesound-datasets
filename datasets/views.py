@@ -592,7 +592,6 @@ def get_mini_node_info(request, short_name, node_id):
 ########################
 # DOWNLOAD DATASET VIEWS
 ########################
-
 def get_access_token(request):
     code = request.GET.get('code', None)
     refresh_token = request.GET.get('refresh_token', None)

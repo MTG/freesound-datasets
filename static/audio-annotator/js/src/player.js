@@ -16,6 +16,8 @@ function Player(Options)
     this.ready = false;
     this.error_dimmer = null;
     this.N_MAX_ATTEMPTS = 3;
+    // For testing normalization methods
+    this.loudness_normalization_ratio = parseFloat(Options.loudness_normalization_ratio);
 
     this.setupWaveSurferInstance();
 
@@ -34,6 +36,9 @@ function Player(Options)
     // Create play bar
     this.playBar = new PlayBar(this);
     this.playBar.create();
+
+    // Create processor
+    this.processor = new Processor(this);
 
     $(this.ws_container).children("wave").css({
         "width": "100%",
@@ -72,6 +77,7 @@ Player.prototype = {
                 pl.playBar.update()
             ).then(
                 pl.removeLoader(),
+                pl.normalizeVolume(),
                 pl.ready = true
             );
         });
@@ -157,6 +163,24 @@ Player.prototype = {
         return height;
     },
 
+    normalizeVolume: function () {
+        var pl = this;
+        var factor = this.loudness_normalization_ratio;
+
+        if (pl.processor.isClipping(factor)) {
+            console.log("Clipping!!");
+        }
+
+        gain = Math.min(factor, pl.processor.getFactorForFullScale());
+        //gain = factor;
+
+        // console.log("calculated factor: ", factor);
+        // console.log("factor for full scale: ", pl.processor.getFactorForFullScale());
+        // console.log("selected factor: " + gain);
+
+        pl.wavesurfer.setVolume(gain);
+    },
+  
     stop: function () {
         var pl = this;
         if (pl.wavesurfer.isPlaying()) {
@@ -513,5 +537,66 @@ PlayBar.prototype = {
         pl.wavesurfer.on("audioprocess", function () {
             pl.updateTimer();
         });
+    }
+};
+
+// Signal processor prototype
+// (implements some basic DSP routines, such as RMS normalization)
+function Processor(player) {
+    this.player = player;
+    this.wavesurfer = this.player.wavesurfer;
+    this.REFERENCE_RMS = Math.pow(10, -23.0/20);
+}
+
+Processor.prototype = {
+    create: function() {},
+
+    normalizeRMS: function(targetRMS) {
+        var pl = this;
+        var signal = pl.getPCM();
+        var RMS = pl.rootMeanSquare(signal);
+        var target = targetRMS || pl.REFERENCE_RMS;
+
+        return target / RMS;
+    },
+
+    getFactorForFullScale: function () {
+        var pl = this;
+        var maxVal = pl.getMaxSampleValue(pl.getPCM());
+        return 0.8 / maxVal;
+    },
+
+    isClipping: function(gain) {
+        var pl = this;
+        var maxVal = pl.getMaxSampleValue(pl.getPCM());
+        // console.log("Max value: ", maxVal);
+        // console.log("Max value with gain: ", maxVal * gain);
+        return maxVal * gain > 1;
+    },
+
+    getPCM: function() {
+        var pl = this;
+        var PCM = pl.wavesurfer.exportPCM(
+            length = 4096,
+            accuracy = 1000,
+            noWindow = true,
+            start = 0
+        );
+
+        return JSON.parse(PCM);
+    },
+
+    rootMeanSquare: function(signal) {
+        var sig = signal || this.getPCM();
+
+        var sumOfSquares = sig.reduce(function (s, x) {
+            return (s + x * x);
+        }, 0);
+
+        return Math.sqrt(sumOfSquares / sig.length);
+    },
+
+    getMaxSampleValue: function(signal) {
+        return Math.max.apply(null, signal.map(Math.abs))
     }
 };

@@ -248,6 +248,22 @@ class Sound(models.Model):
                                                                 size)
         return wave_url
 
+    def get_loudness_normalizing_ratio(self, descriptor, target_loudness_value, max_gain_ratio):
+        try:
+            if descriptor == 'ebur128':
+                loudness_value = self.extra_data.get('analysis', dict()).get('ebur128', target_loudness_value)
+                normalizing_ratio_db = float(target_loudness_value - loudness_value)
+            elif descriptor == 'replayGain':
+                normalizing_ratio_db = self.extra_data.get('analysis', dict()).get('replayGain', 0)
+            else:
+                raise ValueError
+        except AttributeError:
+            normalizing_ratio_db = 0
+
+        normalizing_ratio = 10 ** (normalizing_ratio_db / 20.0)
+
+        return normalizing_ratio if normalizing_ratio <= max_gain_ratio else max_gain_ratio
+
     def __str__(self):
         return 'Sound {0} (freesound {1})'.format(self.id, self.freesound_id)
 
