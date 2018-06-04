@@ -123,7 +123,7 @@ def taxonomy_node(request, short_name, node_id):
     node_id = unquote(node_id)
     node = dataset.taxonomy.get_element_at_id(node_id)
     annotation_list = dataset.annotations_per_taxonomy_node(node_id)\
-        .annotate(num_votes=Count('votes')).order_by('-num_votes')
+        .annotate(num_votes=Count('votes')).order_by('-num_votes', 'pk')
     paginator = Paginator(annotation_list, 10)
     page = request.GET.get('page')
     try:
@@ -478,7 +478,8 @@ def save_contribute_validate_annotations_category(request):
                 comment.created_by = request.user
                 comment.save()
 
-            request.session['nb_task1_pages'] += 1
+            if request.session.get('nb_task1_pages', False):
+                request.session['nb_task1_pages'] += 1
 
             if update_test_state:
                 request.user.profile.test = 'FA'
