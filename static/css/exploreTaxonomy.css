@@ -1,0 +1,69 @@
+.list:not(.ui) {
+    padding-top: 0 !important;
+    margin-top: 10px !important;
+}
+
+.item {
+    position: relative;
+    padding-left: 20px !important;
+}
+
+.item.selected .item:first-child {
+    padding-top: 5px !important;
+    padding-bottom: 5px !important;
+}
+
+.item.selected .item:not(:first-child) {
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.item.selected .item.selected::after,
+.item.selected .item.last::after {
+    content: '';
+    position: absolute;
+    top: 13px;
+    left: 0;
+    width: 21px;
+    border-top: #db2828 solid 3px;
+}
+
+/*.item.selected .item.selected:first-child::after,
+.item.selected .item.last:first-child::after {
+    top: 17px;
+}*/
+
+.ui.list > .item {
+    margin-bottom: 10px;
+}
+
+.ui.list > .item > .content > .header {
+    font-size: 2rem;
+}
+
+.ui.list > .item {
+    margin: 20px auto !important;
+}
+
+.item.selected > .content > .header {
+    color: #db2828 !important;
+}
+
+.item .content .header:hover {
+    text-decoration: underline;
+}
+
+.item.selected .list {
+    border-left: #db2828 solid 3px;
+    margin-left: 5px !important;
+}
+
+.item .icon {
+    font-size: 14px;
+    display: table-cell !important;
+}
+
+.item.selected > .icon,
+.item.selected .last {
+    color: #db2828;
+}
