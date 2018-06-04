@@ -8,21 +8,24 @@
     padding-left: 20px !important;
 }
 
-.item.selected .item:first-child {
-    padding-top: 5px !important;
-    padding-bottom: 5px !important;
-}
-
-.item.selected .item:not(:first-child) {
-    padding-top: 5px;
-    padding-bottom: 5px;
+.item.selected .item {
+    padding: 8px 20px !important;
 }
 
 .item.selected .item.selected::after,
 .item.selected .item.last::after {
     content: '';
     position: absolute;
-    top: 13px;
+    top: 16px;
+    left: 0;
+    width: 21px;
+    border-top: #db2828 solid 3px;
+}
+
+.item.selected .item.open::after {
+    content: '';
+    position: absolute;
+    top: 20px;
     left: 0;
     width: 21px;
     border-top: #db2828 solid 3px;
@@ -45,11 +48,13 @@
     margin: 20px auto !important;
 }
 
-.item.selected > .content > .header {
+.item.selected > .content > .header,
+.item.selected > .content > .title {
     color: #db2828 !important;
 }
 
-.item .content .header:hover {
+.item .content .header:hover,
+.item .content .title:hover {
     text-decoration: underline;
 }
 
@@ -58,12 +63,43 @@
     margin-left: 5px !important;
 }
 
-.item .icon {
+.item > .icon {
     font-size: 14px;
     display: table-cell !important;
 }
 
 .item.selected > .icon,
-.item.selected .last {
+.item.selected .last .header {
     color: #db2828;
+}
+
+.item.open {
+    padding: 10px;
+}
+
+.item.open .card {
+    width: auto;
+}
+
+.item.open .content {
+    border-left: #db2828 solid 3px;
+    padding: 8px 20px;
+}
+
+.item .open .container {
+    margin-left: 0 !important;
+}
+
+.item.open .header {
+    font-size: 24px;
+    margin: 10px auto !important;
+}
+
+.item.open .card .description {
+    margin-bottom: 10px;
+}
+
+.item.open .player_container {
+    margin-top: 10px;
+    margin-right: 10px;
 }
