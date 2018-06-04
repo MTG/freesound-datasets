@@ -123,7 +123,7 @@ def taxonomy_node(request, short_name, node_id):
     node_id = unquote(node_id)
     node = dataset.taxonomy.get_element_at_id(node_id)
     annotation_list = dataset.annotations_per_taxonomy_node(node_id)\
-        .annotate(num_votes=Count('votes')).order_by('-num_votes', 'pk')
+        .annotate(num_votes=Count('votes')).order_by('-num_votes')
     paginator = Paginator(annotation_list, 10)
     page = request.GET.get('page')
     try:
@@ -134,7 +134,7 @@ def taxonomy_node(request, short_name, node_id):
     except EmptyPage:
         # If page is out of range (e.g. 9999), deliver last page of results.
         annotations = paginator.page(paginator.num_pages)
-        
+
     return render(request, 'datasets/taxonomy_node.html', {'dataset': dataset, 'node': node,
                                                            'user_is_maintainer': user_is_maintainer,
                                                            'sounds': annotations})
@@ -478,8 +478,7 @@ def save_contribute_validate_annotations_category(request):
                 comment.created_by = request.user
                 comment.save()
 
-            if request.session.get('nb_task1_pages', False):
-                request.session['nb_task1_pages'] += 1
+            request.session['nb_task1_pages'] += 1
 
             if update_test_state:
                 request.user.profile.test = 'FA'
@@ -520,7 +519,7 @@ def dataset_taxonomy_table_choose(request, short_name):
 
         # choose a category at the given node_id level
         if node_id != str(0):
-            if node_id in taxonomy.get_nodes_at_level(0).values_list('node_id', flat=True):
+            if node_id in taxonomy.get_nodes_at_level(0):
                 # remove node that them and all their children are omitted.
                 # Here we should remove also the categories which all its children have no more annotations tu validate.
                 # Doing it with dataset.get_categories_to_validate() or with dataset.user_can_annotated() on all
