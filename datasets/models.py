@@ -257,7 +257,7 @@ class Sound(models.Model):
                 normalizing_ratio_db = self.extra_data.get('analysis', dict()).get('replayGain', 0)
             else:
                 raise ValueError
-        except AttributeError:
+        except (AttributeError, TypeError):
             normalizing_ratio_db = 0
 
         normalizing_ratio = 10 ** (normalizing_ratio_db / 20.0)
