@@ -3,53 +3,58 @@
     margin-top: 10px !important;
 }
 
+.ui.list .icon {
+    z-index: 2;
+}
+
 .item {
     position: relative;
     padding-left: 20px !important;
 }
 
-.item.selected .item {
-    padding: 8px 20px !important;
-}
-
-.item.selected .item.selected::after,
-.item.selected .item.last::after {
+.item.expanded .item::after {
     content: '';
     position: absolute;
     top: 16px;
-    left: 0;
-    width: 21px;
-    border-top: #db2828 solid 3px;
+    left: -24px;
+    width: 45px;
+    border-top: rgba(0,0,0,0.87) solid 2px;
+    visibility: visible;
+    z-index: -1;
 }
 
-.item.selected .item.open::after {
-    content: '';
-    position: absolute;
-    top: 20px;
-    left: 0;
-    width: 21px;
-    border-top: #db2828 solid 3px;
+.item.expanded .item.expanded::after {
+    border-top: #db2828 solid 4px;
 }
-
-/*.item.selected .item.selected:first-child::after,
-.item.selected .item.last:first-child::after {
-    top: 17px;
-}*/
 
 .ui.list > .item {
-    margin-bottom: 10px;
+    margin: 20px 0 !important;
+}
+
+.ui.list > .item .item:last-child::before {
+    content: '';
+    position: absolute;
+    width: 4px;
+    background: white;
+    top: 18px;
+    bottom: -4px;
+    left: -24px;
+}
+
+.ui.list > .item .item.expanded:last-child::before {
+    top: 20px;
 }
 
 .ui.list > .item > .content > .header {
-    font-size: 2rem;
+    font-size: 1.8rem;
 }
 
-.ui.list > .item {
-    margin: 20px auto !important;
+.ui.list > .item > .content > .list > .item > .content > .title {
+    font-size: 1.2rem;
 }
 
-.item.selected > .content > .header,
-.item.selected > .content > .title {
+.item.expanded > .content > .header,
+.item.expanded > .content > .title {
     color: #db2828 !important;
 }
 
@@ -58,9 +63,16 @@
     text-decoration: underline;
 }
 
-.item.selected .list {
-    border-left: #db2828 solid 3px;
-    margin-left: 5px !important;
+.item.expanded .item:not(.open) {
+    padding: 8px 20px !important;
+}
+
+.item.expanded .list {
+    border-left: #db2828 solid 4px;
+    margin-top: -5px !important;
+    margin-left: -20px !important;
+    padding-top: 20px !important;
+    padding-left: 20px !important;
 }
 
 .item > .icon {
@@ -68,26 +80,45 @@
     display: table-cell !important;
 }
 
-.item.selected > .icon,
-.item.selected .last .header {
+.item.expanded > .icon {
     color: #db2828;
 }
 
-.item.open {
-    padding: 10px;
+.item.open > .icon {
+    padding-top: 6px !important;
 }
 
-.item.open .card {
+.item.open > .content > .icon {
+    position: relative;
+    left: -26px;
+    top: -23px;
+    font-size: 14px;
+}
+
+.item.open > .content > .list {
+    margin-top: -25px !important;
+}
+
+.item.open .ui.card {
     width: auto;
+    border-left: #db2828 solid 3px;
+    margin-left: -35px;
+    margin-bottom: 0;
+    padding-left: 20px;
+    z-index: -1;
 }
 
-.item.open .content {
-    border-left: #db2828 solid 3px;
-    padding: 8px 20px;
+.item.open.expanded > .content > .icon {
+    color: #db2828;
 }
 
 .item .open .container {
     margin-left: 0 !important;
+}
+
+.item .open .button {
+    font-size: 12px;
+    padding: 5px;
 }
 
 .item.open .header {
@@ -95,7 +126,7 @@
     margin: 10px auto !important;
 }
 
-.item.open .card .description {
+.item.open .description {
     margin-bottom: 10px;
 }
 

@@ -17,6 +17,21 @@
      * JAVASCRIPT HERE!
      */
 
+    {% comment %}$( function() {
+        showBox();
+    });
+
+    function showBox() {
+        $(".item").each( function() {
+            var item = this;
+            var children = $(item).find(".minus");
+            $(this).find(".content").hover(
+                function() { $(item).addClass("ui card") },
+                function() { $(item).removeClass("ui card") }
+            );
+        });
+    }{% endcomment %}
+
 </script>
 {% endblock %}
 
@@ -39,7 +54,7 @@
                     <div class="header">Source-ambiguous sounds</div>
                 </div>
             </div>
-            <div class="item selected">
+            <div class="item expanded">
                 <i class="minus circle icon"></i>
                 <div class="content">
                     <div class="header">Animal</div>
@@ -58,7 +73,7 @@
                                 <div class="title">Livestock, farm animals, working animals</div>
                             </div>
                         </div>
-                        <div class="item selected">
+                        <div class="item expanded">
                             <i class="minus circle icon"></i>
                             <div class="content">
                                 <div class="title">Wild animals</div>
@@ -77,7 +92,7 @@
                                             <div class="title">Bird</div>
                                         </div>
                                     </div>
-                                    <div class="item selected">
+                                    <div class="item expanded">
                                         <i class="minus circle icon"></i>
                                         <div class="content">
                                             <div class="title">Canidae, dogs, wolves</div>
@@ -147,69 +162,90 @@
                     <div class="header">Sounds of things</div>
                 </div>
             </div>
-            <div class="item selected">
+            <div class="item expanded">
                 <i class="minus circle icon"></i>
                 <div class="content">
-
                     <div class="header">Music</div>
                     <div class="list">
-
-                        <div class="item selected">
+                        <div class="item expanded">
                             <i class="minus circle icon"></i>
                             <div class="content">
                                 <div class="title">Musical instrument</div>
                                 <div class="list">
-
                                     <div class="item">
                                         <i class="plus circle icon"></i>
                                         <div class="content">
                                             <div class="title">Plucked string instrument</div>
                                         </div>
                                     </div>
-                                    <div class="item selected">
-                                        <i class="minus circle icon"></i>
+                                    <div class="item expanded open">
+                                        <i class="info circle icon"></i>
                                         <div class="content">
-                                            <div class="title">Keyboard (musical)</div>
+                                            <div class="ui card">
+                                                <div class="content">
+                                                    <div class="ui small breadcrumb">
+                                                        <a class="section">Ontology</a>
+                                                        <i class="right chevron icon divider"></i>
+                                                        <a class="section">Music</a>
+                                                        <i class="right chevron icon divider"></i>
+                                                        <a class="section">Musical instrument</a>
+                                                        <i class="right chevron icon divider"></i>
+                                                    </div>
+                                                    <div class="right floated">
+                                                        <button class="circular ui icon button right floated">
+                                                            <i class="chevron up icon"></i>
+                                                        </button>
+                                                        <button class="circular ui icon button right floated">
+                                                            <i class="right arrow icon"></i>
+                                                        </button>
+                                                    </div>
+                                                    <div class="header">Keyboard (musical)</div>
+                                                    <div class="description">
+                                                        <p>Sounds of a musical instrument played using a keyboard, most commonly the piano, organ, and various electronic keyboards, including synthesizers and digital pianos.
+        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <i class="minus circle icon"></i>
                                             <div class="list">
-
-                                                <div class="item">
-                                                    <i class="plus circle icon"></i>
-                                                    <div class="content">
-                                                        <div class="title">Piano</div>
+                                                    <div class="item">
+                                                        <i class="plus circle icon"></i>
+                                                        <div class="content">
+                                                            <div class="title">Piano</div>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                                <div class="item">
-                                                    <i class="plus circle icon"></i>
-                                                    <div class="content">
-                                                        <div class="title">Organ</div>
+                                                    <div class="item">
+                                                        <i class="plus circle icon"></i>
+                                                        <div class="content">
+                                                            <div class="title">Organ</div>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                                <div class="item selected">
-                                                    <i class="minus circle icon"></i>
-                                                    <div class="content">
-                                                        <div class="title">Synthesizer</div>
-                                                        <div class="list">
-                                                            <div class="item last">
-                                                                <i class="circle icon"></i>
-                                                                <div class="content">
-                                                                    <div class="title">Sampler</div>
+                                                    <div class="item expanded">
+                                                        <i class="minus circle icon"></i>
+                                                        <div class="content">
+                                                            <div class="title">Synthesizer</div>
+                                                            <div class="list">
+                                                                <div class="item last">
+                                                                    <i class="circle icon"></i>
+                                                                    <div class="content">
+                                                                        <div class="title">Sampler</div>
+                                                                    </div>
                                                                 </div>
-                                                            </div>
-                                                            <div class="item last">
-                                                                <i class="circle icon"></i>
-                                                                <div class="content">
-                                                                    <div class="title">Mellotron</div>
+                                                                <div class="item last">
+                                                                    <i class="circle icon"></i>
+                                                                    <div class="content">
+                                                                        <div class="title">Mellotron</div>
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                                <div class="item">
-                                                    <i class="plus circle icon"></i>
-                                                    <div class="content">
-                                                        <div class="title">Harpsichord</div>
+                                                    <div class="item">
+                                                        <i class="plus circle icon"></i>
+                                                        <div class="content">
+                                                            <div class="title">Harpsichord</div>
+                                                        </div>
                                                     </div>
-                                                </div>
 
                                             </div>
                                         </div>
@@ -324,7 +360,6 @@
                                     </div>
 
                                 </div>
-
                             </div>
                         </div>
 
@@ -361,12 +396,12 @@
                     <div class="header">Natural sounds</div>
                 </div>
             </div>
-            <div class="item selected">
+            <div class="item expanded">
                 <i class="minus circle icon"></i>
                 <div class="content">
                     <div class="header">Channel, environment and background</div>
                     <div class="list">
-                        <div class="item selected">
+                        <div class="item expanded">
                             <i class="minus circle icon"></i>
                             <div class="content">
                                 <div class="title">Acoustic environment</div>
@@ -401,32 +436,32 @@
                                             <div class="title">Outside, rural or natural</div>
                                         </div>
                                     </div>
-                                    <div class="item selected open last">
-                                        <!--i class="circle icon"></i-->
-                                        <div class="ui card">
-                                            <div class="content">
-                                                <div class="ui small breadcrumb">
-                                                    <a class="section">Ontology</a>
-                                                    <i class="right chevron icon divider"></i>
-                                                    <a class="section">Channel, environment and background</a>
-                                                    <i class="right chevron icon divider"></i>
-                                                    <a class="section">Acoustic environment</a>
-                                                    <i class="right chevron icon divider"></i>
+                                    <div class="item expanded open last">
+                                        <i class="info circle icon"></i>
+                                        <div class="content">
+                                            <div class="ui card">
+                                                <div class="content">
+                                                    <div class="ui small breadcrumb">
+                                                        <a class="section">Ontology</a>
+                                                        <i class="right chevron icon divider"></i>
+                                                        <a class="section">Channel, environment and background</a>
+                                                        <i class="right chevron icon divider"></i>
+                                                        <a class="section">Acoustic environment</a>
+                                                        <i class="right chevron icon divider"></i>
+                                                    </div>
+                                                    <div class="header">Reverberation</div>
+                                                    <div class="description">
+                                                        <p>
+        The sound of an acoustic environment that includes substantial reflection from multiple walls or other hard surfaces. Reverberation is generally perceived as being able to 'hear' the presence and size of the room or space in which the sound is made. The reflected sounds should remain audible for hundreds of milliseconds or longer.
+                                                        </p>
+                                                    </div>
                                                 </div>
-                                                <div class="header">Reverberation</div>
-                                                <div class="description">
-                                                    <p>
-    The sound of an acoustic environment that includes substantial reflection from multiple walls or other hard surfaces. Reverberation is generally perceived as being able to 'hear' the presence and size of the room or space in which the sound is made. The reflected sounds should remain audible for hundreds of milliseconds or longer.
-                                                    </p>
-                                                </div>
-                                            </div>
-                                            <div class="content">
-                                                <div class="title">Sound examples</div>
-                                                    {% sound_player dataset 126196 "small" %}
-                                                    {% sound_player dataset 222460 "small" %}
-                                                </div>
-                                            <div class="extra-content">
+                                                <div class="content">
+                                                    <div class="title">Sound examples</div>
+                                                        {% sound_player dataset 126196 "small" %}
+                                                        {% sound_player dataset 222460 "small" %}
 
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
