@@ -17,8 +17,8 @@
     position: absolute;
     top: 16px;
     left: -24px;
-    width: 45px;
-    border-top: rgba(0,0,0,0.87) solid 2px;
+    width: 35px;
+    border-top: #dedede solid 2px;
     visibility: visible;
     z-index: -1;
 }
@@ -53,6 +53,11 @@
     font-size: 1.2rem;
 }
 
+.item > .content {
+    padding: 0 !important;
+    margin-left: 10px;
+}
+
 .item.expanded > .content > .header,
 .item.expanded > .content > .title {
     color: #db2828 !important;
@@ -64,28 +69,52 @@
 }
 
 .item.expanded .item:not(.open) {
-    padding: 8px 20px !important;
+    padding: 8px 10px !important;
 }
 
 .item.expanded .list {
     border-left: #db2828 solid 4px;
-    margin-top: -5px !important;
-    margin-left: -20px !important;
-    padding-top: 20px !important;
+    margin-top: 5px !important;
+    margin-left: -19px !important;
+    padding-top: 5px !important;
     padding-left: 20px !important;
 }
 
 .item > .icon {
     font-size: 14px;
     display: table-cell !important;
+    cursor: pointer;
+    color: #666666;
 }
 
-.item.expanded > .icon {
-    color: #db2828;
+.item.last > .icon {
+    cursor: default;
+}
+
+.item.expanded > .icon::before {
+    background-color: #db2828 !important;
+    color: white;
 }
 
 .item.open > .icon {
     padding-top: 6px !important;
+}
+
+.item:not(.last) > .icon::before {
+    padding: 5px;
+    border: solid 1px transparent;
+    -webkit-border-radius: 100px;
+    -moz-border-radius: 100px;
+    border-radius: 100px;
+}
+
+.item:not(.last) > .icon:hover::before {
+    border: solid 1px #dedede;
+}
+
+.item.expanded > .icon:hover::before {
+    border: solid 1px transparent;
+    background-color: #b42121 !important;
 }
 
 .item.open > .content > .icon {
@@ -101,7 +130,6 @@
 
 .item.open .ui.card {
     width: auto;
-    border-left: #db2828 solid 3px;
     margin-left: -35px;
     margin-bottom: 0;
     padding-left: 20px;

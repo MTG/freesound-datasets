@@ -17,20 +17,25 @@
      * JAVASCRIPT HERE!
      */
 
-    {% comment %}$( function() {
-        showBox();
-    });
+    $(".item .header").each(
+        function () {
+            $(this).append(
+                $("<i>", {
+                    class: "down chevron icon"
+                })
+            )
+        }
+    )
 
-    function showBox() {
-        $(".item").each( function() {
-            var item = this;
-            var children = $(item).find(".minus");
-            $(this).find(".content").hover(
-                function() { $(item).addClass("ui card") },
-                function() { $(item).removeClass("ui card") }
-            );
-        });
-    }{% endcomment %}
+    $(".item .title").each(
+        function () {
+            $(this).append(
+                $("<i>", {
+                    class: "down chevron icon"
+                })
+            )
+        }
+    )
 
 </script>
 {% endblock %}
@@ -43,57 +48,57 @@
         <!-- FIRST LEVEL -->
         <div class="ui list">
             <div class="item">
-                <i class="plus circle icon"></i>
+                <i class="sitemap  icon"></i>
                 <div class="content">
                     <div class="header">Human Sounds</div>
                 </div>
             </div>
             <div class="item">
-                <i class="plus circle icon"></i>
+                <i class="sitemap  icon"></i>
                 <div class="content">
                     <div class="header">Source-ambiguous sounds</div>
                 </div>
             </div>
             <div class="item expanded">
-                <i class="minus circle icon"></i>
+                <i class="sitemap icon"></i>
                 <div class="content">
                     <div class="header">Animal</div>
 
                     <!-- SECOND LEVEL -->
                     <div class="list">
                         <div class="item">
-                            <i class="plus circle icon"></i>
+                            <i class="sitemap  icon"></i>
                             <div class="content">
                                 <div class="title">Domestic animals, pets</div>
                             </div>
                         </div>
                         <div class="item">
-                            <i class="plus circle icon"></i>
+                            <i class="sitemap  icon"></i>
                             <div class="content">
                                 <div class="title">Livestock, farm animals, working animals</div>
                             </div>
                         </div>
                         <div class="item expanded">
-                            <i class="minus circle icon"></i>
+                            <i class="sitemap icon"></i>
                             <div class="content">
                                 <div class="title">Wild animals</div>
 
                                 <!-- THIRD LEVEL -->
                                 <div class="list">
                                     <div class="item">
-                                        <i class="plus circle icon"></i>
+                                        <i class="sitemap  icon"></i>
                                         <div class="content">
                                             <div class="title">Roaring cats (lions, tigers)</div>
                                         </div>
                                     </div>
                                     <div class="item">
-                                        <i class="plus circle icon"></i>
+                                        <i class="sitemap  icon"></i>
                                         <div class="content">
                                             <div class="title">Bird</div>
                                         </div>
                                     </div>
                                     <div class="item expanded">
-                                        <i class="minus circle icon"></i>
+                                        <i class="sitemap icon"></i>
                                         <div class="content">
                                             <div class="title">Canidae, dogs, wolves</div>
 
@@ -117,31 +122,31 @@
                                         </div>
                                     </div>
                                     <div class="item">
-                                        <i class="plus circle icon"></i>
+                                        <i class="sitemap  icon"></i>
                                         <div class="content">
                                             <div class="title">Rodents, rats, mice</div>
                                         </div>
                                     </div>
                                     <div class="item">
-                                        <i class="plus circle icon"></i>
+                                        <i class="sitemap  icon"></i>
                                         <div class="content">
                                             <div class="title">Insect</div>
                                         </div>
                                     </div>
                                     <div class="item">
-                                        <i class="plus circle icon"></i>
+                                        <i class="sitemap  icon"></i>
                                         <div class="content">
                                             <div class="title">Frog</div>
                                         </div>
                                     </div>
                                     <div class="item">
-                                        <i class="plus circle icon"></i>
+                                        <i class="sitemap  icon"></i>
                                         <div class="content">
                                             <div class="title">Snake</div>
                                         </div>
                                     </div>
                                     <div class="item">
-                                        <i class="plus circle icon"></i>
+                                        <i class="sitemap  icon"></i>
                                         <div class="content">
                                             <div class="title">Whale vocalization</div>
                                         </div>
@@ -157,23 +162,25 @@
                 </div>
             </div>
             <div class="item">
-                <i class="plus circle icon"></i>
+                <i class="sitemap  icon"></i>
                 <div class="content">
                     <div class="header">Sounds of things</div>
                 </div>
             </div>
             <div class="item expanded">
-                <i class="minus circle icon"></i>
+                <i class="sitemap icon"></i>
                 <div class="content">
                     <div class="header">Music</div>
                     <div class="list">
                         <div class="item expanded">
-                            <i class="minus circle icon"></i>
+                            <i class="sitemap icon"></i>
                             <div class="content">
-                                <div class="title">Musical instrument</div>
+                                <div class="title">
+                                    Musical instrument
+                                </div>
                                 <div class="list">
                                     <div class="item">
-                                        <i class="plus circle icon"></i>
+                                        <i class="sitemap  icon"></i>
                                         <div class="content">
                                             <div class="title">Plucked string instrument</div>
                                         </div>
@@ -192,10 +199,10 @@
                                                         <i class="right chevron icon divider"></i>
                                                     </div>
                                                     <div class="right floated">
-                                                        <button class="circular ui icon button right floated">
+                                                        <button class=" ui icon button right floated">
                                                             <i class="chevron up icon"></i>
                                                         </button>
-                                                        <button class="circular ui icon button right floated">
+                                                        <button class=" ui icon button right floated">
                                                             <i class="right arrow icon"></i>
                                                         </button>
                                                     </div>
@@ -206,22 +213,22 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <i class="minus circle icon"></i>
+                                            <i class="sitemap icon"></i>
                                             <div class="list">
                                                     <div class="item">
-                                                        <i class="plus circle icon"></i>
+                                                        <i class="sitemap  icon"></i>
                                                         <div class="content">
                                                             <div class="title">Piano</div>
                                                         </div>
                                                     </div>
                                                     <div class="item">
-                                                        <i class="plus circle icon"></i>
+                                                        <i class="sitemap  icon"></i>
                                                         <div class="content">
                                                             <div class="title">Organ</div>
                                                         </div>
                                                     </div>
                                                     <div class="item expanded">
-                                                        <i class="minus circle icon"></i>
+                                                        <i class="sitemap icon"></i>
                                                         <div class="content">
                                                             <div class="title">Synthesizer</div>
                                                             <div class="list">
@@ -241,7 +248,7 @@
                                                         </div>
                                                     </div>
                                                     <div class="item">
-                                                        <i class="plus circle icon"></i>
+                                                        <i class="sitemap  icon"></i>
                                                         <div class="content">
                                                             <div class="title">Harpsichord</div>
                                                         </div>
@@ -251,109 +258,109 @@
                                         </div>
                                     </div>
                                     <div class="item">
-                                        <i class="plus circle icon"></i>
+                                        <i class="sitemap  icon"></i>
                                         <div class="content">
                                             <div class="title">Percussion</div>
                                         </div>
                                     </div>
                                     <div class="item">
-                                        <i class="plus circle icon"></i>
+                                        <i class="sitemap  icon"></i>
                                         <div class="content">
                                             <div class="title">Orchestra</div>
                                         </div>
                                     </div>
                                     <div class="item">
-                                        <i class="plus circle icon"></i>
+                                        <i class="sitemap  icon"></i>
                                         <div class="content">
                                             <div class="title">Brass instrument</div>
                                         </div>
                                     </div>
                                     <div class="item">
-                                        <i class="plus circle icon"></i>
+                                        <i class="sitemap  icon"></i>
                                         <div class="content">
                                             <div class="title">Bowed string instrument</div>
                                         </div>
                                     </div>
                                     <div class="item">
-                                        <i class="plus circle icon"></i>
+                                        <i class="sitemap  icon"></i>
                                         <div class="content">
                                             <div class="title">Wind instrument, woodwind instrument</div>
                                         </div>
                                     </div>
                                     <div class="item">
-                                        <i class="plus circle icon"></i>
+                                        <i class="sitemap  icon"></i>
                                         <div class="content">
                                             <div class="title">Harp</div>
                                         </div>
                                     </div>
                                     <div class="item">
-                                        <i class="plus circle icon"></i>
+                                        <i class="sitemap  icon"></i>
                                         <div class="content">
                                             <div class="title">Choir</div>
                                         </div>
                                     </div>
                                     <div class="item">
-                                        <i class="plus circle icon"></i>
+                                        <i class="sitemap  icon"></i>
                                         <div class="content">
                                             <div class="title">Bell</div>
                                         </div>
                                     </div>
                                     <div class="item">
-                                        <i class="plus circle icon"></i>
+                                        <i class="sitemap  icon"></i>
                                         <div class="content">
                                             <div class="title">Harmonica</div>
                                         </div>
                                     </div>
                                     <div class="item">
-                                        <i class="plus circle icon"></i>
+                                        <i class="sitemap  icon"></i>
                                         <div class="content">
                                             <div class="title">Accordion</div>
                                         </div>
                                     </div>
                                     <div class="item">
-                                        <i class="plus circle icon"></i>
+                                        <i class="sitemap  icon"></i>
                                         <div class="content">
                                             <div class="title">Bagpipes</div>
                                         </div>
                                     </div>
                                     <div class="item">
-                                        <i class="plus circle icon"></i>
+                                        <i class="sitemap  icon"></i>
                                         <div class="content">
                                             <div class="title">Didgeridoo</div>
                                         </div>
                                     </div>
                                     <div class="item">
-                                        <i class="plus circle icon"></i>
+                                        <i class="sitemap  icon"></i>
                                         <div class="content">
                                             <div class="title">Shofar</div>
                                         </div>
                                     </div>
                                     <div class="item">
-                                        <i class="plus circle icon"></i>
+                                        <i class="sitemap  icon"></i>
                                         <div class="content">
                                             <div class="title">Theremin</div>
                                         </div>
                                     </div>
                                     <div class="item">
-                                        <i class="plus circle icon"></i>
+                                        <i class="sitemap  icon"></i>
                                         <div class="content">
                                             <div class="title">Singing bowl</div>
                                         </div>
                                     </div>
                                     <div class="item">
-                                        <i class="plus circle icon"></i>
+                                        <i class="sitemap  icon"></i>
                                         <div class="content">
                                             <div class="title">Musical ensemble</div>
                                         </div>
                                     </div>
                                     <div class="item">
-                                        <i class="plus circle icon"></i>
+                                        <i class="sitemap  icon"></i>
                                         <div class="content">
                                             <div class="title">Bass (instrument role)</div>
                                         </div>
                                     </div>
                                     <div class="item">
-                                        <i class="plus circle icon"></i>
+                                        <i class="sitemap  icon"></i>
                                         <div class="content">
                                             <div class="title">Scratching (performance technique)</div>
                                         </div>
@@ -364,25 +371,25 @@
                         </div>
 
                         <div class="item">
-                            <i class="plus circle icon"></i>
+                            <i class="sitemap  icon"></i>
                             <div class="content">
                                 <div class="title">Music genre</div>
                             </div>
                         </div>
                         <div class="item">
-                            <i class="plus circle icon"></i>
+                            <i class="sitemap  icon"></i>
                             <div class="content">
                                 <div class="title">Musical concepts</div>
                             </div>
                         </div>
                         <div class="item">
-                            <i class="plus circle icon"></i>
+                            <i class="sitemap  icon"></i>
                             <div class="content">
                                 <div class="title">Music role</div>
                             </div>
                         </div>
                         <div class="item">
-                            <i class="plus circle icon"></i>
+                            <i class="sitemap  icon"></i>
                             <div class="content">
                                 <div class="title">Music mood</div>
                             </div>
@@ -391,18 +398,18 @@
                 </div>
             </div>
             <div class="item">
-                <i class="plus circle icon"></i>
+                <i class="sitemap  icon"></i>
                 <div class="content">
                     <div class="header">Natural sounds</div>
                 </div>
             </div>
             <div class="item expanded">
-                <i class="minus circle icon"></i>
+                <i class="sitemap icon"></i>
                 <div class="content">
                     <div class="header">Channel, environment and background</div>
                     <div class="list">
                         <div class="item expanded">
-                            <i class="minus circle icon"></i>
+                            <i class="sitemap icon"></i>
                             <div class="content">
                                 <div class="title">Acoustic environment</div>
                                 <div class="list">
@@ -441,6 +448,17 @@
                                         <div class="content">
                                             <div class="ui card">
                                                 <div class="content">
+                                                    <div class="right floated">
+                                                        <button class=" ui icon button">
+                                                            <i class="chevron up icon"></i>
+                                                        </button>
+                                                    </div>
+                                                    <div class="ui header">
+                                                        Reverberation
+                                                        <div class="sub header">
+                                                            <a>Go to category page <i class="external square alternate icon"></i></a>
+                                                        </div>
+                                                    </div>
                                                     <div class="ui small breadcrumb">
                                                         <a class="section">Ontology</a>
                                                         <i class="right chevron icon divider"></i>
@@ -449,7 +467,6 @@
                                                         <a class="section">Acoustic environment</a>
                                                         <i class="right chevron icon divider"></i>
                                                     </div>
-                                                    <div class="header">Reverberation</div>
                                                     <div class="description">
                                                         <p>
         The sound of an acoustic environment that includes substantial reflection from multiple walls or other hard surfaces. Reverberation is generally perceived as being able to 'hear' the presence and size of the room or space in which the sound is made. The reflected sounds should remain audible for hundreds of milliseconds or longer.
@@ -475,13 +492,13 @@
                             </div>
                         </div>
                         <div class="item">
-                            <i class="plus circle icon"></i>
+                            <i class="sitemap  icon"></i>
                             <div class="content">
                                 <div class="title">Noise</div>
                             </div>
                         </div>
                         <div class="item">
-                            <i class="plus circle icon"></i>
+                            <i class="sitemap  icon"></i>
                             <div class="content">
                                 <div class="title">Sound reproduction</div>
                             </div>
