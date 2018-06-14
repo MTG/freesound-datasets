@@ -120,7 +120,7 @@
     padding-left: 20px !important;
 }
 
-.item > .icon {
+.ui.list .item > .icon {
     font-size: 14px;
     display: table-cell !important;
     cursor: pointer;
@@ -132,16 +132,16 @@
     cursor: default;
 }
 
+.item.open > .icon {
+    padding-top: 6px !important;
+}
+
 .item.expanded:not(.open) > .icon::before {
     background-color: #db2828 !important;
     color: white;
 }
 
-.item.open > .icon {
-    padding-top: 6px !important;
-}
-
-.item:not(.last) > .icon::before {
+.ui.list .item:not(.last) > .icon::before {
     padding: 5px;
     border: solid 1px transparent;
     -webkit-border-radius: 100px;
@@ -149,7 +149,7 @@
     border-radius: 100px;
 }
 
-.item:not(.last) > .icon:hover::before {
+.ui.list .item:not(.last) > .icon:hover::before {
     border: solid 1px #dedede;
 }
 
