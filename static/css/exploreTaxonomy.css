@@ -149,7 +149,8 @@
     border-radius: 100px;
 }
 
-.ui.list .item:not(.last) > .icon:hover::before {
+.ui.list .item:not(.last) > .icon:hover::before,
+.ui.list .item:not(.expanded) > .icon:hover::before {
     border: solid 1px #dedede;
 }
 
