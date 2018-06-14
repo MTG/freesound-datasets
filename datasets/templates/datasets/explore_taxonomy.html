@@ -17,23 +17,26 @@
      * JAVASCRIPT HERE!
      */
 
+    function makeButton () {
+        var button = $("<button>", {
+            class: "ui circular icon basic button"
+        });
+        var icon = $("<i>", {
+            class: "down chevron icon"
+        });
+
+        return button.append(icon);
+    }
+
     $(".item .header").each(
-        function () {
-            $(this).append(
-                $("<i>", {
-                    class: "down chevron icon"
-                })
-            )
+        function() {
+            $(this).append(makeButton)
         }
-    )
+    );
 
     $(".item .title").each(
-        function () {
-            $(this).append(
-                $("<i>", {
-                    class: "down chevron icon"
-                })
-            )
+        function() {
+            $(this).append(makeButton)
         }
     )
 

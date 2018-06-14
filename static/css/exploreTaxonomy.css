@@ -58,14 +58,54 @@
     margin-left: 10px;
 }
 
+.item:not(.open) > .content > .header,
+.item:not(.open) > .content > .title {
+    cursor: pointer;
+}
+
 .item.expanded > .content > .header,
 .item.expanded > .content > .title {
     color: #db2828 !important;
+    opacity: 1;
+    -webkit-transition: all 0.1s;
+    -moz-transition: all 0.1s;
+    -ms-transition: all 0.1s;
+    -o-transition: all 0.1s;
+    transition: all 0.1s;
 }
 
-.item .content .header:hover,
-.item .content .title:hover {
-    text-decoration: underline;
+.item:not(.open) > .content > .header:hover,
+.item:not(.open) > .content > .title:hover {
+    opacity: 0.8;
+    -webkit-transition: all 0.1s;
+    -moz-transition: all 0.1s;
+    -ms-transition: all 0.1s;
+    -o-transition: all 0.1s;
+    transition: all 0.1s;
+}
+
+.item > .content > .header > .button,
+.item > .content > .title > .button {
+    font-size: 12px;
+    padding: 5px;
+    margin-left: 8px;
+    vertical-align: middle;
+    opacity: 0;
+    -webkit-transition: all 0.1s;
+    -moz-transition: all 0.1s;
+    -ms-transition: all 0.1s;
+    -o-transition: all 0.1s;
+    transition: all 0.1s;
+}
+
+.item > .content > .header:hover > .button,
+.item > .content > .title:hover > .button {
+    opacity: 1;
+    -webkit-transition: all 0.1s;
+    -moz-transition: all 0.1s;
+    -ms-transition: all 0.1s;
+    -o-transition: all 0.1s;
+    transition: all 0.1s;
 }
 
 .item.expanded .item:not(.open) {
@@ -74,8 +114,8 @@
 
 .item.expanded .list {
     border-left: #db2828 solid 4px;
-    margin-top: 5px !important;
-    margin-left: -19px !important;
+    margin-top: 0px !important;
+    margin-left: -23px !important;
     padding-top: 5px !important;
     padding-left: 20px !important;
 }
@@ -85,13 +125,14 @@
     display: table-cell !important;
     cursor: pointer;
     color: #666666;
+    padding-right: 8px !important;
 }
 
 .item.last > .icon {
     cursor: default;
 }
 
-.item.expanded > .icon::before {
+.item.expanded:not(.open) > .icon::before {
     background-color: #db2828 !important;
     color: white;
 }
@@ -133,7 +174,7 @@
     margin-left: -35px;
     margin-bottom: 0;
     padding-left: 20px;
-    z-index: -1;
+    z-index: 0;
 }
 
 .item.open.expanded > .content > .icon {
