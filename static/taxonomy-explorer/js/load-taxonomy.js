@@ -122,6 +122,27 @@ Category.prototype = {
         return (this.children && this.children !== null)
     },
 
+    toggleInfo: function () {
+        var ct = this;
+
+        $.ajax({
+            url: "/fsd/node-info/%252Fm%252F07q2z82/",
+            type: "GET",
+            success: function(data) {
+                ct.showInfo(data);
+            }
+        });
+    },
+
+    showInfo: function (data) {
+        var ct = this;
+        var card = $(data);
+        var content = ct.DOM.find(".content");
+        ct.DOM.toggleClass("open");
+        content.find(".header").detach();
+        content.prepend(card);
+    },
+
     buildCategory: function () {
 
         /*
@@ -191,6 +212,10 @@ Category.prototype = {
             class: "down chevron icon"
         });
 
+        show_info.click(function () {
+            ct.toggleInfo();
+        });
+
         show_info.append(show_info_icon);
         header.append([category_name, show_info]);
         content.append([header, children_list]);
@@ -222,7 +247,6 @@ Category.prototype = {
     },
 
     buildCategoryIcon: function () {
-
         var ct = this;
         var class_name;
 

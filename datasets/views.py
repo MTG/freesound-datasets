@@ -595,6 +595,18 @@ def get_mini_node_info(request, short_name, node_id):
                   {'dataset': dataset, 'node': node, 'show_examples': show_examples,
                    'show_go_button': show_go_button, 'show_num_gt': show_num_gt})
 
+def get_node_info(request, short_name, node_id):
+    dataset = get_object_or_404(Dataset, short_name=short_name)
+    node_id = unquote(node_id)
+    node = dataset.taxonomy.get_element_at_id(node_id).as_dict()
+    hierarchy_paths = dataset.taxonomy.get_hierarchy_paths(node['node_id'])
+    node['hierarchy_paths'] = hierarchy_paths if hierarchy_paths is not None else []
+    return render(request, 'datasets/explore_taxonomy_node_info.html',
+                  {
+                      'dataset': dataset,
+                      'node': node
+                  })
+
 
 ########################
 # DOWNLOAD DATASET VIEWS
