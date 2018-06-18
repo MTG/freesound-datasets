@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load general_templatetags %}
+{% load admin_urls %}
+{% load humanize %}
+{% block extra_head %}
+    {% load_sound_player_files %}
+{% endblock %}
+{% block page_js %}
+    <script type="text/javascript">
+        function openFreesoundSoundPage(freesound_id){
+            window.open('https://freesound.org/s/' + freesound_id + '/');
+        }
+    </script>
+{% endblock %}
+{% block title %}Sound examples{% endblock title %}
+
+{% block content %}
+    {#  Freesound examples  #}
+    <div class="ui basic segment">
+        <h2>Freesound examples</h2>
+        <div class="ui centered cards">
+        {% for sound in sounds %}
+            <div class="card">
+                <div class="content">
+                    <div class="header">
+                        #{{ sound.freesound_id }}
+                        {% if request.user.profile.is_fsd_maintainer %}
+                            &nbsp<a title="Edit in administration page" href="{% url sound|admin_urlname:'change' sound.pk %}" target="_blank"><i class="edit small icon"></i></a>
+                        {% endif %}
+                        <div class="right floated meta"><a href="javascript:void(0);" onclick="openFreesoundSoundPage('{{ sound.freesound_id }}');">
+                        see in <img class="ui image" style="width: 80px;" src="{% static 'img/freesound_logo_color.png' %}"></a></div>
+                    </div>
+                    <div class="ui container center aligned">
+                        {% sound_player dataset sound.freesound_id "medium" normalization %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+        </div>
+    </div>
+{% endblock %}

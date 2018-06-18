@@ -1,0 +1,9 @@
+{% load dataset_templatetags %}
+<div class="w3-light-grey w3-round" style="width: 150px;" data-tooltip=
+        {% if num_ground_truth >= 100 %}
+            "This category has completed our first goal of gathering 100 samples"
+        {% else %}
+            "This category has reached {{ num_ground_truth }} samples out of our goal of 100"
+        {% endif %}>
+    <div class="w3-container w3-round w3-blue" style="width:{{ num_ground_truth|percent_goal }}%; text-align: center; padding-left:0px; padding-right:0px; min-width:15%; {% if num_ground_truth < 100 %}background-color:#00b4b4!important;{% endif %}">{{ num_ground_truth }}</div>
+</div>

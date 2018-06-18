@@ -8,7 +8,9 @@
             loadDatasetTaxonomyTableChoose(0);
             loadDatasetTaxonomyTablePriority();
             loadDatasetTaxonomyTableSearch();
-            $('.menu .item').tab();
+            $('.menu .item').tab({
+                'onVisible': function(){$(window).resize();}  // FIXES BUG: set search table column width
+            });
         });
         function addPopUpEvent(targets) {
             var popupLoading = '<div style="height:180px; width:500px" class="ui loading segment">Loading</div>';
@@ -72,7 +74,12 @@
                 $('#dataset_contents').DataTable({
                     'paging': true,
                     'info': true,
-                    'ordering': false
+                    'ordering': true,
+                    'columns': [
+                        null,
+                        { "width": "220px" },
+                        { "width": "120px" },
+                    ]
                 });
                 $('#dataset_contents_paginate').parent().attr('style', 'width: 100% !important');
                 $('#dataset_contents').on('draw.dt', function () {
@@ -138,7 +145,7 @@
               <div style="margin-left:25px;"><i class="flag outline checkered icon big white"></i></div>
               <div style="margin-right:15px;"><p>Choose a category among <b>our priorities</b> for the creation of FSD</p></div>
           </a>
-          <a class="item" data-tab="third">
+          <a class="item" data-tab="third" id="search_table_tab">
               <div style="margin-left:25px;margin-right:25px;"><i class="search icon big white"></i></div>
               <div style="margin-right:15px;"><p><b>Search</b> a category by its name</p></div>
           </a>

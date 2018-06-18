@@ -14,16 +14,20 @@ function Player(Options)
     this.waveform = Options.waveform_url;
     this.sound_url = Options.sound_url;
     this.ready = false;
+    this.error_dimmer = null;
+    this.N_MAX_ATTEMPTS = 3;
+    // For testing normalization methods
+    this.loudness_normalization_ratio = parseFloat(Options.loudness_normalization_ratio);
 
     this.setupWaveSurferInstance();
 
     // Create wavesurfer object (playback and mouse interaction)
-    this.wavesurfer = Object.create(WaveSurfer);
-    this.wavesurfer.init({
+    this.options = {
         container: this.ws_container,
         height: this.height,
         audioContext: this.getAudioContext()
-    });
+    };
+    this.wavesurfer = WaveSurfer.create(this.options);
 
     // Create view
     this.view = new View(this);
@@ -32,6 +36,9 @@ function Player(Options)
     // Create play bar
     this.playBar = new PlayBar(this);
     this.playBar.create();
+
+    // Create processor
+    this.processor = new Processor(this);
 
     $(this.ws_container).children("wave").css({
         "width": "100%",
@@ -45,11 +52,22 @@ function Player(Options)
 Player.prototype = {
     load: function() {
         var pl = this;
+        //console.log(pl.sound_url);
         pl.wavesurfer.load(pl.sound_url);
+    },
+
+    reloadSound: function () {
+        var pl = this;
+        pl.removeErrorMessage();
+        pl.addLoader();
+        pl.view.createBackground();
+        pl.addEvents();
+        pl.load();
     },
 
     addEvents: function() {
         var pl = this;
+        var attempts = pl.N_MAX_ATTEMPTS;
 
         pl.wavesurfer.on("ready", function () {
             // Make sure the loader is removed only after
@@ -59,16 +77,59 @@ Player.prototype = {
                 pl.playBar.update()
             ).then(
                 pl.removeLoader(),
+                pl.normalizeVolume(),
                 pl.ready = true
             );
         });
+
+        pl.wavesurfer.on("error", function (e) {
+            console.log(e);
+            //console.log("Player: " + pl.fs_id);
+            if (attempts) {
+                attempts--;
+                // Next line for testing, to be removed
+                //pl.sound_url = pl.sound_url.substring(1);
+                //
+                if(e === "Error decoding audiobuffer") {
+                    console.log("Trying another format...");
+                    pl.tryOtherFormat();
+                }
+                setTimeout(function() {
+                    pl.load();
+                }, 500);
+            } else {
+                attempts = pl.N_MAX_ATTEMPTS;
+                pl.removeLoader();
+                pl.addErrorMessage();
+            }
+        });
+    },
+
+    addLoader: function() {
+        var pl = this;
+        $(pl.playerDom).find(".load-dimmer").addClass("active");
     },
 
     removeLoader: function() {
         var pl = this;
-        $(pl.playerDom).find(".dimmer").removeClass("active");
+        $(pl.playerDom).find(".load-dimmer").removeClass("active");
     },
-    
+
+    addErrorMessage: function() {
+        var pl = this;
+        if (!pl.error_dimmer) {
+            pl.error_dimmer = pl.view.createErrorMessage();
+        }
+        $(pl.playerDom).prepend(pl.error_dimmer);
+    },
+
+    removeErrorMessage: function() {
+        var pl = this;
+        if (pl.error_dimmer) {
+            pl.error_dimmer.detach();
+        }
+    },
+
     getAudioContext: function () {
         if (!window.audioCtx) {
             window.audioCtx = new (
@@ -102,6 +163,24 @@ Player.prototype = {
         return height;
     },
 
+    normalizeVolume: function () {
+        var pl = this;
+        var factor = this.loudness_normalization_ratio;
+
+        if (pl.processor.isClipping(factor)) {
+            console.log("Clipping!!");
+        }
+
+        gain = Math.min(factor, pl.processor.getFactorForFullScale());
+        //gain = factor;
+
+        // console.log("calculated factor: ", factor);
+        // console.log("factor for full scale: ", pl.processor.getFactorForFullScale());
+        // console.log("selected factor: " + gain);
+
+        pl.wavesurfer.setVolume(gain);
+    },
+  
     stop: function () {
         var pl = this;
         if (pl.wavesurfer.isPlaying()) {
@@ -110,15 +189,34 @@ Player.prototype = {
     },
 
     setupWaveSurferInstance: function () {
-
-        WaveSurfer.drawBuffer = function () {
+        WaveSurfer.prototype.drawBuffer = function () {
             // empty function, do not draw buffer
         };
 
-        WaveSurfer.createDrawer = function () {
-            this.drawer = Object.create(WaveSurfer.Drawer[this.params.renderer]);
-            this.drawer.init(this.container, this.params);
+        WaveSurfer.prototype.createDrawer = function () {
+            this.drawer = new this.Drawer(this.container, this.params);
+            this.drawer.init();
+        };
+
+    },
+
+    tryOtherFormat: function() {
+        var pl = this;
+        var url = pl.sound_url;
+        var splitted = url.split("/");
+        var format = splitted[splitted.length - 1].split('.')[1];
+        var new_format = '';
+        switch (format) {
+            case 'mp3':
+                new_format = '.ogg';
+                break;
+            case 'ogg':
+                new_format = '.mp3';
+                break;
+            default:
+                new_format = '.ogg';
         }
+        pl.sound_url = pl.sound_url.split('.' + format)[0] + new_format;
     },
 
     destroy: function () {
@@ -145,13 +243,21 @@ function View(player) {
     this.viewDom = null;
     this.clickable = $(this.ws_container).find("> wave");
     this.progressBar = $(this.ws_container).find("wave wave");
+
+    this.clickable.addClass("clickable");
     this.progressBar.addClass("progress-bar");
 }
 
 View.prototype = {
     create: function () {
         var pl = this;
+
+        pl.createBackground();
         pl.addEvents();
+    },
+
+    createBackground: function () {
+        var pl = this;
 
         // Create background element
         var height_px = pl.height + "px";
@@ -231,6 +337,57 @@ View.prototype = {
         pl.wavesurfer.on("finish", function () {
             pl.updateProgressBar();
         });
+    },
+
+    createErrorMessage: function () {
+        var pl = this;
+
+        // Create gray overlay
+        var dimmer = $("<div>", {
+            class: "ui dimmer active player-error"
+        });
+        var content = $("<div>", {
+            class: "content"
+        });
+
+        // Create background icon
+        var errIcon = $("<i>", {
+            class: "exclamation circle icon"
+        });
+
+        // Create error description
+        var errDescription = $("<div>", {
+            class: "error-description"
+        });
+        var errTitle = $("<h4>", {
+            class: "ui inverted sub header"
+        });
+        errTitle.append(
+            "Something's wrong :-("
+        );
+        var errMsg = $("<p>", {
+            class: "ui inverted error-message"
+        }).text("Try reloading the player.");
+
+        // Create reload button
+        var reloadBtn = $("<button>", {
+            type: "button",
+            class: "ui inverted labeled icon basic mini button reload-sound"
+        }).append(
+            $("<i>", {
+                class: "inverted undo icon"
+            }),
+            "Reload"
+        );
+        reloadBtn.click(function () {
+            pl.player.reloadSound()
+        });
+
+        errDescription.append(errTitle, errMsg, reloadBtn);
+        content.append(errIcon, errDescription);
+        dimmer.append(content);
+
+        return dimmer;
     }
 };
 
@@ -335,7 +492,6 @@ PlayBar.prototype = {
             if (seconds === null || seconds < 0) {
                 return '';
             }
-            //var timeStr;
             var minutes = Math.floor(seconds / 60);
             var timeStr = minutes;
             timeStr += ':';
@@ -381,5 +537,66 @@ PlayBar.prototype = {
         pl.wavesurfer.on("audioprocess", function () {
             pl.updateTimer();
         });
+    }
+};
+
+// Signal processor prototype
+// (implements some basic DSP routines, such as RMS normalization)
+function Processor(player) {
+    this.player = player;
+    this.wavesurfer = this.player.wavesurfer;
+    this.REFERENCE_RMS = Math.pow(10, -23.0/20);
+}
+
+Processor.prototype = {
+    create: function() {},
+
+    normalizeRMS: function(targetRMS) {
+        var pl = this;
+        var signal = pl.getPCM();
+        var RMS = pl.rootMeanSquare(signal);
+        var target = targetRMS || pl.REFERENCE_RMS;
+
+        return target / RMS;
+    },
+
+    getFactorForFullScale: function () {
+        var pl = this;
+        var maxVal = pl.getMaxSampleValue(pl.getPCM());
+        return 0.8 / maxVal;
+    },
+
+    isClipping: function(gain) {
+        var pl = this;
+        var maxVal = pl.getMaxSampleValue(pl.getPCM());
+        // console.log("Max value: ", maxVal);
+        // console.log("Max value with gain: ", maxVal * gain);
+        return maxVal * gain > 1;
+    },
+
+    getPCM: function() {
+        var pl = this;
+        var PCM = pl.wavesurfer.exportPCM(
+            length = 4096,
+            accuracy = 1000,
+            noWindow = true,
+            start = 0
+        );
+
+        return JSON.parse(PCM);
+    },
+
+    rootMeanSquare: function(signal) {
+        var sig = signal || this.getPCM();
+
+        var sumOfSquares = sig.reduce(function (s, x) {
+            return (s + x * x);
+        }, 0);
+
+        return Math.sqrt(sumOfSquares / sig.length);
+    },
+
+    getMaxSampleValue: function(signal) {
+        return Math.max.apply(null, signal.map(Math.abs))
     }
 };

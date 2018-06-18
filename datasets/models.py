@@ -146,7 +146,7 @@ class Taxonomy(models.Model):
             return [item for sublist in l for item in sublist]
 
         if level == 0:
-            return self.taxonomynode_set.filter(parents=None)
+            return list(self.taxonomynode_set.filter(parents=None))
         else:
             parent_node_ids = self.get_nodes_at_level(level-1)
             return flat_list([parent.children.all() for parent in parent_node_ids])
@@ -248,6 +248,22 @@ class Sound(models.Model):
                                                                 size)
         return wave_url
 
+    def get_loudness_normalizing_ratio(self, descriptor, target_loudness_value, max_gain_ratio):
+        try:
+            if descriptor == 'ebur128':
+                loudness_value = self.extra_data.get('analysis', dict()).get('ebur128', target_loudness_value)
+                normalizing_ratio_db = float(target_loudness_value - loudness_value)
+            elif descriptor == 'replayGain':
+                normalizing_ratio_db = self.extra_data.get('analysis', dict()).get('replayGain', 0)
+            else:
+                raise ValueError
+        except (AttributeError, TypeError):
+            normalizing_ratio_db = 0
+
+        normalizing_ratio = 10 ** (normalizing_ratio_db / 20.0)
+
+        return normalizing_ratio if normalizing_ratio <= max_gain_ratio else max_gain_ratio
+
     def __str__(self):
         return 'Sound {0} (freesound {1})'.format(self.id, self.freesound_id)
 
@@ -287,19 +303,21 @@ class TaxonomyNode(models.Model):
             if old.list_freesound_examples != self.list_freesound_examples:
                 self.freesound_examples.clear()
                 for fsid in self.list_freesound_examples.split(','):
-                    try:
-                        sound = Sound.objects.get(freesound_id=fsid)
-                        self.freesound_examples.add(sound)
-                    except ObjectDoesNotExist:
-                        pass
+                    if fsid != '':
+                        try:
+                            sound = Sound.objects.get(freesound_id=fsid)
+                            self.freesound_examples.add(sound)
+                        except ObjectDoesNotExist:
+                            pass
             if old.list_freesound_examples_verification != self.list_freesound_examples_verification:
                 self.freesound_examples_verification.clear()
                 for fsid in self.list_freesound_examples_verification.split(','):
-                    try:
-                        sound = Sound.objects.get(freesound_id=fsid)
-                        self.freesound_examples_verification.add(sound)
-                    except ObjectDoesNotExist:
-                        pass
+                    if fsid != '':
+                        try:
+                            sound = Sound.objects.get(freesound_id=fsid)
+                            self.freesound_examples_verification.add(sound)
+                        except ObjectDoesNotExist:
+                            pass
             if old.freesound_examples != self.freesound_examples:
                 self.list_freesound_examples = ','.join(
                     [str(fsid) for fsid in list(self.freesound_examples.values_list('freesound_id', flat=True))])
@@ -748,6 +766,12 @@ class GroundTruthAnnotation(models.Model):
                                                             from_candidate_annotation=self.from_candidate_annotation,
                                                             from_propagation=True)
 
+    # Update number of ground truth annotations per taxonomy node each time a ground truth annotations is generated
+    def save(self, *args, **kwargs):
+        super(GroundTruthAnnotation, self).save(*args, **kwargs)
+        self.taxonomy_node.nb_ground_truth = self.taxonomy_node.num_ground_truth_annotations
+        self.taxonomy_node.save()
+
 
 # choices for quality control test used in Vote and User Profile
 TEST_CHOICES = (
@@ -783,7 +807,10 @@ class Vote(models.Model):
         # here calculate ground truth for vote.annotation
         candidate_annotation = self.candidate_annotation
         ground_truth_state = candidate_annotation.ground_truth_state
-        if ground_truth_state in (0.5, 1.0):
+        if ground_truth_state in (-1.0, 0):     # annotation reach NP or U state
+            candidate_annotation.ground_truth = ground_truth_state
+            candidate_annotation.save()
+        elif ground_truth_state in (0.5, 1.0):  # annotation reach PP or PNP state
             candidate_annotation.ground_truth = ground_truth_state
             candidate_annotation.save()
             annotation_exists = GroundTruthAnnotation.objects.filter(sound_dataset=candidate_annotation.sound_dataset,

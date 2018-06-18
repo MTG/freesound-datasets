@@ -35,6 +35,8 @@
         <thead>
             <tr>
                 <th>Category</th>
+                <th><div data-tooltip="Candidate annotations validated by more than one user, with majority agreement on the presence of a sound category in an audio sample">
+            # ground truth</div></th>
                 <th></th>
             </tr>
         </thead>
@@ -62,6 +64,9 @@
                               ajax_url="{% url 'get-mini-node-info' dataset.short_name node.url_id %}?se=0&sb=0">
                             <i class="help grey circle icon"></i></span>
                         </span>
+                    </td>
+                    <td>
+                        {% goal_progress_bar node.nb_ground_truth %}
                     </td>
                     <td class="right aligned">
                         {% if add_label_or_choose_category == 'choose_category' %}

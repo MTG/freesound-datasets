@@ -196,14 +196,20 @@ def compute_annotators_ranking(store_key, dataset_id, N=10):
     try:
         dataset = Dataset.objects.get(id=dataset_id)
         reference_date = datetime.datetime.today() - datetime.timedelta(days=7)
+        current_day_date = datetime.datetime.today().replace(hour=0, minute=0, second=0, microsecond=0)
         ranking = list()
         ranking_last_week = list()
+        ranking_today = list()
+        ranking_agreement_today = list()
         for user in User.objects.all():
+            # all time
             n_annotations = CandidateAnnotation.objects.filter(created_by=user, sound_dataset__dataset=dataset).count()
             n_votes = Vote.objects.filter(created_by=user, candidate_annotation__sound_dataset__dataset=dataset).count()
             ranking.append(
                 (user.username, n_annotations + n_votes)
             )
+
+            # last week
             n_annotations_last_week = CandidateAnnotation.objects.filter(
                 created_at__gt=reference_date, created_by=user, sound_dataset__dataset=dataset).count()
             n_votes_last_week = Vote.objects.filter(
@@ -212,10 +218,45 @@ def compute_annotators_ranking(store_key, dataset_id, N=10):
                 (user.username, n_annotations_last_week + n_votes_last_week)
             )
 
-        ranking = sorted(ranking, key=lambda x: x[1], reverse=True)  # Sort by number of annotations
-        ranking_last_week = sorted(ranking_last_week, key=lambda x: x[1], reverse=True)  # Sort by number of annotations
+            # today
+            agreement_score = 0
+            n_annotations_today = CandidateAnnotation.objects.filter(
+                created_at__gt=current_day_date, created_by=user, sound_dataset__dataset=dataset).count()
+            n_votes_today = Vote.objects.filter(
+                created_at__gt=current_day_date, created_by=user, candidate_annotation__sound_dataset__dataset=dataset).count()
 
-        store.set(store_key, {'ranking': ranking[:N], 'ranking_last_week': ranking_last_week[:N]})
+            ranking_today.append(
+                (user.username, n_annotations_today + n_votes_today)
+            )
+
+            # agreement score today
+            votes = Vote.objects.filter(created_by=user,
+                                        candidate_annotation__sound_dataset__dataset=dataset,
+                                        created_at__gt=current_day_date)
+            for vote in votes:
+                all_vote_values = [v.vote for v in vote.candidate_annotation.votes.all()]
+                if all_vote_values.count(vote.vote) > 1:
+                    agreement_score += 1
+                elif len(all_vote_values) > 1:
+                    pass
+                else:
+                    agreement_score += 0.5
+            try:
+                ranking_agreement_today.append(
+                    (user.username, agreement_score/float(n_votes_today))
+                )
+            except ZeroDivisionError:
+                ranking_agreement_today.append(
+                    (user.username, 0)
+                )
+
+        ranking = sorted(ranking, key=lambda x: x[1], reverse=True)  # Sort by number of annotations
+        ranking_last_week = sorted(ranking_last_week, key=lambda x: x[1], reverse=True)
+        ranking_today = sorted(ranking_today, key=lambda x: x[1], reverse=True)
+        ranking_agreement_today = sorted(ranking_agreement_today, key=lambda x: x[1], reverse=True)
+
+        store.set(store_key, {'ranking': ranking[:N], 'ranking_last_week': ranking_last_week[:N],
+                              'ranking_today': ranking_today, 'ranking_agreement_today': ranking_agreement_today})
         logger.info('Finished computing data for {0}'.format(store_key))
     except Dataset.DoesNotExist:
         pass
