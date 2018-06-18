@@ -14,39 +14,11 @@
 {% block page_js %}
 <script type="text/javascript">
 
-    /* TODO
-     * JAVASCRIPT HERE!
-     */
-{% comment %}
-
-    function makeButton () {
-        var button = $("<button>", {
-            class: "ui circular icon basic button"
-        });
-        var icon = $("<i>", {
-            class: "down chevron icon"
-        });
-
-        return button.append(icon);
-    }
-
-    $(".item .header").each(
-        function() {
-            $(this).append(makeButton)
-        }
-    );
-
-    $(".item .title").each(
-        function() {
-            $(this).append(makeButton)
-        }
-    );
-{% endcomment %}
-
     $(function () {
         var TT = new TaxonomyTree({
             url: "{% static "taxonomy-explorer/taxonomy-tree.json" %}",
-            container: "#taxonomy-tree"
+            container: "#taxonomy-tree",
+            skipCategories: ["Ontology"]
         });
         TT.load();
     });
@@ -57,7 +29,7 @@
 {% block content %}
 <h1 class="ui title">Explore the taxonomy</h1>
 
-    <div class="ui list" id="taxonomy-tree"></div>
+    <div id="taxonomy-tree"></div>
 
         <!-- Taxonomy list -->
         <!-- FIRST LEVEL -->
