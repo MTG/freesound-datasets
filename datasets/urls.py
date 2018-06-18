@@ -44,4 +44,6 @@ urlpatterns = [
         name='get_hierachy_paths'),
     url(r'^(?P<short_name>[^\/]+)/annotate/save_generated_annotations/', save_generate_annotations,
         name='save-contribute-generate-annotations'),
+    url(r'^(?P<short_name>[^\/]+)/annotate/refine_annotations/(?P<sound_id>[^\/]+)/$', refine_annotations,
+        name='refine-annotations'),
 ]

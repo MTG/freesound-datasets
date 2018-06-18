@@ -616,6 +616,18 @@ def save_generate_annotations(request, short_name):
     return JsonResponse({'errors': False})
 
 
+def refine_annotations(request, short_name, sound_id):
+    dataset = get_object_or_404(Dataset, short_name=short_name)
+    sound = Sound.objects.get(id=sound_id)
+    freesound_sound_id = sound.freesound_id
+    annotations = sound.get_candidate_annotations(dataset)
+    labels_name_and_id = json.dumps([[a.taxonomy_node.name, a.taxonomy_node.node_id] for a in annotations])
+    print(labels_name_and_id)
+    return render(request, 'datasets/refine_annotations.html',
+                  {'dataset': dataset, 'freesound_sound_id': freesound_sound_id,
+                   'labels_name_and_id': labels_name_and_id})
+
+
 def taxonomy_table_extended(request, short_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
     nodes = dataset.taxonomy.taxonomynode_set.all()
