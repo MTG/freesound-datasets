@@ -622,7 +622,6 @@ def refine_annotations(request, short_name, sound_id):
     freesound_sound_id = sound.freesound_id
     annotations = sound.get_candidate_annotations(dataset)
     labels_name_and_id = json.dumps([[a.taxonomy_node.name, a.taxonomy_node.node_id] for a in annotations])
-    print(labels_name_and_id)
     return render(request, 'datasets/refine_annotations.html',
                   {'dataset': dataset, 'freesound_sound_id': freesound_sound_id,
                    'labels_name_and_id': labels_name_and_id})
