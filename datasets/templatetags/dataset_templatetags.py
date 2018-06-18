@@ -148,6 +148,7 @@ def taxonomy_table_extended(dataset):
     return {'dataset': dataset, 'nodes': nodes}
 
 
+@register.filter()
 def percent_goal(value):
     if value < 100:
         return value
