@@ -611,8 +611,9 @@ def save_generate_annotations(request, short_name):
     if request.method == 'POST':
         data = json.loads(request.POST.dict()['jsonData'])
         data['username'] = request.user.username
-        num_files = len(os.listdir('./json/'))
-        json.dump(data, open('/code/json/{}.json'.format(num_files), 'w'))
+        print(data)
+        # num_files = len(os.listdir('./json/'))
+        # json.dump(data, open('/code/json/{}.json'.format(num_files), 'w'))
     return JsonResponse({'errors': False})
 
 

@@ -168,6 +168,7 @@
             }
             addLastLabel(label_name, label_id,  group_id);
             addChildrenLabel(label_name, label_id,  group_id);
+            $('div[group-id="'+group_id+'"]').append(form(group_id));
         }
 
         function updateLabelGroup(group_id, old_label_id, new_label_id) {
@@ -193,6 +194,7 @@
                 }
             }
             addChildrenLabel(label_name, new_label_id, group_id);
+            $('div[group-id="'+group_id+'"]').append(form(group_id));
         }
 
         function removeLabelGroup(group_id) {
@@ -360,11 +362,44 @@
         function getAddedGroupLabels() {
             var addedGroupLabelIds = [];
             var addedGroupLabelNames = [];
+            var addedGroupLabelVotes = [];
             $('.group-label').each(function() {
                 addedGroupLabelIds.push($(this).children('.generated-label').attrs('label-id'));
                 addedGroupLabelNames.push($(this).children('.generated-label').attrs('label-name'));
+                addedGroupLabelVotes.push($(this).find("input:checked").val());
             });
-            return [addedGroupLabelIds, addedGroupLabelNames]
+            return [addedGroupLabelIds, addedGroupLabelNames, addedGroupLabelVotes]
+        }
+
+        function form(group_id) {
+            return "<div class=\"ui form\">\n" +
+                "  <div class=\"grouped fields\">\n" +
+                "    <div class=\"field\">\n" +
+                "      <div class=\"ui radio checkbox\">\n" +
+                "        <input value =\"1.0\" name=\""+group_id+"\" type=\"radio\">\n" +
+                "        <label>Present and predominant</label>\n" +
+                "      </div>\n" +
+                "    </div>\n" +
+                "    <div class=\"field\">\n" +
+                "      <div class=\"ui radio checkbox\">\n" +
+                "        <input value =\"0.5\" name=\""+group_id+"\" type=\"radio\">\n" +
+                "        <label>Present but not predominant</label>\n" +
+                "      </div>\n" +
+                "    </div>\n" +
+                "    <div class=\"field\">\n" +
+                "      <div class=\"ui radio checkbox\">\n" +
+                "        <input value =\"-1.0\" name=\""+group_id+"\" type=\"radio\">\n" +
+                "        <label>Not present</label>\n" +
+                "      </div>\n" +
+                "    </div>\n" +
+                "    <div class=\"field\">\n" +
+                "      <div class=\"ui radio checkbox\">\n" +
+                "        <input value =\"0\" name=\""+group_id+"\" type=\"radio\">\n" +
+                "        <label>Unsure</label>\n" +
+                "      </div>\n" +
+                "    </div>\n" +
+                "  </div>\n" +
+                "</div>"
         }
 
         function getEncodedUrl(node_id) {
@@ -385,10 +420,12 @@
             var addedGroupLabels = getAddedGroupLabels();
             var labelIds = addedGroupLabels[0];
             var labelNames = addedGroupLabels[1];
+            var labelVotes = addedGroupLabels[2];
             var jsonData = JSON.stringify({
                 freesound_sound_id: "{{ freesound_sound_id }}",
                 labelIds: labelIds,
-                labelNames: labelNames
+                labelNames: labelNames,
+                labelVotes: labelVotes
             });
             var data = {
                     jsonData : jsonData,
