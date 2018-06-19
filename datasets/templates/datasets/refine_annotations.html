@@ -161,31 +161,38 @@
         }
 
         function addLabelGroup(path, group_id, label_name, label_id) {
-            $('#label-container').append('<div class="group-label ui message" group-id="'+ group_id +'"><i class="close icon"></i></div>');
+            $('#label-container').append('<div class="group-label ui message" group-id="'+ group_id +'">');
             for (var j=0; j < path.length; j++) {
                 addLabel(id_to_name[path[j]], path[j], group_id);
                 $('div[group-id="'+group_id+'"]').append('>');
             }
             addLastLabel(label_name, label_id,  group_id);
             addChildrenLabel(label_name, label_id,  group_id);
-            addLabelGroupClickEvent(group_id);
         }
 
         function updateLabelGroup(group_id, old_label_id, new_label_id) {
             var group_div = $('div[group-id="'+group_id+'"]');
             var path = group_div.find('.generated-label').attrs('label-id');
             var idx = path.indexOf(old_label_id);
+            var candidate_label =  group_div.find('.current').attrs('label-id')[0];
+            var candidate_label_idx = path.indexOf(candidate_label);
             path[idx] = new_label_id;
             group_div.empty();
-            group_div.append('<i class="close icon"></i>');
-            for (var j=0; j < idx; j++) {
-                addLabel(id_to_name[path[j]], path[j], group_id);
-                group_div.append('>');
+            for (var j=0; j <= idx; j++) {
+                if (j < candidate_label_idx) {
+                    addLabel(id_to_name[path[j]], path[j], group_id);
+                    group_div.append('>');
+                } else {
+                    if (j < idx) {
+                        addLastLabel(id_to_name[path[j]], path[j], group_id);
+                        group_div.append('>');
+                    } else {
+                        var label_name = id_to_name[new_label_id];
+                        addLastLabel(label_name, new_label_id, group_id);
+                    }
+                }
             }
-            var label_name = id_to_name[new_label_id];
-            addLastLabel(label_name, new_label_id, group_id);
             addChildrenLabel(label_name, new_label_id, group_id);
-            addLabelGroupClickEvent(group_id);
         }
 
         function removeLabelGroup(group_id) {
@@ -198,8 +205,14 @@
         }
 
         function addLabel(label_name, label_id, group_id) {
+            var ajax_url = getEncodedUrl(label_id);
             $('div[group-id="'+group_id+'"]').append('<div class="generated-label ui large label" label-name="'
-                                                     + label_name+'" label-id="'+ label_id +'">'+label_name+'</div>');
+                                                     + label_name+'" label-id="'+ label_id +'">'+label_name
+                                                     + '<span class="my-pop ui" event-added=0 data-html="" ajax_done=0 '
+                                                     + 'style="margin-left:5px;" ajax_url="' + ajax_url
+                                                     + '"><i class="help circle icon"></i></span>'
+                                                     + '</div>');
+            addPopUpEvent();
         }
 
         function addLastLabel(label_name, label_id, group_id) {
