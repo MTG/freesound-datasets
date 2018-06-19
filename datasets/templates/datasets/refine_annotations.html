@@ -197,6 +197,55 @@
             $('div[group-id="'+group_id+'"]').append(form(group_id));
         }
 
+        function duplicateLabelGroup(group_id) {
+            var old_group = $('div[group-id="'+group_id+'"]');
+            var idx = 0;
+            while (idx<100) {
+                if ($('div[group-id="'+group_id+idx+'"]').length === 0) {
+                    break
+                }
+                idx += 1;
+            }
+            var clone = old_group.clone();
+            group_id = group_id+idx;
+            clone.attr("group-id", group_id);
+            old_group.after(clone);
+            $('div[group-id="'+group_id+'"] > .current').dropdown({
+                onChange: function(value, text, $selectedItem) {
+                    // update label attributes
+                    var current_label = $selectedItem.parents('.generated-label');
+                    var old_label_id = current_label.attr('label-id');
+                    var new_label_id = value;
+                    // update label group
+                    if (value !== "0") {
+                        updateLabelGroup(group_id, old_label_id, new_label_id);
+                    }
+                },
+                onHide: function() {
+                    var popup = this;
+                    $(popup).find(".soundplayer").each( function () {
+                        var plId = '#' + this.id;
+                        if (typeof(window.players) !== "undefined") {
+                            var players = window.players;
+                            for (var i = 0; i < players.length; i++) {
+                                var player = players[i];
+                                if (player.playerDom === plId) {
+                                    player.destroy();
+                                    var idx = players.indexOf(player);
+                                    if (idx > -1) {
+                                        players.splice(idx, 1);
+                                    }
+                                }
+                            }
+                        }
+                    });
+                    // don't hide the dorpdown when clicking on an popup (= when a popup is visible)
+                    return $('.my-pop.visible').length === 0
+                }
+            });
+            addPopUpEvent();
+        }
+
         function removeLabelGroup(group_id) {
             var group_div = $('div[group-id="'+group_id+'"]');
             var children = group_div.children('.generated-label');
