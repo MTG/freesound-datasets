@@ -240,6 +240,7 @@
                     + '"><i class="help grey circle icon"></i></span>'
                     + '</div>';
             }
+            el += '<div data-value="0" class="item">None</div>';
             el += '</div>';
 
             $('div[group-id="'+group_id+'"]').append(el);
@@ -250,8 +251,9 @@
                     var old_label_id = current_label.attr('label-id');
                     var new_label_id = value;
                     // update label group
-                    updateLabelGroup(group_id, old_label_id, new_label_id);
-
+                    if (value !== "0") {
+                        updateLabelGroup(group_id, old_label_id, new_label_id);
+                    }
                 },
                 onHide: function() {
                     var popup = this;
@@ -299,6 +301,7 @@
                         + '"><i class="help grey circle icon"></i></span>'
                         + '</div>';
                 }
+                el += '<div data-value="0" class="item">None</div>';
                 el += '</div>';
 
                 $('div[group-id="'+group_id+'"]').append(el);
@@ -309,7 +312,9 @@
                         var old_label_id = current_label.attr('label-id');
                         var new_label_id = value;
                         // update label group
-                        updateLabelGroup(group_id, old_label_id, new_label_id);
+                        if (value !== "0") {
+                            updateLabelGroup(group_id, old_label_id, new_label_id);
+                        }
                     },
                     onHide: function() {
                         var popup = this;
