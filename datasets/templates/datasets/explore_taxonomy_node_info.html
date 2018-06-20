@@ -6,13 +6,10 @@
     <div class="content">
 
         <div class="right floated">
-            <button class="ui icon button close-card">
-                <i class="chevron up icon"></i>
-            </button>
+            <a href="{% url "dataset-explore-taxonomy-node" dataset.short_name node.url_id %}" title="Go to category page" target="_blank"><i class="external square alternate icon"></i></a>
         </div>
         <div class="ui header">
-            {{ node.name }}
-            <a href="{% url "dataset-explore-taxonomy-node" dataset.short_name node.url_id %}" title="Go to category page" target="_blank"><i class="external square alternate icon"></i></a>
+            {{ node.name }}<button class="ui circular icon basic button close-card"><i class="chevron up icon"></i></button>
         </div>
 
         {% for hierarchy_path in node.hierarchy_paths %}
@@ -37,9 +34,6 @@
 
     {% if node.freesound_examples %}
     <div class="content">
-        <div class="title">
-            Sound examples
-        </div>
         {% for fsid in node.freesound_examples %}
             {% sound_player dataset fsid "small" %}
         {% endfor %}

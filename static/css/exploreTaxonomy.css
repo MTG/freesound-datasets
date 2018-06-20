@@ -143,9 +143,14 @@
     padding-top: 6px !important;
 }
 
-.item.expanded:not(.open) > .icon::before {
+.item.expanded > .icon::before {
     background-color: #db2828 !important;
     color: white;
+}
+
+.item.open > .content > .list {
+    position: relative;
+    top: 25px;
 }
 
 .ui.list .item:not(.last) > .icon::before {
@@ -191,17 +196,22 @@
     margin-left: 0 !important;
 }
 
-.item.open .button {
+.item.open .close-card {
     font-size: 12px;
-    padding: 5px;
+    padding: 5px !important;
+    margin-left: 8px;
     -webkit-border-radius: 1em;
     -moz-border-radius: 1em;
     border-radius: 1em;
 }
 
+.item.open > .content > .ui.card > .content {
+    padding: 0 1em !important;
+}
+
 .item.open > .content > .ui.card .header {
-    font-size: 24px;
-    margin: 10px auto !important;
+    font-size: 1.8rem;
+    margin: 0 auto !important;
 }
 
 .item.open > .content > .ui.card .header a {

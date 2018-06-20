@@ -144,26 +144,31 @@ Category.prototype = {
         hdr = $(hdr).detach();
 
         ct.DOM.addClass("open");
+        card.css({
+            "display": "none"
+        });
         $(content).prepend(card);
+        card.slideDown(200);
 
         var btn = $(card.find(".close-card")[0]);
         btn.click(function () {
-            console.log("hola");
-            ct.hideInfo(card);
-            $(content).prepend(hdr);
-            ct.DOM.removeClass("open");
+            ct.hideInfo(card, hdr);
         });
     },
 
-    hideInfo: function (card) {
+    hideInfo: function (card, header) {
         var ct = this;
+        var content = ct.DOM.find(".content")[0];
 
         if (!ct.last_child) {
-            var content = ct.DOM.find(".content")[0];
             var children_list = $(content).find(".list")[0];
             $(content).append($(children_list).detach());
         }
-        $(card).detach();
+        $(card).slideUp(200, function() {
+            ct.DOM.removeClass("open");
+            $(card).detach();
+            $(content).prepend(header);
+        });
     },
 
     buildCategory: function () {
