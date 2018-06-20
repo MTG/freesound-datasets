@@ -11,9 +11,7 @@
         </div>
         <div class="ui header">
             {{ node.name }}
-            <div class="sub header">
-                <a href="{% url "dataset-explore-taxonomy-node" dataset.short_name node.url_id %}" target="_blank">Go to category page <i class="external square alternate icon"></i></a>
-            </div>
+            <a href="{% url "dataset-explore-taxonomy-node" dataset.short_name node.url_id %}" title="Go to category page" target="_blank"><i class="external square alternate icon"></i></a>
         </div>
         {% for hierarchy_path in node.hierarchy_paths %}
         <div class="ui small breadcrumb">

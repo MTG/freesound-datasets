@@ -125,6 +125,8 @@
     display: table-cell !important;
     color: #666666;
     padding-right: 8px !important;
+    position: relative;
+    z-index: 2;
 }
 
 .item.last > .icon {
@@ -189,14 +191,21 @@
     margin-left: 0 !important;
 }
 
-.item .open .button {
+.item.open .button {
     font-size: 12px;
     padding: 5px;
+    -webkit-border-radius: 1em;
+    -moz-border-radius: 1em;
+    border-radius: 1em;
 }
 
-.item.open .header {
+.item.open > .content > .ui.card .header {
     font-size: 24px;
     margin: 10px auto !important;
+}
+
+.item.open > .content > .ui.card .header a {
+    font-size: 18px;
 }
 
 .item.open .description {
