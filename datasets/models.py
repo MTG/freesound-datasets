@@ -40,6 +40,9 @@ class Taxonomy(models.Model):
     def get_element_at_id(self, node_id):
         return self.taxonomynode_set.get(node_id=node_id)
 
+    def get_element_from_name(self, name):
+        return self.taxonomynode_set.get(name=name)
+
     def get_all_nodes(self):
         return self.taxonomynode_set.all().order_by('name')
 

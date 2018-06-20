@@ -124,9 +124,10 @@ Category.prototype = {
 
     toggleInfo: function () {
         var ct = this;
+        var href = "/fsd/node-info/" + ct.name;
 
         $.ajax({
-            url: "/fsd/node-info/%252Fm%252F07q2z82/",
+            url: href,
             type: "GET",
             success: function(data) {
                 ct.showInfo(data);
@@ -137,9 +138,9 @@ Category.prototype = {
     showInfo: function (data) {
         var ct = this;
         var card = $(data);
-        var content = ct.DOM.find(".content");
+        var content = $(ct.DOM.find(".content")[0]);
         ct.DOM.toggleClass("open");
-        content.find(".header").detach();
+        $(content.find(".header")[0]).detach();
         content.prepend(card);
     },
 
