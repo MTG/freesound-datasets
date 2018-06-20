@@ -4,8 +4,9 @@
 <div class="ui card">
 
     <div class="content">
+
         <div class="right floated">
-            <button class="ui icon button">
+            <button class="ui icon button close-card">
                 <i class="chevron up icon"></i>
             </button>
         </div>
@@ -13,12 +14,13 @@
             {{ node.name }}
             <a href="{% url "dataset-explore-taxonomy-node" dataset.short_name node.url_id %}" title="Go to category page" target="_blank"><i class="external square alternate icon"></i></a>
         </div>
+
         {% for hierarchy_path in node.hierarchy_paths %}
         <div class="ui small breadcrumb">
-            <a class="section">Ontology</a>
+            <div class="section">Ontology</div>
             <i class="right chevron icon divider"></i>
             {% for node_id in hierarchy_path %}
-                {% taxonomy_node dataset node_id as sub_node_data  %}
+                {% taxonomy_node dataset node_id as sub_node_data %}
                 <a class="section">{{ sub_node_data.name }}</a>
                 {% if not forloop.last %}
                     <i class="right chevron icon divider"></i>
@@ -26,9 +28,11 @@
             {% endfor %}
         </div>
         {% endfor %}
+
         <div class="description">
             <p>{{ node.description }}</p>
         </div>
+
     </div>
 
     {% if node.freesound_examples %}
@@ -43,64 +47,3 @@
     {% endif %}
 
 </div>
-
-
-<!------------------------------------------------------------------------------>
-{% comment %}
-<table class="ui unstackable table bottom attached" width="100%" style="margin-bottom:7px;">
-    <tbody>
-    <td>Hierarchy</td>
-    <td>
-        <div class="ui list">
-            {% for hierarchy_path in node.hierarchy_paths %}
-                <div class="item">
-                    <div class="ui horizontal list">
-                        <div class="item">
-                            <i class="tree icon"></i>
-                        </div>
-                        {% for node_id in hierarchy_path %}
-                            {% taxonomy_node dataset node_id as sub_node_data  %}
-                            <div class="item" style="margin-left:0px;margin-right:5px;">
-                                >
-                                <span>{{ sub_node_data.name }}</span>
-                            </div>
-                        {% endfor %}
-                    </div>
-                </div>
-            {% empty %}
-                <div class="item">-</div>
-            {% endfor %}
-        </div>
-    </td>
-        <tr>
-            <td class="three wide">Description</td>
-            <td>{{ node.description }}</td>
-        </tr>
-        {% if node.freesound_examples and show_examples > 0 %}
-            <tr><td>Examples</td>
-                <td>
-                    {% for fsid in node.freesound_examples %}
-                        {% sound_player dataset fsid "small" %}
-                    {% endfor %}
-                </td>
-            </tr>
-        {% endif %}
-        {% if show_num_gt > 0 %}
-            <tr><td># ground truth</td>
-                <td>
-                    {{ node.nb_ground_truth }} &emsp;&emsp;&emsp; (propagated from children: {{ node.nb_propagated_ground_truth }})
-                </td>
-            </tr>
-        {% endif %}
-
-    </tbody>
-</table>
-{% if show_go_button > 0 %}
-<div style="text-align:right;">
-    <a class="primary basic ui button right labeled icon"
-         href="{% url 'dataset-explore-taxonomy-node' dataset.short_name node.url_id %}" target="_blank">
-        Go to <i>{{node.name}}</i> page<i class="right arrow icon"></i>
-    </a>
-</div>
-{% endif %}
-{% endcomment %}
