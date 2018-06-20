@@ -161,13 +161,14 @@
         }
 
         function addLabelGroup(path, group_id, label_name, label_id) {
-            $('#label-container').append('<div class="group-label ui message" group-id="'+ group_id +'">');
+            $('#label-container').append('<div class="group-label ui message" group-id="'+ group_id +'"></div>');
             for (var j=0; j < path.length; j++) {
                 addLabel(id_to_name[path[j]], path[j], group_id);
                 $('div[group-id="'+group_id+'"]').append('>');
             }
             addLastLabel(label_name, label_id,  group_id);
             addChildrenLabel(label_name, label_id,  group_id);
+            addDuplicateEvent(group_id);
             $('div[group-id="'+group_id+'"]').append(form(group_id));
         }
 
@@ -194,7 +195,17 @@
                 }
             }
             addChildrenLabel(label_name, new_label_id, group_id);
+            addDuplicateEvent(group_id);
             $('div[group-id="'+group_id+'"]').append(form(group_id));
+        }
+
+        function addDuplicateEvent(group_id) {
+            var labelGroup = $('div[group-id="'+group_id+'"]');
+            labelGroup.append('<i style="float:right; cursor: copy;" class="copy icon"></i>');
+            var group_duplicate = $('div[group-id="'+group_id+'"] > i');
+            group_duplicate.click(function() {
+                duplicateLabelGroup(group_id);
+            });
         }
 
         function duplicateLabelGroup(group_id) {
