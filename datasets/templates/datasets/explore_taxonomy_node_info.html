@@ -2,6 +2,7 @@
 {% load general_templatetags %}
 
 <div class="ui card">
+
     <div class="content">
         <div class="right floated">
             <button class="ui icon button">
@@ -11,7 +12,7 @@
         <div class="ui header">
             {{ node.name }}
             <div class="sub header">
-                <a>Go to category page <i class="external square alternate icon"></i></a>
+                <a href="{% url "dataset-explore-taxonomy-node" dataset.short_name node.url_id %}" target="_blank">Go to category page <i class="external square alternate icon"></i></a>
             </div>
         </div>
         {% for hierarchy_path in node.hierarchy_paths %}
@@ -21,7 +22,9 @@
             {% for node_id in hierarchy_path %}
                 {% taxonomy_node dataset node_id as sub_node_data  %}
                 <a class="section">{{ sub_node_data.name }}</a>
-                <i class="right chevron icon divider"></i>
+                {% if not forloop.last %}
+                    <i class="right chevron icon divider"></i>
+                {% endif %}
             {% endfor %}
         </div>
         {% endfor %}
@@ -29,7 +32,8 @@
             <p>{{ node.description }}</p>
         </div>
     </div>
-    {% if node.freesound_examples and show_examples > 0 %}
+
+    {% if node.freesound_examples %}
     <div class="content">
         <div class="title">
             Sound examples
@@ -39,6 +43,7 @@
         {% endfor %}
     </div>
     {% endif %}
+
 </div>
 
 
