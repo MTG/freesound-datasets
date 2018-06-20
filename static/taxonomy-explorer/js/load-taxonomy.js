@@ -141,7 +141,9 @@ Category.prototype = {
         var content = ct.DOM.find(".content")[0];
         var hdr = $(content).find(".header")[0];
 
-        hdr = $(hdr).detach();
+        $(hdr).fadeOut(200, function() {
+            hdr = $(this).detach()
+        });
 
         ct.DOM.addClass("open");
         card.css({
@@ -167,7 +169,7 @@ Category.prototype = {
         $(card).slideUp(200, function() {
             ct.DOM.removeClass("open");
             $(card).detach();
-            $(content).prepend(header);
+            $(content).prepend(header.fadeIn(200));
         });
     },
 
