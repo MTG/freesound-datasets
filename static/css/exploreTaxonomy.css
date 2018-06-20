@@ -140,6 +140,7 @@
 }
 
 .item.open > .icon {
+    padding-top: 6px !important;
     position: relative;
 }
 
