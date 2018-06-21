@@ -168,6 +168,7 @@
             }
             addLastLabel(label_name, label_id,  group_id);
             addChildrenLabel(label_name, label_id,  group_id);
+            addRemoveEvent(group_id);
             addDuplicateEvent(group_id);
             $('div[group-id="'+group_id+'"]').append(form(group_id));
         }
@@ -195,6 +196,7 @@
                 }
             }
             addChildrenLabel(label_name, new_label_id, group_id);
+            addRemoveEvent(group_id);
             addDuplicateEvent(group_id);
             $('div[group-id="'+group_id+'"]').append(form(group_id));
         }
@@ -202,7 +204,7 @@
         function addDuplicateEvent(group_id) {
             var labelGroup = $('div[group-id="'+group_id+'"]');
             labelGroup.append('<i style="float:right; cursor: copy;" class="copy icon"></i>');
-            var group_duplicate = $('div[group-id="'+group_id+'"] > i');
+            var group_duplicate = $('div[group-id="'+group_id+'"] > .copy');
             group_duplicate.click(function() {
                 duplicateLabelGroup(group_id);
             });
@@ -383,8 +385,10 @@
              $('div[group-id="'+group_id+'"] > div[label-name="'+label_name+'"]').remove();
         }
 
-        function addLabelGroupClickEvent(group_id) {
-            var group_delete = $('div[group-id="'+group_id+'"] > i');
+        function addRemoveEvent(group_id) {
+            var labelGroup = $('div[group-id="'+group_id+'"]');
+            labelGroup.append('<i class="close icon"></i>');
+            var group_delete = $('div[group-id="'+group_id+'"] > .close');
             group_delete.click(function() {
                 removeLabelGroup(group_id);
             });
