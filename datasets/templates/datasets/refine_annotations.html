@@ -247,9 +247,10 @@
         }
 
         function addLastLabel(label_name, label_id, group_id) {
-            var siblings = getSiblings(label_id);
+            var group_div = $('div[group-id="'+group_id+'"]');
+            var parent_id = group_div.children('.generated-label').last().attr('label-id');
+            var siblings = getChildren(parent_id);
             var ajax_url = getEncodedUrl(label_id);
-{#            var ajax_url = $('button[label-id="'+label_id+'"]').parents('tr').find('.my-pop').attr('ajax_url');#}
             var el = '';
             el += '<div class="current generated-label ui compact inverted blue inline scrolling dropdown button" label-name="';
             el += label_name + '" ';
@@ -263,7 +264,6 @@
             el += '<div class="menu">';
             for (var i=0; i < siblings.length; i++) {
                 ajax_url = getEncodedUrl(siblings[i]);
-{#                ajax_url = $('button[label-id="'+siblings[i]+'"]').parents('tr').find('.my-pop').attr('ajax_url');#}
                 el += '<div data-value="'+ siblings[i] +'" class="item" label-id="'+ siblings[i] +'">'
                     + id_to_name[siblings[i]]
                     + '<span class="my-pop ui" event-added=0 data-html="" ajax_done=0 style="margin-left:5px;" ajax_url="'
@@ -274,7 +274,7 @@
             el += '<div data-value="0" class="item">None</div>';
             el += '</div>';
 
-            $('div[group-id="'+group_id+'"]').append(el);
+            group_div.append(el);
             $('div[group-id="'+group_id+'"] > .current').dropdown({
                 onChange: function(value, text, $selectedItem) {
                     // update label attributes
