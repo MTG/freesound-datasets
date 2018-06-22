@@ -708,7 +708,7 @@ class CandidateAnnotation(models.Model):
         return self.sound_dataset.sound.freesound_id
 
     def num_vote_value(self, value):
-        vote_values = [v.vote for v in self.votes.all() if v.test is not 'FA']
+        vote_values = [v.vote for v in self.votes.all() if v.test != 'FA']
         return vote_values.count(value)
 
     @property
