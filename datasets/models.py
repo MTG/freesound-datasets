@@ -259,8 +259,8 @@ validator_list_examples = RegexValidator('^([0-9]+(?:,[0-9]+)*)*$', message='Ent
 
 class TaxonomyNode(models.Model):
     node_id = models.CharField(max_length=20)
-    name = models.CharField(max_length=100)
-    description = models.CharField(max_length=500)
+    name = models.CharField(max_length=100, db_index=True)
+    description = models.CharField(max_length=500, db_index=True)
     citation_uri = models.CharField(max_length=100, null=True, blank=True)
     abstract = models.BooleanField(default=False)
     omitted = models.BooleanField(default=False, db_index=True)
