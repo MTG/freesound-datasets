@@ -38,4 +38,6 @@ urlpatterns = [
     url(r'^(?P<short_name>[^\/]+)/mini-node-info/(?P<node_id>[^\/]+)/$', get_mini_node_info, name='get-mini-node-info'),
     url(r'^(?P<short_name>[^\/]+)/node-info/(?P<node_name>[^\/]+)/$', get_node_info, name='get-node-info'),
     url(r'^(?P<short_name>[^\/]+)/explore-taxonomy/$', explore_taxonomy, name='explore_taxonomy'),
+    url(r'^(?P<short_name>[^\/]+)/search_taxonomy_node/$', search_taxonomy_node,
+        name='search-taxonomy-node'),
 ]
