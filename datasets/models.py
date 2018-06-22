@@ -690,7 +690,7 @@ class CandidateAnnotation(models.Model):
         Returns the ground truth vote value of the annotation
         Returns None if there is no ground truth value
         """
-        vote_values = [v.vote for v in self.votes.all() if v.test is not 'FA']
+        vote_values = [v.vote for v in self.votes.all() if v.test != 'FA']
         # all the test cases are considered valid except the Failed one
         if vote_values.count(1) > 1:
             return 1
