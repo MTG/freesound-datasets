@@ -155,7 +155,6 @@
 
 .item.open > .content > .list {
     position: relative;
-    /*top: 25px;*/
 }
 
 .ui.list .item:not(.last) > .icon::before {
@@ -174,6 +173,10 @@
     background-color: #b42121 !important;
 }
 
+.item.open:not(.last) {
+    padding-left: 13px !important;
+}
+
 .item.open > .content > .icon {
     position: relative;
     left: -26px;
@@ -181,19 +184,17 @@
     font-size: 14px;
 }
 
-/*
-.item.open > .content > .list {
-    margin-top: -25px !important;
-}
-*/
-
 .item.open .ui.card {
     width: auto;
     margin-left: -35px;
     margin-bottom: 0;
     padding-left: 20px;
+    padding-right: 20px;
+/*    padding-top: 20px;
+    padding-bottom: 20px;*/
     z-index: 0;
 }
+
 
 .item.open.expanded > .content > .icon {
     color: #db2828;
@@ -212,17 +213,26 @@
     border-radius: 1em;
 }
 
+.item.open .description p {
+    line-height: 1.3;
+}
+
 .item.open > .content > .ui.card > .content {
     padding: 0 1em !important;
 }
 
 .item.open > .content > .ui.card .header {
     font-size: 1.8rem;
-    margin: 0 auto !important;
+    margin: 0 auto 10px !important;
 }
 
 .item.open > .content > .ui.card .header a {
     font-size: 18px;
+}
+
+.item.open > .content > .ui.card > .content > .right.floated {
+    position: relative;
+    right: -40px;
 }
 
 .item.open .description {

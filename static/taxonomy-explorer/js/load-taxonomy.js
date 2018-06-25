@@ -155,7 +155,6 @@ Category.prototype = {
         $(content).prepend(card);
         card.slideDown(200);
 
-
         var btn_close = $(card.find(".close-card")[0]);
         btn_close.click(function () {
             ct.hideInfo(card, hdr);
@@ -176,7 +175,7 @@ Category.prototype = {
             $(card).detach();
             $(content).prepend(header.fadeIn(100));
             ct.active_button = true;
-            btn.prop("disabled", false);
+            $(btn).prop("disabled", false);
         });
     },
 
@@ -252,7 +251,7 @@ Category.prototype = {
 
         header.click(function () {
             if (ct.active_button) {
-                show_info.prop("disabled", false);
+                show_info.prop("disabled", true);
                 ct.toggleInfo();
             }
         });
@@ -302,7 +301,7 @@ Category.prototype = {
         }
         else {
             class_name = "circle icon";
-            title = "This category has no children"
+            title = "This category has no children";
         }
 
         var icon = $("<i>", {
