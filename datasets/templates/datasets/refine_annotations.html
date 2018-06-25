@@ -168,7 +168,7 @@
             }
             addLastLabel(label_name, label_id,  group_id);
             addChildrenLabel(label_name, label_id,  group_id);
-            addRemoveEvent(group_id);
+{#            addRemoveEvent(group_id);#}
             addDuplicateEvent(group_id);
             $('div[group-id="'+group_id+'"]').append(form(group_id));
         }
@@ -196,8 +196,11 @@
                 }
             }
             addChildrenLabel(label_name, new_label_id, group_id);
-            addRemoveEvent(group_id);
-            addDuplicateEvent(group_id);
+            if (group_div.hasClass("duplicate")) {
+                addRemoveEvent(group_id);
+            } else {
+                addDuplicateEvent(group_id);
+            }
             $('div[group-id="'+group_id+'"]').append(form(group_id));
         }
 
@@ -224,6 +227,7 @@
             group_id = group_id+idx;
             var clone = old_group.clone();
             clone.attr("group-id", group_id);
+            clone.addClass("duplicate");
             old_group.after(clone);
             updateLabelGroup(group_id, label_id, label_id);
         }
