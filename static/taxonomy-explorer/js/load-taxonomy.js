@@ -225,7 +225,8 @@ Category.prototype = {
         });
 
         var header = $("<div>", {
-            class: "header"
+            class: "header",
+            title: "Show additional info"
         });
         var header_link = $("<a>");
 
@@ -270,6 +271,7 @@ Category.prototype = {
         if (!ct.last_child) {
             ct.DOM.hasClass("expanded") ? ct.closeChildren() : ct.openChildren();
         }
+
     },
 
     openChildren: function () {
@@ -277,6 +279,7 @@ Category.prototype = {
         ct.DOM.toggleClass("expanded");
         var children_list = ct.DOM.children(".content").children(".list");
         children_list.slideDown(500, "swing");
+        ct.DOM.children(".icon").attr("title", "Collapse children categories");
     },
 
     closeChildren: function () {
@@ -285,21 +288,26 @@ Category.prototype = {
         children_list.slideUp(500, "swing", function() {
             ct.DOM.toggleClass("expanded");
         });
+        ct.DOM.children(".icon").attr("title", "Expand children categories");
     },
 
     buildCategoryIcon: function () {
         var ct = this;
-        var class_name;
+        var class_name,
+            title;
 
         if (ct.hasChildren()) {
             class_name = "sitemap icon";
+            title = "Expand children categories";
         }
         else {
             class_name = "circle icon";
+            title = "This category has no children"
         }
 
         var icon = $("<i>", {
-            class: class_name
+            class: class_name,
+            title: title
         });
 
         icon.click(function () {
