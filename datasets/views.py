@@ -5,6 +5,7 @@ from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse, Http
 from django.views.decorators.cache import cache_page
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector, TrigramSimilarity, TrigramDistance
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db.models import Count
@@ -138,6 +139,40 @@ def taxonomy_node(request, short_name, node_id):
     return render(request, 'datasets/taxonomy_node.html', {'dataset': dataset, 'node': node,
                                                            'user_is_maintainer': user_is_maintainer,
                                                            'sounds': annotations})
+
+
+def explore_taxonomy(request, short_name):
+    dataset = get_object_or_404(Dataset, short_name=short_name)
+    return render(request, 'datasets/explore_taxonomy.html', {
+        'dataset': dataset
+    })
+
+
+def search_taxonomy_node(request, short_name):
+    dataset = get_object_or_404(Dataset, short_name=short_name)
+    taxonomy = dataset.taxonomy
+    query = request.GET.get('q', '')
+
+    # vector = SearchVector('name', weight='A') + SearchVector('description', weight='C')
+    # query = SearchQuery(query)
+    # qs_results = TaxonomyNode.objects.filter(taxonomy__dataset=dataset)\
+    #                                  .annotate(rank=SearchRank(vector, query)).filter(rank__gte=0.3)\
+    #                                  .order_by('rank')
+
+    qs_results = TaxonomyNode.objects.filter(taxonomy__dataset=dataset)\
+                                     .annotate(similarity=TrigramSimilarity('name', query) +
+                                                          TrigramSimilarity('description', query),)\
+                                     .filter(similarity__gte=0.3)\
+                                     .order_by('-similarity')
+
+    results = [{'name': node.name,
+                'node_id': node.node_id,
+                'paths': [[TaxonomyNode.objects.get(node_id=node_id).name
+                           for node_id in path_list]
+                          for path_list in taxonomy.get_hierarchy_paths(node.node_id)]
+                } for node in qs_results]
+
+    return JsonResponse(results, safe=False)
 
 
 #############################
@@ -653,6 +688,19 @@ def get_hierachy_paths(request, short_name):
     return JsonResponse({'hierachy_paths': hierachy_paths,
                          'id_to_name': id_to_name,
                          'id_to_ajax': id_to_ajax}, safe=False)
+
+
+def get_node_info(request, short_name, node_name):
+    dataset = get_object_or_404(Dataset, short_name=short_name)
+    node = dataset.taxonomy.get_element_from_name(node_name).as_dict()
+    hierarchy_paths = dataset.taxonomy.get_hierarchy_paths(node['node_id'])
+    node['hierarchy_paths'] = hierarchy_paths if hierarchy_paths is not None else []
+    #node['node_id'] = unquote(node['node_id'])
+    return render(request, 'datasets/explore_taxonomy_node_info.html',
+                  {
+                      'dataset': dataset,
+                      'node': node
+                  })
 
 
 ########################

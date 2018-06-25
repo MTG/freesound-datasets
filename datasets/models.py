@@ -40,6 +40,9 @@ class Taxonomy(models.Model):
     def get_element_at_id(self, node_id):
         return self.taxonomynode_set.get(node_id=node_id)
 
+    def get_element_from_name(self, name):
+        return self.taxonomynode_set.get(name=name)
+
     def get_all_nodes(self):
         return self.taxonomynode_set.all().order_by('name')
 
@@ -272,8 +275,8 @@ validator_list_examples = RegexValidator('^([0-9]+(?:,[0-9]+)*)*$', message='Ent
 
 class TaxonomyNode(models.Model):
     node_id = models.CharField(max_length=20)
-    name = models.CharField(max_length=100)
-    description = models.CharField(max_length=500)
+    name = models.CharField(max_length=100, db_index=True)
+    description = models.CharField(max_length=500, db_index=True)
     citation_uri = models.CharField(max_length=100, null=True, blank=True)
     abstract = models.BooleanField(default=False)
     omitted = models.BooleanField(default=False, db_index=True)

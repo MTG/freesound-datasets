@@ -64,6 +64,7 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
     'django_extensions',
     'debug_toolbar',
+    'freesound_datasets',
     'datasets',
     'monitor',
     'social_django',

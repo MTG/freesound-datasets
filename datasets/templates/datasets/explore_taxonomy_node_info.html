@@ -1,0 +1,49 @@
+{% load dataset_templatetags %}
+{% load general_templatetags %}
+
+<div class="ui card">
+
+    <div class="content">
+
+        <div class="right floated">
+            <a href="{% url "dataset-explore-taxonomy-node" dataset.short_name node.url_id %}" title="Go to category page" target="_blank"><i class="external square alternate icon"></i></a>
+        </div>
+
+        <div class="ui header">
+            {{ node.name }}&nbsp;
+            <button class="ui circular icon basic button close-card" title="Hide additional info">
+                <i class="chevron up icon"></i>
+            </button>
+        </div>
+
+        <div class="ui small breadcrumb">
+            <div class="section">Ontology</div>
+            <i class="right chevron icon divider"></i>
+            {% with node.hierarchy_paths.0 as hierarchy_path %}
+            {% for node_id in hierarchy_path %}
+                {% taxonomy_node dataset node_id as sub_node_data %}
+                {% if forloop.last %}
+                    <div class="section">{{ sub_node_data.name }}</div>
+                {% else %}
+                    <a class="section">{{ sub_node_data.name }}</a>
+                    <i class="right chevron icon divider"></i>
+                {% endif %}
+            {% endfor %}
+            {% endwith %}
+        </div>
+
+        <div class="description">
+            <p>{{ node.description }}</p>
+        </div>
+
+    </div>
+
+    {% if node.freesound_examples %}
+    <div class="content">
+        {% for fsid in node.freesound_examples %}
+            {% sound_player dataset fsid "small" %}
+        {% endfor %}
+    </div>
+    {% endif %}
+
+</div>

@@ -46,4 +46,8 @@ urlpatterns = [
         name='save-contribute-generate-annotations'),
     url(r'^(?P<short_name>[^\/]+)/annotate/refine_annotations/(?P<sound_id>[^\/]+)/$', refine_annotations,
         name='refine-annotations'),
+    url(r'^(?P<short_name>[^\/]+)/node-info/(?P<node_name>[^\/]+)/$', get_node_info, name='get-node-info'),
+    url(r'^(?P<short_name>[^\/]+)/explore-taxonomy/$', explore_taxonomy, name='explore_taxonomy'),
+    url(r'^(?P<short_name>[^\/]+)/search_taxonomy_node/$', search_taxonomy_node,
+        name='search-taxonomy-node'),
 ]
