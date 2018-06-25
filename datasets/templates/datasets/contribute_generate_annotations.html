@@ -174,7 +174,6 @@
             var idx = path.indexOf(old_label_id);
             path[idx] = new_label_id;
             group_div.empty();
-{#            $('button[label-name="'+id_to_name[old_label_id]+'"]').prop( "disabled", false );#}
             group_div.append('<i class="close icon"></i>');
             for (var j=0; j < idx; j++) {
                 addLabel(id_to_name[path[j]], path[j], group_id);
@@ -198,13 +197,11 @@
         function addLabel(label_name, label_id, group_id) {
             $('div[group-id="'+group_id+'"]').append('<div class="generated-label ui large label" label-name="'
                                                      + label_name+'" label-id="'+ label_id +'">'+label_name+'</div>');
-{#            $('button[label-name="'+label_name+'"]').prop( "disabled", true );#}
         }
 
         function addLastLabel(label_name, label_id, group_id) {
             var siblings = getSiblings(label_id);
             var ajax_url = getEncodedUrl(label_id);
-{#            var ajax_url = $('button[label-id="'+label_id+'"]').parents('tr').find('.my-pop').attr('ajax_url');#}
             var el = '';
             el += '<div class="current generated-label ui compact inverted blue inline scrolling dropdown button" label-name="';
             el += label_name + '" ';
@@ -218,7 +215,6 @@
             el += '<div class="menu">';
             for (var i=0; i < siblings.length; i++) {
                 ajax_url = getEncodedUrl(siblings[i]);
-{#                ajax_url = $('button[label-id="'+siblings[i]+'"]').parents('tr').find('.my-pop').attr('ajax_url');#}
                 el += '<div data-value="'+ siblings[i] +'" class="item" label-id="'+ siblings[i] +'">'
                     + id_to_name[siblings[i]]
                     + '<span class="my-pop ui" event-added=0 data-html="" ajax_done=0 style="margin-left:5px;" ajax_url="'
@@ -262,7 +258,6 @@
                 }
             });
             addPopUpEvent();
-{#            $('button[label-name="'+label_name+'"]').prop( "disabled", true );#}
         }
 
         function addChildrenLabel(label_name, label_id, group_id) {
@@ -278,7 +273,6 @@
                 el += '<div class="menu">';
                 for (var i=0; i < children.length; i++) {
                     ajax_url = getEncodedUrl(children[i]);
-{#                        $('button[label-id="'+children[i]+'"]').parents('tr').find('.my-pop').attr('ajax_url');#}
                     el += '<div data-value="'+ children[i] +'" class="item" label-id="'+ children[i] +'">'
                         + id_to_name[children[i]]
                         + '<span class="my-pop ui" event-added=0 data-html="" ajax_done=0 style="margin-left:5px;" ajax_url="'
@@ -321,13 +315,11 @@
                     }
                 });
                 addPopUpEvent();
-{#                $('button[label-name="'+label_name+'"]').prop( "disabled", true );#}
             }
         }
 
         function removeLabel(label_name, group_id) {
              $('div[group-id="'+group_id+'"] > div[label-name="'+label_name+'"]').remove();
-{#             $('button[label-name="'+label_name+'"]').prop( "disabled", false );#}
         }
 
         function addLabelGroupClickEvent(group_id) {
@@ -369,7 +361,6 @@
             var label_ids = getAddedLabels();
             $('.add-label-button').prop( "disabled", false );
             for (var i=0; i < label_ids.length; i++) {
-{#                $('button[label-id="'+label_ids[i]+'"]').prop( "disabled", true );#}
             }
         }
 
