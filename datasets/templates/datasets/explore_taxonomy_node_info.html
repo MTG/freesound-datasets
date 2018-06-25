@@ -35,15 +35,13 @@
         <div class="description">
             <p>{{ node.description }}</p>
         </div>
-
+        {% if node.freesound_examples %}
+            {% for fsid in node.freesound_examples %}
+            {% sound_player dataset fsid "mini" %}
+            {% endfor %}
+        {% endif %}
     </div>
 
-    {% if node.freesound_examples %}
-    <div class="content">
-        {% for fsid in node.freesound_examples %}
-            {% sound_player dataset fsid "small" %}
-        {% endfor %}
-    </div>
-    {% endif %}
+
 
 </div>
