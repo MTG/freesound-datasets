@@ -45,8 +45,12 @@
     top: 20px;
 }
 
-.ui.list > .item > .content > .header {
+.ui.list > .item > .content > .header > a {
     font-size: 1.8rem;
+}
+
+.list > .item:not(.expanded) > .content > .header > a {
+    color: rgba(0, 0, 0, .87) !important;
 }
 
 .ui.list > .item > .content > .list > .item > .content > .title {
@@ -63,8 +67,8 @@
     cursor: pointer;
 }
 
-.item.expanded > .content > .header,
-.item.expanded > .content > .title {
+.item.expanded > .content > .header > a,
+.item.expanded > .content > .title > a {
     color: #db2828 !important;
     opacity: 1;
     -webkit-transition: all 0.1s;
@@ -74,8 +78,8 @@
     transition: all 0.1s;
 }
 
-.item:not(.open) > .content > .header:hover,
-.item:not(.open) > .content > .title:hover {
+.item:not(.open) > .content > .header:hover > a,
+.item:not(.open) > .content > .title:hover > a {
     opacity: 0.8;
     -webkit-transition: all 0.1s;
     -moz-transition: all 0.1s;
@@ -151,7 +155,7 @@
 
 .item.open > .content > .list {
     position: relative;
-    top: 25px;
+    /*top: 25px;*/
 }
 
 .ui.list .item:not(.last) > .icon::before {
@@ -177,9 +181,11 @@
     font-size: 14px;
 }
 
+/*
 .item.open > .content > .list {
     margin-top: -25px !important;
 }
+*/
 
 .item.open .ui.card {
     width: auto;

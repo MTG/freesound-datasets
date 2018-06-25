@@ -110,6 +110,7 @@ function Category(Info) {
     this.skipped = Info.skipped || false;
     this.expanded = Info.expanded || false;
     this.open = false;
+    this.active_button = true;
     this.last_child = !this.hasChildren();
     this.DOM;
 
@@ -125,6 +126,8 @@ Category.prototype = {
     toggleInfo: function () {
         var ct = this;
         var href = "/fsd/node-info/" + ct.name;
+
+        ct.active_button = false;
 
         $.ajax({
             url: href,
@@ -152,9 +155,8 @@ Category.prototype = {
         $(content).prepend(card);
         card.slideDown(200);
 
-        var btn_open = $(hdr).find("button")[0];
+
         var btn_close = $(card.find(".close-card")[0]);
-        $(btn_open).prop("disabled", false);
         btn_close.click(function () {
             ct.hideInfo(card, hdr);
         });
@@ -163,6 +165,7 @@ Category.prototype = {
     hideInfo: function (card, header) {
         var ct = this;
         var content = ct.DOM.find(".content")[0];
+        var btn = header.find("button")[0];
 
         if (!ct.last_child) {
             var children_list = $(content).find(".list")[0];
@@ -172,6 +175,8 @@ Category.prototype = {
             ct.DOM.removeClass("open");
             $(card).detach();
             $(content).prepend(header.fadeIn(100));
+            ct.active_button = true;
+            btn.prop("disabled", false);
         });
     },
 
@@ -204,7 +209,6 @@ Category.prototype = {
 
         var category_DOM = $("<div>", {
             class: "item"
-            // TODO: 'open' status
         });
 
         if (ct.last_child) {
@@ -223,6 +227,7 @@ Category.prototype = {
         var header = $("<div>", {
             class: "header"
         });
+        var header_link = $("<a>");
 
         var children_list = null;
         if (!ct.last_child) {
@@ -244,13 +249,16 @@ Category.prototype = {
             class: "down chevron icon"
         });
 
-        show_info.click(function () {
-            $(this).prop("disabled", true);
-            ct.toggleInfo();
+        header.click(function () {
+            if (ct.active_button) {
+                show_info.prop("disabled", false);
+                ct.toggleInfo();
+            }
         });
 
         show_info.append(show_info_icon);
-        header.append([category_name, show_info]);
+        header_link.append(category_name);
+        header.append([header_link, show_info]);
         content.append([header, children_list]);
         category_DOM.append([category_icon, content]);
 
@@ -298,7 +306,7 @@ Category.prototype = {
             ct.toggleChildren();
         });
 
-        return icon
+        return icon;
     }
 
 };
