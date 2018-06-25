@@ -5,6 +5,7 @@ from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse, Http
 from django.views.decorators.cache import cache_page
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector, TrigramSimilarity, TrigramDistance
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db.models import Count
@@ -145,6 +146,33 @@ def explore_taxonomy(request, short_name):
     return render(request, 'datasets/explore_taxonomy.html', {
         'dataset': dataset
     })
+
+
+def search_taxonomy_node(request, short_name):
+    dataset = get_object_or_404(Dataset, short_name=short_name)
+    taxonomy = dataset.taxonomy
+    query = request.GET.get('q', '')
+
+    # vector = SearchVector('name', weight='A') + SearchVector('description', weight='C')
+    # query = SearchQuery(query)
+    # qs_results = TaxonomyNode.objects.filter(taxonomy__dataset=dataset)\
+    #                                  .annotate(rank=SearchRank(vector, query)).filter(rank__gte=0.3)\
+    #                                  .order_by('rank')
+
+    qs_results = TaxonomyNode.objects.filter(taxonomy__dataset=dataset)\
+                                     .annotate(similarity=TrigramSimilarity('name', query) +
+                                                          TrigramSimilarity('description', query),)\
+                                     .filter(similarity__gte=0.3)\
+                                     .order_by('-similarity')
+
+    results = [{'name': node.name,
+                'node_id': node.node_id,
+                'paths': [[TaxonomyNode.objects.get(node_id=node_id).name
+                           for node_id in path_list]
+                          for path_list in taxonomy.get_hierarchy_paths(node.node_id)]
+                } for node in qs_results]
+
+    return JsonResponse(results, safe=False)
 
 
 #############################
