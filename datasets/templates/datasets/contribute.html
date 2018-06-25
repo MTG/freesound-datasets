@@ -120,20 +120,22 @@
                     </thead>
                     <tbody>
                     {% for username, n_annotations in annotators_ranking.ranking_last_week %}
-                        <tr>
-                            <td>{{ forloop.counter }}</td>
-                            <td class="center aligned">
-                                {% if forloop.counter == 1 %}
-                                    <i class="yellow star icon"></i>
-                                {% elif forloop.counter == 2 %}
-                                    <i class="grey star icon"></i>
-                                {% elif forloop.counter == 3 %}
-                                    <i class="brown star icon"></i>
-                                {% endif %}
-                                {{ username }}
-                            </td>
-                            <td class="center aligned">{{ n_annotations}}</td>
-                        </tr>
+                        {% if n_annotations > 0 %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td class="center aligned">
+                                    {% if forloop.counter == 1 %}
+                                        <i class="yellow star icon"></i>
+                                    {% elif forloop.counter == 2 %}
+                                        <i class="grey star icon"></i>
+                                    {% elif forloop.counter == 3 %}
+                                        <i class="brown star icon"></i>
+                                    {% endif %}
+                                    {{ username }}
+                                </td>
+                                <td class="center aligned">{{ n_annotations}}</td>
+                            </tr>
+                        {% endif %}
                     {% endfor %}
                     </tbody>
                 </table>
