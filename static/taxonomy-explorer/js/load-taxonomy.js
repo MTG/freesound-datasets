@@ -142,7 +142,7 @@ Category.prototype = {
         var hdr = $(content).find(".header")[0];
 
         $(hdr).fadeOut(100, function() {
-            hdr = $(this).detach()
+            hdr = $(this).detach();
         });
 
         ct.DOM.addClass("open");
@@ -152,8 +152,10 @@ Category.prototype = {
         $(content).prepend(card);
         card.slideDown(200);
 
-        var btn = $(card.find(".close-card")[0]);
-        btn.click(function () {
+        var btn_open = $(hdr).find("button")[0];
+        var btn_close = $(card.find(".close-card")[0]);
+        $(btn_open).prop("disabled", false);
+        btn_close.click(function () {
             ct.hideInfo(card, hdr);
         });
     },
@@ -243,6 +245,7 @@ Category.prototype = {
         });
 
         show_info.click(function () {
+            $(this).prop("disabled", true);
             ct.toggleInfo();
         });
 
