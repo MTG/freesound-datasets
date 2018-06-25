@@ -164,7 +164,7 @@ class Taxonomy(models.Model):
             children = self.get_children(node_id)
             children_names = []
             for child in children:
-                child_name = {"name": child.name, "mark": []}
+                child_name = {"name": child.name, "mark": [], "node_id": child.node_id}
                 if child.abstract:
                     child_name["mark"].append("abstract")
                 if child.omitted:
@@ -177,7 +177,7 @@ class Taxonomy(models.Model):
         higher_categories = self.taxonomynode_set.filter(parents=None)
         output_dict = {"name": "Ontology", "children": []}
         for node in higher_categories:
-            dict_level = {"name": node.name, "mark": []}
+            dict_level = {"name": node.name, "mark": [], "node_id": node.node_id}
             if node.abstract:
                 dict_level["mark"].append("abstract")
             if node.omitted:

@@ -16,7 +16,8 @@
 
     $(function () {
         var TT = new TaxonomyTree({
-            url: "{% static "taxonomy-explorer/taxonomy-tree.json" %}",
+{#            url: "{% static "taxonomy-explorer/taxonomy-tree.json" %}",#}
+            url: "{% url 'taxonomy-tree' dataset.short_name %}",
             container: "#taxonomy-tree",
             skipCategories: ["Ontology"]
         });
