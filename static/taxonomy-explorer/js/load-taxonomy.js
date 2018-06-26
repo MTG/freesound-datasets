@@ -33,6 +33,7 @@ function TaxonomyTree(Options) {
     this.container = Options.container;
     this.skipCategories = Options.skipCategories || [];
     this.categories = [];
+    this.id_to_idx = {};
     this.ontology_tree;
     this.data;
 }
@@ -74,13 +75,15 @@ TaxonomyTree.prototype = {
         var category_info = {
             name: node.name,
             parent: parent_name || null,
-            children: node.children
+            children: node.children,
+            id: node.node_id
         };
 
         var category = new Category(category_info);
         var DOM = skip_this ? $(tt.container) : category.DOM;
         // uncomment next line to flatten the tree into a list
-        //tt.categories.push(category);
+        tt.categories.push(category);
+        tt.id_to_idx[category.id] = tt.categories.length -1;
 
         if (category.hasChildren()) {
             var parent_node = skip_this ? tt.data : node;
@@ -113,6 +116,7 @@ function Category(Info) {
     this.active_button = true;
     this.last_child = !this.hasChildren();
     this.DOM;
+    this.id = Info.id;
 
     this.buildCategory();
 }
