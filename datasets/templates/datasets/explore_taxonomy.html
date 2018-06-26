@@ -29,7 +29,24 @@
 
 {% block content %}
 <h1 class="ui title">Explore the taxonomy</h1>
-
+    <script type="text/javascript">
+    function displayResults(numberOfRes, text) {
+        var resDiv = $(".results");
+        $.ajax({
+            url: "{% url 'search-taxonomy-node' dataset.short_name %}?q="+text.value,
+            type: "GET",
+            success: function(data) {
+                resDiv.empty();
+                for (var i=0; i<data.length;i++) {
+                    resDiv.append("<div>"+data[i].paths+"</div>")
+                }
+            }
+        });
+    }
+    </script>
+    <input type="search" oninput="displayResults(5, this)"/>
+    <div class="results">
+    </div>
     <div id="taxonomy-tree"></div>
 
         <!-- Taxonomy list -->
