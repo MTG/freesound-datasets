@@ -107,11 +107,11 @@ TaxonomyTree.prototype = {
 
     locateCategory: function(bigId) {
         var tt = this;
-        // this.collapseAll(function() {
-        //     tt.openAndScroll(bigId);
-        // });
-        this.collapseAll();
-        this.openAndScroll(bigId);
+        this.collapseAll(function() {
+            tt.openAndScroll(bigId);
+        });
+        // this.collapseAll();
+        // this.openAndScroll(bigId);
     },
 
     openAndScroll: function (bigId) {
@@ -136,12 +136,8 @@ TaxonomyTree.prototype = {
         for (var i=0; i<tt.openedCategories.length; i++) {
             tt.openedCategories[i].closeChildren();
         }
-        $('html, body').animate({
-            scrollTop: 0
-        }, 200, function() {
-            if (callback)
-                callback();
-        });
+        if (callback)
+            setTimeout(function() {callback()}, 500);  // HERE TO SEQUENTIAL CALL, NOT THIS HACK!!
     }
 
 };
