@@ -36,6 +36,7 @@ function TaxonomyTree(Options) {
     this.id_to_idx = {};
     this.ontology_tree;
     this.data;
+    this.openedCategories = [];
 }
 
 TaxonomyTree.prototype = {
@@ -76,7 +77,8 @@ TaxonomyTree.prototype = {
             name: node.name,
             parent: parent_name || null,
             children: node.children,
-            id: node.node_id
+            id: node.node_id,
+            TT: tt
         };
 
         var category = new Category(category_info);
@@ -101,6 +103,45 @@ TaxonomyTree.prototype = {
     showTree: function () {
         var tt = this;
         $(tt.container).append(tt.ontology_tree);
+    },
+
+    locateCategory: function(bigId) {
+        var tt = this;
+        // this.collapseAll(function() {
+        //     tt.openAndScroll(bigId);
+        // });
+        this.collapseAll();
+        this.openAndScroll(bigId);
+    },
+
+    openAndScroll: function (bigId) {
+        var node_ids = bigId.split(',');
+        for (var i=0; i<node_ids.length; i++) {
+            var category = this.categories[this.id_to_idx[node_ids[i]]];
+            if (!category.DOM.hasClass("expanded")) {
+                category.toggleChildren();
+            }
+            if (i === node_ids.length-1) {
+                category.toggleInfo(function() {
+                    $('html, body').animate({
+                        scrollTop: category.DOM.eq(0).offset().top - 60
+                    }, 500);
+                });
+            }
+        }
+    },
+
+    collapseAll: function (callback) {
+        var tt = this;
+        for (var i=0; i<tt.openedCategories.length; i++) {
+            tt.openedCategories[i].closeChildren();
+        }
+        $('html, body').animate({
+            scrollTop: 0
+        }, 200, function() {
+            if (callback)
+                callback();
+        });
     }
 
 };
@@ -117,6 +158,7 @@ function Category(Info) {
     this.last_child = !this.hasChildren();
     this.DOM;
     this.id = Info.id;
+    this.TT = Info.TT;
 
     this.buildCategory();
 }
@@ -127,19 +169,27 @@ Category.prototype = {
         return (this.children && this.children !== null)
     },
 
-    toggleInfo: function () {
+    toggleInfo: function (callback) {
         var ct = this;
         var href = "/fsd/node-info/" + ct.name;
 
         ct.active_button = false;
 
-        $.ajax({
-            url: href,
-            type: "GET",
-            success: function(data) {
-                ct.showInfo(data);
-            }
-        });
+        if (!ct.DOM.hasClass("open")) {
+            $.ajax({
+                url: href,
+                type: "GET",
+                success: function(data) {
+                    ct.showInfo(data);
+                    if (callback)
+                        setTimeout(function() {callback();}, 500)
+                }
+            });
+        } else if (callback) {
+            setTimeout(function() {callback();}, 500)
+        }
+
+
     },
 
     showInfo: function (data) {
@@ -283,6 +333,7 @@ Category.prototype = {
         var children_list = ct.DOM.children(".content").children(".list");
         children_list.slideDown(500, "swing");
         ct.DOM.children(".icon").attr("title", "Collapse children categories");
+        ct.TT.openedCategories.push(ct);
     },
 
     closeChildren: function () {
@@ -292,6 +343,7 @@ Category.prototype = {
             ct.DOM.toggleClass("expanded");
         });
         ct.DOM.children(".icon").attr("title", "Expand children categories");
+        ct.TT.openedCategories.splice(ct.TT.openedCategories.indexOf(ct));
     },
 
     buildCategoryIcon: function () {
