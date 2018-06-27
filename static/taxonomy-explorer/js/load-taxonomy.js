@@ -37,6 +37,7 @@ function TaxonomyTree(Options) {
     this.ontology_tree;
     this.data;
     this.openedCategories = [];
+    this.infoCategories = [];
 }
 
 TaxonomyTree.prototype = {
@@ -115,29 +116,29 @@ TaxonomyTree.prototype = {
     },
 
     openAndScroll: function (bigId) {
+        var tt = this;
         var node_ids = bigId.split(',');
-        for (var i=0; i<node_ids.length; i++) {
-            var category = this.categories[this.id_to_idx[node_ids[i]]];
-            if (!category.DOM.hasClass("expanded")) {
-                category.toggleChildren();
-            }
-            if (i === node_ids.length-1) {
+        toggleChildrenChain(node_ids)
+            .then(() => {
+                var category = tt.categories[tt.id_to_idx[node_ids[node_ids.length-1]]];
                 category.toggleInfo(function() {
                     $('html, body').animate({
                         scrollTop: category.DOM.eq(0).offset().top - 60
                     }, 100);
                 });
-            }
-        }
+        });
     },
 
     collapseAll: function (callback) {
         var tt = this;
+        for (var i=0; i<tt.infoCategories.length; i++) {
+            tt.infoCategories[i].toggleInfo();
+        }
         for (var i=0; i<tt.openedCategories.length; i++) {
             tt.openedCategories[i].closeChildren();
         }
         if (callback)
-            setTimeout(function() {callback()}, 300);  // HERE TO SEQUENTIAL CALL, NOT THIS HACK!!
+            setTimeout(function() {callback()}, 600);  // HERE TO SEQUENTIAL CALL, NOT THIS HACK!!
     }
 
 };
@@ -175,17 +176,22 @@ Category.prototype = {
             $.ajax({
                 url: href,
                 type: "GET",
-                success: function(data) {
+                success: function (data) {
                     ct.showInfo(data);
                     if (callback)
-                        setTimeout(function() {callback();}, 300)
+                        setTimeout(function () {
+                            callback();
+                        }, 300)
                 }
             });
-        } else if (callback) {
-            setTimeout(function() {callback();}, 300)
+        } else if (ct.DOM.hasClass("open")) {
+            ct.hideInfo($(ct.DOM).find(".card"), $(ct.DOM).find(".content").find(".header").eq(0));
+            if (callback) {
+                setTimeout(function () {
+                    callback();
+                }, 300)
+            }
         }
-
-
     },
 
     showInfo: function (data) {
@@ -203,7 +209,9 @@ Category.prototype = {
             "display": "none"
         });
         $(content).prepend(card);
-        card.slideDown(200);
+        card.slideDown(200, function () {
+            ct.TT.infoCategories.push(ct);
+        });
 
         var btn_close = $(card.find(".close-card")[0]);
         btn_close.click(function () {
@@ -226,6 +234,7 @@ Category.prototype = {
             $(content).prepend(header.fadeIn(100));
             ct.active_button = true;
             $(btn).prop("disabled", false);
+            ct.TT.infoCategories.splice(ct.TT.infoCategories.indexOf(ct));
         });
     },
 
@@ -327,19 +336,20 @@ Category.prototype = {
         var ct = this;
         ct.DOM.toggleClass("expanded");
         var children_list = ct.DOM.children(".content").children(".list");
-        children_list.slideDown(300, "swing");
+        children_list.slideDown(300, "swing", function () {
+            ct.TT.openedCategories.push(ct);
+        });
         ct.DOM.children(".icon").attr("title", "Collapse children categories");
-        ct.TT.openedCategories.push(ct);
     },
 
     closeChildren: function () {
         var ct = this;
         var children_list = ct.DOM.children(".content").children(".list");
-        children_list.slideUp(500, "swing", function() {
+        children_list.slideUp(300, "swing", function() {
             ct.DOM.toggleClass("expanded");
+            ct.TT.openedCategories.splice(ct.TT.openedCategories.indexOf(ct));
         });
         ct.DOM.children(".icon").attr("title", "Expand children categories");
-        ct.TT.openedCategories.splice(ct.TT.openedCategories.indexOf(ct));
     },
 
     buildCategoryIcon: function () {
@@ -369,3 +379,23 @@ Category.prototype = {
     }
 
 };
+
+function asyncFunc(f) {
+    return new Promise((resolve, reject) => {
+        resolve(f);
+    });
+}
+
+function toggleChildrenChain(arr) {
+  return arr.reduce((promise, item) => {
+    return promise
+      .then((result) => {
+        var category = TT.categories[TT.id_to_idx[item]];
+            if (!category.DOM.hasClass("expanded")) {
+                category.toggleChildren();
+            }
+        return asyncFunc(item);
+      })
+      .catch(console.error);
+  }, Promise.resolve());
+}
