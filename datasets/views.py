@@ -162,7 +162,7 @@ def search_taxonomy_node(request, short_name):
     qs_results = TaxonomyNode.objects.filter(taxonomy__dataset=dataset)\
                                      .annotate(similarity=TrigramSimilarity('name', query) +
                                                           TrigramSimilarity('description', query),)\
-                                     .filter(similarity__gte=0.3)\
+                                     .filter(similarity__gte=0.2)\
                                      .order_by('-similarity')
 
     results = [{'name': node.name,

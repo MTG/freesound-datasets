@@ -125,7 +125,7 @@ TaxonomyTree.prototype = {
                 category.toggleInfo(function() {
                     $('html, body').animate({
                         scrollTop: category.DOM.eq(0).offset().top - 60
-                    }, 200);
+                    }, 100);
                 });
             }
         }
@@ -137,7 +137,7 @@ TaxonomyTree.prototype = {
             tt.openedCategories[i].closeChildren();
         }
         if (callback)
-            setTimeout(function() {callback()}, 200);  // HERE TO SEQUENTIAL CALL, NOT THIS HACK!!
+            setTimeout(function() {callback()}, 300);  // HERE TO SEQUENTIAL CALL, NOT THIS HACK!!
     }
 
 };
@@ -178,11 +178,11 @@ Category.prototype = {
                 success: function(data) {
                     ct.showInfo(data);
                     if (callback)
-                        setTimeout(function() {callback();}, 200)
+                        setTimeout(function() {callback();}, 300)
                 }
             });
         } else if (callback) {
-            setTimeout(function() {callback();}, 200)
+            setTimeout(function() {callback();}, 300)
         }
 
 
@@ -327,7 +327,7 @@ Category.prototype = {
         var ct = this;
         ct.DOM.toggleClass("expanded");
         var children_list = ct.DOM.children(".content").children(".list");
-        children_list.slideDown(500, "swing");
+        children_list.slideDown(300, "swing");
         ct.DOM.children(".icon").attr("title", "Collapse children categories");
         ct.TT.openedCategories.push(ct);
     },
