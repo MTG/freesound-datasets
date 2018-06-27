@@ -125,7 +125,7 @@ TaxonomyTree.prototype = {
                 category.toggleInfo(function() {
                     $('html, body').animate({
                         scrollTop: category.DOM.eq(0).offset().top - 60
-                    }, 500);
+                    }, 200);
                 });
             }
         }
@@ -137,7 +137,7 @@ TaxonomyTree.prototype = {
             tt.openedCategories[i].closeChildren();
         }
         if (callback)
-            setTimeout(function() {callback()}, 500);  // HERE TO SEQUENTIAL CALL, NOT THIS HACK!!
+            setTimeout(function() {callback()}, 200);  // HERE TO SEQUENTIAL CALL, NOT THIS HACK!!
     }
 
 };
@@ -178,11 +178,11 @@ Category.prototype = {
                 success: function(data) {
                     ct.showInfo(data);
                     if (callback)
-                        setTimeout(function() {callback();}, 500)
+                        setTimeout(function() {callback();}, 200)
                 }
             });
         } else if (callback) {
-            setTimeout(function() {callback();}, 500)
+            setTimeout(function() {callback();}, 200)
         }
 
 

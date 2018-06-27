@@ -38,13 +38,20 @@
             success: function(data) {
                 resDiv.empty();
                 for (var i=0; i<data.length;i++) {
-                    resDiv.append("<div>"+data[i].paths+"</div>")
+                    var el = $("<a class='ui secondary teal large label' style='margin:2px;' big-id="+ data[i].big_id +">"+data[i].path+"</a>");
+                    resDiv.append(el);
+                    el.click(function() {
+                        TT.locateCategory($(this).attr('big-id'));
+                    });
                 }
             }
         });
     }
     </script>
-    <input type="search" oninput="displayResults(5, this)"/>
+    <div class="ui icon input">
+        <input placeholder="Search..." type="search" oninput="displayResults(5, this)">
+        <i class="search icon"></i>
+    </div>
     <div class="results">
     </div>
     <div id="taxonomy-tree"></div>

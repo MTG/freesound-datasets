@@ -167,10 +167,10 @@ def search_taxonomy_node(request, short_name):
 
     results = [{'name': node.name,
                 'node_id': node.node_id,
-                'paths': [[TaxonomyNode.objects.get(node_id=node_id).name
-                           for node_id in path_list]
-                          for path_list in taxonomy.get_hierarchy_paths(node.node_id)]
-                } for node in qs_results]
+                'path': ' > '.join([TaxonomyNode.objects.get(node_id=node_id).name for node_id in path_list]),
+                'big_id': ','.join(path_list)}
+               for node in qs_results
+               for path_list in taxonomy.get_hierarchy_paths(node.node_id)]
 
     return JsonResponse(results, safe=False)
 
