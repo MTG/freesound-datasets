@@ -8,7 +8,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector, TrigramSimilarity, TrigramDistance
 from django.conf import settings
 from django.core.urlresolvers import reverse
-from django.db.models import Count
+from django.db.models import Count, F, Q
 from django.db import transaction, connection
 from django.forms import formset_factory
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -172,7 +172,7 @@ def search_taxonomy_node(request, short_name):
                for node in qs_results
                for path_list in taxonomy.get_hierarchy_paths(node.node_id)]
 
-    return JsonResponse(results, safe=False)
+    return JsonResponse(results[:10], safe=False)
 
 
 #############################
