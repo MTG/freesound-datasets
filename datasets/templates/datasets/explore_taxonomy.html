@@ -46,7 +46,6 @@
         currentPromise = thenPromise;
 
         thenPromise.done( function(data){
-            a = this;
             resDiv.empty();
             for (var i=0; i<data.length;i++) {
                 var el = $("<a class='ui teal large label' style='margin:2px;' big-id="+ data[i].big_id +">"+data[i].path+"</a>");
