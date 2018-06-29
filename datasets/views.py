@@ -647,14 +647,14 @@ def save_generate_annotations(request, short_name):
         data = json.loads(request.POST.dict()['jsonData'])
         data['username'] = request.user.username
         print(data)
-        # num_files = len(os.listdir('./json/'))
-        # json.dump(data, open('/code/json/{}.json'.format(num_files), 'w'))
+        num_files = len(os.listdir('./json/'))
+        json.dump(data, open('/code/json/{}.json'.format(num_files), 'w'))
     return JsonResponse({'errors': False})
 
 
 def refine_annotations(request, short_name, sound_id):
     dataset = get_object_or_404(Dataset, short_name=short_name)
-    sound = Sound.objects.get(id=sound_id)
+    sound = Sound.objects.get(freesound_id=sound_id)
     freesound_sound_id = sound.freesound_id
     annotations = sound.get_candidate_annotations(dataset)
     labels_name_and_id = json.dumps([[a.taxonomy_node.name, a.taxonomy_node.node_id] for a in annotations])
