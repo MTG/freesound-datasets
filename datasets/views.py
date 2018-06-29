@@ -652,6 +652,14 @@ def save_generate_annotations(request, short_name):
     return JsonResponse({'errors': False})
 
 
+def generate_annotations(request, short_name, sound_id):
+    dataset = get_object_or_404(Dataset, short_name=short_name)
+    sound = Sound.objects.get(freesound_id=sound_id)
+    freesound_sound_id = sound.freesound_id
+    return render(request, 'datasets/generate_annotations.html',
+                  {'dataset': dataset, 'freesound_sound_id': freesound_sound_id, 'generation_task': '1'})
+
+
 def refine_annotations(request, short_name, sound_id):
     dataset = get_object_or_404(Dataset, short_name=short_name)
     sound = Sound.objects.get(freesound_id=sound_id)
@@ -692,6 +700,7 @@ def get_hierachy_paths(request, short_name):
 
 def get_node_info(request, short_name, node_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
+    generation_task = request.GET.get('gen-task', '0')
     node = dataset.taxonomy.get_element_from_name(node_name).as_dict()
     hierarchy_paths = dataset.taxonomy.get_hierarchy_paths(node['node_id'])
     node['hierarchy_paths'] = hierarchy_paths if hierarchy_paths is not None else []
@@ -699,7 +708,8 @@ def get_node_info(request, short_name, node_name):
     return render(request, 'datasets/explore_taxonomy_node_info.html',
                   {
                       'dataset': dataset,
-                      'node': node
+                      'node': node,
+                      'generation_task': generation_task
                   })
 
 

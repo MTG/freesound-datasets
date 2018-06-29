@@ -50,4 +50,6 @@ urlpatterns = [
     url(r'^(?P<short_name>[^\/]+)/explore-taxonomy/$', explore_taxonomy, name='explore_taxonomy'),
     url(r'^(?P<short_name>[^\/]+)/search_taxonomy_node/$', search_taxonomy_node,
         name='search-taxonomy-node'),
+    url(r'^(?P<short_name>[^\/]+)/annotate/explore_generate_annotations/(?P<sound_id>[^\/]+)/$', generate_annotations,
+        name='generate-annotations'),
 ]

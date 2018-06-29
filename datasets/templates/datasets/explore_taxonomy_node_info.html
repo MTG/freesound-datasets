@@ -40,8 +40,12 @@
             {% sound_player dataset fsid "mini" %}
             {% endfor %}
         {% endif %}
+
+        {% if generation_task == '1' %}
+            <button class="ui primary button add-label">
+                Add
+            </button>
+        {% endif %}
+
     </div>
-
-
-
 </div>

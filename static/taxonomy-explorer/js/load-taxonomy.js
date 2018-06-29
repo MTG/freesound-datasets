@@ -32,6 +32,7 @@ function TaxonomyTree(Options) {
     this.url = Options.url;
     this.container = Options.container;
     this.skipCategories = Options.skipCategories || [];
+    this.generation_task = Options.generation_task;
     this.categories = [];
     this.id_to_idx = {};
     this.ontology_tree;
@@ -168,7 +169,7 @@ Category.prototype = {
 
     toggleInfo: function (callback) {
         var ct = this;
-        var href = "/fsd/node-info/" + ct.name;
+        var href = "/fsd/node-info/" + ct.name + '?gen-task=' + this.TT.generation_task;
 
         ct.active_button = false;
 
@@ -216,6 +217,11 @@ Category.prototype = {
         var btn_close = $(card.find(".close-card")[0]);
         btn_close.click(function () {
             ct.hideInfo(card, hdr);
+        });
+
+        var btn_add = $(card.find(".add-label").eq(0));
+        btn_add.click(function () {
+            $("#label-container").append("<div style='margin: 2px;' class='added-label ui label' label-name='"+ ct.name +"''>"+ ct.name +"</div>")
         });
     },
 
