@@ -172,6 +172,7 @@ function Category(Info) {
     this.TT = Info.TT;
     this.path = Info.path;
     this.bigId = Info.bigId;
+    this.hdr;
 
     this.buildCategory();
 }
@@ -202,7 +203,7 @@ Category.prototype = {
                 }
             });
         } else if (ct.DOM.hasClass("open")) {
-            ct.hideInfo($(ct.DOM).find(".card"), $(ct.DOM).find(".content").find(".header").eq(0));
+            ct.hideInfo($(ct.DOM).find(".card"));
             if (callback) {
                 setTimeout(function () {
                     callback();
@@ -215,10 +216,10 @@ Category.prototype = {
         var ct = this;
         var card = $(data);
         var content = ct.DOM.find(".content")[0];
-        var hdr = $(content).find(".header")[0];
+        ct.hdr = $(content).find(".header")[0];
 
-        $(hdr).fadeOut(100, function() {
-            hdr = $(this).detach();
+        $(ct.hdr).fadeOut(100, function() {
+            ct.hdr = $(this).detach();
         });
 
         ct.DOM.addClass("open");
@@ -243,7 +244,7 @@ Category.prototype = {
 
         var btn_close = $(card.find(".close-card")[0]);
         btn_close.click(function () {
-            ct.hideInfo(card, hdr);
+            ct.hideInfo(card);
         });
 
         if (ct.TT.generation_task === '1') {
@@ -257,9 +258,10 @@ Category.prototype = {
         }
     },
 
-    hideInfo: function (card, header) {
+    hideInfo: function (card) {
         var ct = this;
         var content = ct.DOM.find(".content")[0];
+        var header= ct.hdr;
         var btn = header.find("button")[0];
 
         if (!ct.last_child) {
