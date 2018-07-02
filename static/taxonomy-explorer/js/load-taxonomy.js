@@ -70,10 +70,11 @@ TaxonomyTree.prototype = {
         tt.ontology_tree = tt.addNode(root);
     },
 
-    addNode: function (node, path) {
+    addNode: function (node, path, bigId) {
         var tt = this;
         var skip_this = tt.skipCategories.indexOf(node.name) > -1;
         var cur_path = path || [];
+        var cur_bigId = bigId || '';
 
         var category_info = {
             name: node.name,
@@ -81,14 +82,15 @@ TaxonomyTree.prototype = {
             //parent: parent || null,
             children: node.children,
             id: node.node_id,
-            TT: tt
+            TT: tt,
+            bigId: cur_bigId
         };
 
         var category = new Category(category_info);
         var DOM = skip_this ? $(tt.container) : category.DOM;
         // uncomment next line to flatten the tree into a list
         tt.categories.push(category);
-        tt.id_to_idx[category.id] = tt.categories.length -1;
+        tt.id_to_idx[cur_bigId] = tt.categories.length -1;
 
         if (category.hasChildren()) {
             var parent_node = skip_this ? tt.data : node;
@@ -96,7 +98,8 @@ TaxonomyTree.prototype = {
             $(parent_node.children).each(function () {
                 // recursively build tree
                 var new_path = cur_path.concat([this.name]);
-                var child_DOM = tt.addNode(this, new_path);
+                var new_bigId = (cur_bigId === '') ? this.node_id: cur_bigId + ',' + this.node_id;
+                var child_DOM = tt.addNode(this, new_path, new_bigId);
                 children_DOM_container.append(child_DOM)
             });
         }
@@ -121,9 +124,15 @@ TaxonomyTree.prototype = {
     openAndScroll: function (bigId) {
         var tt = this;
         var node_ids = bigId.split(',');
-        toggleChildrenChain(node_ids)
+        var cur_id = node_ids[0];
+        var node_bigIds = [cur_id];
+        for (var i=1; i<node_ids.length; i++) {
+            cur_id += ',' + node_ids[i];
+            node_bigIds.push(cur_id);
+        }
+        toggleChildrenChain(node_bigIds)
             .then(() => {
-                var category = tt.categories[tt.id_to_idx[node_ids[node_ids.length-1]]];
+                var category = tt.categories[tt.id_to_idx[node_bigIds[node_bigIds.length-1]]];
                 category.toggleInfo(function() {
                     $('html, body').animate({
                         scrollTop: category.DOM.eq(0).offset().top - 60
@@ -162,6 +171,7 @@ function Category(Info) {
     this.id = Info.id;
     this.TT = Info.TT;
     this.path = Info.path;
+    this.bigId = Info.bigId;
 
     this.buildCategory();
 }
