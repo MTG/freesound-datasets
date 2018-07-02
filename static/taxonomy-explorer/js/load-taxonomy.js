@@ -221,7 +221,10 @@ Category.prototype = {
 
         var btn_add = $(card.find(".add-label").eq(0));
         btn_add.click(function () {
-            $("#label-container").append("<div style='margin: 2px;' class='added-label ui label' label-name='"+ ct.name +"''>"+ ct.name +"</div>")
+            $("#label-container").append("<div style='margin: 2px;' class='added-label ui message' label-name='"+ ct.name +"''><i class='close icon'></i>"+ ct.name +"</div>")
+            $('.message .close').on('click', function() {
+                $(this).parent('.message').remove();
+            });
         });
     },
 
