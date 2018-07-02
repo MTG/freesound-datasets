@@ -135,7 +135,7 @@ TaxonomyTree.prototype = {
                 var category = tt.categories[tt.id_to_idx[node_bigIds[node_bigIds.length-1]]];
                 category.toggleInfo(function() {
                     $('html, body').animate({
-                        scrollTop: category.DOM.eq(0).offset().top - 60
+                        scrollTop: category.DOM.eq(0).offset().top - 300
                     }, 100);
                 });
         });
