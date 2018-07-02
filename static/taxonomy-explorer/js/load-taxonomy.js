@@ -152,7 +152,7 @@ TaxonomyTree.prototype = {
         if (callback)
             setTimeout(function() {
                 callback()
-            }, 600);  // HERE TO SEQUENTIAL CALL, NOT THIS HACK!!
+            }, 500);  // HERE TO SEQUENTIAL CALL, NOT THIS HACK!!
     }
 
 };
