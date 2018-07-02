@@ -247,7 +247,7 @@ Category.prototype = {
             ct.hideInfo(card);
         });
 
-        if (ct.TT.generation_task === '1') {
+        if (ct.TT.generation_task === 1) {
             var btn_add = $(card.find(".add-label").eq(0));
             btn_add.click(function () {
                 $("#label-container").append("<div style='margin: 2px;' class='added-label ui message' label-name='"+ ct.name +"''><i class='close icon'></i>"+ ct.name +"</div>")
