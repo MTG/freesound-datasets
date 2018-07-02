@@ -240,3 +240,17 @@
     margin-top: 10px;
     margin-right: 10px;
 }
+
+.searchbox-container {
+    position: relative;
+}
+
+.results {
+    z-index: 3;
+    padding: 5px;
+    margin-top: 5px;
+    border: solid 1px lightgrey;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+}
