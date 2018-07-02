@@ -701,7 +701,10 @@ def get_hierachy_paths(request, short_name):
 def get_node_info(request, short_name, node_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
     generation_task = request.GET.get('gen-task', '0')
-    node = dataset.taxonomy.get_element_from_name(node_name).as_dict()
+    node = dataset.taxonomy.get_element_from_name(node_name)
+    hp = [node.get_parents()]
+
+    node = node.as_dict()
     hierarchy_paths = dataset.taxonomy.get_hierarchy_paths(node['node_id'])
     node['hierarchy_paths'] = hierarchy_paths if hierarchy_paths is not None else []
     #node['node_id'] = unquote(node['node_id'])
@@ -709,7 +712,9 @@ def get_node_info(request, short_name, node_name):
                   {
                       'dataset': dataset,
                       'node': node,
-                      'generation_task': generation_task
+                      'hp': hp,
+                      'generation_task': generation_task,
+                      #'hierarchy_path': hierarchy_path
                   })
 
 

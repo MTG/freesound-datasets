@@ -18,18 +18,6 @@
 
         <div class="ui small breadcrumb">
             <div class="section">Ontology</div>
-            <i class="right chevron icon divider"></i>
-            {% with node.hierarchy_paths.0 as hierarchy_path %}
-            {% for node_id in hierarchy_path %}
-                {% taxonomy_node dataset node_id as sub_node_data %}
-                {% if forloop.last %}
-                    <div class="section">{{ sub_node_data.name }}</div>
-                {% else %}
-                    <a class="section">{{ sub_node_data.name }}</a>
-                    <i class="right chevron icon divider"></i>
-                {% endif %}
-            {% endfor %}
-            {% endwith %}
         </div>
 
         <div class="description">

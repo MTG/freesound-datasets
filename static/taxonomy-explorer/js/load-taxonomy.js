@@ -70,14 +70,15 @@ TaxonomyTree.prototype = {
         tt.ontology_tree = tt.addNode(root);
     },
 
-    addNode: function (node, parent_name) {
-
+    addNode: function (node, path) {
         var tt = this;
         var skip_this = tt.skipCategories.indexOf(node.name) > -1;
+        var cur_path = path || [];
 
         var category_info = {
             name: node.name,
-            parent: parent_name || null,
+            path: cur_path,
+            //parent: parent || null,
             children: node.children,
             id: node.node_id,
             TT: tt
@@ -94,7 +95,8 @@ TaxonomyTree.prototype = {
             var children_DOM_container = DOM.find(".list");
             $(parent_node.children).each(function () {
                 // recursively build tree
-                var child_DOM = tt.addNode(this, parent_node.name);
+                var new_path = cur_path.concat([this.name]);
+                var child_DOM = tt.addNode(this, new_path);
                 children_DOM_container.append(child_DOM)
             });
         }
@@ -132,14 +134,16 @@ TaxonomyTree.prototype = {
 
     collapseAll: function (callback) {
         var tt = this;
-        for (var i=0; i<tt.infoCategories.length; i++) {
+        for (var i = 0; i < tt.infoCategories.length; i++) {
             tt.infoCategories[i].toggleInfo();
         }
-        for (var i=0; i<tt.openedCategories.length; i++) {
+        for (var i = 0; i < tt.openedCategories.length; i++) {
             tt.openedCategories[i].closeChildren();
         }
         if (callback)
-            setTimeout(function() {callback()}, 600);  // HERE TO SEQUENTIAL CALL, NOT THIS HACK!!
+            setTimeout(function() {
+                callback()
+            }, 600);  // HERE TO SEQUENTIAL CALL, NOT THIS HACK!!
     }
 
 };
@@ -157,6 +161,7 @@ function Category(Info) {
     this.DOM;
     this.id = Info.id;
     this.TT = Info.TT;
+    this.path = Info.path;
 
     this.buildCategory();
 }
@@ -169,7 +174,8 @@ Category.prototype = {
 
     toggleInfo: function (callback) {
         var ct = this;
-        var href = "/fsd/node-info/" + ct.name + '?gen-task=' + this.TT.generation_task;
+        var href = "/fsd/node-info/" + ct.name
+            + '?gen-task=' + this.TT.generation_task;
 
         ct.active_button = false;
 
@@ -214,18 +220,31 @@ Category.prototype = {
             ct.TT.infoCategories.push(ct);
         });
 
+        var breadcrumb = $(content).find(".breadcrumb")[0];
+        for (var i = 0; i < ct.path.length; i++) {
+            var section = (i === ct.path.length-1) ? $("<div>", { class: "active" }) : $("<a>");
+            section.addClass("section");
+            var chevron = $("<i>", {
+                class: "right angle icon divider"
+            });
+            section.append(ct.path[i]);
+            $(breadcrumb).append([chevron, section]);
+        }
+
         var btn_close = $(card.find(".close-card")[0]);
         btn_close.click(function () {
             ct.hideInfo(card, hdr);
         });
 
-        var btn_add = $(card.find(".add-label").eq(0));
-        btn_add.click(function () {
-            $("#label-container").append("<div style='margin: 2px;' class='added-label ui message' label-name='"+ ct.name +"''><i class='close icon'></i>"+ ct.name +"</div>")
-            $('.message .close').on('click', function() {
-                $(this).parent('.message').remove();
+        if (ct.TT.generation_task === '1') {
+            var btn_add = $(card.find(".add-label").eq(0));
+            btn_add.click(function () {
+                $("#label-container").append("<div style='margin: 2px;' class='added-label ui message' label-name='"+ ct.name +"''><i class='close icon'></i>"+ ct.name +"</div>")
+                $('.message .close').on('click', function() {
+                    $(this).parent('.message').remove();
+                });
             });
-        });
+        }
     },
 
     hideInfo: function (card, header) {
