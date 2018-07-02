@@ -222,12 +222,12 @@
     padding: 0 1em !important;
 }
 
-.item.open > .content > .ui.card .header {
+.item.open > .content > .ui.card > .content > .header {
     font-size: 1.8rem;
     margin: 0 auto 5px !important;
 }
 
-.item.open > .content > .ui.card .header a {
+.item.open > .content > .ui.card > .content > .header a {
     font-size: 18px;
 }
 
@@ -235,10 +235,6 @@
     position: relative;
     right: -40px;
 }
-
-/*.item.open .description {
-    margin-bottom: 10px;
-}*/
 
 .item.open .player_container {
     margin-top: 10px;

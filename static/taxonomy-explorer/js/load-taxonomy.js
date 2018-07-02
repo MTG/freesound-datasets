@@ -233,7 +233,7 @@ Category.prototype = {
 
         var breadcrumb = $(content).find(".breadcrumb")[0];
         for (var i = 0; i < ct.path.length; i++) {
-            var section = (i === ct.path.length-1) ? $("<div>", { class: "active" }) : $("<a>");
+            var section = (i === ct.path.length-1) ? $("<div>", { class: "active" }) : $("<div>");
             section.addClass("section");
             var chevron = $("<i>", {
                 class: "right angle icon divider"
