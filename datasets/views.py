@@ -285,6 +285,8 @@ def contribute_validate_annotations_category(request, short_name, node_id, html_
     annotations = dataset.non_ground_truth_annotations_per_taxonomy_node(node_id) \
         .exclude(votes__created_by=user).exclude(id__in=annotation_examples_verification_ids) \
         .exclude(id__in=annotation_examples_ids) \
+        .exclude(sound_dataset__sound__extra_data__duration__gt=30) \
+        .exclude(sound_dataset__sound__extra_data__duration__lt=0.3) \
         .filter(sound_dataset__sound__deleted_in_freesound=False).annotate(num_votes=Count('votes'))
 
     # Exclude annotations that have votes (for kaggle dataset) and that have nc and sampling+ licenses
