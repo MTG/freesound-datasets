@@ -114,45 +114,61 @@ TaxonomyTree.prototype = {
 
     locateCategory: function(bigId) {
         var tt = this;
-        this.collapseAll(function() {
-            tt.openAndScroll(bigId);
-        });
-        // this.collapseAll();
-        // this.openAndScroll(bigId);
+
+        tt.collapseAll()
+            .then(function () {
+                tt.openCategoryPath(bigId)
+            })
+            .then(function () {
+                tt.scrollToCategory(bigId)
+            })
+        // TODO: add showInfo
     },
 
-    openAndScroll: function (bigId) {
+    openCategoryPath: function (bigId) {
         var tt = this;
+
         var node_ids = bigId.split(',');
         var cur_id = node_ids[0];
         var node_bigIds = [cur_id];
-        for (var i=1; i<node_ids.length; i++) {
+        for (var i = 1; i < node_ids.length; i++) {
             cur_id += ',' + node_ids[i];
             node_bigIds.push(cur_id);
         }
-        toggleChildrenChain(node_bigIds)
-            .then(() => {
-                var category = tt.categories[tt.id_to_idx[node_bigIds[node_bigIds.length-1]]];
-                category.toggleInfo(function() {
-                    $('html, body').animate({
-                        scrollTop: category.DOM.eq(0).offset().top - 300
-                    }, 100);
-                });
-        });
+
+        var proms = [];
+        for (var i = 0; i < node_bigIds.length; i++) {
+            var id = node_bigIds[i];
+            var category = tt.categories[tt.id_to_idx[id]];
+            if (!category.expanded) {
+                proms.push(category.openChildren());
+            }
+        }
+        return Promise.all(proms);
+    },
+
+    scrollToCategory: function (bigId) {
+        var tt = this;
+        var cat_idx = tt.id_to_idx[bigId];
+        var category = tt.categories[cat_idx];
+        var body = $('html, body');
+        return body.stop().animate({
+            scrollTop: category.DOM.offset().top-300
+        }, 200).promise();
     },
 
     collapseAll: function (callback) {
         var tt = this;
-        for (var i = 0; i < tt.infoCategories.length; i++) {
+        var proms = [];
+/*        for (var i = 0; i < tt.infoCategories.length; i++) {
             tt.infoCategories[i].toggleInfo();
-        }
+        }*/
         for (var i = 0; i < tt.openedCategories.length; i++) {
-            tt.openedCategories[i].closeChildren();
+            var cat = tt.openedCategories[i];
+            if (cat.expanded)
+                proms.push(cat.closeChildren());
         }
-        if (callback)
-            setTimeout(function() {
-                callback()
-            }, 500);  // HERE TO SEQUENTIAL CALL, NOT THIS HACK!!
+        return Promise.all(proms);
     }
 
 };
@@ -183,7 +199,7 @@ Category.prototype = {
         return (this.children && this.children !== null)
     },
 
-    toggleInfo: function (callback) {
+    toggleInfo: function () {
         var ct = this;
         var href = "/fsd/node-info/" + ct.name
             + '?gen-task=' + this.TT.generation_task;
@@ -196,10 +212,6 @@ Category.prototype = {
                 type: "GET",
                 success: function (data) {
                     ct.showInfo(data);
-                    if (callback)
-                        setTimeout(function () {
-                            callback();
-                        }, 300)
                 }
             });
         } else if (ct.DOM.hasClass("open")) {
@@ -366,30 +378,36 @@ Category.prototype = {
 
     toggleChildren: function () {
         var ct = this;
+        console.log(ct.name + ct.expanded);
         if (!ct.last_child) {
-            ct.DOM.hasClass("expanded") ? ct.closeChildren() : ct.openChildren();
+            ct.expanded ? ct.closeChildren() : ct.openChildren();
         }
-
     },
 
     openChildren: function () {
         var ct = this;
-        ct.DOM.toggleClass("expanded");
-        var children_list = ct.DOM.children(".content").children(".list");
-        children_list.slideDown(300, "swing", function () {
+        if (ct.expanded || ct.last_child)
+            return;
+        ct.DOM.addClass("expanded");
+        var children_list = ct.DOM.children(".content").children(".list")[0];
+        return $(children_list).slideDown(300, "swing", function () {
             ct.TT.openedCategories.push(ct);
-        });
-        ct.DOM.children(".icon").attr("title", "Collapse children categories");
+            ct.DOM.children(".icon").attr("title", "Collapse children categories");
+            ct.expanded = true;
+        }).promise();
     },
 
     closeChildren: function () {
         var ct = this;
-        var children_list = ct.DOM.children(".content").children(".list");
-        children_list.slideUp(300, "swing", function() {
-            ct.DOM.toggleClass("expanded");
+        if (!ct.expanded)
+            return;
+        var children_list = ct.DOM.children(".content").children(".list")[0];
+        return $(children_list).slideUp(300, "swing", function() {
+            ct.DOM.removeClass("expanded");
             ct.TT.openedCategories.splice(ct.TT.openedCategories.indexOf(ct));
-        });
-        ct.DOM.children(".icon").attr("title", "Expand children categories");
+            ct.DOM.children(".icon").attr("title", "Expand children categories");
+            ct.expanded = false;
+        }).promise();
     },
 
     buildCategoryIcon: function () {
@@ -421,21 +439,31 @@ Category.prototype = {
 };
 
 function asyncFunc(f) {
-    return new Promise((resolve, reject) => {
+    return new Promise(function (resolve, reject) {
         resolve(f);
     });
 }
 
+function makePromise(fn, context, args) {
+    return new Promise(function (resolve, reject) {
+        res = fn.apply(context, args);
+        resolve(res);
+    });
+}
+
 function toggleChildrenChain(arr) {
-  return arr.reduce((promise, item) => {
-    return promise
-      .then((result) => {
-        var category = TT.categories[TT.id_to_idx[item]];
-            if (!category.DOM.hasClass("expanded")) {
-                category.toggleChildren();
-            }
-        return asyncFunc(item);
-      })
-      .catch(console.error);
-  }, Promise.resolve());
+    return arr.reduce(
+        function (promise, item) {
+            return promise.then(
+                function (result) {
+                    var category = TT.categories[TT.id_to_idx[item]];
+                    if (!category.DOM.hasClass("expanded")) {
+                        category.toggleChildren();
+                    }
+                    return asyncFunc(item);
+                }
+            )
+            .catch(console.error);
+        }, Promise.resolve()
+    );
 }
