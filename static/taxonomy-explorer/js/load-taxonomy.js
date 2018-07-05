@@ -307,7 +307,7 @@ Category.prototype = {
     addCategoryLabel: function () {
         var ct = this;
         var added = $("<div>", {
-            class: "added-label ui message",
+            class: "added-label ui label",
             "label-name": ct.name
         });
 
@@ -315,7 +315,7 @@ Category.prototype = {
             class: "close icon"
         });
         icon.on("click", function () {
-            $(this).parent(".message").remove();
+            $(this).parent(".label").remove();
             var btn_add = $(ct.DOM.find(".add-label")[0]);
             btn_add.removeClass("green basic").addClass("primary");
             btn_add.empty().append("Add");
@@ -323,7 +323,7 @@ Category.prototype = {
             ct.added = false;
         });
 
-        added.append([icon, ct.name]);
+        added.append([ct.name, icon]);
         $("#label-container").append(added);
 
         ct.added = true;

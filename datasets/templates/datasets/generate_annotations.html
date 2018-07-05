@@ -125,18 +125,18 @@
         <center>
             <h3>Listen to the following sound and add labels!</h3>
             {{ freesound_sound_id| fs_embed_large | safe }}
+            <div class="ui segment">
+                <h6 class="ui header">Added labels</h6>
+                <div id="label-container"></div>
+                <button id="submitButton" class="ui green big button" onclick="submitForm();" style="margin-top: 5px;">Submit</button>
+            </div>
         </center>
-        <br>
 
-        <div class="ui right rail">
-            <h3>Added labels</h3>
-            <div id="label-container"></div>
-            <button id="submitButton" class="ui green big button" onclick="submitForm();">Submit</button>
-        </div>
+        <br>
 
         <div class="searchbox-container">
             <div class="ui icon input">
-                <input placeholder="Search..." type="search" oninput="displayResults(5, this)" class="searchbox">
+                <input placeholder="Search categories..." type="search" oninput="displayResults(5, this)" class="searchbox">
                 <i class="search icon"></i>
             </div>
             <div class="ui results" style="display: none;">
