@@ -79,7 +79,6 @@ TaxonomyTree.prototype = {
         var category_info = {
             name: node.name,
             path: cur_path,
-            //parent: parent || null,
             children: node.children,
             id: node.node_id,
             TT: tt,
@@ -88,7 +87,6 @@ TaxonomyTree.prototype = {
 
         var category = new Category(category_info);
         var DOM = skip_this ? $(tt.container) : category.DOM;
-        // uncomment next line to flatten the tree into a list
         tt.categories.push(category);
         tt.id_to_idx[cur_bigId] = tt.categories.length -1;
 
@@ -157,18 +155,34 @@ TaxonomyTree.prototype = {
         }, 200).promise();
     },
 
-    collapseAll: function (callback) {
+    collapseAll: function () {
         var tt = this;
         var proms = [];
 /*        for (var i = 0; i < tt.infoCategories.length; i++) {
             tt.infoCategories[i].toggleInfo();
         }*/
-        for (var i = 0; i < tt.openedCategories.length; i++) {
-            var cat = tt.openedCategories[i];
-            if (cat.expanded)
-                proms.push(cat.closeChildren());
-        }
         return Promise.all(proms);
+    },
+
+    collapseAllCategories: function () {
+        var tt = this;
+        var proms = [];
+        for (var i = 0; i < tt.openedCategories.length; i++) {
+            var category = tt.openedCategories[i];
+            if (category.expanded)
+                proms.push(category.closeChildren());
+        }
+        return proms;
+    },
+
+    hideAllInfo: function () {
+        var tt = this;
+        var proms = [];
+        for (var i = 0; i < tt.infoCategories.length; i++) {
+            var category = tt.infoCategories[i];
+            proms.push(category.hideInfo());
+        }
+        return proms;
     }
 
 };
@@ -215,12 +229,7 @@ Category.prototype = {
                 }
             });
         } else if (ct.DOM.hasClass("open")) {
-            ct.hideInfo($(ct.DOM).find(".card"));
-            if (callback) {
-                setTimeout(function () {
-                    callback();
-                }, 300)
-            }
+            ct.hideInfo();
         }
     },
 
@@ -230,19 +239,12 @@ Category.prototype = {
         var content = ct.DOM.find(".content")[0];
         ct.hdr = $(content).find(".header")[0];
 
+        // hide old header
         $(ct.hdr).fadeOut(100, function() {
             ct.hdr = $(this).detach();
         });
 
-        ct.DOM.addClass("open");
-        card.css({
-            "display": "none"
-        });
-        $(content).prepend(card);
-        card.slideDown(200, function () {
-            ct.TT.infoCategories.push(ct);
-        });
-
+        // create breadcrumb
         var breadcrumb = $(content).find(".breadcrumb")[0];
         for (var i = 0; i < ct.path.length; i++) {
             var section = (i === ct.path.length-1) ? $("<div>", { class: "active" }) : $("<div>");
@@ -254,11 +256,13 @@ Category.prototype = {
             $(breadcrumb).append([chevron, section]);
         }
 
+        // create close button
         var btn_close = $(card.find(".close-card")[0]);
         btn_close.click(function () {
-            ct.hideInfo(card);
+            ct.hideInfo(/*card*/);
         });
 
+        // if generation task, create "Add" button
         if (ct.TT.generation_task === 1) {
             var btn_add = $(card.find(".add-label").eq(0));
             btn_add.click(function () {
@@ -268,26 +272,38 @@ Category.prototype = {
                 });
             });
         }
+
+        // add classes and show card
+        ct.DOM.addClass("open");
+        card.css({
+            "display": "none"
+        });
+        $(content).prepend(card);
+        return card.slideDown(200, function () {
+            ct.TT.infoCategories.push(ct);
+        }).promise();
     },
 
-    hideInfo: function (card) {
+    hideInfo: function () {
         var ct = this;
         var content = ct.DOM.find(".content")[0];
-        var header= ct.hdr;
+        var header = ct.hdr;
         var btn = header.find("button")[0];
+        var card = ct.DOM.find(".ui.card")[0];
 
         if (!ct.last_child) {
             var children_list = $(content).find(".list")[0];
             $(content).append($(children_list).detach());
         }
-        $(card).slideUp(200, function() {
+
+        return $(card).slideUp(200, function() {
             ct.DOM.removeClass("open");
             $(card).detach();
             $(content).prepend(header.fadeIn(100));
             ct.active_button = true;
             $(btn).prop("disabled", false);
             ct.TT.infoCategories.splice(ct.TT.infoCategories.indexOf(ct));
-        });
+        }).promise();
     },
 
     buildCategory: function () {
@@ -378,7 +394,6 @@ Category.prototype = {
 
     toggleChildren: function () {
         var ct = this;
-        console.log(ct.name + ct.expanded);
         if (!ct.last_child) {
             ct.expanded ? ct.closeChildren() : ct.openChildren();
         }
