@@ -39,18 +39,18 @@
 
         $(document).mouseup(function(e) {
             var container = $(".searchbox-container");
-            var results = $(".results");
+            //var results = $(".results");
             var searchbox = $(".searchbox");
             // if the target of the click isn't the container nor a descendant of the container
             if (!container.is(e.target) &&
                 container.has(e.target).length === 0)
             {
-                results.slideUp(200);
+                resDiv.slideUp(200);
             }
 
             searchbox.on("focus", function() {
                 if (!resDiv.is(':empty'))
-                    results.slideDown(200);
+                    resDiv.slideDown(200);
             })
         });
 
@@ -74,6 +74,7 @@
                     var el = $("<a class='ui teal large label' style='margin:2px; display:block' big-id=" + data[i].big_id + ">" + data[i].path + "</a>");
                     resDiv.append(el);
                     el.click(function () {
+                        resDiv.slideUp(200);
                         TT.locateCategory($(this).attr('big-id'));
                     });
                 }

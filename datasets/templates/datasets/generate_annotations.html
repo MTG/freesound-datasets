@@ -73,6 +73,7 @@
                     var el = $("<a class='ui teal large label' style='margin:2px; display:block' big-id=" + data[i].big_id + ">" + data[i].path + "</a>");
                     resDiv.append(el);
                     el.click(function () {
+                        resDiv.slideUp(200);
                         TT.locateCategory($(this).attr('big-id'));
                     });
                 }
