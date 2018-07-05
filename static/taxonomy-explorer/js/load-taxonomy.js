@@ -125,23 +125,17 @@ TaxonomyTree.prototype = {
 
     openCategoryPath: function (bigId) {
         var tt = this;
-
         var node_ids = bigId.split(',');
-        var cur_id = node_ids[0];
-        var node_bigIds = [cur_id];
-        for (var i = 1; i < node_ids.length; i++) {
-            cur_id += ',' + node_ids[i];
-            node_bigIds.push(cur_id);
-        }
-
         var proms = [];
-        for (var i = 0; i < node_bigIds.length; i++) {
-            var id = node_bigIds[i];
+        var id = '';
+        for (var i = 0; i < node_ids.length; i++) {
+            id += (i === 0) ? node_ids[i] : ',' + node_ids[i];
             var category = tt.categories[tt.id_to_idx[id]];
             if (!category.expanded) {
                 proms.push(category.openChildren());
             }
         }
+
         return Promise.all(proms);
     },
 
