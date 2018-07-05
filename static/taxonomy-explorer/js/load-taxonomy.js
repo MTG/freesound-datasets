@@ -261,7 +261,7 @@ Category.prototype = {
         });
 
         // create breadcrumb
-        var breadcrumb = $(content).find(".breadcrumb")[0];
+        var breadcrumb = $(card).find(".breadcrumb")[0];
         for (var i = 0; i < ct.path.length; i++) {
             var section = (i === ct.path.length-1) ? $("<div>", { class: "active" }) : $("<div>");
             section.addClass("section");
@@ -357,7 +357,8 @@ Category.prototype = {
         var icon = $(btn).find("i");
         icon.remove();
         var loader = $("<i>", {
-            class: "spinner loading icon"
+            class: "spinner loading icon",
+            opacity: 1
         });
         $(btn).append(loader);
     },
