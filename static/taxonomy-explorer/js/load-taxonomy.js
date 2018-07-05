@@ -158,10 +158,10 @@ TaxonomyTree.prototype = {
     collapseAll: function () {
         var tt = this;
         var proms = [];
-/*        for (var i = 0; i < tt.infoCategories.length; i++) {
-            tt.infoCategories[i].toggleInfo();
-        }*/
-        return Promise.all(proms);
+        return Promise.all(proms.concat(
+            tt.collapseAllCategories(),
+            tt.hideAllInfo()
+        ));
     },
 
     collapseAllCategories: function () {
