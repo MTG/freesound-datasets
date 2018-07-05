@@ -115,12 +115,19 @@ TaxonomyTree.prototype = {
 
         tt.collapseAll()
             .then(function () {
-                tt.openCategoryPath(bigId)
+                tt.getCategoryInfo(bigId);
+                return tt.openCategoryPath(bigId);
             })
             .then(function () {
                 tt.scrollToCategory(bigId)
             })
-        // TODO: add showInfo
+    },
+
+    getCategoryInfo: function (bigId) {
+        var tt = this;
+        var cat_idx = tt.id_to_idx[bigId];
+        var category = tt.categories[cat_idx];
+        category.toggleInfo();
     },
 
     openCategoryPath: function (bigId) {
@@ -135,7 +142,6 @@ TaxonomyTree.prototype = {
                 proms.push(category.openChildren());
             }
         }
-
         return Promise.all(proms);
     },
 
@@ -143,9 +149,22 @@ TaxonomyTree.prototype = {
         var tt = this;
         var cat_idx = tt.id_to_idx[bigId];
         var category = tt.categories[cat_idx];
-        var body = $('html, body');
+        var element = category.DOM;
+        var el_offset = element.offset().top;
+        var el_height = element.height();
+        var window_height = $(window).height();
+        var offset;
+
+        if (el_height < window_height) {
+            offset = el_offset - ((window_height/2) - (el_height/2));
+        }
+        else {
+            offset = el_offset;
+        }
+
+        var body = $('body');
         return body.stop().animate({
-            scrollTop: category.DOM.offset().top-300
+            scrollTop: offset
         }, 200).promise();
     },
 
@@ -253,7 +272,7 @@ Category.prototype = {
         // create close button
         var btn_close = $(card.find(".close-card")[0]);
         btn_close.click(function () {
-            ct.hideInfo(/*card*/);
+            ct.hideInfo();
         });
 
         // if generation task, create "Add" button
@@ -446,33 +465,3 @@ Category.prototype = {
     }
 
 };
-
-function asyncFunc(f) {
-    return new Promise(function (resolve, reject) {
-        resolve(f);
-    });
-}
-
-function makePromise(fn, context, args) {
-    return new Promise(function (resolve, reject) {
-        res = fn.apply(context, args);
-        resolve(res);
-    });
-}
-
-function toggleChildrenChain(arr) {
-    return arr.reduce(
-        function (promise, item) {
-            return promise.then(
-                function (result) {
-                    var category = TT.categories[TT.id_to_idx[item]];
-                    if (!category.DOM.hasClass("expanded")) {
-                        category.toggleChildren();
-                    }
-                    return asyncFunc(item);
-                }
-            )
-            .catch(console.error);
-        }, Promise.resolve()
-    );
-}
