@@ -234,10 +234,12 @@ Category.prototype = {
         ct.active_button = false;
 
         if (!ct.DOM.hasClass("open")) {
+            ct.addLoader();
             $.ajax({
                 url: href,
                 type: "GET",
                 success: function (data) {
+                    ct.removeLoader();
                     ct.showInfo(data);
                 }
             });
@@ -319,6 +321,28 @@ Category.prototype = {
         }).promise();
     },
 
+    addLoader: function () {
+        var ct = this;
+        var btn = ct.hdr.find("button")[0];
+        var icon = $(btn).find("i");
+        icon.remove();
+        var loader = $("<i>", {
+            class: "spinner loading icon"
+        });
+        $(btn).append(loader);
+    },
+
+    removeLoader: function () {
+        var ct = this;
+        var btn = ct.hdr.find("button")[0];
+        var icon = $(btn).find("i");
+        icon.remove();
+        var chevron = $("<i>", {
+            class: "down chevron icon"
+        });
+        $(btn).append(chevron);
+    },
+
     buildCategory: function () {
 
         /*
@@ -368,6 +392,7 @@ Category.prototype = {
             title: "Show additional info"
         });
         var header_link = $("<a>");
+        ct.hdr = header;
 
         var children_list = null;
         if (!ct.last_child) {
