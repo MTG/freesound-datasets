@@ -208,6 +208,7 @@ function Category(Info) {
     this.skipped = Info.skipped || false;
     this.expanded = Info.expanded || false;
     this.open = false;
+    this.added = false;
     this.active_button = true;
     this.last_child = !this.hasChildren();
     this.DOM;
@@ -279,12 +280,16 @@ Category.prototype = {
 
         // if generation task, create "Add" button
         if (ct.TT.generation_task === 1) {
+
             var btn_add = $(card.find(".add-label").eq(0));
+
             btn_add.click(function () {
-                $("#label-container").append("<div style='margin: 2px;' class='added-label ui message' label-name='"+ ct.name +"''><i class='close icon'></i>"+ ct.name +"</div>")
-                $('.message .close').on('click', function() {
-                    $(this).parent('.message').remove();
-                });
+                if (!ct.added) {
+                    ct.addCategoryLabel();
+                    btn_add.removeClass("primary").addClass("green basic");
+                    btn_add.empty().append("Label added!");
+                    btn_add.prop("disabled", true);
+                }
             });
         }
 
@@ -297,6 +302,31 @@ Category.prototype = {
         return card.slideDown(200, function () {
             ct.TT.infoCategories.push(ct);
         }).promise();
+    },
+
+    addCategoryLabel: function () {
+        var ct = this;
+        var added = $("<div>", {
+            class: "added-label ui message",
+            "label-name": ct.name
+        });
+
+        var icon = $("<i>", {
+            class: "close icon"
+        });
+        icon.on("click", function () {
+            $(this).parent(".message").remove();
+            var btn_add = $(ct.DOM.find(".add-label")[0]);
+            btn_add.removeClass("green basic").addClass("primary");
+            btn_add.empty().append("Add");
+            btn_add.prop("disabled", false);
+            ct.added = false;
+        });
+
+        added.append([icon, ct.name]);
+        $("#label-container").append(added);
+
+        ct.added = true;
     },
 
     hideInfo: function () {
