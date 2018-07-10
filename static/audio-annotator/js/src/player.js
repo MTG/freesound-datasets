@@ -231,6 +231,9 @@ Player.prototype = {
                     break;
 
                 case 82:    // R
+                    // don't restart clip when reloading page with ctrl+R
+                    if (e.ctrlKey)
+                        break;
                     pl.wavesurfer.stop();
                     pl.wavesurfer.play();
                     break;
@@ -264,14 +267,14 @@ Player.prototype = {
     seekBackward: function () {
         var pl = this;
         var progress = pl.wavesurfer.getCurrentTime() / pl.wavesurfer.getDuration();
-        var x = progress - 0.001;
+        var x = progress - 0.01;
         pl.seekTo(x);
     },
 
     seekForward: function () {
         var pl = this;
         var progress = pl.wavesurfer.getCurrentTime() / pl.wavesurfer.getDuration();
-        var x = progress + 0.001;
+        var x = progress + 0.01;
         pl.seekTo(x);
     },
   
