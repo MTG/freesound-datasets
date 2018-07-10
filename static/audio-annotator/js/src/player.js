@@ -188,26 +188,35 @@ Player.prototype = {
     },
 
     addKeyboardShortcuts: function () {
-        /********************************
-         *      Keyboard Shortcuts      *
-         ********************************
-         *                              *
-         *     Spacebar = play/pause    *
-         *   Left Arrow = seek backward *
-         *  Right Arrow = seek forward  *
-         *            R = restart clip  *
-         *            S = switch view   *
-         *                              *
-         ********************************/
+        /********************************************
+         *          Keyboard Shortcuts              *
+         ********************************************
+         *                                          *
+         *     Spacebar     = play/pause            *
+         *                                          *
+         *   Left Arrow     = seek backward         *
+         *       + CTRL     = seek backward (fast)  *
+         *                                          *
+         *  Right Arrow     = seek forward          *
+         *       + CTRL     = seek forward (fast)   *
+         *                                          *
+         *            R     = restart clip          *
+         *                                          *
+         *            S     = switch view           *
+         *                                          *
+         ********************************************/
         var pl = this;
         var interval;
+        var skip_amount;
 
         $(document).keydown(function (e) {
 
             if (e.target !== document.body)
                 return;
 
-            switch (e.keyCode) {
+            skip_amount = e.ctrlKey ? 0.1 : 0.01;
+
+            switch (e.which) {
                 case 32:    // spacebar
                     // don't scroll page when pressing spacebar
                     e.preventDefault();
@@ -218,7 +227,7 @@ Player.prototype = {
                     if (interval)
                         break;
                     interval = setInterval(
-                        () => pl.seekBackward(),
+                        () => pl.seekBackward(skip_amount),
                         100);
                     break;
 
@@ -226,12 +235,12 @@ Player.prototype = {
                     if (interval)
                         break;
                     interval = setInterval(
-                        () => pl.seekForward(),
+                        () => pl.seekForward(skip_amount),
                         100);
                     break;
 
                 case 82:    // R
-                    // don't restart clip when reloading page with ctrl+R
+                    // don't restart clip when reloading the page with ctrl+R
                     if (e.ctrlKey)
                         break;
                     pl.wavesurfer.stop();
@@ -239,6 +248,9 @@ Player.prototype = {
                     break;
 
                 case 83:    // S
+                    // don't switch view when saving the page with ctrl+S
+                    if (e.ctrlKey)
+                        break;
                     pl.view.switch();
                     break;
             }
@@ -264,17 +276,19 @@ Player.prototype = {
             pl.wavesurfer.seekTo(x);
     },
 
-    seekBackward: function () {
+    seekBackward: function (amt) {
         var pl = this;
+        var amount = amt || 0.01;
         var progress = pl.wavesurfer.getCurrentTime() / pl.wavesurfer.getDuration();
-        var x = progress - 0.01;
+        var x = progress - amount;
         pl.seekTo(x);
     },
 
-    seekForward: function () {
+    seekForward: function (amt) {
         var pl = this;
+        var amount = amt || 0.01;
         var progress = pl.wavesurfer.getCurrentTime() / pl.wavesurfer.getDuration();
-        var x = progress + 0.01;
+        var x = progress + amount;
         pl.seekTo(x);
     },
   
