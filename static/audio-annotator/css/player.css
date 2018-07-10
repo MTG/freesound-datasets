@@ -235,6 +235,7 @@
 
 .soundplayer.big .playbar .button {
     margin-right: 10px;
+    font-size: 20px;
 }
 
 .soundplayer .playbar .button .icon {
@@ -277,6 +278,10 @@
     -ms-transition: 0.1s;
     -o-transition: 0.1s;
     transition: 0.1s;
+}
+
+.soundplayer.big .playbar .timer {
+    font-size: 16px;
 }
 
 .soundplayer:hover .playbar .timer {

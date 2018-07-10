@@ -482,25 +482,28 @@ PlayBar.prototype = {
 
     updateTimer: function() {
         pl = this;
-        timerText = pl.getTimerText();
+        var with_milliseconds = pl.player.size === "big";
+        timerText = pl.getTimerText(with_milliseconds);
         $(pl.playerDom).find(".playbar").find(".timer").text(timerText);
     },
 
-    getTimerText: function() {
+    getTimerText: function (with_milliseconds) {
         var pl = this;
         var secondsToString = function (seconds) {
             if (seconds === null || seconds < 0) {
                 return '';
             }
+
             var minutes = Math.floor(seconds / 60);
             var timeStr = minutes;
+
             timeStr += ':';
-            var secs = Math.round(seconds - (minutes * 60));
-            if (secs >= 10) {
-                timeStr += secs;
-            } else {
-                timeStr += '0' + secs;
-            }
+            var secs = seconds - (minutes * 60);
+
+            secs = with_milliseconds ?
+                secs.toFixed(2) : Math.round(secs);
+
+            timeStr += secs >= 10 ? secs : '0' + secs;
             return timeStr;
         };
 
