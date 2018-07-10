@@ -334,12 +334,16 @@ View.prototype = {
         pl.addWaveSurferEvents();
 
         // Other events
+        var can_drag;
         pl.clickable.mousedown(function (e) {
-            pl.dragging = true;
             pl.updateCursor(e);
+            can_drag = setTimeout(function () {
+                pl.dragging = true;
+            }, 100);
         });
 
         pl.clickable.mouseup(function () {
+            clearTimeout(can_drag);
             pl.dragging = false;
         });
 
@@ -349,6 +353,7 @@ View.prototype = {
         });
 
         pl.clickable.mouseleave(function (e) {
+            clearTimeout(can_drag);
             if (pl.dragging)
                 pl.updateCursor(e);
             pl.dragging = false;
