@@ -226,6 +226,7 @@ Player.prototype = {
                 case 37:    // left arrow
                     if (interval)
                         break;
+                    pl.seekBackward(skip_amount);
                     interval = setInterval(
                         () => pl.seekBackward(skip_amount),
                         100);
@@ -234,6 +235,7 @@ Player.prototype = {
                 case 39:    // right arrow
                     if (interval)
                         break;
+                    pl.seekForward(skip_amount);
                     interval = setInterval(
                         () => pl.seekForward(skip_amount),
                         100);
