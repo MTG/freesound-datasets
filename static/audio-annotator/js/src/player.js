@@ -241,6 +241,7 @@ function View(player) {
     this.spectrogram = this.player.spectrogram;
     this.waveform = this.player.waveform;
     this.viewDom = null;
+    this.dragging = false;
     this.clickable = $(this.ws_container).find("> wave");
     this.progressBar = $(this.ws_container).find("wave wave");
 
@@ -302,7 +303,13 @@ View.prototype = {
         var pl = this;
         var offset = pl.clickable.offset();
         var width = pl.clickable.width();
-        return (e.pageX - offset.left) / width;
+        var position = (e.pageX - offset.left) / width;
+
+        if (position < 0)
+            return 0;
+        if (position > 1)
+            return 1;
+        return position;
     },
 
     updateProgressBar: function(pos) {
@@ -315,16 +322,37 @@ View.prototype = {
         });
     },
 
+    updateCursor: function (pos) {
+        var pl = this;
+        var x = pl.getHorizontalCoordinates(pos);
+        pl.wavesurfer.seekTo(x);
+        pl.updateProgressBar(x);
+    },
+
     addEvents: function () {
         var pl = this;
         pl.addWaveSurferEvents();
 
         // Other events
-        pl.clickable.on("click", function (e) {
-            var x = pl.getHorizontalCoordinates(e);
-            pl.wavesurfer.seekTo(x);
-            pl.updateProgressBar(x);
-        })
+        pl.clickable.mousedown(function (e) {
+            pl.dragging = true;
+            pl.updateCursor(e);
+        });
+
+        pl.clickable.mouseup(function () {
+            pl.dragging = false;
+        });
+
+        pl.clickable.mousemove(function (e) {
+            if (pl.dragging)
+                pl.updateCursor(e)
+        });
+
+        pl.clickable.mouseleave(function (e) {
+            if (pl.dragging)
+                pl.updateCursor(e);
+            pl.dragging = false;
+        });
     },
 
     addWaveSurferEvents: function () {
