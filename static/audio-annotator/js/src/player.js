@@ -349,7 +349,7 @@ View.prototype = {
 
         pl.clickable.mousemove(function (e) {
             if (pl.dragging)
-                pl.updateCursor(e)
+                pl.updateCursor(e);
         });
 
         pl.clickable.mouseleave(function (e) {
@@ -552,7 +552,7 @@ PlayBar.prototype = {
             var button = $(playerDom).find(".play_pause");
             // Stop all and store current player
             if(window.activePlayer && window.activePlayer !== pl.player)
-                window.activePlayer.wavesurfer.stop();
+                window.activePlayer.wavesurfer.pause();
             window.activePlayer = pl.player;
             // Change icon
             button.find(".play").removeClass("play").addClass("pause");
