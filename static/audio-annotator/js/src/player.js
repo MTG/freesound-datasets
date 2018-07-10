@@ -103,6 +103,12 @@ Player.prototype = {
                 pl.addErrorMessage();
             }
         });
+
+        // Add keyboard shortcuts to the big player
+        // NB. This logic NEEDS to be improved!!!
+        if (pl.size === "big") {
+            pl.addKeyboardShortcuts();
+        }
     },
 
     addLoader: function() {
@@ -179,6 +185,93 @@ Player.prototype = {
         // console.log("selected factor: " + gain);
 
         pl.wavesurfer.setVolume(gain);
+    },
+
+    addKeyboardShortcuts: function () {
+        /********************************
+         *      Keyboard Shortcuts      *
+         ********************************
+         *                              *
+         *     Spacebar = play/pause    *
+         *   Left Arrow = seek backward *
+         *  Right Arrow = seek forward  *
+         *            R = restart clip  *
+         *            S = switch view   *
+         *                              *
+         ********************************/
+        var pl = this;
+        var interval;
+
+        $(document).keydown(function (e) {
+
+            console.log(e.keyCode);
+
+            switch (e.keyCode) {
+                case 32:    // spacebar
+                    // don't scroll page when pressing spacebar
+                    e.preventDefault();
+                    pl.wavesurfer.playPause();
+                    break;
+
+                case 37:    // left arrow
+                    if (interval)
+                        break;
+                    interval = setInterval(
+                        () => pl.seekBackward(),
+                        100);
+                    break;
+
+                case 39:    // right arrow
+                    if (interval)
+                        break;
+                    interval = setInterval(
+                        () => pl.seekForward(),
+                        100);
+                    break;
+
+                case 82:    // R
+                    pl.wavesurfer.stop();
+                    pl.wavesurfer.play();
+                    break;
+
+                case 83:    // S
+                    pl.view.switch();
+                    break;
+            }
+
+        });
+
+        $(document).keyup(function (e) {
+            // stop seeking backward/forward when not pressing arrows
+            if (e.keyCode === 37 || e.keyCode === 39)
+                if (interval) {
+                    clearInterval(interval);
+                    interval = null;
+                }
+        });
+    },
+
+    seekTo: function (x) {
+        if (x < 0)
+            pl.wavesurfer.seekTo(0);
+        else if (x > 1)
+            pl.wavesurfer.seekTo(1);
+        else
+            pl.wavesurfer.seekTo(x);
+    },
+
+    seekBackward: function () {
+        var pl = this;
+        var progress = pl.wavesurfer.getCurrentTime() / pl.wavesurfer.getDuration();
+        var x = progress - 0.001;
+        pl.seekTo(x);
+    },
+
+    seekForward: function () {
+        var pl = this;
+        var progress = pl.wavesurfer.getCurrentTime() / pl.wavesurfer.getDuration();
+        var x = progress + 0.001;
+        pl.seekTo(x);
     },
   
     stop: function () {
