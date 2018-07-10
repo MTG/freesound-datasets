@@ -1,6 +1,8 @@
 from django.shortcuts import render, get_object_or_404
 from urllib.parse import unquote
-from datasets.models import Dataset
+from django.db.models import Count
+from django.db.models.functions import TruncDay
+from datasets.models import Dataset, User
 from monitor.tasks import compute_dataset_top_contributed_categories, compute_dataset_bad_mapping, \
     compute_dataset_difficult_agreement, compute_remaining_annotations_with_duration, \
     compute_dataset_num_contributions_per_day, compute_dataset_num_ground_truth_per_day
@@ -53,3 +55,21 @@ def monitor_category(request, short_name, node_id):
                                                              'examples': examples,
                                                              'verification_examples': verification_examples,
                                                              'false_verification_examples': false_verification_examples})
+
+
+def monitor_user(request, short_name, username):
+    dataset = get_object_or_404(Dataset, short_name=short_name)
+    user = get_object_or_404(User, username=username)
+    contribs = user.votes.filter(candidate_annotation__sound_dataset__dataset=dataset)\
+                         .annotate(day=TruncDay('created_at'))\
+                         .values('day').annotate(count=Count('id'))\
+                         .values_list('day', 'count', 'candidate_annotation__taxonomy_node__name')
+    contribs_failed = user.votes.filter(candidate_annotation__sound_dataset__dataset=dataset)\
+                                .filter(test='FA')\
+                                .annotate(day=TruncDay('created_at'))\
+                                .values('day').annotate(count=Count('id'))\
+                                .values_list('day', 'count', 'candidate_annotation__taxonomy_node__name')
+    return render(request, 'monitor/monitor_user.html', {'dataset': dataset,
+                                                         'username': user.username,
+                                                         'contribs': contribs,
+                                                         'contribs_failed': contribs_failed})

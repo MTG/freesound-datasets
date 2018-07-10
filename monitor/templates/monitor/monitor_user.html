@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% load staticfiles %}
+{% load general_templatetags %}
+{% load dataset_templatetags %}
+{% block title %}Monitor user activity{% endblock title %}
+
+{% block page_js %}
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $('.ui.accordion').accordion();
+        });
+    </script>
+{% endblock %}
+
+{% block content %}
+    <h1>Monitor {{ username }} activities</h1>
+
+    {#    CONTRIBUTIONS    #}
+    <div class="ui accordion">
+        <div class="title">
+            <h2 class="ui header"><i class="dropdown icon"></i>Contributions</h2>
+        </div>
+        <div class="content">
+            <table class="ui unstackable table" width="100%">
+                <thead>
+                <tr>
+                    <th class="center aligned">Category name</th>
+                    <th class="center aligned"># votes</th>
+                    <th class="center aligned">Date</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for date, num, name in contribs %}
+                    <tr>
+                        <td class="center aligned">
+                            {{ name }}
+                        </td>
+                        <td class="center aligned">
+                            {{ num }}
+                        </td>
+                        <td class="center aligned">
+                            {{ date |date:"D d M Y"}}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {#    FAILED TESTS    #}
+        <div class="title">
+            <h2 class="ui header"><i class="dropdown icon"></i>Failed tests</h2>
+        </div>
+        <div class="content">
+            <table class="ui unstackable table" width="100%">
+                <thead>
+                <tr>
+                    <th class="center aligned">Category name</th>
+                    <th class="center aligned"># votes</th>
+                    <th class="center aligned">Date</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for date, num, name in contribs_failed %}
+                    <tr>
+                        <td class="center aligned">
+                            {{ name }}
+                        </td>
+                        <td class="center aligned">
+                            {{ num }}
+                        </td>
+                        <td class="center aligned">
+                            {{ date |date:"D d M Y"}}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+{% endblock %}
