@@ -195,10 +195,10 @@ Player.prototype = {
          *     Spacebar     = play/pause            *
          *                                          *
          *   Left Arrow     = seek backward         *
-         *       + CTRL     = seek backward (fast)  *
+         *       + SHIFT    = seek backward (fast)  *
          *                                          *
          *  Right Arrow     = seek forward          *
-         *       + CTRL     = seek forward (fast)   *
+         *      + SHIFT     = seek forward (fast)   *
          *                                          *
          *            R     = restart clip          *
          *                                          *
@@ -214,7 +214,7 @@ Player.prototype = {
             if (e.target !== document.body)
                 return;
 
-            skip_amount = e.ctrlKey ? 0.1 : 0.01;
+            skip_amount = e.shiftKey ? 0.1 : 0.01;
 
             switch (e.which) {
                 case 32:    // spacebar
