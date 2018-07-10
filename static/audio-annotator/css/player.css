@@ -21,6 +21,10 @@
     width: 210px;
 }
 
+.soundplayer.big {
+    width: 900px;
+}
+
 .soundplayer .wavesurfer {
     position: relative;
 }
@@ -40,19 +44,31 @@
 .soundplayer .player-error .content {
     display: flex;
     align-items: center;
+    position: relative;
+    color: #fff;
 }
 
-.soundplayer:not(.medium) .player-error .content {
+.soundplayer.mini .player-error .content,
+.soundplayer.small .player-error .content,
+.soundplayer.big .player-error .content {
     justify-content: center;
 }
 
 .soundplayer .player-error .exclamation {
-    position: absolute;
     opacity: 0.1;
+    position: absolute;
+}
+
+.soundplayer:not(.big) .player-error .exclamation {
     font-size: 5em;
 }
 
-.soundplayer .player-error .error-description {
+.soundplayer.big .player-error .exclamation {
+    left: 20px;
+    font-size: 10em;
+}
+
+.soundplayer:not(.big) .player-error .error-description {
     position: absolute;
 }
 
@@ -67,6 +83,11 @@
     right: 0;
 }
 
+.soundplayer.big .player-error .error-description {
+    text-align: center;
+    font-size: 20px;
+}
+
 .soundplayer.mini .error-message,
 .soundplayer.mini .reload-sound {
     display: none;
@@ -78,6 +99,10 @@
 
 .soundplayer .player-error .reload-sound {
     margin: 0;
+}
+
+.soundplayer.big .player-error .reload-sound {
+    font-size: 15px;
 }
 
 .soundplayer .player-error .reload-sound:hover i {
@@ -158,7 +183,8 @@
     transition: 0.1s;
 }
 
-.soundplayer.medium .playbar {
+.soundplayer.medium .playbar,
+.soundplayer.big .playbar {
     padding: 5px 8px;
     background: linear-gradient(rgba(0,0,0,0), rgba(0,0,0,0));
     -webkit-transition: 0.1s;
@@ -169,7 +195,8 @@
 }
 
 .soundplayer.small:hover .playbar,
-.soundplayer.medium:hover .playbar {
+.soundplayer.medium:hover .playbar,
+.soundplayer.big:hover .playbar {
     background: linear-gradient(rgba(0,0,0,0), rgba(0,0,0,0.7));
     -webkit-transition: 0.1s;
     -moz-transition: 0.1s;
@@ -179,7 +206,8 @@
 }
 
 .soundplayer.small .controls-container,
-.soundplayer.medium .controls-container {
+.soundplayer.medium .controls-container,
+.soundplayer.big .controls-container {
     display: flex;
     align-items: center;
 }
@@ -202,6 +230,10 @@
 }
 
 .soundplayer.medium .playbar .button {
+    margin-right: 10px;
+}
+
+.soundplayer.big .playbar .button {
     margin-right: 10px;
 }
 
@@ -229,7 +261,8 @@
 }
 
 .soundplayer.small .timer-container,
-.soundplayer.medium .timer-container {
+.soundplayer.medium .timer-container,
+.soundplayer.big .timer-container {
     display: flex;
     align-items: center;
 }
