@@ -204,7 +204,8 @@ Player.prototype = {
 
         $(document).keydown(function (e) {
 
-            console.log(e.keyCode);
+            if (e.target !== document.body)
+                return;
 
             switch (e.keyCode) {
                 case 32:    // spacebar
