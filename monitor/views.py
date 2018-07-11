@@ -15,9 +15,11 @@ from utils.redis_store import DATASET_TOP_CONTRIBUTED_CATEGORIES, DATASET_BAD_MA
     DATASET_CONTRIBUTIONS_PER_DAY, DATASET_GROUND_TRUTH_PER_DAY
 
 
-# Create your views here.
+@login_required
 def monitor(request, short_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
+    if not dataset.user_is_maintainer(request.user):
+        return HttpResponseRedirect(reverse('dataset', args=[dataset.short_name]))
     top_contributed_categories = data_from_async_task(compute_dataset_top_contributed_categories, [dataset.id], {},
                                                       DATASET_TOP_CONTRIBUTED_CATEGORIES.format(dataset.id), 60)
 
