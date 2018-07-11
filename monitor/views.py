@@ -60,15 +60,35 @@ def monitor_category(request, short_name, node_id):
 def monitor_user(request, short_name, username):
     dataset = get_object_or_404(Dataset, short_name=short_name)
     user = get_object_or_404(User, username=username)
-    contribs = user.votes.filter(candidate_annotation__sound_dataset__dataset=dataset)\
-                         .annotate(day=TruncDay('created_at'))\
-                         .values('day').annotate(count=Count('id'))\
-                         .values_list('day', 'count', 'candidate_annotation__taxonomy_node__name')
-    contribs_failed = user.votes.filter(candidate_annotation__sound_dataset__dataset=dataset)\
-                                .filter(test='FA')\
-                                .annotate(day=TruncDay('created_at'))\
-                                .values('day').annotate(count=Count('id'))\
-                                .values_list('day', 'count', 'candidate_annotation__taxonomy_node__name')
+    contribs = list(user.votes.filter(candidate_annotation__sound_dataset__dataset=dataset)\
+                        .annotate(day=TruncDay('created_at'))\
+                        .values('day').annotate(count=Count('id'))\
+                        .values_list('day', 'count', 'candidate_annotation__taxonomy_node__name'))
+    contribs_failed = list(user.votes.filter(candidate_annotation__sound_dataset__dataset=dataset)\
+                               .filter(test='FA')\
+                               .annotate(day=TruncDay('created_at'))\
+                               .values('day').annotate(count=Count('id'))\
+                               .values_list('day', 'count', 'candidate_annotation__taxonomy_node__name'))
+
+    contribs[0] += ('g',)
+    for idx, contrib in enumerate(contribs):
+        if idx>0:
+            if contrib[0] == contribs[idx-1][0]:
+                contribs[idx] += (contribs[idx-1][3],)
+            else:
+                contribs[idx] += ('g',) if contribs[idx-1][3] == 'w' else ('w',)
+
+    contribs_failed[0] += ('g',)
+    for idx, contrib in enumerate(contribs_failed):
+        if idx>0:
+            if contrib[0] == contribs_failed[idx-1][0]:
+                contribs_failed[idx] += (contribs_failed[idx-1][3],)
+            else:
+                contribs_failed[idx] += ('g',) if contribs_failed[idx-1][3] == 'w' else ('w',)
+
+    contribs.reverse()
+    contribs_failed.reverse()
+    
     return render(request, 'monitor/monitor_user.html', {'dataset': dataset,
                                                          'username': user.username,
                                                          'contribs': contribs,

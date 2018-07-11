@@ -31,8 +31,8 @@
                 </tr>
                 </thead>
                 <tbody>
-                {% for date, num, name in contribs %}
-                    <tr>
+                {% for date, num, name, color in contribs %}
+                    <tr {% if color == 'g' %}bgcolor="#E8E8E8"{% endif %}>
                         <td class="center aligned">
                             {{ name }}
                         </td>
@@ -62,8 +62,8 @@
                 </tr>
                 </thead>
                 <tbody>
-                {% for date, num, name in contribs_failed %}
-                    <tr>
+                {% for date, num, name, color in contribs_failed %}
+                    <tr {% if color == 'g' %}bgcolor="#E8E8E8"{% endif %}>
                         <td class="center aligned">
                             {{ name }}
                         </td>
