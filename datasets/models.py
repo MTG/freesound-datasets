@@ -847,6 +847,13 @@ class Profile(models.Model):
         self.save()
 
     @property
+    def last_date_annotated(self):
+        try:
+            return self.user.votes.order_by('-created_at')[0].created_at
+        except:
+            return None
+
+    @property
     def contributed_recently(self):
         return self.contributed_before(3)
 

@@ -1,7 +1,10 @@
 from django.shortcuts import render, get_object_or_404
 from urllib.parse import unquote
+from django.http import HttpResponseRedirect
 from django.db.models import Count
 from django.db.models.functions import TruncDay
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.core.urlresolvers import reverse
 from datasets.models import Dataset, User
 from monitor.tasks import compute_dataset_top_contributed_categories, compute_dataset_bad_mapping, \
     compute_dataset_difficult_agreement, compute_remaining_annotations_with_duration, \
@@ -13,7 +16,7 @@ from utils.redis_store import DATASET_TOP_CONTRIBUTED_CATEGORIES, DATASET_BAD_MA
 
 
 # Create your views here.
-def monitor_categories(request, short_name):
+def monitor(request, short_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
     top_contributed_categories = data_from_async_task(compute_dataset_top_contributed_categories, [dataset.id], {},
                                                       DATASET_TOP_CONTRIBUTED_CATEGORIES.format(dataset.id), 60)
@@ -34,13 +37,16 @@ def monitor_categories(request, short_name):
     num_ground_truth_per_day = data_from_async_task(compute_dataset_num_ground_truth_per_day, [dataset.id], {},
                                                     DATASET_GROUND_TRUTH_PER_DAY.format(dataset.id), 60)
 
-    return render(request, 'monitor/monitor_categories.html', {'dataset': dataset,
+    users = User.objects.annotate(num_votes=Count('votes')).filter(num_votes__gt=0)
+
+    return render(request, 'monitor/monitor.html', {'dataset': dataset,
                                                                'top_contributed': top_contributed_categories,
                                                                'bad_mapping': bad_mapping_categories,
                                                                'difficult_agreement': difficult_agreement_categories,
                                                                'remaining_annotations': remaining_annotations,
                                                                'num_contributions_per_day': num_contributions_per_day,
-                                                               'num_ground_truth_per_day': num_ground_truth_per_day})
+                                                               'num_ground_truth_per_day': num_ground_truth_per_day,
+                                                               'users': users})
 
 
 def monitor_category(request, short_name, node_id):
@@ -57,9 +63,12 @@ def monitor_category(request, short_name, node_id):
                                                              'false_verification_examples': false_verification_examples})
 
 
-def monitor_user(request, short_name, username):
+@login_required
+def monitor_user(request, short_name, user_id):
     dataset = get_object_or_404(Dataset, short_name=short_name)
-    user = get_object_or_404(User, username=username)
+    if not dataset.user_is_maintainer(request.user):
+        return HttpResponseRedirect(reverse('dataset', args=[dataset.short_name]))
+    user = get_object_or_404(User, id=user_id)
     contribs = list(user.votes.filter(candidate_annotation__sound_dataset__dataset=dataset)\
                         .annotate(day=TruncDay('created_at'))\
                         .values('day').annotate(count=Count('id'))\
@@ -78,13 +87,14 @@ def monitor_user(request, short_name, username):
             else:
                 contribs[idx] += ('g',) if contribs[idx-1][3] == 'w' else ('w',)
 
-    contribs_failed[0] += ('g',)
-    for idx, contrib in enumerate(contribs_failed):
-        if idx>0:
-            if contrib[0] == contribs_failed[idx-1][0]:
-                contribs_failed[idx] += (contribs_failed[idx-1][3],)
-            else:
-                contribs_failed[idx] += ('g',) if contribs_failed[idx-1][3] == 'w' else ('w',)
+    if len(contribs_failed) > 0:
+        contribs_failed[0] += ('g',)
+        for idx, contrib in enumerate(contribs_failed):
+            if idx>0:
+                if contrib[0] == contribs_failed[idx-1][0]:
+                    contribs_failed[idx] += (contribs_failed[idx-1][3],)
+                else:
+                    contribs_failed[idx] += ('g',) if contribs_failed[idx-1][3] == 'w' else ('w',)
 
     contribs.reverse()
     contribs_failed.reverse()

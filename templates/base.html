@@ -52,7 +52,7 @@
                 {% endif %}
                 {% if dataset.short_name == "fsd" %}
                     {% if request.user.profile.is_fsd_maintainer %}
-                        <a href="{% url 'monitor-categories' dataset.short_name %}" class="{% active_if_current 'monitor-categories' %}item">Monitor</a>
+                        <a href="{% url 'monitor' dataset.short_name %}" class="{% active_if_current 'monitor' %}item">Monitor</a>
                     {% endif %}
                 {% endif %}
             {% else %}
