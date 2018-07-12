@@ -676,7 +676,7 @@ class CandidateAnnotation(models.Model):
     created_by = models.ForeignKey(User, related_name='candidate_annotations', null=True, on_delete=models.SET_NULL)
     sound_dataset = models.ForeignKey(SoundDataset, related_name='candidate_annotations')
     taxonomy_node = models.ForeignKey(TaxonomyNode, blank=True, null=True, related_name='candidate_annotations')
-    priority_score = models.IntegerField(default=0)
+    priority_score = models.IntegerField(default=1)
 
     def __str__(self):
         return 'Annotation for sound {0}'.format(self.sound_dataset.sound.id)
