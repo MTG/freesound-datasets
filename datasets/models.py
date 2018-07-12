@@ -676,6 +676,7 @@ class CandidateAnnotation(models.Model):
     created_by = models.ForeignKey(User, related_name='candidate_annotations', null=True, on_delete=models.SET_NULL)
     sound_dataset = models.ForeignKey(SoundDataset, related_name='candidate_annotations')
     taxonomy_node = models.ForeignKey(TaxonomyNode, blank=True, null=True, related_name='candidate_annotations')
+    priority_score = models.IntegerField(default=0)
 
     def __str__(self):
         return 'Annotation for sound {0}'.format(self.sound_dataset.sound.id)
@@ -726,6 +727,18 @@ class CandidateAnnotation(models.Model):
     @property
     def num_NP(self):
         return self.num_vote_value(-1)
+
+    def return_priority_score(self):
+        sound = self.sound_dataset.sound
+        sound_duration = sound.extra_data['duration']
+        if not 0.3 <= sound_duration <= 30:
+            return self.votes.count()
+        else:
+            duration_score = 3 if sound_duration <= 10 else 2 if sound_duration <= 20 else 1
+            num_gt_same_sound = self.sound_dataset.ground_truth_annotations.filter(from_propagation=False).count()
+            return 1000 * self.votes.count()\
+                 +  100 * duration_score\
+                 +        num_gt_same_sound
 
 
 class GroundTruthAnnotation(models.Model):
