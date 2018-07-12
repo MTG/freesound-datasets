@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 
 import collections
-from django.db import models
+from django.db import models, transaction
 from django.db.models import Count, Q
 from django.contrib.postgres.fields import JSONField
 from django.contrib.auth.models import User
@@ -740,6 +740,10 @@ class CandidateAnnotation(models.Model):
                  +  100 * duration_score\
                  +        num_gt_same_sound
 
+    def update_priority_score(self):
+        self.priority_score = self.return_priority_score()
+        self.save()
+
 
 class GroundTruthAnnotation(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
@@ -776,10 +780,14 @@ class GroundTruthAnnotation(models.Model):
                                                             from_propagation=True)
 
     # Update number of ground truth annotations per taxonomy node each time a ground truth annotations is generated
+    # Update priority score of candidate annotations associated to the same sound (only for non propagated gt annotations)
     def save(self, *args, **kwargs):
         super(GroundTruthAnnotation, self).save(*args, **kwargs)
         self.taxonomy_node.nb_ground_truth = self.taxonomy_node.num_ground_truth_annotations
         self.taxonomy_node.save()
+        if not self.from_propagation:
+            for candidate_annotation in self.sound_dataset.candidate_annotations.all():
+                candidate_annotation.update_priority_score()
 
 
 # choices for quality control test used in Vote and User Profile
@@ -814,6 +822,7 @@ class Vote(models.Model):
     def save(self, request=False, *args, **kwargs):
         super(Vote, self).save(*args, **kwargs)
         # here calculate ground truth for vote.annotation
+        # create ground truth annotations, update priority score when needed
         candidate_annotation = self.candidate_annotation
         ground_truth_state = candidate_annotation.ground_truth_state
         if ground_truth_state in (-1.0, 0):     # annotation reach NP or U state
@@ -837,6 +846,8 @@ class Vote(models.Model):
                     from_propagation=False)
                 if created:
                     ground_truth_annotation.propagate_annotation()
+        else:  # annotation does not reach gt state, update its priority score
+            candidate_annotation.update_priority_score()
 
 
 class CategoryComment(models.Model):
