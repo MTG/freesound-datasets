@@ -283,3 +283,15 @@ def refresh_sound_extra_data():
             sound.extra_data.update(freesound_sound.as_dict())
             sound.save()
     logger.info('Finished refreshing freesound sound extra data')
+
+
+@shared_task
+def compute_priority_score_candidate_annotations():
+    logger.info('Start computing priority score of candidate annotations')
+    dataset = Dataset.objects.get(short_name='fsd')
+    candidate_annotations = dataset.candidate_annotations.filter(ground_truth=None)
+    with transaction.atomic():
+        for candidate_annotation in candidate_annotations:
+            candidate_annotation.priority_score = candidate_annotation.return_priority_score()
+            candidate_annotation.save()
+    logger.info('Finished computing priority score of candidate annotations')
