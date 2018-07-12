@@ -21,6 +21,13 @@
     <script src="{% static "semanticui/semantic.min.js" %}" type="text/javascript"></script>
     <script src="{% static "js/main.js" %}" type="text/javascript"></script>
     <script src="{% static "js/d3.v3.min.js" %}"></script>
+    <!-- To set the link with the cookie description, change the
+     "data-moreinfo" attribute -->
+    <script type="text/javascript"
+            id="cookiebanner"
+            src="https://cdnjs.cloudflare.com/ajax/libs/cookie-banner/1.2.2/cookiebanner.min.js"
+            data-moreinfo="#">
+    </script>
     <link rel="stylesheet" type="text/css" href="{% static "css/popupUi.css" %}" />
     {% block extra_head %}
     {% endblock extra_head%}
