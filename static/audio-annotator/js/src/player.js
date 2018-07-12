@@ -247,7 +247,7 @@ Player.prototype = {
                     // don't show guide when opening history with ctrl+H
                     if (e.ctrlKey)
                         break;
-                    pl.toggleModal();
+                    pl.toggleShortcutsModal();
                     break;
 
                 case 82:    // R
@@ -278,7 +278,7 @@ Player.prototype = {
         });
     },
 
-    toggleModal: function () {
+    toggleShortcutsModal: function () {
         var modal = $('.player-shortcuts');
         if (modal.hasClass('hidden'))
             modal.modal('show');
