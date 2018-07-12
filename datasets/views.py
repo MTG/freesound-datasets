@@ -258,7 +258,7 @@ def contribute_validate_annotations_category(request, short_name, node_id, html_
                                                                       taxonomy_node=node).values_list('id', flat=True)
 
     sound_examples = node.freesound_examples.all().filter(deleted_in_freesound=False)
-    annotation_examples_ids = dataset.candidate_annotations.filter(sound_dataset__sound__in=sound_examples, taxonomy_node=node) \
+    annotation_examples_ids = dataset.candidate_annotations.filter(sound_dataset__sound__in=sound_examples, taxonomy_node=node)\
         .values_list('id', flat=True)
 
     if node.positive_verification_examples_activated:
@@ -281,80 +281,30 @@ def contribute_validate_annotations_category(request, short_name, node_id, html_
                 annotation_ids += [None]  # count as an added annotation but does not retrieve any annotation later,
                 #  the false annotation "negative_annotation_example" is added manually
 
-    # Get annotation that are not ground truth and that have been never annotated by the user, exclude test examples
-    annotations = dataset.non_ground_truth_annotations_per_taxonomy_node(node_id) \
-        .exclude(votes__created_by=user).exclude(id__in=annotation_examples_verification_ids) \
-        .exclude(id__in=annotation_examples_ids) \
-        .exclude(sound_dataset__sound__extra_data__duration__gt=30) \
-        .exclude(sound_dataset__sound__extra_data__duration__lt=0.3) \
-        .filter(sound_dataset__sound__deleted_in_freesound=False).annotate(num_votes=Count('votes'))
+    # Get non ground truth annotations, never annotated by the user, exclude test examples, order by priority score & random
+    # Exclude candidate outside of [0.3, 30] sec and with 0 votes
+    annotations = dataset.non_ground_truth_annotations_per_taxonomy_node(node_id)\
+                         .exclude(votes__created_by=user)\
+                         .exclude(id__in=annotation_examples_verification_ids)\
+                         .exclude(id__in=annotation_examples_ids)\
+                         .exclude(priority_score=0)\
+                         .filter(sound_dataset__sound__deleted_in_freesound=False)\
+                         .order_by('-priority_score', '?')
 
     # Exclude annotations that have votes (for kaggle dataset) and that have nc and sampling+ licenses
     if new_annotations == '1':
+        # this will discard the annotations with no votes
+        # out of [0.3, 30] secondes
+        # and with NC licenses
         annotations = annotations\
-            .exclude(num_votes__gt=0)\
+            .exclude(priority_score__gte=1000)\
+            .exclude(priority_score__lte=100)\
             .exclude(sound_dataset__sound__extra_data__license__in=('http://creativecommons.org/licenses/by-nc/3.0/',
                                                                     'http://creativecommons.org/licenses/sampling+/1.0/'
                                                                     ))
 
-    # Extract the voted annotations ids
-    annotation_with_vote_ids = annotations.filter(num_votes__gt=0).values_list('id', flat=True)
-
-    # Get annotations corresponding to short sounds (<10sec)
-    annotation_with_vote_short_ids = annotations.filter(id__in=annotation_with_vote_ids,
-                                                        sound_dataset__sound__extra_data__duration__lte=10)\
-        .values_list('id', flat=True)
-
-    # Order by number of ground truth annotations that the corresponding sound has, and randomize (complete labeling)
-    annotation_with_vote_short_complete_ids = \
-        get_candidate_annotations_complete_ids_random_from(annotation_with_vote_short_ids)
-
-    # Add them to the annotation list
     N_ANNOTATIONS_TO_VALIDATE = NB_TOTAL_ANNOTATIONS - len(annotation_ids)
-    N_with_vote_short_complete = min(len(annotation_with_vote_short_complete_ids), N_ANNOTATIONS_TO_VALIDATE)
-    if N_with_vote_short_complete:
-        annotation_ids += annotation_with_vote_short_complete_ids[:N_with_vote_short_complete]
-
-    # If we don't have enough annotations, add the one that correspond to long sounds (>10sec) - Same priority steps
-    if len(annotation_ids) < NB_TOTAL_ANNOTATIONS:
-        annotation_with_vote_long = annotations.filter(id__in=annotation_with_vote_ids)\
-                .exclude(id__in=annotation_with_vote_short_ids)\
-                .values_list('id', flat=True)
-        annotation_with_vote_long_complete_ids = \
-            get_candidate_annotations_complete_ids_random_from(annotation_with_vote_long)
-        N_with_vote_long_complete = min(len(annotation_with_vote_long_complete_ids),
-                                        NB_TOTAL_ANNOTATIONS - len(annotation_ids))
-        if N_with_vote_long_complete:
-            annotation_ids += annotation_with_vote_long_complete_ids[:N_with_vote_long_complete]
-
-        # If there is not enough annotations, add non voted annotations - Same priority steps
-        if len(annotation_ids) < NB_TOTAL_ANNOTATIONS:
-            # Get annotations corresponding to short sounds
-            annotation_with_no_vote_short_ids = annotations.filter(num_votes=0,
-                                                                   sound_dataset__sound__extra_data__duration__lte=10)\
-                .values_list('id', flat=True)
-
-            # Order by number of ground truth annotations that the corresponding sound has, and randomize
-            annotation_with_no_vote_short_complete_ids = \
-                get_candidate_annotations_complete_ids_random_from(annotation_with_no_vote_short_ids)
-
-            N_with_no_vote_short_complete = min(len(annotation_with_no_vote_short_complete_ids),
-                                                NB_TOTAL_ANNOTATIONS - len(annotation_ids))
-            if N_with_no_vote_short_complete:
-                annotation_ids += annotation_with_no_vote_short_complete_ids[:N_with_no_vote_short_complete]
-
-            # If we don't have enough annotations, add the one that correspond to long sounds
-            if len(annotation_ids) < NB_TOTAL_ANNOTATIONS:
-                annotation_with_no_vote_ids = annotations.filter(num_votes=0)\
-                    .exclude(id__in=annotation_with_no_vote_short_ids)\
-                    .values_list('id', flat=True)
-                annotation_with_no_vote_complete_ids = \
-                    get_candidate_annotations_complete_ids_random_from(annotation_with_no_vote_ids)
-
-                N_with_no_vote_long = min(len(annotation_with_no_vote_complete_ids),
-                                     NB_TOTAL_ANNOTATIONS - len(annotation_ids))
-                if N_with_no_vote_long:
-                    annotation_ids += annotation_with_no_vote_complete_ids[:N_with_no_vote_long]
+    annotation_ids += annotations[:N_ANNOTATIONS_TO_VALIDATE].values_list('id', flat=True)
 
     # If not candidate annotations left, remove test annotations
     if annotations.count() == 0:
@@ -380,6 +330,7 @@ def contribute_validate_annotations_category(request, short_name, node_id, html_
         request.session['nb_task1_pages'] = 1
         nb_task1_pages = 1
 
+    # For beginner task html_url argument is given
     if not html_url:
         html_url = 'datasets/contribute_validate_annotations_category.html'
 
