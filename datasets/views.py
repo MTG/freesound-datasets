@@ -11,7 +11,7 @@ from django.db.models import Count
 from django.db import transaction, connection
 from django.forms import formset_factory
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from datasets.models import Dataset, DatasetRelease, CandidateAnnotation, Vote, TaxonomyNode, SoundDataset, Sound
+from datasets.models import Dataset, DatasetRelease, CandidateAnnotation, Vote, TaxonomyNode, SoundDataset, Sound, User
 from datasets import utils
 from datasets.forms import DatasetReleaseForm, PresentNotPresentUnsureForm, CategoryCommentForm
 from pygments import highlight
@@ -147,13 +147,15 @@ def taxonomy_node(request, short_name, node_id):
 def contribute(request, short_name, beginner_task_finished=False):
     dataset = get_object_or_404(Dataset, short_name=short_name)
 
+    n_contributors = User.objects.annotate(num_votes=Count('votes')).filter(num_votes__gt=0).count()
+
     user_is_maintainer = dataset.user_is_maintainer(request.user)
 
     # Get previously stored annotators ranking
     annotators_ranking = data_from_async_task(compute_annotators_ranking, [dataset.id], {},
                                               DATASET_ANNOTATORS_RANKING_TEMPLATE.format(dataset.id), 60 * 1)
 
-    return render(request, 'datasets/contribute.html', {'dataset': dataset, 'annotators_ranking': annotators_ranking,
+    return render(request, 'datasets/contribute.html', {'dataset': dataset, 'n_contributors': n_contributors, 'annotators_ranking': annotators_ranking,
                                                         'beginner_task_finished': beginner_task_finished,
                                                         'user_is_maintainer': user_is_maintainer})
 
