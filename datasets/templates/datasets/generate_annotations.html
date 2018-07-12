@@ -123,64 +123,54 @@
     </script>
     <div class="ui basic segment">
 
-        <script type="text/javascript">
-            $(function () {
-                $('.show-player-shortcuts').modal('show');
-            });
-        </script>
-
-        <div class="ui modal show-player-shortcuts">
-            <div class="ui info message player-shortcuts">
-                <i class="close icon"></i>
-                <div class="content">
-                    <div class="header">
-                        Player Shortcuts
+        <div class="ui modal player-shortcuts hidden">
+            <i class="close icon"></i>
+            <div class="header">Player Shortcuts</div>
+            <div class="content">
+                <div class="ui divided list shortcuts">
+                    <div class="item">
+                        <div class="ui horizontal label">SPACEBAR</div>
+                        Play/Pause clip
                     </div>
-                    <div class="ui divided list shortcuts">
-                        <div class="item">
-                            <div class="ui horizontal label">SPACEBAR</div>
-                            Play/Pause clip
+                    <div class="item">
+                        <div class="ui horizontal label">
+                            <i class="icon long alternate left arrow"></i>
                         </div>
-                        <div class="item">
-                            <div class="ui horizontal label">
-                                <i class="icon long alternate left arrow"></i>
-                            </div>
-                            Seek backward
+                        Seek backward
+                    </div>
+                    <div class="item">
+                        <div class="ui horizontal label">
+                            <i class="icon long alternate right arrow"></i>
                         </div>
-                        <div class="item">
-                            <div class="ui horizontal label">
-                                <i class="icon long alternate right arrow"></i>
-                            </div>
-                            Seek forward
+                        Seek forward
+                    </div>
+                    <div class="item">
+                        <div class="ui horizontal label">&#8679;</div>
+                        + &nbsp;
+                        <div class="ui horizontal label">
+                            <i class="icon long alternate left arrow"></i>
                         </div>
-                        <div class="item">
-                            <div class="ui horizontal label">&#8679;</div>
-                            + &nbsp;
-                            <div class="ui horizontal label">
-                                <i class="icon long alternate left arrow"></i>
-                            </div>
-                            Seek backward (fast)
+                        Seek backward (fast)
+                    </div>
+                    <div class="item">
+                        <div class="ui horizontal label">&#8679;</div>
+                        + &nbsp;
+                        <div class="ui horizontal label">
+                            <i class="icon long alternate right arrow"></i>
                         </div>
-                        <div class="item">
-                            <div class="ui horizontal label">&#8679;</div>
-                            + &nbsp;
-                            <div class="ui horizontal label">
-                                <i class="icon long alternate right arrow"></i>
-                            </div>
-                            Seek forward (fast)
-                        </div>
-                        <div class="item">
-                            <div class="ui horizontal label">R</div>
-                            Restart clip
-                        </div>
-                        <div class="item">
-                            <div class="ui horizontal label">S</div>
-                            Switch view
-                        </div>
-                        <div class="item">
-                            <div class="ui horizontal label">H</div>
-                            Show this guide
-                        </div>
+                        Seek forward (fast)
+                    </div>
+                    <div class="item">
+                        <div class="ui horizontal label">R</div>
+                        Restart clip
+                    </div>
+                    <div class="item">
+                        <div class="ui horizontal label">S</div>
+                        Switch view
+                    </div>
+                    <div class="item">
+                        <div class="ui horizontal label">H</div>
+                        Show/hide this guide
                     </div>
                 </div>
             </div>
@@ -188,6 +178,7 @@
         <center>
             <h3>Listen to the following sound and add labels!</h3>
             {% sound_player dataset freesound_sound_id "big" %}
+            <p>Psst! Press &nbsp;<span class="ui horizontal label">H</span> to show the list of available keyboard shortcuts!</p>
             <div class="ui segment">
                 <h6 class="ui header">Added labels</h6>
                 <div id="label-container"></div>

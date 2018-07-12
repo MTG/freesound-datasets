@@ -244,7 +244,10 @@ Player.prototype = {
                     break;
 
                 case 72:    // H
-                    $('.show-player-shortcuts').modal('show');
+                    // don't show guide when opening history with ctrl+H
+                    if (e.ctrlKey)
+                        break;
+                    pl.toggleModal();
                     break;
 
                 case 82:    // R
@@ -273,6 +276,14 @@ Player.prototype = {
                     interval = null;
                 }
         });
+    },
+
+    toggleModal: function () {
+        var modal = $('.player-shortcuts');
+        if (modal.hasClass('hidden'))
+            modal.modal('show');
+        else
+            modal.modal('hide');
     },
 
     seekTo: function (x) {
