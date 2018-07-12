@@ -204,6 +204,8 @@ Player.prototype = {
          *                                          *
          *            S     = switch view           *
          *                                          *
+         *            H     = show shortcuts        *
+         *                                          *
          ********************************************/
         var pl = this;
         var interval;
@@ -239,6 +241,10 @@ Player.prototype = {
                     interval = setInterval(
                         () => pl.seekForward(skip_amount),
                         100);
+                    break;
+
+                case 72:    // H
+                    $('.show-player-shortcuts').modal('show');
                     break;
 
                 case 82:    // R

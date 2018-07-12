@@ -27,7 +27,7 @@
     border-top: #db2828 solid 4px;
 }
 
-.ui.list > .item {
+#taxonomy-tree .ui.list > .item {
     margin: 20px 0 !important;
 }
 
@@ -190,7 +190,6 @@
     margin-bottom: 0;
     padding-left: 20px;
     padding-right: 20px;
-/*  padding-top: 20px; */
     padding-bottom: 10px;
     z-index: 0;
 }

@@ -122,6 +122,65 @@
     }
     </script>
     <div class="ui basic segment">
+
+        <script type="text/javascript">
+            $(function () {
+                $('.show-player-shortcuts').modal('show');
+            });
+        </script>
+
+        <div class="ui modal show-player-shortcuts">
+            <div class="ui info message player-shortcuts">
+                <i class="close icon"></i>
+                <div class="content">
+                    <div class="header">
+                        Player Shortcuts
+                    </div>
+                    <div class="ui divided list shortcuts">
+                        <div class="item">
+                            <div class="ui horizontal label">SPACEBAR</div>
+                            Play/Pause clip
+                        </div>
+                        <div class="item">
+                            <div class="ui horizontal label">
+                                <i class="icon long alternate left arrow"></i>
+                            </div>
+                            Seek backward
+                        </div>
+                        <div class="item">
+                            <div class="ui horizontal label">
+                                <i class="icon long alternate right arrow"></i>
+                            </div>
+                            Seek forward
+                        </div>
+                        <div class="item">
+                            <div class="ui horizontal label">&#8679;</div>
+                            + &nbsp;
+                            <div class="ui horizontal label">
+                                <i class="icon long alternate left arrow"></i>
+                            </div>
+                            Seek backward (fast)
+                        </div>
+                        <div class="item">
+                            <div class="ui horizontal label">&#8679;</div>
+                            + &nbsp;
+                            <div class="ui horizontal label">
+                                <i class="icon long alternate right arrow"></i>
+                            </div>
+                            Seek forward (fast)
+                        </div>
+                        <div class="item">
+                            <div class="ui horizontal label">R</div>
+                            Restart clip
+                        </div>
+                        <div class="item">
+                            <div class="ui horizontal label">S</div>
+                            Switch view
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <center>
             <h3>Listen to the following sound and add labels!</h3>
             {% sound_player dataset freesound_sound_id "big" %}

@@ -292,3 +292,11 @@
     -o-transition: 0.1s;
     transition: 0.1s;
 }
+
+.player-shortcuts {
+    text-align: left;
+}
+
+.player-shortcuts .shortcuts .item i {
+    margin: 0;
+}
