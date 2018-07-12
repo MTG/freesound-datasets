@@ -123,6 +123,16 @@
     </script>
     <div class="ui basic segment">
 
+        <script type="text/javascript">
+            function toggleShortcutsModal() {
+                var modal = $('.player-shortcuts');
+                if (modal.hasClass('hidden'))
+                    modal.modal('show');
+                else
+                    modal.modal('hide');
+            }
+        </script>
+
         <div class="ui basic modal player-shortcuts hidden">
             <div class="ui icon header">
                 <i class="keyboard outline icon"></i>
@@ -183,7 +193,7 @@
         <center>
             <h3>Listen to the following sound and add labels!</h3>
             {% sound_player dataset freesound_sound_id "big" %}
-            <p>Psst! Press &nbsp;<span class="ui horizontal label">H</span> to show the list of available keyboard shortcuts!</p>
+            <p>Psst! Press &nbsp;<span style="cursor: pointer;" class="ui horizontal label" onclick="toggleShortcutsModal()">H</span> to show the list of available keyboard shortcuts!</p>
             <div class="ui segment">
                 <h6 class="ui header">Added labels</h6>
                 <div id="label-container"></div>
