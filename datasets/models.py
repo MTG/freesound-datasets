@@ -611,6 +611,14 @@ class Dataset(models.Model):
             .exclude(pk__in=set(nodes_pk)).count()
         return num_nodes_reached_goal + num_nodes_finished_verifying
 
+    def retrieve_sound_by_tags(self, positive_tags, negative_tags):
+        results = self.sounds.all()
+        for positive_tag in positive_tags:
+            results = results.filter(extra_data__stemmed_tags__contains=positive_tag)
+        for negative_tag in negative_tags:
+            results = results.exclude(extra_data__stemmed_tags__contains=negative_tag)
+        return results
+
 
 class DatasetRelease(models.Model):
     dataset = models.ForeignKey(Dataset)
