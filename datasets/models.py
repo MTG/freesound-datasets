@@ -545,8 +545,11 @@ class Dataset(models.Model):
             sound_dataset__sound__in=sound_examples,
             taxonomy_node=node).values_list('id', flat=True)
 
-        num_eligible_annotations = self.non_ground_truth_annotations_per_taxonomy_node(node_id)\
-            .exclude(votes__created_by=user)\
+        num_eligible_annotations = self.non_ground_truth_annotations_per_taxonomy_node(node_id) \
+            .exclude(id__in=Vote.objects.filter(candidate_annotation__taxonomy_node=node,
+                                                created_by=user,
+                                                test__in=('UN', 'AP', 'PP', 'NA', 'NP'))
+                     .values('candidate_annotation_id')) \
             .exclude(id__in=annotation_examples_verification_ids)\
             .exclude(id__in=annotation_examples_ids)\
             .filter(sound_dataset__sound__deleted_in_freesound=False).count()
