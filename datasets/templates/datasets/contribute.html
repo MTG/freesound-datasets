@@ -77,19 +77,19 @@
           </div>
     {% endif %}
 
-    <div class="ui center aligned huge header">
-        <div class="content">
-            We are already&nbsp; <span class="ui blue statistic" style="margin-bottom: 20px;"><span class="value" id="contributors">0</span></span>&nbsp; contributors...
-            <div class="ui sub header">... Join us to make the world a better place!</div>
-        </div>
-    </div>
-
-    <br>
-
     <h4 class="ui horizontal divider header">
         <i class="bar chart icon"></i>
         Some statistics
     </h4>
+
+    <div class="ui icon center aligned header">
+        <div class="content">
+            We are already&nbsp; <span class="ui blue statistic" style="margin-bottom: 20px;"><span class="value" id="contributors">0</span></span>&nbsp; contributors...
+        </div>
+        <div class="ui sub header">Join us!</div>
+    </div>
+
+    <br>
 
     <div class="ui grid">
         <div class="two column row">
@@ -241,7 +241,6 @@
     {% endif %}
 
     <script type="text/javascript">
-
         $(function () {
             var elem = document.getElementById('contributors');
             animateValue(elem, {{ n_contributors }}, 300);
