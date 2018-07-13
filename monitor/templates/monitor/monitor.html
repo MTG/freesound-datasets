@@ -496,7 +496,7 @@
                 <tr>
                     <td>{{ user.username }}</td>
                     <td>{{ user.num_votes }}</td>
-                    <td><span style="display:none;">{{ user.profile.last_date_annotated |date:"Ymdhis" }}</span>{{ user.profile.last_date_annotated }}</td>
+                    <td><span style="display:none;">{{ user.profile.last_date_annotated |date:"YmdHis" }}</span>{{ user.profile.last_date_annotated }}</td>
                     <td class="right aligned"><a href="{% url 'monitor-user' dataset.short_name user.id %}" class="blue ui button right labeled icon">Go<i class="right arrow icon"></i></a></td>
                 </tr>
             {% endfor %}
