@@ -11,6 +11,7 @@ import json
 import math
 import logging
 import datetime
+from datasets.utils import stem
 
 logger = logging.getLogger('tasks')
 
@@ -295,3 +296,16 @@ def compute_priority_score_candidate_annotations():
             candidate_annotation.priority_score = candidate_annotation.return_priority_score()
             candidate_annotation.save()
     logger.info('Finished computing priority score of candidate annotations')
+
+
+@shared_task
+def stem_dataset_sound_tags():
+    logger.info('Start computing stem tags for FSD sounds')
+    dataset = Dataset.objects.get(short_name='fsd')
+    with transaction.atomic():
+        for sound in dataset.sounds.all():
+            tags = sound.extra_data['tags']
+            stemmed_tags = [stem(tag) for tag in tags]
+            sound.extra_data['stemmed_tags'] = stemmed_tags
+            sound.save()
+    logger.info('Finished computing stem tags for FSD sounds')
