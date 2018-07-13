@@ -281,10 +281,15 @@ def contribute_validate_annotations_category(request, short_name, node_id, html_
                 annotation_ids += [None]  # count as an added annotation but does not retrieve any annotation later,
                 #  the false annotation "negative_annotation_example" is added manually
 
-    # Get non ground truth annotations, never annotated by the user, exclude test examples, order by priority score & random
-    # Exclude candidate outside of [0.3, 30] sec and with 0 votes
+    # Get non ground truth annotations, never voted by the user (with positive test),
+    # exclude test examples, order by priority score & random,
+    # exclude candidate outside of [0.3, 30] sec and with 0 votes
+    # TODO: put this in a class method and do a test
     annotations = dataset.non_ground_truth_annotations_per_taxonomy_node(node_id)\
-                         .exclude(votes__created_by=user)\
+                         .exclude(id__in=Vote.objects.filter(candidate_annotation__taxonomy_node=node,
+                                                             created_by=user,
+                                                             test__in=('UN', 'AP', 'PP', 'NA', 'NP'))
+                                  .values('candidate_annotation_id'))\
                          .exclude(id__in=annotation_examples_verification_ids)\
                          .exclude(id__in=annotation_examples_ids)\
                          .exclude(priority_score=0)\
