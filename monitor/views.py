@@ -128,7 +128,8 @@ def mapping_category(request, short_name, node_id):
         quality_estimate = dataset.quality_estimate_mapping(results, node_id)
 
         freesound_ids = results.values_list('freesound_id', flat=True)
-        quality_estimate['freesound_ids'] = freesound_ids
+        quality_estimate['freesound_ids'] = list(freesound_ids)
+        print(quality_estimate)
 
         return JsonResponse(quality_estimate)
 

@@ -657,8 +657,13 @@ class Dataset(models.Model):
                                  key=lambda x: x[1],
                                  reverse=True)
 
+        try:
+            quality_estimate = float(num_PP + num_PNP) / num_votes
+        except:
+            quality_estimate = 0
+
         result = {
-            'quality_estimate': float(num_PP + num_PNP) / num_votes,
+            'quality_estimate': quality_estimate,
             'num_PP': num_PP,
             'num_PNP': num_PNP,
             'num_NP': num_NP,
