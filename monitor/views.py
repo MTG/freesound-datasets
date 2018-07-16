@@ -116,10 +116,10 @@ def mapping_category(request, short_name, node_id):
     node = dataset.taxonomy.get_element_at_id(node_id)
 
     if request.method == 'POST':
-        positive_tags_raw = request.POST.get('positive-tags', '')  # e.g. ['dog, cat', 'dog']
-        negative_tags_raw = request.POST.get('negative-tags', '')
-        preproc_positive = request.POST.get('preproc-positive', '')
-        preproc_negative = request.POST.get('preproc-negative', '')
+        positive_tags_raw = dict(request.POST).get('positive-tags', '')  # e.g. ['dog, cat', 'dog']
+        negative_tags_raw = dict(request.POST).get('negative-tags', '')
+        preproc_positive = dict(request.POST).get('preproc-positive', '')
+        preproc_negative = dict(request.POST).get('preproc-negative', '')
 
         positive_tags = [t.split(', ') for t in positive_tags_raw]  # e.g. [['dog', 'cat'], ['dog']]
         negative_tags = [t.split(', ') for t in negative_tags_raw]
@@ -129,7 +129,6 @@ def mapping_category(request, short_name, node_id):
 
         freesound_ids = results.values_list('freesound_id', flat=True)
         quality_estimate['freesound_ids'] = list(freesound_ids)
-        print(quality_estimate)
 
         return JsonResponse(quality_estimate)
 
