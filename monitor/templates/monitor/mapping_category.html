@@ -9,33 +9,69 @@
 
 {% block page_js %}
     <script type="text/javascript">
+    $(function () {
+        $(".submit-form").on("click", function () {
+            submitForm();
+        })
+    });
     function addTagRow() {
 
         var container = $(".tag-inputs");
 
         var row = $("<div>", {
-            class: "field tag-group-or"
+            class: "inline field tag-group-or"
         });
-        var label = $("<label>");
-        label.append("Tags");
+       {% comment %} var label = $("<label>");
+        label.append("Comma separated tags (e.g.: dog, bark, panting)");{% endcomment %}
         var input = $("<input>", {
             type: "text",
             placeholder: "Tag string"
         });
-        var button = $("<button>", {
-            class: "ui circular red icon small button"
+{% comment %}
+        input.on("input", function () {
+            showQuery(this);
         });
-        var minus_icon = $("<i>", {
-            class: "ui minus icon"
+{% endcomment %}
+        var button_container = $("<span>");
+        var button = $("<button>", {
+            class: "ui circular red icon tiny button"
+        });
+        var close = $("<i>", {
+            class: "ui close icon"
         });
 
-        button.append([minus_icon, "Remove row"]);
+        button.append(close);
         button.on("click", function () {
-            container.remove();
+            row.remove();
         });
-        row.append([label, input, button]);
+        button_container.append(button);
+        row.append([input, button_container]);
         container.append(row);
 
+    }
+
+    function showQuery(el) {
+        var text = el.value;
+        var container = $(".query");
+        container.empty();
+        container.append(text);
+    }
+
+    function submitForm() {
+
+        var tag_containers = $('.tag-group-or');
+        var tag_list = [];
+        tag_containers.each( function () {
+            var input = $(this).find('input');
+            tag_list.push(input.val());
+        });
+        console.log(tag_list);
+
+        $.ajax({
+            url: "{% url 'mapping-category' dataset.short_name node.url_id %}",
+            type: "POST",
+            data: tag_list
+        })
     }
     </script>
 {% endblock %}
@@ -43,32 +79,44 @@
 {% block content %}
     <h1 class="ui header">Monitor the mapping of <span class="ui big label">{{ node.name }}</span></h1>
 
-    <div class="ui raised segment">
+    <div class="ui raised segment" style="position: relative;">
 
-        <div class="ui form">
-            <h4 class="ui dividing header">
-                <div class="content">
-                    Filter by tags
-                    <div class="sub header">Add the tags you want to be selected</div>
-                </div>
-            </h4>
+        <h4 class="ui dividing header">
+            <div class="content">
+                Filter by tags
+                <div class="sub header">Add the tags you want to be selected</div>
+            </div>
+        </h4>
 
-            <div class="tag-inputs">
-                <div class="field tag-group-or">
-                    <label>Tags</label>
-                    <input type="text" placeholder="Tag string"/>
+        <div class="ui stackable grid">
+
+            <div class="eight wide column">
+                <div class="ui form">
+
+                    <div class="tag-inputs">
+                        <div class="inline field tag-group-or">
+                            <label>Comma separated tags (e.g.: dog, bark, panting)</label>
+                            <input type="text" placeholder="Tag string"/>
+                        </div>
+                    </div>
+
+                    <div class="actions">
+                        <button type="button" class="ui circular blue icon button" onclick="addTagRow();">
+                            <i class="ui plus icon"></i>
+                            Add alternative tag group
+                        </button>
+                        <div class="ui checkbox">
+                            <input type="checkbox" tabindex="0" name="preproc-positive"/>
+                            <label>Stem tags</label>
+                        </div>
+                        <button class="ui button submit-form">
+                            Submit
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <button class="ui circular blue icon button" onclick="addTagRow();">
-                <i class="ui plus icon"></i>
-                Add alternative tag group
-            </button>
-
         </div>
 
-        <div class="tags ">
-
-        </div>
     </div>
 {% endblock %}
