@@ -110,6 +110,8 @@ def monitor_user(request, short_name, user_id):
 @login_required
 def mapping_category(request, short_name, node_id):
     dataset = get_object_or_404(Dataset, short_name=short_name)
+    if not dataset.user_is_maintainer(request.user):
+        return HttpResponseRedirect(reverse('dataset', args=[dataset.short_name]))
     node_id = unquote(node_id)
     node = dataset.taxonomy.get_element_at_id(node_id)
     return render(request, 'monitor/mapping_category.html', {
