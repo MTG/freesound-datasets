@@ -121,8 +121,13 @@ def mapping_category(request, short_name, node_id):
         preproc_positive = dict(request.POST).get('preproc-positive', '')
         preproc_negative = dict(request.POST).get('preproc-negative', '')
 
-        positive_tags = [t.split(', ') for t in positive_tags_raw]  # e.g. [['dog', 'cat'], ['dog']]
-        negative_tags = [t.split(', ') for t in negative_tags_raw]
+        positive_tags = [tag.replace(' ', '')
+                         for tags in positive_tags_raw
+                         for tag in tags.split(',')]  # e.g. [['dog', 'cat'], ['dog']]
+
+        negative_tags = [tag.replace(' ', '')
+                         for tags in negative_tags_raw
+                         for tag in tags.split(',')]
 
         results = dataset.retrieve_sound_by_tags(positive_tags, negative_tags, preproc_positive, preproc_negative)
         quality_estimate = dataset.quality_estimate_mapping(results, node_id)
