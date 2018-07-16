@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from urllib.parse import unquote
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.db.models import Count
 from django.db.models.functions import TruncDay
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -114,7 +114,26 @@ def mapping_category(request, short_name, node_id):
         return HttpResponseRedirect(reverse('dataset', args=[dataset.short_name]))
     node_id = unquote(node_id)
     node = dataset.taxonomy.get_element_at_id(node_id)
-    return render(request, 'monitor/mapping_category.html', {
-        'dataset': dataset,
-        'node': node
-    })
+
+    if request.method == 'POST':
+        positive_tags_raw = request.POST.get('positive-tags')  # e.g. ['dog,cat', 'dog']
+        negative_tags_raw = request.POST.get('negative-tags')
+        preproc_positive = request.POST.get('preproc-positive')
+        preproc_negative = request.POST.get('preproc-negative')
+
+        positive_tags = [t.split(',') for t in positive_tags_raw]  # e.g. [['dog', 'cat'], ['dog']]
+        negative_tags = [t.split(',') for t in negative_tags_raw]
+
+        results = dataset.retrieve_sound_by_tags(positive_tags, negative_tags, preproc_positive, preproc_negative)
+        quality_estimate = dataset.quality_estimate_mapping(results, node_id)
+
+        freesound_ids = results.values_list('freesound_id', flat=True)
+        quality_estimate['freesound_ids'] = freesound_ids
+
+        return JsonResponse(quality_estimate)
+
+    elif request.method == 'GET':
+        return render(request, 'monitor/mapping_category.html', {
+            'dataset': dataset,
+            'node': node
+        })
