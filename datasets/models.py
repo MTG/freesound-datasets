@@ -640,11 +640,34 @@ class Dataset(models.Model):
     def quality_estimate_mapping(self, results, node_id):
         votes = Vote.objects.filter(candidate_annotation__sound_dataset__dataset=self,
                                     candidate_annotation__taxonomy_node__node_id=node_id,
-                                    candidate_annotation__sound_dataset__sound__in=results.values_list('id', flat=True))
-        votes_values = [vote.vote for vote in votes if vote.test != 'FA']
-        num_present = votes_values.count(1.0) + votes_values.count(0.5)
+                                    candidate_annotation__sound_dataset__sound__in=results.values_list('id', flat=True))\
+                            .exclude(test='FA')
+        votes_values = list(votes.values_list('vote', flat=True))
+        num_votes = len(votes_values)
 
-        return float(num_present) / len(votes), len(votes_values)
+        num_PP = votes_values.count(1.0)
+        num_PNP = votes_values.count(0.5)
+        num_NP = votes_values.count(-1)
+        num_U = votes_values.count(0)
+
+        tags_in_NP = [tag
+                      for v in votes if v.vote == -1
+                      for tag in v.candidate_annotation.sound_dataset.sound.extra_data['tags']]
+        tags_with_count = sorted(list(set([(i, tags_in_NP.count(i)) for i in tags_in_NP])),
+                                 key=lambda x: x[1],
+                                 reverse=True)
+
+        result = {
+            'quality_estimate': float(num_PP + num_PNP) / num_votes,
+            'num_PP': num_PP,
+            'num_PNP': num_PNP,
+            'num_NP': num_NP,
+            'num_U': num_U,
+            'num_votes': num_votes,
+            'tags_in_NP': tags_with_count
+        }
+
+        return result
 
 
 class DatasetRelease(models.Model):
