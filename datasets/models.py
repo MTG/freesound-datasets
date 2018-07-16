@@ -637,6 +637,15 @@ class Dataset(models.Model):
                 r = r.exclude(extra_data__tags__contains=negative_tag)
         return r
 
+    def quality_estimate_mapping(self, results, node_id):
+        votes = Vote.objects.filter(candidate_annotation__sound_dataset__dataset=self,
+                                    candidate_annotation__taxonomy_node__node_id=node_id,
+                                    candidate_annotation__sound_dataset__sound__in=results.values_list('id', flat=True))
+        votes_values = [vote.vote for vote in votes if vote.test != 'FA']
+        num_present = votes_values.count(1.0) + votes_values.count(0.5)
+
+        return float(num_present) / len(votes), len(votes_values)
+
 
 class DatasetRelease(models.Model):
     dataset = models.ForeignKey(Dataset)
