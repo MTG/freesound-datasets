@@ -105,3 +105,14 @@ def monitor_user(request, short_name, user_id):
                                                          'username': user.username,
                                                          'contribs': contribs,
                                                          'contribs_failed': contribs_failed})
+
+
+@login_required
+def mapping_category(request, short_name, node_id):
+    dataset = get_object_or_404(Dataset, short_name=short_name)
+    node_id = unquote(node_id)
+    node = dataset.taxonomy.get_element_at_id(node_id)
+    return render(request, 'monitor/mapping_category.html', {
+        'dataset': dataset,
+        'node': node
+    })

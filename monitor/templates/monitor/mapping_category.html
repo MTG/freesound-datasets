@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% load staticfiles %}
+{% load general_templatetags %}
+{% block title %}Monitor category mapping{% endblock title %}
+{% block extra_head %}
+    {% load_sound_player_files %}
+{% endblock %}
+
+{% block page_js %}
+    <script type="text/javascript">
+    function addTagRow() {
+
+        var container = $(".tag-inputs");
+
+        var row = $("<div>", {
+            class: "field tag-group-or"
+        });
+        var label = $("<label>");
+        label.append("Tags");
+        var input = $("<input>", {
+            type: "text",
+            placeholder: "Tag string"
+        });
+        var button = $("<button>", {
+            class: "ui circular red icon small button"
+        });
+        var minus_icon = $("<i>", {
+            class: "ui minus icon"
+        });
+
+        button.append([minus_icon, "Remove row"]);
+        button.on("click", function () {
+            container.remove();
+        });
+        row.append([label, input, button]);
+        container.append(row);
+
+    }
+    </script>
+{% endblock %}
+
+{% block content %}
+    <h1 class="ui header">Monitor the mapping of <span class="ui big label">{{ node.name }}</span></h1>
+
+    <div class="ui raised segment">
+
+        <div class="ui form">
+            <h4 class="ui dividing header">
+                <div class="content">
+                    Filter by tags
+                    <div class="sub header">Add the tags you want to be selected</div>
+                </div>
+            </h4>
+
+            <div class="tag-inputs">
+                <div class="field tag-group-or">
+                    <label>Tags</label>
+                    <input type="text" placeholder="Tag string"/>
+                </div>
+            </div>
+
+            <button class="ui circular blue icon button" onclick="addTagRow();">
+                <i class="ui plus icon"></i>
+                Add alternative tag group
+            </button>
+
+        </div>
+
+        <div class="tags ">
+
+        </div>
+    </div>
+{% endblock %}
