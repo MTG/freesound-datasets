@@ -16,6 +16,7 @@ from django.utils import timezone
 from django.core.validators import RegexValidator
 from django.core.exceptions import ObjectDoesNotExist
 from urllib.parse import quote
+from functools import reduce
 
 
 class Taxonomy(models.Model):
@@ -611,13 +612,30 @@ class Dataset(models.Model):
             .exclude(pk__in=set(nodes_pk)).count()
         return num_nodes_reached_goal + num_nodes_finished_verifying
 
-    def retrieve_sound_by_tags(self, positive_tags, negative_tags):
-        results = self.sounds.all()
-        for positive_tag in positive_tags:
-            results = results.filter(extra_data__stemmed_tags__contains=positive_tag)
-        for negative_tag in negative_tags:
-            results = results.exclude(extra_data__stemmed_tags__contains=negative_tag)
-        return results
+    def retrieve_sound_by_tags(self, positive_tags, negative_tags, preproc_positive=True, preproc_negative=False):
+        r = self.sounds.all()
+        if preproc_positive:
+            r = r.filter(reduce(lambda x, y: x | y,
+                                [reduce(lambda w, z: w & z, [Q(extra_data__stemmed_tags__contains=item)
+                                                             if type(items) == list
+                                                             else Q(extra_data__stemmed_tags__contains=items)
+                                                             for item in items])
+                                 for items in positive_tags]))
+        else:
+            r = r.filter(reduce(lambda x, y: x | y,
+                                [reduce(lambda w, z: w & z, [Q(extra_data__tags__contains=item)
+                                                             if type(items) == list
+                                                             else Q(extra_data__tags__contains=items)
+                                                             for item in items])
+                                 for items in positive_tags]))
+
+        if preproc_negative:
+            for negative_tag in negative_tags:
+                r = r.exclude(extra_data__stemmed_tags__contains=negative_tag)
+        else:
+            for negative_tag in negative_tags:
+                r = r.exclude(extra_data__tags__contains=negative_tag)
+        return r
 
 
 class DatasetRelease(models.Model):
