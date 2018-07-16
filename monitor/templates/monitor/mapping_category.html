@@ -70,8 +70,16 @@
         $.ajax({
             url: "{% url 'mapping-category' dataset.short_name node.url_id %}",
             type: "POST",
-            data: tag_list
+            data: {
+                "positive-tags": tag_list,
+                "preproc-positive": false,
+                csrfmiddlewaretoken: "{{ csrf_token }}"
+            },
+            traditional: true
         })
+            .done(function (d) {
+                console.log(d)
+            })
     }
     </script>
 {% endblock %}
