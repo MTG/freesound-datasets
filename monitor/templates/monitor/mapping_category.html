@@ -105,12 +105,12 @@
             .text(cur_pnp.toFixed(1) + "%");
         $(".curr-distr .pp .bar")
             .width(cur_pp + "%")
-            .height("20px")
+            .height("20px");
         $(".curr-distr .pp .val")
             .text(cur_pp.toFixed(1) + "%");
         $(".curr-distr .u .bar")
             .width(cur_u + "%")
-            .height("20px")
+            .height("20px");
         $(".curr-distr .u .val")
             .text(cur_u.toFixed(1) + "%");
 
@@ -119,20 +119,24 @@
         $(".new-num-sounds").text(new_num_sounds);
         $(".new-distr .np .bar")
             .width(new_np + "%")
-            .height("20px")
-            .after(new_np.toFixed(1) + "%");
-        $(".new-distr .pnp")
+            .height("20px");
+        $(".new-distr .np .val")
+            .text(new_np.toFixed(1) + "%");
+        $(".new-distr .pnp .bar")
             .width(new_pnp + "%")
-            .height("20px")
-            .after(new_pnp.toFixed(1) + "%");
-        $(".new-distr .pp")
+            .height("20px");
+        $(".new-distr .pnp .val")
+            .text(new_pnp.toFixed(1) + "%");
+        $(".new-distr .pp .bar")
             .width(new_pp + "%")
-            .height("20px")
-            .after(new_pp.toFixed(1) + "%");
-        $(".new-distr .u")
+            .height("20px");
+        $(".new-distr .pp .val")
+            .text(new_pp.toFixed(1) + "%");
+        $(".new-distr .u .bar")
             .width(new_u + "%")
-            .height("20px")
-            .after(new_u.toFixed(1) + "%");
+            .height("20px");
+        $(".new-distr .u .val")
+            .text(new_u.toFixed(1) + "%");
     }
     </script>
 {% endblock %}
@@ -218,6 +222,39 @@
         <div class="ui three column stackable grid">
 
             <div class="six wide column right aligned">
+                <div class="ui header">New mapping</div>
+                <div class="ui sub header new-num-votes">-</div>
+                <div class="ui sub header new-map-quality">-</div>
+                <div class="ui sub header new-num-sounds">-</div>
+                <div class="ui sub header new-distr" style="position: relative;">
+                    <div class="pp">
+                        <div class="val"></div>
+                        <div class="bar"></div>
+                    </div>
+                    <div class="pnp">
+                        <div class="val"></div>
+                        <div class="bar"></div>
+                    </div>
+                    <div class="np">
+                        <div class="val"></div>
+                        <div class="bar"></div>
+                    </div>
+                    <div class="u">
+                        <div class="val"></div>
+                        <div class="bar"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="four wide column center aligned">
+                <div class="ui header" style="visibility: hidden">---</div>
+                <div class="ui sub header">Total sounds</div>
+                <div class="ui sub header">Quality</div>
+                <div class="ui sub header">Total votes</div>
+                <div class="ui sub header">NP</div>
+            </div>
+
+            <div class="six wide column left aligned">
                 <div class="ui header">Current mapping</div>
                 <div class="ui sub header curr-num-votes">-</div>
                 <div class="ui sub header curr-map-quality">-</div>
@@ -242,42 +279,37 @@
                 </div>
             </div>
 
-            <div class="four wide column center aligned">
-                <div class="ui header" style="visibility: hidden">---</div>
-                <div class="ui sub header">Total sounds</div>
-                <div class="ui sub header">Quality</div>
-                <div class="ui sub header">Total votes</div>
-                <div class="ui sub header">NP</div>
-            </div>
-
-            <div class="six wide column left aligned">
-                <div class="ui header">New mapping</div>
-                <div class="ui sub header new-num-votes">-</div>
-                <div class="ui sub header new-map-quality">-</div>
-                <div class="ui sub header new-num-sounds">-</div>
-                <div class="ui sub header new-distr" style="position: relative;">
-                    <div class="pp" style="background-color: #21ba45;"></div>
-                    <div class="pnp" style="background-color: #b5cc18;"></div>
-                    <div class="np" style="background-color: #eaae00;"></div>
-                    <div class="u" style="background-color: #f26202;"></div>
-                </div>
-            </div>
-
         </div>
     </div>
 
     <style type="text/css">
+    .new-distr > div,
     .curr-distr > div {
         display: block;
-        float: right;
         position: relative;
-        text-align: right;
         clear: both;
+        width: 100%;
     }
-    .curr-distr div {
+
+    .new-distr > div {
+        float: right;
+        text-align: right;
+    }
+    .curr-distr > div {
+        float: left;
+        text-align: left;
+    }
+
+    .bar {
+        display: inline-block;
+    }
+    .val {
         display: inline-block;
         position: relative;
+        bottom: 4px;
+        padding: 0 4px;
     }
+
     .pp .bar {
         background-color: #21ba45;
     }
