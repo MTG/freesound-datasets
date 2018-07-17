@@ -6,6 +6,7 @@ from django.db.models.functions import TruncDay
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.urlresolvers import reverse
 from datasets.models import Dataset, User
+from datasets.utils import stem
 from monitor.tasks import compute_dataset_top_contributed_categories, compute_dataset_bad_mapping, \
     compute_dataset_difficult_agreement, compute_remaining_annotations_with_duration, \
     compute_dataset_num_contributions_per_day, compute_dataset_num_ground_truth_per_day
@@ -118,14 +119,16 @@ def mapping_category(request, short_name, node_id):
     if request.method == 'POST':
         positive_tags_raw = dict(request.POST).get('positive-tags', '')  # e.g. ['dog, cat', 'dog']
         negative_tags_raw = dict(request.POST).get('negative-tags', '')
-        preproc_positive = dict(request.POST).get('preproc-positive', '')
-        preproc_negative = dict(request.POST).get('preproc-negative', '')
+        preproc_positive = True if dict(request.POST).get('preproc-positive', ['true']) == ['true'] else False
+        preproc_negative = True if dict(request.POST).get('preproc-negative', ['false']) == ['true'] else False
 
-        positive_tags = [[tag.replace(' ', '') for tag in tags.split(',') if tags != '']
-                         for tags in positive_tags_raw]  # e.g. [['dog', 'cat'], ['dog']]
+        positive_tags = [[stem(tag.replace(' ', '')) if preproc_positive else tag.replace(' ', '')
+                          for tag in tags.split(',')]
+                         for tags in positive_tags_raw if tags != '']  # e.g. [['dog', 'cat'], ['dog']]
 
-        negative_tags = [tag.replace(' ', '')
-                         for tag in negative_tags_raw.split(',')]
+        negative_tags = [stem(tag.replace(' ', '')) if preproc_negative else tag.replace(' ', '')
+                         for tags in negative_tags_raw
+                         for tag in tags.split(',') if tags != '']
 
         results = dataset.retrieve_sound_by_tags(positive_tags, negative_tags, preproc_positive, preproc_negative)
         quality_estimate = dataset.quality_estimate_mapping(results, node_id)

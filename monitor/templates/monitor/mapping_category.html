@@ -60,19 +60,23 @@
     function submitForm() {
 
         var tag_containers = $('.tag-group-or');
-        var tag_list = [];
+        var positive_tag_list = [];
         tag_containers.each( function () {
             var input = $(this).find('input');
-            tag_list.push(input.val());
+            positive_tag_list.push(input.val());
         });
-        console.log(tag_list);
+        var preproc_positive = $('#preproc-positive').is(":checked");
+        var negative_tags = $('#negative-tags').val();
+        var preproc_negative = $('#preproc-negative').is(":checked");
 
         $.ajax({
             url: "{% url 'mapping-category' dataset.short_name node.url_id %}",
             type: "POST",
             data: {
-                "positive-tags": tag_list,
-                "preproc-positive": false,
+                "positive-tags": positive_tag_list,
+                "preproc-positive": preproc_positive,
+                "negative-tags": negative_tags,
+                "preproc-negative": preproc_negative,
                 csrfmiddlewaretoken: "{{ csrf_token }}"
             },
             traditional: true
@@ -108,14 +112,14 @@
                         </div>
                     </div>
 
-                    <button type="button" class="ui circular blue icon button" onclick="addTagRow();">
+                    <button type="button" style="margin:5px;" class="ui circular blue icon button" onclick="addTagRow();">
                         <i class="ui plus icon"></i>
                         Add alternative tag group
                     </button>
 
                     <div class="actions">
-                        <div class="ui checkbox">
-                            <input type="checkbox" tabindex="0" name="preproc-positive"/>
+                        <div class="ui checked checkbox">
+                            <input type="checkbox" checked="" tabindex="0" name="preproc-positive" id="preproc-positive"/>
                             <label>Stem tags</label>
                         </div>
                     </div>
@@ -128,12 +132,12 @@
 
                     <div class="inline field">
                         <label>Comma separated tags (e.g.: dog, bark, panting)</label>
-                        <input type="text" placeholder="Tag string"/>
+                        <input type="text" id="negative-tags" placeholder="Tag string"/>
                     </div>
 
                     <div class="actions">
                         <div class="ui checkbox">
-                            <input type="checkbox" tabindex="0" name="preproc-negative"/>
+                            <input type="checkbox" tabindex="0" name="preproc-negative" id="preproc-negative"/>
                             <label>Stem tags</label>
                         </div>
                     </div>

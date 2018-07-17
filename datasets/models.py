@@ -614,27 +614,29 @@ class Dataset(models.Model):
 
     def retrieve_sound_by_tags(self, positive_tags, negative_tags, preproc_positive=True, preproc_negative=False):
         r = self.sounds.all()
-        if preproc_positive:
-            r = r.filter(reduce(lambda x, y: x | y,
-                                [reduce(lambda w, z: w & z, [Q(extra_data__stemmed_tags__contains=item)
-                                                             if type(items) == list
-                                                             else Q(extra_data__stemmed_tags__contains=items)
-                                                             for item in items])
-                                 for items in positive_tags]))
-        else:
-            r = r.filter(reduce(lambda x, y: x | y,
-                                [reduce(lambda w, z: w & z, [Q(extra_data__tags__contains=item)
-                                                             if type(items) == list
-                                                             else Q(extra_data__tags__contains=items)
-                                                             for item in items])
-                                 for items in positive_tags]))
+        if positive_tags != [[]]:
+            if preproc_positive:
+                r = r.filter(reduce(lambda x, y: x | y,
+                                    [reduce(lambda w, z: w & z, [Q(extra_data__stemmed_tags__contains=item)
+                                                                 if type(items) == list
+                                                                 else Q(extra_data__stemmed_tags__contains=items)
+                                                                 for item in items])
+                                     for items in positive_tags]))
+            else:
+                r = r.filter(reduce(lambda x, y: x | y,
+                                    [reduce(lambda w, z: w & z, [Q(extra_data__tags__contains=item)
+                                                                 if type(items) == list
+                                                                 else Q(extra_data__tags__contains=items)
+                                                                 for item in items])
+                                     for items in positive_tags]))
 
-        if preproc_negative:
-            for negative_tag in negative_tags:
-                r = r.exclude(extra_data__stemmed_tags__contains=negative_tag)
-        else:
-            for negative_tag in negative_tags:
-                r = r.exclude(extra_data__tags__contains=negative_tag)
+        if negative_tags:
+            if preproc_negative:
+                for negative_tag in negative_tags:
+                    r = r.exclude(extra_data__stemmed_tags__contains=negative_tag)
+            else:
+                for negative_tag in negative_tags:
+                    r = r.exclude(extra_data__tags__contains=negative_tag)
         return r
 
     def quality_estimate_mapping(self, results, node_id):
