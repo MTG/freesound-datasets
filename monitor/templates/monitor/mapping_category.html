@@ -70,6 +70,13 @@
             .done(function (d) {
                 console.log(d);
                 showStats(d);
+                $.ajax({
+                    url: "{% url 'sound-player' dataset.short_name 1354 %}",
+                    dataType: 'html'
+                }).done(function (data) {
+                    console.log(data)
+                    $('#players').html(data);
+                })
             })
     }
 
@@ -297,6 +304,10 @@
             </div>
 
         </div>
+    </div>
+
+    <div id="players">
+
     </div>
 
     <style type="text/css">

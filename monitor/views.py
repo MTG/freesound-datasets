@@ -1,12 +1,13 @@
 from django.shortcuts import render, get_object_or_404
 from urllib.parse import unquote
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
 from django.db.models import Count
 from django.db.models.functions import TruncDay
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.urlresolvers import reverse
 from datasets.models import Dataset, User
 from datasets.utils import stem
+from datasets.templatetags.general_templatetags import sound_player
 from monitor.tasks import compute_dataset_top_contributed_categories, compute_dataset_bad_mapping, \
     compute_dataset_difficult_agreement, compute_remaining_annotations_with_duration, \
     compute_dataset_num_contributions_per_day, compute_dataset_num_ground_truth_per_day
@@ -152,3 +153,9 @@ def mapping_category(request, short_name, node_id):
             'dataset': dataset,
             'node': node
         })
+
+
+def player(request, short_name, freesound_id):
+    dataset = get_object_or_404(Dataset, short_name=short_name)
+    context = sound_player(dataset, freesound_id, 'small')
+    return render(request, 'datasets/player.html', context)
