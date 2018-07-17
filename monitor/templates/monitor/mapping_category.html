@@ -21,17 +21,10 @@
         var row = $("<div>", {
             class: "inline field tag-group-or"
         });
-       {% comment %} var label = $("<label>");
-        label.append("Comma separated tags (e.g.: dog, bark, panting)");{% endcomment %}
         var input = $("<input>", {
             type: "text",
             placeholder: "Tag string"
         });
-{% comment %}
-        input.on("input", function () {
-            showQuery(this);
-        });
-{% endcomment %}
         var button_container = $("<span>");
         var button = $("<button>", {
             class: "ui circular red icon tiny button"
@@ -48,13 +41,6 @@
         row.append([input, button_container]);
         container.append(row);
 
-    }
-
-    function showQuery(el) {
-        var text = el.value;
-        var container = $(".query");
-        container.empty();
-        container.append(text);
     }
 
     function submitForm() {
@@ -82,8 +68,16 @@
             traditional: true
         })
             .done(function (d) {
-                console.log(d)
+                console.log(d);
+                showStats(d);
             })
+    }
+
+    function showStats (data) {
+        var quality_est = data.quality_estimate;
+        var n_votes = data.num_votes;
+        $(".curr-map-quality").text(quality_est*100);
+        $(".curr-num-votes").text(n_votes);
     }
     </script>
 {% endblock %}
@@ -151,11 +145,34 @@
 
         <div class="ui clearing divider"></div>
 
-        <div class="section">
-            <button class="ui button submit-form">
-                Submit
-            </button>
-        </div>
+        <center>
+            <div class="section">
+                <button class="ui button submit-form">
+                    Submit
+                </button>
+            </div>
+        </center>
 
     </div>
+
+    <div class="res-content">
+        <h4 class="ui horizontal divider header">
+            <i class="bar chart icon"></i>
+            Inspect
+        </h4>
+        <div class="ui stackable grid">
+            <div class="eight wide column">
+                <div class="ui header">Current mapping</div>
+                <div class="ui sub header">Quality: <span class="curr-map-quality"></span>%</div>
+                <div class="ui sub header">Number of votes: <span class="curr-num-votes"></span></div>
+            </div>
+
+            <div class="eight wide column right aligned">
+                <div class="ui header">New mapping</div>
+                <div class="ui sub header">Quality: <span class="new-map-quality"></span>%</div>
+                <div class="ui sub header">Number of votes: <span class="new-num-votes"></span></div>
+            </div>
+        </div>
+    </div>
+
 {% endblock %}
