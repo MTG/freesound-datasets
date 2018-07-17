@@ -614,7 +614,7 @@ class Dataset(models.Model):
 
     def retrieve_sound_by_tags(self, positive_tags, negative_tags, preproc_positive=True, preproc_negative=False):
         r = self.sounds.all()
-        if positive_tags != [[]]:
+        if positive_tags:
             if preproc_positive:
                 r = r.filter(reduce(lambda x, y: x | y,
                                     [reduce(lambda w, z: w & z, [Q(extra_data__stemmed_tags__contains=item)
