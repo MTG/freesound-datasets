@@ -123,7 +123,7 @@ def mapping_category(request, short_name, node_id):
 
         positive_tags = [tag.replace(' ', '')
                          for tags in positive_tags_raw
-                         for tag in tags.split(',')]  # e.g. [['dog', 'cat'], ['dog']]
+                         for tag in tags.split(',') if tags != '']  # e.g. [['dog', 'cat'], ['dog']]
 
         negative_tags = [tag.replace(' ', '')
                          for tags in negative_tags_raw
