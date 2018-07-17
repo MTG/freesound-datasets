@@ -25,6 +25,7 @@ from utils.async_tasks import data_from_async_task
 import os
 import random
 import json
+import datetime
 
 
 #######################
@@ -420,7 +421,9 @@ def save_contribute_validate_annotations_category(request):
                     annotation_id = form.cleaned_data['annotation_id']
                     if annotation_id not in test_annotations_id and annotation_id != 0:  # store only the votes for non test annotations
                         check = Vote.objects.filter(created_by=request.user,
-                                                    candidate_annotation_id=annotation_id)
+                                                    candidate_annotation_id=annotation_id,
+                                                    created_at__gt=datetime.datetime.now()
+                                                                   - datetime.timedelta(seconds=5))
                         if not check.exists():
                             # Save votes for annotations
                             Vote.objects.create(
