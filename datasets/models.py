@@ -421,8 +421,13 @@ class TaxonomyNode(models.Model):
         num_NP = votes.count(-1)
         num_U = votes.count(0)
         num_votes = num_PP + num_PNP + num_NP + num_U
+        try:
+            quality_estimate = float(num_PP + num_PNP) / num_votes
+        except ZeroDivisionError:
+            quality_estimate = 0
+
         return {
-            'quality_estimate': float(num_PP + num_PNP) / num_votes,
+            'quality_estimate': quality_estimate,
             'num_PP': num_PP,
             'num_PNP': num_PNP,
             'num_NP': num_NP,
@@ -681,7 +686,7 @@ class Dataset(models.Model):
 
         try:
             quality_estimate = float(num_PP + num_PNP) / num_votes
-        except:
+        except ZeroDivisionError:
             quality_estimate = 0
 
         result = {
