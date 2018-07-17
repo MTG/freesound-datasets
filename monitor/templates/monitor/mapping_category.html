@@ -108,21 +108,42 @@
                         </div>
                     </div>
 
+                    <button type="button" class="ui circular blue icon button" onclick="addTagRow();">
+                        <i class="ui plus icon"></i>
+                        Add alternative tag group
+                    </button>
+
                     <div class="actions">
-                        <button type="button" class="ui circular blue icon button" onclick="addTagRow();">
-                            <i class="ui plus icon"></i>
-                            Add alternative tag group
-                        </button>
                         <div class="ui checkbox">
                             <input type="checkbox" tabindex="0" name="preproc-positive"/>
                             <label>Stem tags</label>
                         </div>
-                        <button class="ui button submit-form">
-                            Submit
-                        </button>
                     </div>
+
                 </div>
             </div>
+
+            <div class="eight wide column">
+                <div class="ui form">
+
+                    <div class="inline field">
+                        <label>Comma separated tags (e.g.: dog, bark, panting)</label>
+                        <input type="text" placeholder="Tag string"/>
+                    </div>
+
+                    <div class="actions">
+                        <div class="ui checkbox">
+                            <input type="checkbox" tabindex="0" name="preproc-negative"/>
+                            <label>Stem tags</label>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <button class="ui button submit-form">
+                Submit
+            </button>
 
         </div>
 
