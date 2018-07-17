@@ -74,6 +74,10 @@
     }
 
     function showStats (data) {
+
+        var common = data.num_common_sounds;
+        var scale = 0.8;
+
         var cur_quality_est = data.mapping.quality_estimate;
         var cur_num_votes = data.mapping.num_votes;
         var cur_num_sounds = data.mapping.num_sounds;
@@ -94,46 +98,46 @@
         $(".curr-num-votes").text(cur_num_votes);
         $(".curr-num-sounds").text(cur_num_sounds);
         $(".curr-distr .np .bar")
-            .width(cur_np + "%")
+            .width(cur_np * scale + "%")
             .height("20px");
         $(".curr-distr .np .val")
             .text(cur_np.toFixed(1) + "%");
         $(".curr-distr .pnp .bar")
-            .width(cur_pnp + "%")
+            .width(cur_pnp * scale + "%")
             .height("20px");
         $(".curr-distr .pnp .val")
             .text(cur_pnp.toFixed(1) + "%");
         $(".curr-distr .pp .bar")
-            .width(cur_pp + "%")
+            .width(cur_pp * scale + "%")
             .height("20px");
         $(".curr-distr .pp .val")
             .text(cur_pp.toFixed(1) + "%");
         $(".curr-distr .u .bar")
-            .width(cur_u + "%")
+            .width(cur_u * scale + "%")
             .height("20px");
         $(".curr-distr .u .val")
             .text(cur_u.toFixed(1) + "%");
 
         $(".new-map-quality").text((new_quality_est * 100).toFixed(2) + "%");
         $(".new-num-votes").text(new_num_votes);
-        $(".new-num-sounds").text(new_num_sounds);
+        $(".new-num-sounds").text(new_num_sounds + " - " + common + " from current");
         $(".new-distr .np .bar")
-            .width(new_np + "%")
+            .width(new_np * scale + "%")
             .height("20px");
         $(".new-distr .np .val")
             .text(new_np.toFixed(1) + "%");
         $(".new-distr .pnp .bar")
-            .width(new_pnp + "%")
+            .width(new_pnp * scale + "%")
             .height("20px");
         $(".new-distr .pnp .val")
             .text(new_pnp.toFixed(1) + "%");
         $(".new-distr .pp .bar")
-            .width(new_pp + "%")
+            .width(new_pp * scale + "%")
             .height("20px");
         $(".new-distr .pp .val")
             .text(new_pp.toFixed(1) + "%");
         $(".new-distr .u .bar")
-            .width(new_u + "%")
+            .width(new_u * scale + "%")
             .height("20px");
         $(".new-distr .u .val")
             .text(new_u.toFixed(1) + "%");
