@@ -70,11 +70,11 @@
             .done(function (d) {
                 console.log(d);
                 showStats(d);
+                // HERE ADD SOME PLAYERS OF RANDOM SOUNDS LIKE THAT:
                 $.ajax({
                     url: "{% url 'sound-player' dataset.short_name 1354 %}",
                     dataType: 'html'
                 }).done(function (data) {
-                    console.log(data)
                     $('#players').html(data);
                 })
             })
