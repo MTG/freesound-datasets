@@ -120,7 +120,15 @@
 
         $(".new-map-quality").text((new_quality_est * 100).toFixed(2) + "%");
         $(".new-num-votes").text(new_num_votes);
-        $(".new-num-sounds").text(new_num_sounds + " - " + common + " from current");
+        var common_text = $("<span>", {
+            class: "common_text"
+        });
+        var text = " (" + common + " from current)";
+        common_text.append(text);
+        $(".new-num-sounds")
+            .empty()
+            .append([new_num_sounds, common_text]);
+
         $(".new-distr .np .bar")
             .width(new_np * scale + "%")
             .height("20px");
@@ -239,11 +247,11 @@
                         <div class="val"></div>
                         <div class="bar"></div>
                     </div>
-                    <div class="np">
+                    <div class="u">
                         <div class="val"></div>
                         <div class="bar"></div>
                     </div>
-                    <div class="u">
+                    <div class="np">
                         <div class="val"></div>
                         <div class="bar"></div>
                     </div>
@@ -258,8 +266,8 @@
                 <div class="ui sub header distr">
                     <div class="ui sub header">PP</div>
                     <div class="ui sub header">PNP</div>
-                    <div class="ui sub header">NP</div>
                     <div class="ui sub header">U</div>
+                    <div class="ui sub header">NP</div>
                 </div>
             </div>
 
@@ -277,11 +285,11 @@
                         <div class="bar"></div>
                         <div class="val"></div>
                     </div>
-                    <div class="np">
+                    <div class="u">
                         <div class="bar"></div>
                         <div class="val"></div>
                     </div>
-                    <div class="u">
+                    <div class="np">
                         <div class="bar"></div>
                         <div class="val"></div>
                     </div>
@@ -292,6 +300,11 @@
     </div>
 
     <style type="text/css">
+
+    .common_text {
+        font-weight: 100;
+        font-style: lowercase;
+    }
 
     .distr > div {
         height: 20px;
@@ -331,12 +344,13 @@
     .pnp .bar {
         background-color: #b5cc18;
     }
-    .np .bar {
+    .u .bar {
         background-color: #eaae00;
     }
-    .u .bar {
+    .np .bar {
         background-color: #f26202;
     }
+
     </style>
 
 {% endblock %}
