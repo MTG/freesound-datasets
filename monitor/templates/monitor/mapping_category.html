@@ -223,9 +223,9 @@
 
             <div class="six wide column right aligned">
                 <div class="ui header">New mapping</div>
-                <div class="ui sub header new-num-votes">-</div>
-                <div class="ui sub header new-map-quality">-</div>
                 <div class="ui sub header new-num-sounds">-</div>
+                <div class="ui sub header new-map-quality">-</div>
+                <div class="ui sub header new-num-votes">-</div>
                 <div class="ui sub header new-distr" style="position: relative;">
                     <div class="pp">
                         <div class="val"></div>
@@ -251,14 +251,19 @@
                 <div class="ui sub header">Total sounds</div>
                 <div class="ui sub header">Quality</div>
                 <div class="ui sub header">Total votes</div>
-                <div class="ui sub header">NP</div>
+                <div class="ui sub header distr">
+                    <div class="ui sub header">PP</div>
+                    <div class="ui sub header">PNP</div>
+                    <div class="ui sub header">NP</div>
+                    <div class="ui sub header">U</div>
+                </div>
             </div>
 
             <div class="six wide column left aligned">
                 <div class="ui header">Current mapping</div>
-                <div class="ui sub header curr-num-votes">-</div>
-                <div class="ui sub header curr-map-quality">-</div>
                 <div class="ui sub header curr-num-sounds">-</div>
+                <div class="ui sub header curr-map-quality">-</div>
+                <div class="ui sub header curr-num-votes">-</div>
                 <div class="ui sub header curr-distr" style="position: relative;">
                     <div class="pp">
                         <div class="bar"></div>
@@ -283,12 +288,18 @@
     </div>
 
     <style type="text/css">
+
+    .distr > div {
+        height: 20px;
+    }
+
     .new-distr > div,
     .curr-distr > div {
         display: block;
         position: relative;
         clear: both;
         width: 100%;
+        height: 20px
     }
 
     .new-distr > div {
