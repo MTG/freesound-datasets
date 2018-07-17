@@ -74,10 +74,65 @@
     }
 
     function showStats (data) {
-        var quality_est = data.quality_estimate;
-        var n_votes = data.num_votes;
-        $(".curr-map-quality").text(quality_est*100);
-        $(".curr-num-votes").text(n_votes);
+        var cur_quality_est = data.mapping.quality_estimate;
+        var cur_num_votes = data.mapping.num_votes;
+        var cur_num_sounds = data.mapping.num_sounds;
+        var cur_np = data.mapping.num_NP / cur_num_votes * 100;
+        var cur_pnp = data.mapping.num_PNP / cur_num_votes * 100;
+        var cur_pp = data.mapping.num_PP / cur_num_votes * 100;
+        var cur_u = data.mapping.num_U / cur_num_votes * 100;
+
+        var new_quality_est = data.retrieved.quality_estimate;
+        var new_num_votes = data.retrieved.num_votes;
+        var new_num_sounds = data.retrieved.num_sounds;
+        var new_np = data.retrieved.num_NP / new_num_votes * 100;
+        var new_pnp = data.retrieved.num_PNP / new_num_votes * 100;
+        var new_pp = data.retrieved.num_PP / new_num_votes * 100;
+        var new_u = data.retrieved.num_U / new_num_votes * 100;
+
+        $(".curr-map-quality").text((cur_quality_est * 100).toFixed(2) + "%");
+        $(".curr-num-votes").text(cur_num_votes);
+        $(".curr-num-sounds").text(cur_num_sounds);
+        $(".curr-distr .np .bar")
+            .width(cur_np + "%")
+            .height("20px");
+        $(".curr-distr .np .val")
+            .text(cur_np.toFixed(1) + "%");
+        $(".curr-distr .pnp .bar")
+            .width(cur_pnp + "%")
+            .height("20px");
+        $(".curr-distr .pnp .val")
+            .text(cur_pnp.toFixed(1) + "%");
+        $(".curr-distr .pp .bar")
+            .width(cur_pp + "%")
+            .height("20px")
+        $(".curr-distr .pp .val")
+            .text(cur_pp.toFixed(1) + "%");
+        $(".curr-distr .u .bar")
+            .width(cur_u + "%")
+            .height("20px")
+        $(".curr-distr .u .val")
+            .text(cur_u.toFixed(1) + "%");
+
+        $(".new-map-quality").text((new_quality_est * 100).toFixed(2) + "%");
+        $(".new-num-votes").text(new_num_votes);
+        $(".new-num-sounds").text(new_num_sounds);
+        $(".new-distr .np .bar")
+            .width(new_np + "%")
+            .height("20px")
+            .after(new_np.toFixed(1) + "%");
+        $(".new-distr .pnp")
+            .width(new_pnp + "%")
+            .height("20px")
+            .after(new_pnp.toFixed(1) + "%");
+        $(".new-distr .pp")
+            .width(new_pp + "%")
+            .height("20px")
+            .after(new_pp.toFixed(1) + "%");
+        $(".new-distr .u")
+            .width(new_u + "%")
+            .height("20px")
+            .after(new_u.toFixed(1) + "%");
     }
     </script>
 {% endblock %}
@@ -160,19 +215,81 @@
             <i class="bar chart icon"></i>
             Inspect
         </h4>
-        <div class="ui stackable grid">
-            <div class="eight wide column">
+        <div class="ui three column stackable grid">
+
+            <div class="six wide column right aligned">
                 <div class="ui header">Current mapping</div>
-                <div class="ui sub header">Quality: <span class="curr-map-quality"></span>%</div>
-                <div class="ui sub header">Number of votes: <span class="curr-num-votes"></span></div>
+                <div class="ui sub header curr-num-votes">-</div>
+                <div class="ui sub header curr-map-quality">-</div>
+                <div class="ui sub header curr-num-sounds">-</div>
+                <div class="ui sub header curr-distr" style="position: relative;">
+                    <div class="pp">
+                        <div class="bar"></div>
+                        <div class="val"></div>
+                    </div>
+                    <div class="pnp">
+                        <div class="bar"></div>
+                        <div class="val"></div>
+                    </div>
+                    <div class="np">
+                        <div class="bar"></div>
+                        <div class="val"></div>
+                    </div>
+                    <div class="u">
+                        <div class="bar"></div>
+                        <div class="val"></div>
+                    </div>
+                </div>
             </div>
 
-            <div class="eight wide column right aligned">
-                <div class="ui header">New mapping</div>
-                <div class="ui sub header">Quality: <span class="new-map-quality"></span>%</div>
-                <div class="ui sub header">Number of votes: <span class="new-num-votes"></span></div>
+            <div class="four wide column center aligned">
+                <div class="ui header" style="visibility: hidden">---</div>
+                <div class="ui sub header">Total sounds</div>
+                <div class="ui sub header">Quality</div>
+                <div class="ui sub header">Total votes</div>
+                <div class="ui sub header">NP</div>
             </div>
+
+            <div class="six wide column left aligned">
+                <div class="ui header">New mapping</div>
+                <div class="ui sub header new-num-votes">-</div>
+                <div class="ui sub header new-map-quality">-</div>
+                <div class="ui sub header new-num-sounds">-</div>
+                <div class="ui sub header new-distr" style="position: relative;">
+                    <div class="pp" style="background-color: #21ba45;"></div>
+                    <div class="pnp" style="background-color: #b5cc18;"></div>
+                    <div class="np" style="background-color: #eaae00;"></div>
+                    <div class="u" style="background-color: #f26202;"></div>
+                </div>
+            </div>
+
         </div>
     </div>
+
+    <style type="text/css">
+    .curr-distr > div {
+        display: block;
+        float: right;
+        position: relative;
+        text-align: right;
+        clear: both;
+    }
+    .curr-distr div {
+        display: inline-block;
+        position: relative;
+    }
+    .pp .bar {
+        background-color: #21ba45;
+    }
+    .pnp .bar {
+        background-color: #b5cc18;
+    }
+    .np .bar {
+        background-color: #eaae00;
+    }
+    .u .bar {
+        background-color: #f26202;
+    }
+    </style>
 
 {% endblock %}
