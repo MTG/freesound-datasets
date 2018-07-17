@@ -122,11 +122,11 @@ def mapping_category(request, short_name, node_id):
         preproc_positive = True if dict(request.POST).get('preproc-positive', ['true']) == ['true'] else False
         preproc_negative = True if dict(request.POST).get('preproc-negative', ['false']) == ['true'] else False
 
-        positive_tags = [[stem(tag.replace(' ', '')) if preproc_positive else tag.replace(' ', '')
+        positive_tags = [[stem(tag.replace(' ', '').lower()) if preproc_positive else tag.replace(' ', '').lower()
                           for tag in tags.split(',')]
                          for tags in positive_tags_raw if tags != '']  # e.g. [['dog', 'cat'], ['dog']]
 
-        negative_tags = [stem(tag.replace(' ', '')) if preproc_negative else tag.replace(' ', '')
+        negative_tags = [stem(tag.replace(' ', '')).lower() if preproc_negative else tag.replace(' ', '').lower()
                          for tags in negative_tags_raw
                          for tag in tags.split(',') if tags != '']
 
