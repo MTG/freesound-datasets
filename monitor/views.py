@@ -133,10 +133,19 @@ def mapping_category(request, short_name, node_id):
         results = dataset.retrieve_sound_by_tags(positive_tags, negative_tags, preproc_positive, preproc_negative)
         quality_estimate = dataset.quality_estimate_mapping(results, node_id)
 
-        freesound_ids = results.values_list('freesound_id', flat=True)
-        quality_estimate['freesound_ids'] = list(freesound_ids)
+        freesound_ids = list(results.values_list('freesound_id', flat=True))
+        quality_estimate['freesound_ids'] = freesound_ids
+        quality_estimate['num_sounds'] = len(freesound_ids)
+        candidates = list(node.candidate_annotations.values_list('sound_dataset__sound__freesound_id', flat=True))
+        num_common_sounds = len(list(set(candidates).intersection(set(freesound_ids))))
 
-        return JsonResponse(quality_estimate)
+        stats = {
+            'retrieved': quality_estimate,
+            'mapping': node.quality_estimate,
+            'num_common_sounds': num_common_sounds
+        }
+
+        return JsonResponse(stats)
 
     elif request.method == 'GET':
         return render(request, 'monitor/mapping_category.html', {

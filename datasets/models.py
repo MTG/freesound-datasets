@@ -411,6 +411,26 @@ class TaxonomyNode(models.Model):
     def valid_examples(self):
         return self.freesound_examples.filter(deleted_in_freesound=False).values_list('freesound_id', flat=True)
 
+    @property
+    def quality_estimate(self):
+        votes = list(Vote.objects.filter(candidate_annotation__taxonomy_node=self)\
+                                 .exclude(test='FA')\
+                                 .values_list('vote', flat=True))
+        num_PP = votes.count(1.0)
+        num_PNP = votes.count(0.5)
+        num_NP = votes.count(-1)
+        num_U = votes.count(0)
+        num_votes = num_PP + num_PNP + num_NP + num_U
+        return {
+            'quality_estimate': float(num_PP + num_PNP) / num_votes,
+            'num_PP': num_PP,
+            'num_PNP': num_PNP,
+            'num_NP': num_NP,
+            'num_U': num_U,
+            'num_votes': num_votes,
+            'num_sounds': self.candidate_annotations.count()
+        }
+
     def __str__(self):
         return '{0} ({1})'.format(self.name, self.node_id)
 
