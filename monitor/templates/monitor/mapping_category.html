@@ -78,6 +78,8 @@
                 showStats(d);
                 addAllTags(d.retrieved.tags_in_NP);
                 $("#players_container").empty();
+                if (window.players)
+                    window.players.length = 0;
                 freesound_ids = d.retrieved.freesound_ids;
                 getPlayers(freesound_ids, 0);
             })
