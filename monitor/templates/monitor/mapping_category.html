@@ -71,16 +71,11 @@
                 console.log(d);
                 showStats(d);
                 // HERE ADD SOME PLAYERS OF RANDOM SOUNDS LIKE THAT:
+                $("#players_container").empty();
                 for (var i = 0; i < d.retrieved.freesound_ids.length; i++) {
                     if (i === 20) break;
                     getPlayer(d.retrieved.freesound_ids[i])
                 }
-                {% comment %}$.ajax({
-                    url: "{% url 'sound-player' dataset.short_name 1354 %}",
-                    dataType: 'html'
-                }).done(function (data) {
-                    $('#players').html(data);
-                }){% endcomment %}
             })
     }
 
@@ -102,6 +97,17 @@
         $('#players_container').append(vote_sound);
     }
 
+    function switchOption(class_name, switch_dom, switch_button) {
+        return function () {
+            var labels = ['s-Y', 's-U', 's-N'];
+            for (var i = 0; i < 3; i++) {
+                switch_dom.removeClass(labels[i]);
+            }
+            switch_dom.addClass(class_name);
+            switch_button.prop("checked", true)
+        }
+    }
+
     function createSwitch(f_id) {
         var labels = ['s-Y', 's-U', 's-N'];
         var three_way_switch = $("<div>", {
@@ -119,9 +125,10 @@
                 name: f_id,
                 checked: i === 1
             });
+            f_switch.on("click", switchOption(labels[i], three_way_switch, f_switch));
 
             var icon = '';
-            if (i != 1) {
+            if (i !== 1) {
                 var i_class = i ? "red close icon" : "green check icon";
                 icon = $("<i>", {
                     class: i_class
@@ -452,6 +459,37 @@
 
     .three-way-switch.s-U {
         background-color: gray;
+    }
+
+    .three-way-switch.s-Y {
+        background-color: lightgreen;
+    }
+
+    .three-way-switch.s-N {
+        background-color: lightcoral;
+    }
+    .three-way-switch:after {
+        content: '';
+        position: absolute;
+        top: initial;
+        bottom: initial;
+        left: -1px;
+        width: 20px;
+        height: 20px;
+        outline: red;
+        background-color: lightgray;
+        border-radius: 100px;
+        z-index: 1;
+    }
+    .three-way-switch.s-Y:after {
+        background-color: green;
+        bottom: initial;
+        top: 0;
+    }
+    .three-way-switch.s-N:after {
+        background-color: red;
+        top: initial;
+        bottom: 0;
     }
 
     .three-way-switch .switch-label {
