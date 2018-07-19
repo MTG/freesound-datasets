@@ -78,11 +78,20 @@
                 showStats(d);
                 addAllTags(d.retrieved.tags_in_NP);
                 $("#players_container").empty();
-                for (var i = 0; i < d.retrieved.freesound_ids.length; i++) {
-                    if (i === 20) break;
-                    getPlayer(d.retrieved.freesound_ids[i])
-                }
+                freesound_ids = d.retrieved.freesound_ids;
+                getPlayers(freesound_ids, 0);
             })
+    }
+
+    function getMoreSounds() {
+        var num_sounds = $(".vote-sound").length;
+        getPlayers(freesound_ids, num_sounds);
+    }
+
+    function getPlayers(freesound_ids, start_index) {
+        for (var i = start_index; i < start_index + 20; i++) {
+            getPlayer(freesound_ids[i])
+        }
     }
 
     function getPlayer(f_id) {
@@ -455,6 +464,11 @@
     <div id="players_container">
     </div>
 
+    <button type="button" class="ui circular blue icon button" onclick="getMoreSounds();">
+        <i class="ui plus icon"></i>
+        Get more sounds
+    </button>
+
     <style type="text/css">
 
     .common_text {
@@ -507,10 +521,18 @@
         background-color: #f26202;
     }
 
+    #tags-container {
+        max-height: 120px;
+        overflow-y: scroll;
+    }
+
     #players_container {
         display: flex;
         flex-wrap: wrap;
         justify-content: center;
+        overflow-y: scroll;
+        max-height: 500px;
+        margin-bottom: 20px;
     }
 
     .vote-sound {
