@@ -15,6 +15,7 @@ from utils.async_tasks import data_from_async_task
 from utils.redis_store import DATASET_TOP_CONTRIBUTED_CATEGORIES, DATASET_BAD_MAPPING_CATEGORIES, \
     DATASET_DIFFICULT_AGREEMENT_CATEGORIES, DATASET_REMAINING_CANDIDATE_ANNOTATIONS_PER_CATEGORIES, \
     DATASET_CONTRIBUTIONS_PER_DAY, DATASET_GROUND_TRUTH_PER_DAY
+from random import shuffle
 
 
 @login_required
@@ -135,6 +136,7 @@ def mapping_category(request, short_name, node_id):
         quality_estimate = dataset.quality_estimate_mapping(results, node_id)
 
         freesound_ids = list(results.values_list('freesound_id', flat=True))
+        shuffle(freesound_ids)
         quality_estimate['freesound_ids'] = freesound_ids
         quality_estimate['num_sounds'] = len(freesound_ids)
         candidates = list(node.candidate_annotations.values_list('sound_dataset__sound__freesound_id', flat=True))
