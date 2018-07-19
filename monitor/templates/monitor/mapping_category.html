@@ -71,13 +71,72 @@
                 console.log(d);
                 showStats(d);
                 // HERE ADD SOME PLAYERS OF RANDOM SOUNDS LIKE THAT:
-                $.ajax({
+                for (var i = 0; i < d.retrieved.freesound_ids.length; i++) {
+                    if (i === 20) break;
+                    getPlayer(d.retrieved.freesound_ids[i])
+                }
+                {% comment %}$.ajax({
                     url: "{% url 'sound-player' dataset.short_name 1354 %}",
                     dataType: 'html'
                 }).done(function (data) {
                     $('#players').html(data);
-                })
+                }){% endcomment %}
             })
+    }
+
+    function getPlayer(f_id) {
+        $.ajax({
+            url: "/fsd/sound_player/" + f_id + "/",
+            dataType: 'html'
+        }).done(function (data) {
+            buildVotePlayer(f_id, data);
+        })
+    }
+
+    function buildVotePlayer(f_id, player_dom) {
+        var vote_sound = $("<div>", {
+            class: "vote-sound"
+        });
+
+        vote_sound.append([$(player_dom), createSwitch(f_id)]);
+        $('#players_container').append(vote_sound);
+    }
+
+    function createSwitch(f_id) {
+        var labels = ['s-Y', 's-U', 's-N'];
+        var three_way_switch = $("<div>", {
+            class: "three-way-switch s-U"
+        });
+
+        for (var i = 0; i < 3; i++) {
+
+            var ui_switch = $("<div>", {
+                class: "ui radio checkbox"
+            });
+
+            var f_switch = $("<input>", {
+                type: "radio",
+                name: f_id,
+                checked: i === 1
+            });
+
+            var icon = '';
+            if (i != 1) {
+                var i_class = i ? "red close icon" : "green check icon";
+                icon = $("<i>", {
+                    class: i_class
+                });
+            }
+
+            var label = $("<label>", {
+                class: "switch-label"
+            }).append(icon);
+
+            ui_switch.append([f_switch, label]);
+            three_way_switch.append(ui_switch);
+        }
+
+        return three_way_switch;
     }
 
     function showStats (data) {
@@ -306,14 +365,18 @@
         </div>
     </div>
 
-    <div id="players">
+    <h4 class="ui horizontal divider header">
+        <i class="music icon"></i>
+        Sound examples
+    </h4>
 
+    <div id="players_container">
     </div>
 
     <style type="text/css">
 
     .common_text {
-        font-weight: 100;
+        font-weight: 400;
         text-transform: lowercase;
     }
 
@@ -349,17 +412,66 @@
         padding: 0 4px;
     }
 
-    .pp .bar {
+    .res-content .pp .bar {
         background-color: #21ba45;
     }
-    .pnp .bar {
+    .res-content .pnp .bar {
         background-color: #b5cc18;
     }
-    .u .bar {
+    .res-content .u .bar {
         background-color: #eaae00;
     }
-    .np .bar {
+    .res-content .np .bar {
         background-color: #f26202;
+    }
+
+    #players_container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .vote-sound {
+        display: flex;
+        align-items: center;
+        margin-right: 20px;
+        margin-bottom: 20px;
+    }
+
+    .three-way-switch {
+        position: relative;
+        display: inline-flex;
+        flex-direction: column;
+        justify-content: center;
+        width: 20px;
+        border: solid lightgray 1px;
+        -webkit-border-radius: 20px;
+        -moz-border-radius: 20px;
+        border-radius: 20px;
+    }
+
+    .three-way-switch.s-U {
+        background-color: gray;
+    }
+
+    .three-way-switch .switch-label {
+        position: absolute;
+        left: 0;
+        padding: 0 !important;
+    }
+
+    .three-way-switch .checkbox:first-child .switch-label {
+        top: -20px;
+    }
+
+    .three-way-switch .checkbox:last-child .switch-label {
+        bottom: -20px;
+    }
+
+    .three-way-switch .checkbox input,
+    .switch-label:before,
+    .switch-label:after {
+        opacity: 0 !important;
     }
 
     </style>
