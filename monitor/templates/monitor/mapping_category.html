@@ -70,7 +70,7 @@
             .done(function (d) {
                 console.log(d);
                 showStats(d);
-                // HERE ADD SOME PLAYERS OF RANDOM SOUNDS LIKE THAT:
+                addAllTags(d.retrieved.tags_in_NP);
                 $("#players_container").empty();
                 for (var i = 0; i < d.retrieved.freesound_ids.length; i++) {
                     if (i === 20) break;
@@ -222,6 +222,25 @@
         $(".new-distr .u .val")
             .text(new_u.toFixed(1) + "%");
     }
+
+    function returnTag(tag) {
+
+        var label = $('<span>', {
+            class: 'ui small label'
+        }).append(tag[0]);
+        var detail = $('<div>', {
+            class: 'detail'
+        }).append(tag[1]);
+        return label.append(detail);
+    }
+
+    function addAllTags(tags) {
+        var container = $('#tags-container');
+        container.empty();
+        for (var i=0; i<tags.length; i++) {
+            container.append(returnTag(tags[i]));
+        }
+    }
     </script>
 {% endblock %}
 
@@ -369,6 +388,14 @@
             </div>
 
         </div>
+    </div>
+    
+    <h4 class="ui horizontal divider header">
+        <i class="tag icon"></i>
+        Tags occurring in wrong sounds
+    </h4>
+
+    <div id="tags-container">
     </div>
 
     <h4 class="ui horizontal divider header">
