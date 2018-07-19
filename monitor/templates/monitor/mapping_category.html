@@ -9,11 +9,17 @@
 
 {% block page_js %}
     <script type="text/javascript">
+
     $(function () {
         $(".submit-form").on("click", function () {
             submitForm();
         })
     });
+
+    function openFreesoundSoundPage(freesound_id){
+        window.open('https://freesound.org/s/' + freesound_id + '/');
+    }
+
     function addTagRow() {
 
         var container = $(".tag-inputs");
@@ -92,8 +98,25 @@
         var vote_sound = $("<div>", {
             class: "vote-sound"
         });
+        var see_in_freesound = $("<div>", {
+            class: "right floated meta"
+        });
+        see_in_freesound.append(
+            $("<a>", {
+                href: "javascript:void(0);"
+            }).on("click", function () {
+                openFreesoundSoundPage(f_id)
+            }).append([
+                "see in ",
+                $("<img>", {
+                    class: "ui image",
+                    style: "width: 80px; display: inline-block",
+                    src: "{% static 'img/freesound_logo_color.png' %}"
+                })
+            ])
+        );
 
-        vote_sound.append([$(player_dom), createSwitch(f_id)]);
+        vote_sound.append(see_in_freesound, [$(player_dom), createSwitch(f_id)]);
         $('#players_container').append(vote_sound);
     }
 
@@ -467,8 +490,19 @@
     .vote-sound {
         display: flex;
         align-items: center;
+        flex-wrap: wrap;
+        justify-content: space-around;
         margin-right: 20px;
         margin-bottom: 20px;
+        border: solid 1px lightgray;
+        border-radius: 5px;
+        padding: 0;
+        max-width: 200px;
+        font-size: 12px;
+    }
+
+    .vote-sound a {
+        color: gray;
     }
 
     .three-way-switch {
