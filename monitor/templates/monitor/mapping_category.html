@@ -97,6 +97,28 @@
         $('#players_container').append(vote_sound);
     }
 
+    function updateQualityScore() {
+        var quality_container = $('#quality-container');
+        var switches = $('.three-way-switch');
+        var score = 0;
+        var num_votes = 0;
+        var labels = ['s-Y', 's-U', 's-N'];
+        switches.each(function() {
+            if ($(this).hasClass(labels[0])) {
+                score += 1;
+                num_votes += 1;
+            } else if ($(this).hasClass(labels[2])) {
+                num_votes += 1;
+            }
+        });
+        if (num_votes > 0) {
+            var quality = score / num_votes * 100;
+        } else {
+            var quality = 0;
+        }
+        quality_container.html(quality.toFixed(2));
+    }
+
     function switchOption(class_name, switch_dom, switch_button) {
         return function () {
             var labels = ['s-Y', 's-U', 's-N'];
@@ -104,6 +126,7 @@
                 switch_dom.removeClass(labels[i]);
             }
             switch_dom.addClass(class_name);
+            updateQualityScore();
         }
     }
 
@@ -389,7 +412,7 @@
 
         </div>
     </div>
-    
+
     <h4 class="ui horizontal divider header">
         <i class="tag icon"></i>
         Tags occurring in wrong sounds
@@ -402,6 +425,9 @@
         <i class="music icon"></i>
         Sound examples
     </h4>
+    <div class="ui header">Quality:
+        <span id="quality-container">-</span> %
+    </div>
 
     <div id="players_container">
     </div>
