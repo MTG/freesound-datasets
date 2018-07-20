@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from urllib.parse import unquote
 from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
+from django.db import transaction
 from django.db.models import Count
 from django.db.models.functions import TruncDay
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -154,13 +155,16 @@ def mapping_category(request, short_name, node_id):
             return JsonResponse(stats)
 
         elif run_or_submit == 'submit':
-            add_or_replace = dict(request.POST).get('add-or-replace', 'add')
+            add_or_replace = dict(request.POST).get('add-or-replace', ['add'])[0]
             voted_negative = dict(request.POST).get('voted-negative', [])
             results = results.exclude(freesound_id__in=voted_negative)
             name_algorithm = str(positive_tags) + ' AND NOT ' + str(negative_tags)
+            num_new_sounds = 0
+            num_deleted = 0
 
             if add_or_replace == 'add':
                 new_sounds = results.exclude(freesound_id__in=candidates)
+                num_new_sounds = new_sounds.count()
                 for sound in new_sounds:
                     CandidateAnnotation.objects.create(
                         sound_dataset=sound.sounddataset_set.filter(dataset=dataset).first(),
@@ -169,7 +173,29 @@ def mapping_category(request, short_name, node_id):
                         taxonomy_node=node,
                         created_by=request.user
                     )
-            return JsonResponse({'errors': False})
+            elif add_or_replace == 'replace':
+                try:
+                    with transaction.atomic():
+                        new_sounds = results.exclude(freesound_id__in=candidates)
+                        num_deleted = node.candidate_annotations.exclude(sound_dataset__sound__in=results)\
+                                                                .annotate(num_votes=Count('votes'))\
+                                                                .filter(num_votes=0)\
+                                                                .delete()[0]
+                        num_new_sounds = new_sounds.count()
+                        for sound in new_sounds:
+                            CandidateAnnotation.objects.create(
+                                sound_dataset=sound.sounddataset_set.filter(dataset=dataset).first(),
+                                type='AU',
+                                algorithm='platform_mapping: {}'.format(name_algorithm),
+                                taxonomy_node=node,
+                                created_by=request.user
+                            )
+                except:
+                    return JsonResponse({'error': True})
+
+            return JsonResponse({'error': False,
+                                 'num_candidates_added': num_new_sounds,
+                                 'num_candidates_deleted': num_deleted})
 
     elif request.method == 'GET':
         return render(request, 'monitor/mapping_category.html', {
