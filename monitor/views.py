@@ -198,9 +198,18 @@ def mapping_category(request, short_name, node_id):
                                  'num_candidates_deleted': num_deleted})
 
     elif request.method == 'GET':
+        mapping_rule = [dataset.taxonomy.data[node_id].get('fs_tags', ''),
+                        dataset.taxonomy.data[node_id].get('omit_fs_tags', '')]
+        platform_mapping_rules = list(set(node.candidate_annotations.values_list('algorithm', flat=True)))
+        platform_mapping_rules.remove('tag_matching_mtg_1')
+        platform_mapping_rules_formated = [(m.split(' AND NOT ')[0].split('platform_mapping: ')[1],
+                                            m.split(' AND NOT ')[1])
+                                           for m in platform_mapping_rules]
         return render(request, 'monitor/mapping_category.html', {
             'dataset': dataset,
-            'node': node
+            'node': node,
+            'mapping_rule': mapping_rule,
+            'platform_mapping_rules': platform_mapping_rules_formated
         })
 
 

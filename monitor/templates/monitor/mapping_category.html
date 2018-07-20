@@ -360,6 +360,31 @@
 {% block content %}
     <h1 class="ui header">Monitor the mapping of <span class="ui big label">{{ node.name }}</span></h1>
 
+    <div class="ui segment" style="position: relative;">
+        <h4>Mapping rules originally used:</h4>
+        <div class="ui stackable grid">
+            <div class="eight wide column">
+                <div class="ui green header">Include tags</div> {{ mapping_rule.0 }}
+            </div>
+            <div class="eight wide column">
+                <div class="ui red header">Omit tags</div> {{ mapping_rule.1 }}
+            </div>
+        </div>
+        <h4>Mapping rules used in the platform:</h4>
+        {% for platform_mapping_rule in platform_mapping_rules %}
+            <div class="ui stackable grid">
+                <div class="eight wide column">
+                    <div class="ui green header">Include tags</div> {{ platform_mapping_rule.0 }}
+                </div>
+                <div class="eight wide column">
+                    <div class="ui red header">Omit tags</div> {{ platform_mapping_rule.1 }}
+                </div>
+            </div>
+        {% empty %}
+            -
+        {% endfor %}
+    </div>
+
     <div class="ui raised segment" style="position: relative;">
 
         <h4 class="ui dividing header">
