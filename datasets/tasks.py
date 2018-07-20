@@ -186,7 +186,7 @@ def compute_annotators_ranking(store_key, dataset_id, N=10):
         ranking_agreement_today = list()
         for user in User.objects.all():
             # all time
-            n_annotations = CandidateAnnotation.objects.filter(created_by=user, sound_dataset__dataset=dataset).count()
+            n_annotations = CandidateAnnotation.objects.filter(created_by=user, sound_dataset__dataset=dataset, type='MA').count()
             n_votes = Vote.objects.filter(created_by=user, candidate_annotation__sound_dataset__dataset=dataset).count()
             ranking.append(
                 (user.username, n_annotations + n_votes)
@@ -194,7 +194,7 @@ def compute_annotators_ranking(store_key, dataset_id, N=10):
 
             # last week
             n_annotations_last_week = CandidateAnnotation.objects.filter(
-                created_at__gt=reference_date, created_by=user, sound_dataset__dataset=dataset).count()
+                created_at__gt=reference_date, created_by=user, sound_dataset__dataset=dataset, type='MA').count()
             n_votes_last_week = Vote.objects.filter(
                 created_at__gt=reference_date, created_by=user, candidate_annotation__sound_dataset__dataset=dataset).count()
             ranking_last_week.append(
@@ -204,7 +204,7 @@ def compute_annotators_ranking(store_key, dataset_id, N=10):
             # today
             agreement_score = 0
             n_annotations_today = CandidateAnnotation.objects.filter(
-                created_at__gt=current_day_date, created_by=user, sound_dataset__dataset=dataset).count()
+                created_at__gt=current_day_date, created_by=user, sound_dataset__dataset=dataset, type='MA').count()
             n_votes_today = Vote.objects.filter(
                 created_at__gt=current_day_date, created_by=user, candidate_annotation__sound_dataset__dataset=dataset).count()
 

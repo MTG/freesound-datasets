@@ -5,7 +5,7 @@ from django.db.models import Count
 from django.db.models.functions import TruncDay
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.urlresolvers import reverse
-from datasets.models import Dataset, User
+from datasets.models import Dataset, User, CandidateAnnotation
 from datasets.utils import stem
 from datasets.templatetags.general_templatetags import sound_player
 from monitor.tasks import compute_dataset_top_contributed_categories, compute_dataset_bad_mapping, \
@@ -119,6 +119,8 @@ def mapping_category(request, short_name, node_id):
     node = dataset.taxonomy.get_element_at_id(node_id)
 
     if request.method == 'POST':
+        run_or_submit = dict(request.POST).get('run-or-submit', ['run'])[0]
+
         positive_tags_raw = dict(request.POST).get('positive-tags', '')  # e.g. ['dog, cat', 'dog']
         negative_tags_raw = dict(request.POST).get('negative-tags', '')
         preproc_positive = True if dict(request.POST).get('preproc-positive', ['true']) == ['true'] else False
@@ -133,22 +135,41 @@ def mapping_category(request, short_name, node_id):
                          for tag in tags.split(',') if tags != '']
 
         results = dataset.retrieve_sound_by_tags(positive_tags, negative_tags, preproc_positive, preproc_negative)
-        quality_estimate = dataset.quality_estimate_mapping(results, node_id)
-
-        freesound_ids = list(results.values_list('freesound_id', flat=True))
-        shuffle(freesound_ids)
-        quality_estimate['freesound_ids'] = freesound_ids
-        quality_estimate['num_sounds'] = len(freesound_ids)
         candidates = list(node.candidate_annotations.values_list('sound_dataset__sound__freesound_id', flat=True))
-        num_common_sounds = len(list(set(candidates).intersection(set(freesound_ids))))
 
-        stats = {
-            'retrieved': quality_estimate,
-            'mapping': node.quality_estimate,
-            'num_common_sounds': num_common_sounds
-        }
+        if run_or_submit == 'run':
+            quality_estimate = dataset.quality_estimate_mapping(results, node_id)
+            freesound_ids = list(results.values_list('freesound_id', flat=True))
+            shuffle(freesound_ids)
+            quality_estimate['freesound_ids'] = freesound_ids
+            quality_estimate['num_sounds'] = len(freesound_ids)
+            num_common_sounds = len(list(set(candidates).intersection(set(freesound_ids))))
 
-        return JsonResponse(stats)
+            stats = {
+                'retrieved': quality_estimate,
+                'mapping': node.quality_estimate,
+                'num_common_sounds': num_common_sounds
+            }
+
+            return JsonResponse(stats)
+
+        elif run_or_submit == 'submit':
+            add_or_replace = dict(request.POST).get('add-or-replace', 'add')
+            voted_negative = dict(request.POST).get('voted-negative', [])
+            results = results.exclude(freesound_id__in=voted_negative)
+            name_algorithm = str(positive_tags) + ' AND NOT ' + str(negative_tags)
+
+            if add_or_replace == 'add':
+                new_sounds = results.exclude(freesound_id__in=candidates)
+                for sound in new_sounds:
+                    CandidateAnnotation.objects.create(
+                        sound_dataset=sound.sounddataset_set.filter(dataset=dataset).first(),
+                        type='AU',
+                        algorithm='platform_mapping: {}'.format(name_algorithm),
+                        taxonomy_node=node,
+                        created_by=request.user
+                    )
+            return JsonResponse({'errors': False})
 
     elif request.method == 'GET':
         return render(request, 'monitor/mapping_category.html', {
