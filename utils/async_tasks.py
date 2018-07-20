@@ -24,14 +24,14 @@ def data_from_async_task(task_func, task_args, task_kwargs, store_key, refresh_t
 
 
 @task_prerun.connect()
-def task_prerun(signal=None, sender=None, task_id=None, task=None, args=None, kwargs=None):
+def task_prerun(signal=None, sender=None, task_id=None, task=None, args=None, **kwargs):
     # Set computing key
     computing_store_key = 'computing-{0}'.format(task.name)
     store.set(computing_store_key, {'running': True})
 
 
 @task_postrun.connect()
-def task_postrun(signal=None, sender=None, task_id=None, task=None, args=None, kwargs=None, retval=None, state=None):
+def task_postrun(signal=None, sender=None, task_id=None, task=None, retval=None, state=None, args=None, **kwargs):
     # Delete computing key (if present)
     computing_store_key = 'computing-{0}'.format(task.name)
     store.delete(computing_store_key)
