@@ -151,7 +151,6 @@ def mapping_category(request, short_name, node_id):
                 'mapping': node.quality_estimate,
                 'num_common_sounds': num_common_sounds
             }
-
             return JsonResponse(stats)
 
         # Submit the retrieved sounds
@@ -164,14 +163,19 @@ def mapping_category(request, short_name, node_id):
                 results = dataset.sounds.filter(freesound_id__in=freesound_ids)
                 new_sounds = results.exclude(freesound_id__in=candidates)
                 num_new_sounds = new_sounds.count()
-                for sound in new_sounds:
-                    CandidateAnnotation.objects.create(
-                        sound_dataset=sound.sounddataset_set.filter(dataset=dataset).first(),
-                        type='MA',
-                        algorithm='platform_manual: By Freesound ID',
-                        taxonomy_node=node,
-                        created_by=request.user
-                    )
+                try:
+                    with transaction.atomic():
+                        for sound in new_sounds:
+                            CandidateAnnotation.objects.create(
+                                sound_dataset=sound.sounddataset_set.filter(dataset=dataset).first(),
+                                type='MA',
+                                algorithm='platform_manual: By Freesound ID',
+                                taxonomy_node=node,
+                                created_by=request.user
+                            )
+                except:
+                    return JsonResponse({'error': True})
+
                 return JsonResponse({'error': False,
                                      'num_candidates_added': num_new_sounds,
                                      'num_candidates_deleted': 0})
@@ -189,14 +193,20 @@ def mapping_category(request, short_name, node_id):
                 if add_or_replace == 'add':
                     new_sounds = results.exclude(freesound_id__in=candidates)
                     num_new_sounds = new_sounds.count()
-                    for sound in new_sounds:
-                        CandidateAnnotation.objects.create(
-                            sound_dataset=sound.sounddataset_set.filter(dataset=dataset).first(),
-                            type='AU',
-                            algorithm='platform_mapping: {}'.format(name_algorithm),
-                            taxonomy_node=node,
-                            created_by=request.user
-                        )
+                    try:
+                        with transaction.atomic():
+                            for sound in new_sounds:
+                                CandidateAnnotation.objects.create(
+                                    sound_dataset=sound.sounddataset_set.filter(dataset=dataset).first(),
+                                    type='AU',
+                                    algorithm='platform_mapping: {}'.format(name_algorithm),
+                                    taxonomy_node=node,
+                                    created_by=request.user
+                                )
+                    except:
+                        return JsonResponse({'error': True})
+
+                # Replace the actual candidates with the retrieved ones (deletes only candidates never voted)
                 elif add_or_replace == 'replace':
                     try:
                         with transaction.atomic():
