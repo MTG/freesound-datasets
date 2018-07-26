@@ -75,14 +75,16 @@ def monitor_user(request, short_name, user_id):
     if not dataset.user_is_maintainer(request.user):
         return HttpResponseRedirect(reverse('dataset', args=[dataset.short_name]))
     user = get_object_or_404(User, id=user_id)
-    contribs = list(user.votes.filter(candidate_annotation__sound_dataset__dataset=dataset)\
-                        .annotate(day=TruncDay('created_at'))\
-                        .values('day').annotate(count=Count('id'))\
+    contribs = list(user.votes.filter(candidate_annotation__sound_dataset__dataset=dataset)
+                        .annotate(day=TruncDay('created_at'))
+                        .order_by("-day")
+                        .values('day').annotate(count=Count('id'))
                         .values_list('day', 'count', 'candidate_annotation__taxonomy_node__name'))
-    contribs_failed = list(user.votes.filter(candidate_annotation__sound_dataset__dataset=dataset)\
-                               .filter(test='FA')\
-                               .annotate(day=TruncDay('created_at'))\
-                               .values('day').annotate(count=Count('id'))\
+    contribs_failed = list(user.votes.filter(candidate_annotation__sound_dataset__dataset=dataset)
+                               .filter(test='FA')
+                               .annotate(day=TruncDay('created_at'))
+                               .order_by("-day")
+                               .values('day').annotate(count=Count('id'))
                                .values_list('day', 'count', 'candidate_annotation__taxonomy_node__name'))
 
     contribs[0] += ('g',)
@@ -102,9 +104,6 @@ def monitor_user(request, short_name, user_id):
                 else:
                     contribs_failed[idx] += ('g',) if contribs_failed[idx-1][3] == 'w' else ('w',)
 
-    contribs.reverse()
-    contribs_failed.reverse()
-    
     return render(request, 'monitor/monitor_user.html', {'dataset': dataset,
                                                          'username': user.username,
                                                          'contribs': contribs,
