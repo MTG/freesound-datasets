@@ -137,6 +137,7 @@ def mapping_category(request, short_name, node_id):
         results = dataset.retrieve_sound_by_tags(positive_tags, negative_tags, preproc_positive, preproc_negative)
         candidates = list(node.candidate_annotations.values_list('sound_dataset__sound__freesound_id', flat=True))
 
+        # Run the mapping strategy and return the retrieved sounds and some statistics
         if run_or_submit == 'run':
             quality_estimate = dataset.quality_estimate_mapping(results, node_id)
             freesound_ids = list(results.values_list('freesound_id', flat=True))
@@ -153,8 +154,11 @@ def mapping_category(request, short_name, node_id):
 
             return JsonResponse(stats)
 
+        # Submit the retrieved sounds
         elif run_or_submit == 'submit':
             freesound_ids_str = dict(request.POST).get('freesound-ids', [None])[0]
+
+            # Retrieved by Freesound IDs
             if freesound_ids_str:
                 freesound_ids = freesound_ids_str.split(',')
                 results = dataset.sounds.filter(freesound_id__in=freesound_ids)
@@ -172,6 +176,7 @@ def mapping_category(request, short_name, node_id):
                                      'num_candidates_added': num_new_sounds,
                                      'num_candidates_deleted': 0})
 
+            # Retrieved by the tag based query
             else:
                 add_or_replace = dict(request.POST).get('add-or-replace', ['add'])[0]
                 voted_negative = dict(request.POST).get('voted-negative', [])
@@ -180,6 +185,7 @@ def mapping_category(request, short_name, node_id):
                 num_new_sounds = 0
                 num_deleted = 0
 
+                # Add the new candidates to the existing ones
                 if add_or_replace == 'add':
                     new_sounds = results.exclude(freesound_id__in=candidates)
                     num_new_sounds = new_sounds.count()
