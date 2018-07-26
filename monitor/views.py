@@ -155,52 +155,72 @@ def mapping_category(request, short_name, node_id):
             return JsonResponse(stats)
 
         elif run_or_submit == 'submit':
-            add_or_replace = dict(request.POST).get('add-or-replace', ['add'])[0]
-            voted_negative = dict(request.POST).get('voted-negative', [])
-            results = results.exclude(freesound_id__in=voted_negative)
-            name_algorithm = str(positive_tags) + ' AND NOT ' + str(negative_tags)
-            num_new_sounds = 0
-            num_deleted = 0
-
-            if add_or_replace == 'add':
+            freesound_ids_str = dict(request.POST).get('freesound-ids', [None])[0]
+            if freesound_ids_str:
+                freesound_ids = freesound_ids_str.split(',')
+                results = dataset.sounds.filter(freesound_id__in=freesound_ids)
                 new_sounds = results.exclude(freesound_id__in=candidates)
                 num_new_sounds = new_sounds.count()
                 for sound in new_sounds:
                     CandidateAnnotation.objects.create(
                         sound_dataset=sound.sounddataset_set.filter(dataset=dataset).first(),
-                        type='AU',
-                        algorithm='platform_mapping: {}'.format(name_algorithm),
+                        type='MA',
+                        algorithm='platform_manual: By Freesound ID',
                         taxonomy_node=node,
                         created_by=request.user
                     )
-            elif add_or_replace == 'replace':
-                try:
-                    with transaction.atomic():
-                        new_sounds = results.exclude(freesound_id__in=candidates)
-                        num_deleted = node.candidate_annotations.exclude(sound_dataset__sound__in=results)\
-                                                                .annotate(num_votes=Count('votes'))\
-                                                                .filter(num_votes=0)\
-                                                                .delete()[0]
-                        num_new_sounds = new_sounds.count()
-                        for sound in new_sounds:
-                            CandidateAnnotation.objects.create(
-                                sound_dataset=sound.sounddataset_set.filter(dataset=dataset).first(),
-                                type='AU',
-                                algorithm='platform_mapping: {}'.format(name_algorithm),
-                                taxonomy_node=node,
-                                created_by=request.user
-                            )
-                except:
-                    return JsonResponse({'error': True})
+                return JsonResponse({'error': False,
+                                     'num_candidates_added': num_new_sounds,
+                                     'num_candidates_deleted': 0})
 
-            return JsonResponse({'error': False,
-                                 'num_candidates_added': num_new_sounds,
-                                 'num_candidates_deleted': num_deleted})
+            else:
+                add_or_replace = dict(request.POST).get('add-or-replace', ['add'])[0]
+                voted_negative = dict(request.POST).get('voted-negative', [])
+                results = results.exclude(freesound_id__in=voted_negative)
+                name_algorithm = str(positive_tags) + ' AND NOT ' + str(negative_tags)
+                num_new_sounds = 0
+                num_deleted = 0
+
+                if add_or_replace == 'add':
+                    new_sounds = results.exclude(freesound_id__in=candidates)
+                    num_new_sounds = new_sounds.count()
+                    for sound in new_sounds:
+                        CandidateAnnotation.objects.create(
+                            sound_dataset=sound.sounddataset_set.filter(dataset=dataset).first(),
+                            type='AU',
+                            algorithm='platform_mapping: {}'.format(name_algorithm),
+                            taxonomy_node=node,
+                            created_by=request.user
+                        )
+                elif add_or_replace == 'replace':
+                    try:
+                        with transaction.atomic():
+                            new_sounds = results.exclude(freesound_id__in=candidates)
+                            num_deleted = node.candidate_annotations.exclude(sound_dataset__sound__in=results)\
+                                                                    .annotate(num_votes=Count('votes'))\
+                                                                    .filter(num_votes=0)\
+                                                                    .delete()[0]
+                            num_new_sounds = new_sounds.count()
+                            for sound in new_sounds:
+                                CandidateAnnotation.objects.create(
+                                    sound_dataset=sound.sounddataset_set.filter(dataset=dataset).first(),
+                                    type='AU',
+                                    algorithm='platform_mapping: {}'.format(name_algorithm),
+                                    taxonomy_node=node,
+                                    created_by=request.user
+                                )
+                    except:
+                        return JsonResponse({'error': True})
+
+                return JsonResponse({'error': False,
+                                     'num_candidates_added': num_new_sounds,
+                                     'num_candidates_deleted': num_deleted})
 
     elif request.method == 'GET':
         mapping_rule = [dataset.taxonomy.data[node_id].get('fs_tags', ''),
                         dataset.taxonomy.data[node_id].get('omit_fs_tags', '')]
-        platform_mapping_rules = list(set(node.candidate_annotations.values_list('algorithm', flat=True)))
+        platform_mapping_rules = list(set(node.candidate_annotations.exclude(type='MA')
+                                          .values_list('algorithm', flat=True)))
         platform_mapping_rules.remove('tag_matching_mtg_1')
         platform_mapping_rules_formated = [(m.split(' AND NOT ')[0].split('platform_mapping: ')[1],
                                             m.split(' AND NOT ')[1])

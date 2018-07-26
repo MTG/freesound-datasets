@@ -13,7 +13,10 @@
     $(function () {
         $(".submit-form").on("click", function () {
             submitForm();
-        })
+        });
+        $(".submit-id-form").on("click", function () {
+            submitIdForm();
+        });
     });
 
     function openFreesoundSoundPage(freesound_id){
@@ -82,6 +85,33 @@
                 freesound_ids = d.retrieved.freesound_ids;
                 getPlayers(freesound_ids, 0);
             })
+    }
+
+    function submitIdForm() {
+        var input_freesound_ids = $('#freesound-ids').val();
+        $.ajax({
+            url: "{% url 'mapping-category' dataset.short_name node.url_id %}",
+            type: "POST",
+            data: {
+                "positive-tags": null,
+                "preproc-positive": null,
+                "negative-tags": null,
+                "preproc-negative": null,
+                "add-or-replace": 'add',
+                "run-or-submit": "submit",
+                "freesound-ids": input_freesound_ids,
+                csrfmiddlewaretoken: "{{ csrf_token }}"
+            },
+            traditional: true
+        }).done(function(d) {
+            if (d.error) {
+                $('#feedback-span').html('An error occurred, nothing happened. Contact administrator if it happens again');
+            } else {
+                $('#feedback-span').html('Added ' + d.num_candidates_added + ' candidates!' +
+                    ' Removed ' + d.num_candidates_deleted + ' candidates!');
+            }
+            $('.feedback.ui.modal').modal('show');
+        });
     }
 
     function submitMapping(add_or_replace) {
@@ -386,7 +416,31 @@
     </div>
 
     <div class="ui raised segment" style="position: relative;">
+        <h4 class="ui dividing header" style="margin-bottom:25px;">
+            <div class="content">
+                Filter by ID
+            </div>
+        </h4>
 
+        <div class="ui stackable grid">
+            <div class="ui form">
+                <div class="inline field">
+                    <label>Comma separated Freesound IDs</label>
+                    <input type="text" placeholder="Freesound IDs string" id="freesound-ids" style="width: 100%;"/>
+                </div>
+            </div>
+        </div>
+        <div class="ui clearing divider" style="margin-top:25px;"></div>
+
+        <center>
+        <button type="button" class="ui circular icon button submit-id-form">
+            <i class="ui plus icon"></i>
+            Add new candidates
+        </button>
+        </center>
+    </div>
+
+    <div class="ui raised segment" style="position: relative;">
         <h4 class="ui dividing header">
             <div class="content">
                 Filter by tags
