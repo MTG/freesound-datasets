@@ -11,6 +11,7 @@ import json
 import math
 import logging
 import datetime
+from datasets.utils import stem
 
 logger = logging.getLogger('tasks')
 
@@ -203,7 +204,7 @@ def compute_annotators_ranking(store_key, dataset_id, N=10):
         ranking_agreement_today = list()
         for user in User.objects.all():
             # all time
-            n_annotations = CandidateAnnotation.objects.filter(created_by=user, sound_dataset__dataset=dataset).count()
+            n_annotations = CandidateAnnotation.objects.filter(created_by=user, sound_dataset__dataset=dataset, type='MA').count()
             n_votes = Vote.objects.filter(created_by=user, candidate_annotation__sound_dataset__dataset=dataset).count()
             ranking.append(
                 (user.username, n_annotations + n_votes)
@@ -211,7 +212,7 @@ def compute_annotators_ranking(store_key, dataset_id, N=10):
 
             # last week
             n_annotations_last_week = CandidateAnnotation.objects.filter(
-                created_at__gt=reference_date, created_by=user, sound_dataset__dataset=dataset).count()
+                created_at__gt=reference_date, created_by=user, sound_dataset__dataset=dataset, type='MA').count()
             n_votes_last_week = Vote.objects.filter(
                 created_at__gt=reference_date, created_by=user, candidate_annotation__sound_dataset__dataset=dataset).count()
             ranking_last_week.append(
@@ -221,7 +222,7 @@ def compute_annotators_ranking(store_key, dataset_id, N=10):
             # today
             agreement_score = 0
             n_annotations_today = CandidateAnnotation.objects.filter(
-                created_at__gt=current_day_date, created_by=user, sound_dataset__dataset=dataset).count()
+                created_at__gt=current_day_date, created_by=user, sound_dataset__dataset=dataset, type='MA').count()
             n_votes_today = Vote.objects.filter(
                 created_at__gt=current_day_date, created_by=user, candidate_annotation__sound_dataset__dataset=dataset).count()
 
@@ -301,3 +302,28 @@ def refresh_sound_extra_data():
             sound.extra_data.update(freesound_sound.as_dict())
             sound.save()
     logger.info('Finished refreshing freesound sound extra data')
+
+
+@shared_task
+def compute_priority_score_candidate_annotations():
+    logger.info('Start computing priority score of candidate annotations')
+    dataset = Dataset.objects.get(short_name='fsd')
+    candidate_annotations = dataset.candidate_annotations.filter(ground_truth=None)
+    with transaction.atomic():
+        for candidate_annotation in candidate_annotations:
+            candidate_annotation.priority_score = candidate_annotation.return_priority_score()
+            candidate_annotation.save()
+    logger.info('Finished computing priority score of candidate annotations')
+
+
+@shared_task
+def stem_dataset_sound_tags():
+    logger.info('Start computing stem tags for FSD sounds')
+    dataset = Dataset.objects.get(short_name='fsd')
+    with transaction.atomic():
+        for sound in dataset.sounds.all():
+            tags = sound.extra_data['tags']
+            stemmed_tags = [stem(tag) for tag in tags]
+            sound.extra_data['stemmed_tags'] = stemmed_tags
+            sound.save()
+    logger.info('Finished computing stem tags for FSD sounds')

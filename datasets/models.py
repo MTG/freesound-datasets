@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 
 import collections
-from django.db import models
+from django.db import models, transaction
 from django.db.models import Count, Q
 from django.contrib.postgres.fields import JSONField
 from django.contrib.auth.models import User
@@ -16,6 +16,7 @@ from django.utils import timezone
 from django.core.validators import RegexValidator
 from django.core.exceptions import ObjectDoesNotExist
 from urllib.parse import quote
+from functools import reduce
 
 
 class Taxonomy(models.Model):
@@ -417,6 +418,30 @@ class TaxonomyNode(models.Model):
     def hierarchy_paths(self):
         return self.taxonomy.get_hierarchy_paths(self.node_id)
 
+    def quality_estimate(self):
+        votes = list(Vote.objects.filter(candidate_annotation__taxonomy_node=self)\
+                                 .exclude(test='FA')\
+                                 .values_list('vote', flat=True))
+        num_PP = votes.count(1.0)
+        num_PNP = votes.count(0.5)
+        num_NP = votes.count(-1)
+        num_U = votes.count(0)
+        num_votes = num_PP + num_PNP + num_NP + num_U
+        try:
+            quality_estimate = float(num_PP + num_PNP) / num_votes
+        except ZeroDivisionError:
+            quality_estimate = 0
+
+        return {
+            'quality_estimate': quality_estimate,
+            'num_PP': num_PP,
+            'num_PNP': num_PNP,
+            'num_NP': num_NP,
+            'num_U': num_U,
+            'num_votes': num_votes,
+            'num_sounds': self.candidate_annotations.count()
+        }
+
     def __str__(self):
         return '{0} ({1})'.format(self.name, self.node_id)
 
@@ -552,8 +577,11 @@ class Dataset(models.Model):
             sound_dataset__sound__in=sound_examples,
             taxonomy_node=node).values_list('id', flat=True)
 
-        num_eligible_annotations = self.non_ground_truth_annotations_per_taxonomy_node(node_id)\
-            .exclude(votes__created_by=user)\
+        num_eligible_annotations = self.non_ground_truth_annotations_per_taxonomy_node(node_id) \
+            .exclude(id__in=Vote.objects.filter(candidate_annotation__taxonomy_node=node,
+                                                created_by=user,
+                                                test__in=('UN', 'AP', 'PP', 'NA', 'NP'))
+                     .values('candidate_annotation_id')) \
             .exclude(id__in=annotation_examples_verification_ids)\
             .exclude(id__in=annotation_examples_ids)\
             .filter(sound_dataset__sound__deleted_in_freesound=False).count()
@@ -614,6 +642,70 @@ class Dataset(models.Model):
         num_nodes_finished_verifying = self.taxonomy.taxonomynode_set.filter(omitted=False, nb_ground_truth__lt=100)\
             .exclude(pk__in=set(nodes_pk)).count()
         return num_nodes_reached_goal + num_nodes_finished_verifying
+
+    def retrieve_sound_by_tags(self, positive_tags, negative_tags, preproc_positive=True, preproc_negative=False):
+        r = self.sounds.all()
+        if positive_tags:
+            if preproc_positive:
+                r = r.filter(reduce(lambda x, y: x | y,
+                                    [reduce(lambda w, z: w & z, [Q(extra_data__stemmed_tags__contains=item)
+                                                                 if type(items) == list
+                                                                 else Q(extra_data__stemmed_tags__contains=items)
+                                                                 for item in items])
+                                     for items in positive_tags]))
+            else:
+                r = r.filter(reduce(lambda x, y: x | y,
+                                    [reduce(lambda w, z: w & z, [Q(extra_data__tags__contains=item)
+                                                                 if type(items) == list
+                                                                 else Q(extra_data__tags__contains=items)
+                                                                 for item in items])
+                                     for items in positive_tags]))
+
+        if negative_tags:
+            if preproc_negative:
+                for negative_tag in negative_tags:
+                    r = r.exclude(extra_data__stemmed_tags__contains=negative_tag)
+            else:
+                for negative_tag in negative_tags:
+                    r = r.exclude(extra_data__tags__contains=negative_tag)
+        return r
+
+    def quality_estimate_mapping(self, results, node_id):
+        votes = Vote.objects.filter(candidate_annotation__sound_dataset__dataset=self,
+                                    candidate_annotation__taxonomy_node__node_id=node_id,
+                                    candidate_annotation__sound_dataset__sound__in=results.values_list('id', flat=True))\
+                            .exclude(test='FA')
+        votes_values = list(votes.values_list('vote', flat=True))
+        num_votes = len(votes_values)
+
+        num_PP = votes_values.count(1.0)
+        num_PNP = votes_values.count(0.5)
+        num_NP = votes_values.count(-1)
+        num_U = votes_values.count(0)
+
+        tags_in_NP = [tag
+                      for v in votes if v.vote == -1
+                      for tag in v.candidate_annotation.sound_dataset.sound.extra_data['tags']]
+        tags_with_count = sorted(list(set([(i, tags_in_NP.count(i)) for i in tags_in_NP])),
+                                 key=lambda x: x[1],
+                                 reverse=True)
+
+        try:
+            quality_estimate = float(num_PP + num_PNP) / num_votes
+        except ZeroDivisionError:
+            quality_estimate = 0
+
+        result = {
+            'quality_estimate': quality_estimate,
+            'num_PP': num_PP,
+            'num_PNP': num_PNP,
+            'num_NP': num_NP,
+            'num_U': num_U,
+            'num_votes': num_votes,
+            'tags_in_NP': tags_with_count
+        }
+
+        return result
 
 
 class DatasetRelease(models.Model):
@@ -683,6 +775,7 @@ class CandidateAnnotation(models.Model):
     created_by = models.ForeignKey(User, related_name='candidate_annotations', null=True, on_delete=models.SET_NULL)
     sound_dataset = models.ForeignKey(SoundDataset, related_name='candidate_annotations')
     taxonomy_node = models.ForeignKey(TaxonomyNode, blank=True, null=True, related_name='candidate_annotations')
+    priority_score = models.IntegerField(default=1)
 
     def __str__(self):
         return 'Annotation for sound {0}'.format(self.sound_dataset.sound.id)
@@ -697,7 +790,7 @@ class CandidateAnnotation(models.Model):
         Returns the ground truth vote value of the annotation
         Returns None if there is no ground truth value
         """
-        vote_values = [v.vote for v in self.votes.all() if v.test is not 'FA']
+        vote_values = [v.vote for v in self.votes.all() if v.test != 'FA']
         # all the test cases are considered valid except the Failed one
         if vote_values.count(1) > 1:
             return 1
@@ -715,7 +808,7 @@ class CandidateAnnotation(models.Model):
         return self.sound_dataset.sound.freesound_id
 
     def num_vote_value(self, value):
-        vote_values = [v.vote for v in self.votes.all() if v.test is not 'FA']
+        vote_values = [v.vote for v in self.votes.all() if v.test != 'FA']
         return vote_values.count(value)
 
     @property
@@ -733,6 +826,22 @@ class CandidateAnnotation(models.Model):
     @property
     def num_NP(self):
         return self.num_vote_value(-1)
+
+    def return_priority_score(self):
+        sound = self.sound_dataset.sound
+        sound_duration = sound.extra_data['duration']
+        if not 0.3 <= sound_duration <= 30:
+            return self.votes.count()
+        else:
+            duration_score = 3 if sound_duration <= 10 else 2 if sound_duration <= 20 else 1
+            num_gt_same_sound = self.sound_dataset.ground_truth_annotations.filter(from_propagation=False).count()
+            return 1000 * self.votes.count()\
+                 +  100 * duration_score\
+                 +        num_gt_same_sound
+
+    def update_priority_score(self):
+        self.priority_score = self.return_priority_score()
+        self.save()
 
 
 class GroundTruthAnnotation(models.Model):
@@ -770,10 +879,14 @@ class GroundTruthAnnotation(models.Model):
                                                             from_propagation=True)
 
     # Update number of ground truth annotations per taxonomy node each time a ground truth annotations is generated
+    # Update priority score of candidate annotations associated to the same sound (only for non propagated gt annotations)
     def save(self, *args, **kwargs):
         super(GroundTruthAnnotation, self).save(*args, **kwargs)
         self.taxonomy_node.nb_ground_truth = self.taxonomy_node.num_ground_truth_annotations
         self.taxonomy_node.save()
+        if not self.from_propagation:
+            for candidate_annotation in self.sound_dataset.candidate_annotations.all():
+                candidate_annotation.update_priority_score()
 
 
 # choices for quality control test used in Vote and User Profile
@@ -808,6 +921,7 @@ class Vote(models.Model):
     def save(self, request=False, *args, **kwargs):
         super(Vote, self).save(*args, **kwargs)
         # here calculate ground truth for vote.annotation
+        # create ground truth annotations, update priority score when needed
         candidate_annotation = self.candidate_annotation
         ground_truth_state = candidate_annotation.ground_truth_state
         if ground_truth_state in (-1.0, 0):     # annotation reach NP or U state
@@ -831,6 +945,8 @@ class Vote(models.Model):
                     from_propagation=False)
                 if created:
                     ground_truth_annotation.propagate_annotation()
+        else:  # annotation does not reach gt state, update its priority score
+            candidate_annotation.update_priority_score()
 
 
 class CategoryComment(models.Model):
@@ -852,6 +968,13 @@ class Profile(models.Model):
     def refresh_countdown(self):
         self.countdown_trustable = 3
         self.save()
+
+    @property
+    def last_date_annotated(self):
+        try:
+            return self.user.votes.order_by('-created_at')[0].created_at
+        except:
+            return None
 
     @property
     def contributed_recently(self):

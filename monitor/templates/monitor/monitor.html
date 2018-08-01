@@ -11,6 +11,7 @@
         $(document).ready(function(){
             $('.ui.accordion').accordion();
             $('#category-table').DataTable();
+            $('#user-table').DataTable();
 
             var contributions = JSON.parse('{{ num_contributions_per_day.contribution_per_day | safe }}');
 
@@ -150,6 +151,7 @@
 {% endblock %}
 
 {% block content %}
+    {#    MONITOR CONTRIBTUIONS AND CATEGORIES    #} 
     <h1 class="ui header">Monitor categories of {{dataset.short_name|upper}}</h1>
     <br>
 
@@ -474,6 +476,34 @@
         </div>
     <br>
 
+    {#    MONITOR USERS    #} 
+    <h1 class="ui header">Monitor contributors of {{dataset.short_name|upper}}</h1><br>
+    <div class="title">
+        <h2 class="ui header"><i class="dropdown icon"></i> Monitor users </h2>
     </div>
+    <div class="content">
+        <table id="user-table" class="ui unstackable table" width="100%" style="margin-bottom:5px;">
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th># votes</th>
+                    <th>Last time annotated</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for user in users %}
+                <tr>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.num_votes }}</td>
+                    <td><span style="display:none;">{{ user.profile.last_date_annotated |date:"YmdHis" }}</span>{{ user.profile.last_date_annotated }}</td>
+                    <td class="right aligned"><a href="{% url 'monitor-user' dataset.short_name user.id %}" class="blue ui button right labeled icon">Go<i class="right arrow icon"></i></a></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+<br>
+</div>
 
 {% endblock %}
