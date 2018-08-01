@@ -79,7 +79,7 @@ def compute_dataset_basic_stats(store_key, dataset_id):
         dataset = Dataset.objects.get(id=dataset_id)
         store.set(store_key, {
             'num_taxonomy_nodes': dataset.taxonomy.get_num_nodes(),
-            'num_sounds': dataset.num_sounds,
+            'num_sounds': dataset.num_sounds_with_candidate,
             'num_annotations': dataset.num_annotations,
             'avg_annotations_per_sound': dataset.avg_annotations_per_sound,
             'percentage_validated_annotations': dataset.percentage_validated_annotations,
