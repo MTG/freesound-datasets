@@ -54,6 +54,7 @@ class Command(BaseCommand):
                             'license': sound_data['license'],
                             'description': sound_data['description'],
                             'previews': sound_data['previews'],
+                            'analysis': sound_data['analysis'] if 'analysis' in sound_data.keys() else {},
                         }
                     )
                     sound_dataset = SoundDataset.objects.create(
