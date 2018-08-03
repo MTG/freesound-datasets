@@ -470,7 +470,7 @@ class Dataset(models.Model):
 
     @property
     def num_sounds_with_candidate(self):
-        return self.sounds.filter(sounddataset__candidate_annotations__isnull=True).count()
+        return self.sounds.filter(sounddataset__candidate_annotations__isnull=False).distinct().count()
 
     @property
     def num_non_omitted_nodes(self):
