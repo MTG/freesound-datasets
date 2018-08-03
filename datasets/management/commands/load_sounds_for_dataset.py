@@ -63,9 +63,10 @@ class Command(BaseCommand):
                     )
 
                     for node_id in sound_data['aso_ids']:
-                        CandidateAnnotation.objects.create(
+                        c = CandidateAnnotation.objects.create(
                             sound_dataset=sound_dataset,
                             type='AU',
                             algorithm=algorithm_name,
-                            value=node_id
+                            taxonomy_node=TaxonomyNode.objects.get(node_id=node_id)
                         )
+                        c.update_priority_score()
