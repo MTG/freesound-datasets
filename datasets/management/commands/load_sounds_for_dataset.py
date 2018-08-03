@@ -3,6 +3,7 @@ from datasets.models import *
 from django.db import transaction
 import sys
 import json
+from datasets.utils import stem
 
 
 def chunks(l, n):
@@ -49,6 +50,7 @@ class Command(BaseCommand):
                         freesound_id=sound_id,
                         extra_data={
                             'tags': sound_data['tags'],
+                            'stemmed_tags': [stem(tag) for tag in sound_data['tags']],
                             'duration': sound_data['duration'],
                             'username': sound_data['username'],
                             'license': sound_data['license'],
