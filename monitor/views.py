@@ -120,7 +120,6 @@ def mapping_category(request, short_name, node_id):
 
     if request.method == 'POST':
         run_or_submit = dict(request.POST).get('run-or-submit', ['run'])[0]
-        print(run_or_submit)
 
         positive_tags_raw = dict(request.POST).get('positive-tags', '')  # e.g. ['dog, cat', 'dog']
         negative_tags_raw = dict(request.POST).get('negative-tags', '')
@@ -156,10 +155,10 @@ def mapping_category(request, short_name, node_id):
 
         # Submit the retrieved sounds
         elif run_or_submit == 'submit':
-            freesound_ids_str = dict(request.POST).get('freesound-ids', [None])[0]
+            freesound_ids_str = dict(request.POST).get('freesound-ids', [''])[0]
 
             # Retrieved by Freesound IDs
-            if freesound_ids_str:
+            if type(freesound_ids_str) == str:
                 try:
                     freesound_ids = freesound_ids_str.split(',')
                     results = dataset.sounds.filter(freesound_id__in=freesound_ids)
