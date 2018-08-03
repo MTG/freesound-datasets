@@ -166,13 +166,14 @@ def mapping_category(request, short_name, node_id):
                 try:
                     with transaction.atomic():
                         for sound in new_sounds:
-                            CandidateAnnotation.objects.create(
+                            c = CandidateAnnotation.objects.create(
                                 sound_dataset=sound.sounddataset_set.filter(dataset=dataset).first(),
                                 type='MA',
                                 algorithm='platform_manual: By Freesound ID',
                                 taxonomy_node=node,
                                 created_by=request.user
                             )
+                            c.update_priority_score()
                 except:
                     return JsonResponse({'error': True})
 
@@ -196,13 +197,14 @@ def mapping_category(request, short_name, node_id):
                     try:
                         with transaction.atomic():
                             for sound in new_sounds:
-                                CandidateAnnotation.objects.create(
+                                c = CandidateAnnotation.objects.create(
                                     sound_dataset=sound.sounddataset_set.filter(dataset=dataset).first(),
                                     type='AU',
                                     algorithm='platform_mapping: {}'.format(name_algorithm),
                                     taxonomy_node=node,
                                     created_by=request.user
                                 )
+                                c.update_priority_score()
                     except:
                         return JsonResponse({'error': True})
 
@@ -217,13 +219,14 @@ def mapping_category(request, short_name, node_id):
                                                                     .delete()[0]
                             num_new_sounds = new_sounds.count()
                             for sound in new_sounds:
-                                CandidateAnnotation.objects.create(
+                                c = CandidateAnnotation.objects.create(
                                     sound_dataset=sound.sounddataset_set.filter(dataset=dataset).first(),
                                     type='AU',
                                     algorithm='platform_mapping: {}'.format(name_algorithm),
                                     taxonomy_node=node,
                                     created_by=request.user
                                 )
+                                c.update_priority_score()
                     except:
                         return JsonResponse({'error': True})
 
