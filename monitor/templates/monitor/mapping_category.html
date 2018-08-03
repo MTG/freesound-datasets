@@ -154,7 +154,11 @@
                 $('#feedback-span').html('Added ' + d.num_candidates_added + ' candidates!' +
                     ' Removed ' + d.num_candidates_deleted + ' candidates!');
             }
-            $('.feedback.ui.modal').modal('show');
+            $('.feedback.ui.modal').modal({
+                onApprove: function() {
+                    $('.loading.modal').modal('hide');
+            }
+            }).modal('show');
         });
     }
 

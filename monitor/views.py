@@ -120,6 +120,7 @@ def mapping_category(request, short_name, node_id):
 
     if request.method == 'POST':
         run_or_submit = dict(request.POST).get('run-or-submit', ['run'])[0]
+        print(run_or_submit)
 
         positive_tags_raw = dict(request.POST).get('positive-tags', '')  # e.g. ['dog, cat', 'dog']
         negative_tags_raw = dict(request.POST).get('negative-tags', '')
@@ -159,11 +160,11 @@ def mapping_category(request, short_name, node_id):
 
             # Retrieved by Freesound IDs
             if freesound_ids_str:
-                freesound_ids = freesound_ids_str.split(',')
-                results = dataset.sounds.filter(freesound_id__in=freesound_ids)
-                new_sounds = results.exclude(freesound_id__in=candidates)
-                num_new_sounds = new_sounds.count()
                 try:
+                    freesound_ids = freesound_ids_str.split(',')
+                    results = dataset.sounds.filter(freesound_id__in=freesound_ids)
+                    new_sounds = results.exclude(freesound_id__in=candidates)
+                    num_new_sounds = new_sounds.count()
                     with transaction.atomic():
                         for sound in new_sounds:
                             c = CandidateAnnotation.objects.create(
