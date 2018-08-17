@@ -155,10 +155,10 @@ def mapping_category(request, short_name, node_id):
 
         # Submit the retrieved sounds
         elif run_or_submit == 'submit':
-            freesound_ids_str = dict(request.POST).get('freesound-ids', [''])[0]
+            freesound_ids_str = dict(request.POST).get('freesound-ids', ['false'])[0]
 
             # Retrieved by Freesound IDs
-            if type(freesound_ids_str) == str:
+            if freesound_ids_str != 'false':
                 try:
                     freesound_ids = freesound_ids_str.split(',')
                     results = dataset.sounds.filter(freesound_id__in=freesound_ids)
@@ -239,10 +239,14 @@ def mapping_category(request, short_name, node_id):
                         dataset.taxonomy.data[node_id].get('omit_fs_tags', '')]
         platform_mapping_rules = list(set(node.candidate_annotations.exclude(type='MA')
                                           .values_list('algorithm', flat=True)))
-        platform_mapping_rules.remove('tag_matching_mtg_1')
-        platform_mapping_rules_formated = [(m.split(' AND NOT ')[0].split('platform_mapping: ')[1],
-                                            m.split(' AND NOT ')[1])
-                                           for m in platform_mapping_rules]
+        try:
+            platform_mapping_rules.remove('tag_matching_mtg_1')
+            platform_mapping_rules_formated = [(m.split(' AND NOT ')[0].split('platform_mapping: ')[1],
+                                                m.split(' AND NOT ')[1])
+                                               for m in platform_mapping_rules]
+        except:
+            platform_mapping_rules_formated = None
+
         return render(request, 'monitor/mapping_category.html', {
             'dataset': dataset,
             'node': node,
