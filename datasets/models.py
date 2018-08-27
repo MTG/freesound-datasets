@@ -580,8 +580,9 @@ class Dataset(models.Model):
                                                 created_by=user,
                                                 test__in=('UN', 'AP', 'PP', 'NA', 'NP'))
                      .values('candidate_annotation_id')) \
-            .exclude(id__in=annotation_examples_verification_ids)\
-            .exclude(id__in=annotation_examples_ids)\
+            .exclude(id__in=annotation_examples_verification_ids) \
+            .exclude(id__in=annotation_examples_ids) \
+            .exclude(priority_score=0) \
             .filter(sound_dataset__sound__deleted_in_freesound=False).count()
 
         if num_eligible_annotations == 0:
