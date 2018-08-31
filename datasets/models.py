@@ -834,7 +834,7 @@ class CandidateAnnotation(models.Model):
         else:
             duration_score = 3 if sound_duration <= 10 else 2 if sound_duration <= 20 else 1
             num_gt_same_sound = self.sound_dataset.ground_truth_annotations.filter(from_propagation=False).count()
-            return 1000 * self.votes.count()\
+            return 1000 * self.votes.exclude(test='FA').filter(vote__in=('1', '0.5')).count()\
                  +  100 * duration_score\
                  +        num_gt_same_sound
 
