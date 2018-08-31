@@ -6,7 +6,8 @@ from celery import shared_task
 from django.utils import timezone
 from utils.redis_store import store
 from datasets.templatetags.dataset_templatetags import calculate_taxonomy_node_stats
-from datasets.utils import query_freesound_by_id
+from datasets.utils import query_freesound_by_id, chunks
+import sys
 import json
 import math
 import logging
@@ -291,10 +292,18 @@ def compute_priority_score_candidate_annotations():
     logger.info('Start computing priority score of candidate annotations')
     dataset = Dataset.objects.get(short_name='fsd')
     candidate_annotations = dataset.candidate_annotations.filter(ground_truth=None)
-    with transaction.atomic():
-        for candidate_annotation in candidate_annotations:
-            candidate_annotation.priority_score = candidate_annotation.return_priority_score()
-            candidate_annotation.save()
+    num_annotations = candidate_annotations.count()
+    count = 0
+    # Iterate all the sounds in chunks so we can do all transactions of a chunk atomically
+    for chunk in chunks(list(candidate_annotations), 500):
+        sys.stdout.write('\rUpdating priority score of candidate annotation %i of %i (%.2f%%)'
+                         % (count + 1, num_annotations, 100.0 * (count + 1) / num_annotations))
+        sys.stdout.flush()
+        with transaction.atomic():
+            for candidate_annotation in chunk:
+                count += 1
+                candidate_annotation.priority_score = candidate_annotation.return_priority_score()
+                candidate_annotation.save()
     logger.info('Finished computing priority score of candidate annotations')
 
 
