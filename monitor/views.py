@@ -5,7 +5,7 @@ from django.db import transaction
 from django.db.models import Count
 from django.db.models.functions import TruncDay
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from datasets.models import Dataset, User, CandidateAnnotation
 from datasets.utils import stem
 from datasets.templatetags.general_templatetags import sound_player

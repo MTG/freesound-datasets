@@ -708,7 +708,7 @@ class Dataset(models.Model):
 
 
 class DatasetRelease(models.Model):
-    dataset = models.ForeignKey(Dataset)
+    dataset = models.ForeignKey(Dataset, null=True, blank=True, on_delete=models.SET_NULL)
     num_sounds = models.IntegerField(default=0)
     num_nodes = models.IntegerField(default=0)
     num_annotations = models.IntegerField(default=0)
@@ -755,8 +755,8 @@ class DatasetRelease(models.Model):
 
 
 class SoundDataset(models.Model):
-    sound = models.ForeignKey(Sound)
-    dataset = models.ForeignKey(Dataset)
+    sound = models.ForeignKey(Sound, null=True, blank=True, on_delete=models.SET_NULL)
+    dataset = models.ForeignKey(Dataset, null=True, blank=True, on_delete=models.SET_NULL)
 
 
 class CandidateAnnotation(models.Model):
@@ -772,8 +772,10 @@ class CandidateAnnotation(models.Model):
     end_time = models.DecimalField(max_digits=6, decimal_places=3, blank=True, null=True)
     ground_truth = models.FloatField(null=True, blank=True, default=None)
     created_by = models.ForeignKey(User, related_name='candidate_annotations', null=True, on_delete=models.SET_NULL)
-    sound_dataset = models.ForeignKey(SoundDataset, related_name='candidate_annotations')
-    taxonomy_node = models.ForeignKey(TaxonomyNode, blank=True, null=True, related_name='candidate_annotations')
+    sound_dataset = models.ForeignKey(SoundDataset, related_name='candidate_annotations',
+                                      null=True, blank=True, on_delete=models.SET_NULL)
+    taxonomy_node = models.ForeignKey(TaxonomyNode, related_name='candidate_annotations',
+                                      null=True, blank=True, on_delete=models.SET_NULL)
     priority_score = models.IntegerField(default=1)
 
     def __str__(self):
@@ -849,9 +851,11 @@ class GroundTruthAnnotation(models.Model):
     end_time = models.DecimalField(max_digits=6, decimal_places=3, blank=True, null=True)
     ground_truth = models.FloatField(null=True, blank=True, default=None)
     created_by = models.ForeignKey(User, related_name='ground_truth_annotations', null=True, on_delete=models.SET_NULL)
-    sound_dataset = models.ForeignKey(SoundDataset, related_name='ground_truth_annotations')
-    taxonomy_node = models.ForeignKey(TaxonomyNode, blank=True, null=True, related_name='ground_truth_annotations')
-    from_candidate_annotation = models.ForeignKey(CandidateAnnotation, blank=True, null=True)
+    sound_dataset = models.ForeignKey(SoundDataset, related_name='ground_truth_annotations',
+                                      null=True, blank=True, on_delete=models.SET_NULL)
+    taxonomy_node = models.ForeignKey(TaxonomyNode, related_name='ground_truth_annotations',
+                                      null=True, blank=True, on_delete=models.SET_NULL)
+    from_candidate_annotation = models.ForeignKey(CandidateAnnotation, null=True, blank=True, on_delete=models.SET_NULL)
     from_propagation = models.BooleanField(default=False)
 
     @property
@@ -903,7 +907,8 @@ class Vote(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(User, related_name='votes', null=True, on_delete=models.SET_NULL)
     vote = models.FloatField()
-    candidate_annotation = models.ForeignKey(CandidateAnnotation, related_name='votes', null=True)
+    candidate_annotation = models.ForeignKey(CandidateAnnotation, related_name='votes',
+                                             null=True, on_delete=models.CASCADE)
     visited_sound = models.NullBooleanField(null=True, blank=True, default=None)
     # 'visited_sound' is to store whether the user needed to open the sound in Freesound to perform this vote
     test = models.CharField(max_length=2, choices=TEST_CHOICES, default='UN')  # Store test result
@@ -951,7 +956,7 @@ class Vote(models.Model):
 class CategoryComment(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(User, related_name='comments', null=True, on_delete=models.SET_NULL)
-    dataset = models.ForeignKey(Dataset)
+    dataset = models.ForeignKey(Dataset, null=True, on_delete=models.SET_NULL)
     comment = models.TextField(blank=True)
     category_id = models.CharField(max_length=200)
     # NOTE: this should refer to the db object id.
@@ -961,7 +966,8 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     test = models.CharField(max_length=2, choices=TEST_CHOICES, default='UN')  # Store test result
     countdown_trustable = models.IntegerField(default=0)  # count for make the user pass the test again
-    last_category_annotated = models.ForeignKey(TaxonomyNode, null=True, blank=True, default=None)
+    last_category_annotated = models.ForeignKey(TaxonomyNode,
+                                                null=True, blank=True, default=None, on_delete=models.SET_NULL)
     # this store the last category the user contributed to
 
     def refresh_countdown(self):

@@ -1,7 +1,7 @@
 import os
 from urllib.parse import urljoin
 from django.conf import settings
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.template.loader import render_to_string
 import datasets.freesound as fs
 from nltk import PorterStemmer
