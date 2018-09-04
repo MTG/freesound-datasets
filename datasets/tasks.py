@@ -13,6 +13,7 @@ import math
 import logging
 import datetime
 from datasets.utils import stem
+from django.db import connection
 
 logger = logging.getLogger('tasks')
 
@@ -291,7 +292,9 @@ def refresh_sound_extra_data():
 def compute_priority_score_candidate_annotations():
     logger.info('Start computing priority score of candidate annotations')
     dataset = Dataset.objects.get(short_name='fsd')
-    candidate_annotations = dataset.candidate_annotations.filter(ground_truth=None)
+    candidate_annotations = dataset.candidate_annotations.filter(ground_truth=None)\
+                                   .select_related('sound_dataset__sound',
+                                                   'sound_dataset')
     num_annotations = candidate_annotations.count()
     count = 0
     # Iterate all the sounds in chunks so we can do all transactions of a chunk atomically
