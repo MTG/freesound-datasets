@@ -829,8 +829,7 @@ class CandidateAnnotation(models.Model):
         return self.num_vote_value(-1)
 
     def return_priority_score(self):
-        sound = self.sound_dataset.sound
-        sound_duration = sound.extra_data['duration']
+        sound_duration = self.sound_dataset.sound.extra_data['duration']
         if not 0.3 <= sound_duration <= 30:
             return self.votes.count()
         else:
