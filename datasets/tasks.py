@@ -304,7 +304,7 @@ def compute_priority_score_candidate_annotations():
             for candidate_annotation in chunk:
                 count += 1
                 candidate_annotation.priority_score = candidate_annotation.return_priority_score()
-                candidate_annotation.save()
+                candidate_annotation.save(update_fields=['priority_score'])
     logger.info('Finished computing priority score of candidate annotations')
 
 
