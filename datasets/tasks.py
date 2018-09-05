@@ -1,5 +1,5 @@
 from datasets.models import Dataset, DatasetRelease, CandidateAnnotation, Vote, TaxonomyNode, Sound
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.contrib.auth.models import User
 from django.db import transaction
 from celery import shared_task
@@ -13,7 +13,6 @@ import math
 import logging
 import datetime
 from datasets.utils import stem
-
 logger = logging.getLogger('tasks')
 
 
@@ -292,7 +291,10 @@ def compute_priority_score_candidate_annotations():
     logger.info('Start computing priority score of candidate annotations')
     dataset = Dataset.objects.get(short_name='fsd')
     candidate_annotations = dataset.candidate_annotations.filter(ground_truth=None)\
-                                   .select_related('sound_dataset__sound')
+                                   .select_related('sound_dataset__sound')\
+                                   .annotate(num_present_votes=Count('votes',
+                                                                     filter=~Q(votes__test='FA')
+                                                                            & Q(votes__vote__in=('1', '0.5'))))
     num_annotations = candidate_annotations.count()
     count = 0
     # Iterate all the sounds in chunks so we can do all transactions of a chunk atomically

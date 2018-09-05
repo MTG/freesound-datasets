@@ -830,13 +830,15 @@ class CandidateAnnotation(models.Model):
 
     def return_priority_score(self):
         sound_duration = self.sound_dataset.sound.extra_data['duration']
+        num_present_votes = self.num_present_votes if hasattr(self, 'num_present_votes') \
+                            else self.votes.exclude(test='FA').filter(vote__in=('1', '0.5')).count()
         if not 0.3 <= sound_duration <= 30:
-            return self.votes.count()
+            return num_present_votes
         else:
             duration_score = 3 if sound_duration <= 10 else 2 if sound_duration <= 20 else 1
             num_gt_same_sound = self.sound_dataset.ground_truth_annotations.filter(from_propagation=False).count()
-            return 1000 * self.votes.exclude(test='FA').filter(vote__in=('1', '0.5')).count()\
-                 +  100 * duration_score\
+            return 1000 * num_present_votes \
+                 +  100 * duration_score \
                  +        num_gt_same_sound
 
     def update_priority_score(self):
