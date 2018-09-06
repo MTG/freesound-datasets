@@ -207,7 +207,7 @@ class Sound(models.Model):
         if size not in sizes:
             raise ValueError
         url_parts = self.extra_data['previews'].split('previews')
-        prefix = url_parts[0][5:]   # remove 'http'
+        prefix = url_parts[0].replace('https:', '').replace('http:', '')   # remove 'https:' or 'http:'
         freesound_id_pref = url_parts[1].split('/')[1]
         user_id = url_parts[1].split('_')[-1].split('-')[0]
         params = {
