@@ -303,22 +303,24 @@ class TaxonomyNode(models.Model):
         if old:
             if old.list_freesound_examples != self.list_freesound_examples:
                 self.freesound_examples.clear()
-                for fsid in self.list_freesound_examples.split(','):
-                    if fsid != '':
-                        try:
-                            sound = Sound.objects.get(freesound_id=fsid)
-                            self.freesound_examples.add(sound)
-                        except ObjectDoesNotExist:
-                            pass
+                if self.list_freesound_examples:
+                    for fsid in self.list_freesound_examples.split(','):
+                        if fsid != '':
+                            try:
+                                sound = Sound.objects.get(freesound_id=fsid)
+                                self.freesound_examples.add(sound)
+                            except ObjectDoesNotExist:
+                                pass
             if old.list_freesound_examples_verification != self.list_freesound_examples_verification:
                 self.freesound_examples_verification.clear()
-                for fsid in self.list_freesound_examples_verification.split(','):
-                    if fsid != '':
-                        try:
-                            sound = Sound.objects.get(freesound_id=fsid)
-                            self.freesound_examples_verification.add(sound)
-                        except ObjectDoesNotExist:
-                            pass
+                if self.list_freesound_examples_verification:
+                    for fsid in self.list_freesound_examples_verification.split(','):
+                        if fsid != '':
+                            try:
+                                sound = Sound.objects.get(freesound_id=fsid)
+                                self.freesound_examples_verification.add(sound)
+                            except ObjectDoesNotExist:
+                                pass
             if old.freesound_examples != self.freesound_examples:
                 self.list_freesound_examples = ','.join(
                     [str(fsid) for fsid in list(self.freesound_examples.values_list('freesound_id', flat=True))])
