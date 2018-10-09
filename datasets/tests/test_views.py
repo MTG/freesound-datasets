@@ -2,7 +2,7 @@ from django.test import Client, TestCase
 from datasets.models import *
 from datasets.views import *
 from datasets.forms import *
-from datasets.management.commands.generate_fake_data import create_sounds, create_users, create_annotations, \
+from datasets.management.commands.generate_fake_data import create_sounds, create_users, create_candidate_annotations, \
     add_taxonomy_nodes, VALID_FS_IDS, get_dataset
 
 
@@ -13,7 +13,7 @@ class ContributeTest(TestCase):
         add_taxonomy_nodes(Taxonomy.objects.get())
         create_sounds('fsd', 1)
         create_users(1)
-        create_annotations('fsd', 1)
+        create_candidate_annotations('fsd', 1)
            
     def test_save_contribute_validate_annotations_category(self):
         dataset = Dataset.objects.get(short_name='fsd')
