@@ -156,3 +156,139 @@ class AdvancedContributeTest(TestCase):
                                          .values_list('id', flat=True))
         selected_candidates = sorted([form[0].id for form in response.context['annotations_forms']])
         self.assertListEqual(expected_annotation_ids, selected_candidates)
+
+
+class Basic200ResponseTest(TestCase):
+    fixtures = ['datasets/fixtures/initial.json']
+
+    def setUp(self):
+        add_taxonomy_nodes(Taxonomy.objects.get())
+        create_sounds('fsd', 10)
+        create_users(5)
+        create_candidate_annotations('fsd', 20)
+
+        # add preview url for sounds
+        sounds = Sound.objects.all()
+        with transaction.atomic():
+            for sound in sounds:
+                sound.extra_data['previews'] = 'http://www.freesound.org/data/previews/188/188440_3399958-hq.ogg'
+                sound.save()
+
+        self.node_with_candidates = CandidateAnnotation.objects.first().taxonomy_node
+        self.client.login(username='username_0', password='123456')
+
+    def test_dataset(self):
+        response = self.client.get(reverse('dataset',
+                                           kwargs={
+                                               'short_name': 'fsd'
+                                           }))
+        self.assertEquals(response.status_code, 200)
+
+    def test_dataset_explore(self):
+        response = self.client.get(reverse('dataset-explore',
+                                           kwargs={
+                                               'short_name': 'fsd'
+                                           }))
+        self.assertEquals(response.status_code, 200)
+
+    def test_dataset_taxonomy_tree(self):
+        response = self.client.get(reverse('taxonomy-tree',
+                                           kwargs={
+                                               'short_name': 'fsd'
+                                           }))
+        self.assertEquals(response.status_code, 200)
+
+    def test_dataset_taxonomy_table(self):
+        response = self.client.get(reverse('taxonomy-table',
+                                           kwargs={
+                                               'short_name': 'fsd'
+                                           }))
+        self.assertEquals(response.status_code, 200)
+
+    def test_dataset_releases_table(self):
+        response = self.client.get(reverse('releases-table',
+                                           kwargs={
+                                               'short_name': 'fsd'
+                                           }))
+        self.assertEquals(response.status_code, 200)
+
+    def test_taxonomy_node(self):
+        response = self.client.get(reverse('dataset-explore-taxonomy-node',
+                                           kwargs={
+                                               'short_name': 'fsd',
+                                               'node_id': self.node_with_candidates.url_id
+                                           }))
+        self.assertEquals(response.status_code, 200)
+
+    def test_contribute(self):
+        response = self.client.get(reverse('contribute',
+                                           kwargs={
+                                               'short_name': 'fsd'
+                                           }))
+        self.assertEquals(response.status_code, 200)
+
+    def test_contribute_validate_annotations(self):
+        response = self.client.get(reverse('contribute-validate-annotations-category',
+                                           kwargs={
+                                               'short_name': 'fsd',
+                                               'node_id': self.node_with_candidates.url_id
+                                           }))
+        self.assertEquals(response.status_code, 200)
+
+    def test_contribute_validate_annotations_easy(self):
+        response = self.client.get(reverse('contribute-validate-annotations-category-beginner',
+                                           kwargs={
+                                               'short_name': 'fsd'
+                                           }))
+        self.assertEquals(response.status_code, 200)
+
+    def test_contribute_validate_annotations_all(self):
+        response = self.client.get(reverse('contribute-validate-annotations-all',
+                                           kwargs={
+                                               'short_name': 'fsd'
+                                           }))
+        self.assertEquals(response.status_code, 200)
+
+    def test_contribute_validate_annotations_category(self):
+        response = self.client.get(reverse('contribute-validate-annotations-category',
+                                           kwargs={
+                                               'short_name': 'fsd',
+                                               'node_id': self.node_with_candidates.url_id
+                                           }))
+        self.assertEquals(response.status_code, 200)
+
+    def test_choose_category(self):
+        response = self.client.get(reverse('choose_category',
+                                           kwargs={
+                                               'short_name': 'fsd'
+                                           }))
+        self.assertEquals(response.status_code, 200)
+
+    def test_dataset_taxonomy_table_choose(self):
+        response = self.client.get(reverse('dataset_taxonomy_table_choose',
+                                           kwargs={
+                                               'short_name': 'fsd'
+                                           }))
+        self.assertEquals(response.status_code, 200)
+
+    def test_dataset_taxonomy_table_search(self):
+        response = self.client.get(reverse('taxonomy-table-search',
+                                           kwargs={
+                                               'short_name': 'fsd'
+                                           }))
+        self.assertEquals(response.status_code, 200)
+
+    def test_dataset_taxonomy_table_search_all(self):
+        response = self.client.get(reverse('taxonomy-table-search-all',
+                                           kwargs={
+                                               'short_name': 'fsd'
+                                           }))
+        self.assertEquals(response.status_code, 200)
+
+    def test_get_mini_node_info(self):
+        response = self.client.get(reverse('get-mini-node-info',
+                                           kwargs={
+                                               'short_name': 'fsd',
+                                               'node_id': self.node_with_candidates.url_id
+                                           }))
+        self.assertEquals(response.status_code, 200)
