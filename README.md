@@ -1,3 +1,16 @@
+# The Audio Commons Manual Annotators
+Both tools are implemented mostly with web client languages, which allows their easy integration in other projects. 
+
+- The *Audio Commons Manual Annotator* aims at adding missing labels to audio content. <br>
+   The main HTML file can be found at [datasets/templates/datasets/generate_annotations.html](https://github.com/MTG/freesound-datasets/blob/annotation-tools-FRUCT2018/datasets/templates/datasets/generate_annotations.html). <br>
+   It is served for instance at <https://localhost:8000:/fsd/annotate/explore_generate_annotations/36/>, where *36* can be replaced with any Freesound sound id.
+   
+
+- The *Audio Commons Refinement Annotator* allows to refine and specify existing labels. <br>
+   The main HTML file can be found at [datasets/templates/datasets/refine_annotations.html](https://github.com/MTG/freesound-datasets/blob/annotation-tools-FRUCT2018/datasets/templates/datasets/refine_annotations.html). <br>
+   It is served for instance at <https://localhost:8000:/fsd/annotate/refine_annotations/36/>, where *36* can be replaced with any Freesound sound id.
+   
+
 # Freesound Datasets
 
 The [Freesound Datasets platform](https://datasets.freesound.org/) is a platform for the collaborative creation of open audio collections labeled by humans and based on Freesound content. The Freesound Datasets platform allows the following functionalites:
