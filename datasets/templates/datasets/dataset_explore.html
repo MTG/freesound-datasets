@@ -31,6 +31,61 @@
             });
         }
 
+        function updateReleasePercentages() {
+            n_polling_checks += 1;
+            $.get( "{% url 'check-release-progresses' dataset.short_name %}", function( data ) {
+
+                // First check if there is any data returned, if not stop the polling (no releases)
+                if ($.isEmptyObject(data)){
+                    window.clearInterval(polling_timer);
+                    polling_timer = undefined;
+                    n_polling_checks = 0;
+                    return;
+                }
+
+                // First check if all releases are complete
+                var allComplete = true;
+                for (var key in data) {
+                    if (data.hasOwnProperty(key)) {
+                        if (data[key] != 100) {
+                            allComplete = false;
+                        }
+                    }
+                }
+
+                // If all releases are complete at first check, there is no progress to track, cancel timer
+                if (allComplete && n_polling_checks === 1){
+                    window.clearInterval(polling_timer);
+                    polling_timer = undefined;
+                    n_polling_checks = 0;
+                } else {
+                    if (allComplete && n_polling_checks > 1){
+                        // If all are complete and we checked more than once, this means that those which
+                        // were progressing have now finished
+                        loadDatasetReleasesTable();
+                        n_polling_checks = 0;
+                    }
+                    // If not all are complete or we're at later polling check, update progress bars
+                    for (var key in data) {
+                        if (data.hasOwnProperty(key)) {
+                            $('#release_percentage_bar_' + key).progress({
+                                percent: data[key],
+                                text: {active: '{percent}%'}
+                            });
+                        }
+                    }
+                }
+            });
+        }
+
+        var polling_timer = undefined;
+        var n_polling_checks = 0;
+        function startUpdatingPercentages(){
+            if (polling_timer === undefined) {
+                polling_timer = setInterval(function(){ updateReleasePercentages(); }, 1000);
+            }
+        }
+
         function loadDatasetTaxonomyTable(){
             $( "#dataset_taxonomy_table_placeholder" ).load( "{% url 'taxonomy-table' dataset.short_name %}", function() {
                 $('#dataset_contents').DataTable({
@@ -62,6 +117,7 @@
 <p>The table shows some current basic stats of {{ dataset.short_name|upper }}. Hover your mouse over the headers for more info.</p>
 <!--</div>-->
 <!--<h2>Current status &ndash; statistics:</h2>-->
+<div>
 <p>
     <div id="dataset_releases_table_placeholder">
         <div class="ui active centered inline text loader">Loading data...</div>
@@ -82,8 +138,9 @@
             </div>
         </div>
     <!-- end make release modal -->
+    <br><br>
 {% endif %}
-
+</div>
 
 <div class="ui message">
   <p>Since the first FSD release is not out yet, <b>you can only explore the candidate annotations</b> (that express the potential presence of a sound category in an audio sample).</p>

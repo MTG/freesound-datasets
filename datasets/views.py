@@ -37,20 +37,6 @@ import datetime
 def dataset(request, short_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
     user_is_maintainer = dataset.user_is_maintainer(request.user)
-    form_errors = False
-    if request.method == 'POST':
-        form = DatasetReleaseForm(request.POST)
-        if form.is_valid():
-            dataset_release = form.save(commit=False)
-            dataset_release.dataset = dataset
-            dataset_release.save()
-            async_job = generate_release_index.delay(dataset.id, dataset_release.id, form.cleaned_data['max_number_of_sounds'])
-            form = DatasetReleaseForm()  # Reset form
-        else:
-            form_errors = True
-    else:
-        form = DatasetReleaseForm()
-
     random_taxonomy_nodes = dataset.get_random_taxonomy_node_with_examples()
 
     # Get previously stored dataset release stats
@@ -61,7 +47,6 @@ def dataset(request, short_name):
         'dataset': dataset,
         'dataset_page': True,
         'user_is_maintainer': user_is_maintainer,
-        'dataset_release_form': form, 'dataset_release_form_errors': form_errors,
         'random_nodes': random_taxonomy_nodes,
         'dataset_basic_stats': dataset_basic_stats,
     })
@@ -69,9 +54,27 @@ def dataset(request, short_name):
 
 def dataset_explore(request, short_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
-     
+    user_is_maintainer = dataset.user_is_maintainer(request.user)
+    form_errors = False
+    if request.method == 'POST':
+        form = DatasetReleaseForm(request.POST)
+        if form.is_valid():
+            dataset_release = form.save(commit=False)
+            dataset_release.dataset = dataset
+            dataset_release.save()
+            async_job = generate_release_index.delay(dataset.id, dataset_release.id,
+                                                     form.cleaned_data['max_number_of_sounds'])
+            form = DatasetReleaseForm()  # Reset form
+        else:
+            form_errors = True
+    else:
+        form = DatasetReleaseForm()
+
     return render(request, 'datasets/dataset_explore.html', {
         'dataset': dataset,
+        'user_is_maintainer': user_is_maintainer,
+        'dataset_release_form': form,
+        'dataset_release_form_errors': form_errors,
     })
 
 
