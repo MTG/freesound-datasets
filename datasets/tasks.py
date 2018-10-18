@@ -25,11 +25,11 @@ def generate_release_index(dataset_id, release_id, max_sounds=None):
     sounds_info = list()
     n_sounds = 0
     n_annotations = 0
-    n_validated_annotations = 0
+    # n_validated_annotations = 0
     node_set = set()
-    sounds = dataset.sounds.all()[:max_sounds]
+    sounds = dataset.sounds.exclude(sounddataset__ground_truth_annotations=None)
     for count, sound in enumerate(sounds):
-        annotations = sound.get_candidate_annotations(dataset)
+        annotations = sound.get_ground_truth_annotations(dataset)
         if annotations:
             annotation_values = [item.value for item in annotations]
             sounds_info.append((
@@ -38,7 +38,7 @@ def generate_release_index(dataset_id, release_id, max_sounds=None):
             node_set.update(annotation_values)
             n_sounds += 1
             n_annotations += annotations.count()
-            n_validated_annotations += annotations.annotate(num_votes=Count('votes')).filter(num_votes__lt=0).count()
+            # n_validated_annotations += annotations.annotate(num_votes=Count('votes')).filter(num_votes__lt=0).count()
         if count % 50:
             # Every 50 sounds, update progress
             dataset_release.processing_progress = int(math.floor(count * 100.0 / len(sounds)))
@@ -53,7 +53,7 @@ def generate_release_index(dataset_id, release_id, max_sounds=None):
            'num_sounds': n_sounds,
            'num_taxonomy_nodes': len(node_set),
            'num_annotations': n_annotations,
-           'num_validated_annotations': n_validated_annotations
+           # 'num_validated_annotations': n_validated_annotations
        },
        'sounds_info': sounds_info,
     }
@@ -62,7 +62,7 @@ def generate_release_index(dataset_id, release_id, max_sounds=None):
     json.dump(release_data, open(dataset_release.index_file_path, 'w'))
 
     # Update dataset_release object
-    dataset_release.num_validated_annotations = n_validated_annotations
+    # dataset_release.num_validated_annotations = n_validated_annotations
     dataset_release.num_annotations = n_annotations
     dataset_release.num_sounds = n_sounds
     dataset_release.num_nodes = len(node_set)
