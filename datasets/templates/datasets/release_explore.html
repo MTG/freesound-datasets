@@ -10,16 +10,6 @@
                 $('#make_release_modal').modal('show');
             {% endif %}
             loadDatasetTaxonomyTable();
-            $('.menu .item').tab();
-
-			$('.message .close')
-			  .on('click', function() {
-				$(this)
-				  .closest('.message')
-				  .transition('fade')
-				;
-			  })
-			;
         });
 
         function loadDatasetReleaseTable() {
@@ -86,7 +76,8 @@
         }
 
         function loadDatasetTaxonomyTable(){
-            $( "#dataset_taxonomy_table_placeholder" ).load( "{% url 'taxonomy-table' dataset.short_name %}", function() {
+            $( "#dataset_taxonomy_table_placeholder" ).load( "{% url 'release-taxonomy-table' dataset.short_name release.release_tag%}",
+                function() {
                 $('#dataset_contents').DataTable({
                     'paging': true,
                     'info': true,
@@ -123,22 +114,9 @@
     </div>
 </p>
 </div>
-
-
-<div class="ui two item top attached tabular menu">
-  <a class="item active" data-tab="first">
-      <i class="list layout icon"></i> Table
-  </a>
-  <a class="item" data-tab="second">
-      <i class="tree icon"></i> Tree
-  </a>
-</div>
-<div class="ui bottom attached tab segment active" data-tab="first">
-    <div id="dataset_taxonomy_table_placeholder" class="tabcontent">
+<div class="ui segment">
+    <div id="dataset_taxonomy_table_placeholder">
         <div class="ui active centered inline text loader">Loading data...</div>
     </div>
-</div>
-<div class="ui bottom attached tab segment" data-tab="second">
-    {% include "datasets/ontology_tree.html" %}
 </div>
 {% endblock %}

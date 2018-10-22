@@ -850,3 +850,25 @@ def dataset_release_table(request, short_name, release_tag):
         'user_is_maintainer': user_is_maintainer,
         'release': release
     })
+
+
+def release_taxonomy_table(request, short_name, release_tag):
+    dataset = get_object_or_404(Dataset, short_name=short_name)
+    release = get_object_or_404(DatasetRelease, release_tag=release_tag)
+
+    # Get request info to chose which button to place per category
+    category_link_to = {
+        'e': ('dataset-explore-taxonomy-node', 'Explore'),
+        'cva': ('contribute-validate-annotations-category', 'Choose'),
+    }[request.GET.get('link_to', 'e')]
+
+    # Get previously stored dataset taxonomy stats
+    dataset_taxonomy_stats = data_from_async_task(compute_dataset_taxonomy_stats, [dataset.id], {},
+                                                  DATASET_TAXONOMY_STATS_KEY_TEMPLATE.format(dataset.id), 60)
+
+    return render(request, 'datasets/dataset_taxonomy_table.html', {
+        'dataset': dataset,
+        'release': release,
+        'dataset_taxonomy_stats': dataset_taxonomy_stats,
+        'category_link_to': category_link_to
+    })
