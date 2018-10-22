@@ -13,7 +13,7 @@ urlpatterns = [
     re_path(r'^(?P<short_name>[^\/]+)/dataset-sounds/$', dataset_sounds, name='dataset-sounds'),
 
     # Dataset release
-    path('<short_name>/release/<release_tag>', release_explore, name='dataset-release'),
+    path('<short_name>/release/<release_tag>/', release_explore, name='dataset-release'),
     re_path(r'^(?P<short_name>[^\/]+)/check_release_progresses/$', check_release_progresses,
             name='check-release-progresses'),
     re_path(r'^(?P<short_name>[^\/]+)/release/(?P<release_tag>[^\/]+)/change/$', change_release_type,
@@ -22,7 +22,7 @@ urlpatterns = [
             name='download-release'),
     re_path(r'^(?P<short_name>[^\/]+)/release/(?P<release_tag>[^\/]+)/delete/$', delete_release,
             name='delete-release'),
-    path('<short_name>/release-table/<release_tag>', dataset_release_table, name='release-table'),
+    path('<short_name>/release-table/<release_tag>/', dataset_release_table, name='release-table'),
 
     # Explore, visu tools
 
