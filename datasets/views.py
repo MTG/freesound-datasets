@@ -107,6 +107,7 @@ def dataset_taxonomy_table(request, short_name):
         'dataset_taxonomy_stats': dataset_taxonomy_stats})
 
 
+# old view, not used anymore
 def dataset_releases_table(request, short_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
     user_is_maintainer = dataset.user_is_maintainer(request.user)
@@ -119,11 +120,26 @@ def dataset_releases_table(request, short_name):
     dataset_basic_stats = data_from_async_task(compute_dataset_basic_stats, [dataset.id], {},
                                                DATASET_BASIC_STATS_KEY_TEMPLATE.format(dataset.id), 60)
 
-    return render(request, 'datasets/dataset_releases_table.html', {
+    return render(request, 'datasets/dataset_release_table.html', {
         'dataset': dataset,
         'dataset_basic_stats': dataset_basic_stats,
         'user_is_maintainer': user_is_maintainer,
         'dataset_releases_for_user': dataset_releases_for_user
+    })
+
+
+def dataset_state_table(request, short_name):
+    dataset = get_object_or_404(Dataset, short_name=short_name)
+    user_is_maintainer = dataset.user_is_maintainer(request.user)
+
+    # Get previously stored dataset release stats
+    dataset_basic_stats = data_from_async_task(compute_dataset_basic_stats, [dataset.id], {},
+                                               DATASET_BASIC_STATS_KEY_TEMPLATE.format(dataset.id), 60)
+
+    return render(request, 'datasets/dataset_state_table.html', {
+        'dataset': dataset,
+        'dataset_basic_stats': dataset_basic_stats,
+        'user_is_maintainer': user_is_maintainer,
     })
 
 
@@ -754,6 +770,18 @@ def download_script(request, short_name):
     return response
 
 
+def release_explore(request, short_name, release_tag):
+    dataset = get_object_or_404(Dataset, short_name=short_name)
+    release = get_object_or_404(DatasetRelease, release_tag=release_tag)
+    user_is_maintainer = dataset.user_is_maintainer(request.user)
+
+    return render(request, 'datasets/release_explore.html', {
+        'dataset': dataset,
+        'user_is_maintainer': user_is_maintainer,
+        'release': release
+    })
+
+
 @login_required
 def download_release(request, short_name, release_tag):
     dataset = get_object_or_404(Dataset, short_name=short_name)
@@ -783,7 +811,7 @@ def change_release_type(request, short_name, release_tag):
     release.type = release_type
     release.save()
 
-    return HttpResponseRedirect(reverse('dataset', args=[dataset.short_name]))
+    return HttpResponseRedirect(reverse('dataset-explore', args=[dataset.short_name]))
 
 
 @login_required
@@ -800,7 +828,7 @@ def delete_release(request, short_name, release_tag):
             pass
         release.delete()
 
-    return HttpResponseRedirect(reverse('dataset', args=[dataset.short_name]))
+    return HttpResponseRedirect(reverse('dataset-explore', args=[dataset.short_name]))
 
 
 @login_required
@@ -810,3 +838,15 @@ def check_release_progresses(request, short_name):
         raise HttpResponseNotAllowed
 
     return JsonResponse({release.id: release.processing_progress for release in dataset.releases})
+
+
+def dataset_release_table(request, short_name, release_tag):
+    dataset = get_object_or_404(Dataset, short_name=short_name)
+    release = get_object_or_404(DatasetRelease, release_tag=release_tag)
+    user_is_maintainer = dataset.user_is_maintainer(request.user)
+
+    return render(request, 'datasets/dataset_release_table.html', {
+        'dataset': dataset,
+        'user_is_maintainer': user_is_maintainer,
+        'release': release
+    })
