@@ -64,7 +64,8 @@ def dataset_explore(request, short_name):
             dataset_release.save()
             async_job = generate_release_index.delay(dataset.id, dataset_release.id,
                                                      form.cleaned_data['max_number_of_sounds'])
-            form = DatasetReleaseForm()  # Reset form
+            return HttpResponseRedirect(reverse('dataset-release', args=[dataset.short_name,
+                                                                         dataset_release.release_tag]))
         else:
             form_errors = True
     else:
