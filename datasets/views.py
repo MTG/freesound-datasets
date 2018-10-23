@@ -864,12 +864,11 @@ def release_taxonomy_table(request, short_name, release_tag):
     }[request.GET.get('link_to', 'e')]
 
     # Get previously stored dataset taxonomy stats
-    dataset_taxonomy_stats = data_from_async_task(compute_dataset_taxonomy_stats, [dataset.id], {},
-                                                  DATASET_TAXONOMY_STATS_KEY_TEMPLATE.format(dataset.id), 60)
+    taxonomy_node_stats = release.taxonomy_node_stats
 
     return render(request, 'datasets/dataset_release_taxonomy_table.html', {
         'dataset': dataset,
         'release': release,
-        'dataset_taxonomy_stats': dataset_taxonomy_stats,
+        'taxonomy_node_stats': taxonomy_node_stats,
         'category_link_to': category_link_to
     })

@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.db import transaction
 from celery import shared_task
 from django.utils import timezone
+from urllib.parse import quote
 from utils.redis_store import store
 from datasets.templatetags.dataset_templatetags import calculate_taxonomy_node_stats
 from datasets.utils import query_freesound_by_id, chunks
@@ -46,9 +47,16 @@ def generate_release_index(dataset_id, release_id, max_sounds=None):
         'sounds_info': list(sounds_info.items())
     }
 
-    # TODO: calculate taxonomy stats (num sounds per taxonomy node)
+    # Calculate taxonomy stats (num sounds per taxonomy node). We could avoid a db query here by counting in python
+    taxonomy_node_stats = TaxonomyNode.objects.filter(ground_truth_annotations__dataset_release=dataset_release)\
+        .annotate(num_sounds=Count('ground_truth_annotations',
+                                   filter=Q(ground_truth_annotations__dataset_release=dataset_release)))\
+        .values('name', 'num_sounds', 'node_id')
+    for node in taxonomy_node_stats:
+        node['url_id'] = quote(node['node_id'], safe='')
 
     dataset_release.release_data = release_data
+    dataset_release.taxonomy_node_stats = list(taxonomy_node_stats)
     dataset_release.num_annotations = num_annotations
     dataset_release.num_sounds = num_sounds
     dataset_release.num_nodes = num_taxonomy_nodes

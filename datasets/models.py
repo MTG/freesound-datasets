@@ -757,7 +757,7 @@ class DatasetRelease(models.Model):
     )
     type = models.CharField(max_length=2, choices=TYPE_CHOICES, default='IN')
     release_data = JSONField(default={})
-    # TODO: add taxonomy_stats JSON field
+    taxonomy_node_stats = JSONField(default=[])
 
     @property
     def avg_annotations_per_sound(self):

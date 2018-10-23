@@ -10,8 +10,8 @@
         </tr>
     </thead>
     <tbody>
-    {% for node in dataset_taxonomy_stats.nodes_data %}
-        <tr {% if node.is_omitted %}class="negative"{% endif %}>
+    {% for node in taxonomy_node_stats %}
+        <tr>
             <td>{{ node.name }}</td>
             <td>{{ node.num_sounds }}</td>
             <td class="right aligned"><a href="{% url category_link_to.0 dataset.short_name node.url_id %}"
@@ -21,9 +21,3 @@
     {% endfor %}
     </tbody>
 </table>
-<div class="ui grid">
-    <div class="right aligned column">
-        <span class="small_gray_text">Data last updated
-            {{ dataset_taxonomy_stats.redis_timestamp | timestamp_to_datetime | timesince  }} ago</span>
-    </div>
-</div>
