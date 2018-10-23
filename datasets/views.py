@@ -776,7 +776,7 @@ def release_explore(request, short_name, release_tag):
     release = get_object_or_404(DatasetRelease, release_tag=release_tag)
     user_is_maintainer = dataset.user_is_maintainer(request.user)
 
-    return render(request, 'datasets/release_explore.html', {
+    return render(request, 'datasets/dataset_release_explore.html', {
         'dataset': dataset,
         'user_is_maintainer': user_is_maintainer,
         'release': release
@@ -867,7 +867,7 @@ def release_taxonomy_table(request, short_name, release_tag):
     dataset_taxonomy_stats = data_from_async_task(compute_dataset_taxonomy_stats, [dataset.id], {},
                                                   DATASET_TAXONOMY_STATS_KEY_TEMPLATE.format(dataset.id), 60)
 
-    return render(request, 'datasets/dataset_taxonomy_table.html', {
+    return render(request, 'datasets/dataset_release_taxonomy_table.html', {
         'dataset': dataset,
         'release': release,
         'dataset_taxonomy_stats': dataset_taxonomy_stats,

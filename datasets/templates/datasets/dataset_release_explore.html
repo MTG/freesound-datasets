@@ -6,16 +6,13 @@
     <script type="text/javascript">
         $(document).ready(function() {
             loadDatasetReleaseTable();
-            {% if dataset_release_form_errors %}
-                $('#make_release_modal').modal('show');
-            {% endif %}
-            loadDatasetTaxonomyTable();
+            loadDatasetReleaseTaxonomyTable();
         });
 
         function loadDatasetReleaseTable() {
             $( "#dataset_releases_table_placeholder" ).load( "{% url 'release-table' dataset.short_name release.release_tag %}", function() {
                 {% if user_is_maintainer %}
-                    startUpdatingPercentages();
+{#                    startUpdatingPercentages();#}
                 {% endif %}
             });
         }
@@ -75,7 +72,7 @@
             }
         }
 
-        function loadDatasetTaxonomyTable(){
+        function loadDatasetReleaseTaxonomyTable(){
             $( "#dataset_taxonomy_table_placeholder" ).load( "{% url 'release-taxonomy-table' dataset.short_name release.release_tag%}",
                 function() {
                 $('#dataset_contents').DataTable({
@@ -85,7 +82,6 @@
                         null,
                         { "width": "70px" },
                         { "width": "170px" },
-                        { "width": "100px" },
                     ]
                 });
                 $('#dataset_contents_paginate').parent().attr('style', 'width: 100% !important');

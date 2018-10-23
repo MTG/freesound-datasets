@@ -1,0 +1,29 @@
+{% load general_templatetags %}
+{% load dataset_templatetags %}
+<table id="dataset_contents" class="ui unstackable table" width="100%" style="margin-bottom:5px;">
+    <thead>
+        <tr>
+            <th>Category</th>
+            <th><div data-tooltip="Audio samples with candidate annotations for this category">
+                # audio samples</div></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for node in dataset_taxonomy_stats.nodes_data %}
+        <tr {% if node.is_omitted %}class="negative"{% endif %}>
+            <td>{{ node.name }}</td>
+            <td>{{ node.num_sounds }}</td>
+            <td class="right aligned"><a href="{% url category_link_to.0 dataset.short_name node.url_id %}"
+                                         class="blue ui button right labeled icon">{{ category_link_to.1 }}
+                <i class="right arrow icon"></i></a></td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+<div class="ui grid">
+    <div class="right aligned column">
+        <span class="small_gray_text">Data last updated
+            {{ dataset_taxonomy_stats.redis_timestamp | timestamp_to_datetime | timesince  }} ago</span>
+    </div>
+</div>

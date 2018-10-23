@@ -22,8 +22,8 @@ urlpatterns = [
             name='download-release'),
     re_path(r'^(?P<short_name>[^\/]+)/release/(?P<release_tag>[^\/]+)/delete/$', delete_release,
             name='delete-release'),
-    path('<short_name>/release-table/<release_tag>/', dataset_release_table, name='release-table'),
-    path('<short_name>/release-table/<release_tag>/taxonomy_table/', release_taxonomy_table,
+    path('<short_name>/release_table/<release_tag>/', dataset_release_table, name='release-table'),
+    path('<short_name>/release_table/<release_tag>/taxonomy_table/', release_taxonomy_table,
          name='release-taxonomy-table'),
 
     # Explore, visu tools
