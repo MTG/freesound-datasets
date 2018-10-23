@@ -14,7 +14,7 @@ urlpatterns = [
 
     # Dataset release
     path('<short_name>/release/<release_tag>/', release_explore, name='dataset-release'),
-    re_path(r'^(?P<short_name>[^\/]+)/check_release_progresses/$', check_release_progresses,
+    re_path(r'^(?P<short_name>[^\/]+)/check_release_progresses/(?P<release_tag>[^\/]+)/$', check_release_progresse,
             name='check-release-progresses'),
     re_path(r'^(?P<short_name>[^\/]+)/release/(?P<release_tag>[^\/]+)/change/$', change_release_type,
             name='change-release-type'),

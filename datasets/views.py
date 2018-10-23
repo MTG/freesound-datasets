@@ -833,12 +833,13 @@ def delete_release(request, short_name, release_tag):
 
 
 @login_required
-def check_release_progresses(request, short_name):
+def check_release_progresse(request, short_name, release_tag):
     dataset = get_object_or_404(Dataset, short_name=short_name)
+    release = get_object_or_404(DatasetRelease, release_tag=release_tag)
     if not dataset.user_is_maintainer(request.user):
         raise HttpResponseNotAllowed
 
-    return JsonResponse({release.id: release.processing_progress for release in dataset.releases})
+    return JsonResponse(release.processing_progress, safe=False)
 
 
 def dataset_release_table(request, short_name, release_tag):

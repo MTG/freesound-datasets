@@ -9,56 +9,43 @@
             loadDatasetReleaseTaxonomyTable();
         });
 
-        function loadDatasetReleaseTable() {
+        function loadDatasetReleaseTable(enable_timer = true) {
             $( "#dataset_releases_table_placeholder" ).load( "{% url 'release-table' dataset.short_name release.release_tag %}", function() {
                 {% if user_is_maintainer %}
-{#                    startUpdatingPercentages();#}
+                    if (enable_timer) {
+                        startUpdatingPercentages();
+                    }
                 {% endif %}
             });
         }
 
         function updateReleasePercentages() {
             n_polling_checks += 1;
-            $.get( "{% url 'check-release-progresses' dataset.short_name %}", function( data ) {
+            $.get( "{% url 'check-release-progresses' dataset.short_name release.release_tag %}", function( data ) {
 
-                // First check if there is any data returned, if not stop the polling (no releases)
-                if ($.isEmptyObject(data)){
+                // First check if release is complete
+                var complete = (data==100) ? true: false;
+
+                // If release is complete at first check, there is no progress to track, cancel timer
+                if (complete && n_polling_checks === 1){
                     window.clearInterval(polling_timer);
                     polling_timer = undefined;
                     n_polling_checks = 0;
-                    return;
-                }
-
-                // First check if all releases are complete
-                var allComplete = true;
-                for (var key in data) {
-                    if (data.hasOwnProperty(key)) {
-                        if (data[key] != 100) {
-                            allComplete = false;
-                        }
-                    }
-                }
-
-                // If all releases are complete at first check, there is no progress to track, cancel timer
-                if (allComplete && n_polling_checks === 1){
-                    window.clearInterval(polling_timer);
-                    polling_timer = undefined;
-                    n_polling_checks = 0;
+                    loadDatasetReleaseTable(false);
+                    loadDatasetReleaseTaxonomyTable();
                 } else {
-                    if (allComplete && n_polling_checks > 1){
+                    if (complete && n_polling_checks > 1){
                         // If all are complete and we checked more than once, this means that those which
                         // were progressing have now finished
-                        loadDatasetReleasesTable();
+                        loadDatasetReleaseTable(false);
                         n_polling_checks = 0;
                     }
                     // If not all are complete or we're at later polling check, update progress bars
-                    for (var key in data) {
-                        if (data.hasOwnProperty(key)) {
-                            $('#release_percentage_bar_' + key).progress({
-                                percent: data[key],
-                                text: {active: '{percent}%'}
-                            });
-                        }
+                    if (data) {
+                        $('#release_percentage_bar_' + {{ release.id }}).progress({
+                            percent: data[key],
+                            text: {active: '{percent}%'}
+                        });
                     }
                 }
             });
