@@ -482,7 +482,7 @@ class Dataset(models.Model):
 
     @property
     def ground_truth_annotations(self):
-        return GroundTruthAnnotation.objects.all()
+        return GroundTruthAnnotation.objects.filter(sound_dataset__dataset=self)
 
     @property
     def num_sounds(self):
@@ -748,14 +748,16 @@ class DatasetRelease(models.Model):
                 message='Please enter a valid release tag',
             ),
         ])
-    is_processed = models.BooleanField(default=False)
-    processing_progress = models.IntegerField(default=0)
-    processing_last_updated = models.DateTimeField(auto_now_add=True)
+    is_processed = models.BooleanField(default=False)  # Remove
+    processing_progress = models.IntegerField(default=0)  # Remove
+    processing_last_updated = models.DateTimeField(auto_now_add=True)  # Remove
     TYPE_CHOICES = (
         ('IN', 'Internal release only'),
         ('PU', 'Public release'),
     )
     type = models.CharField(max_length=2, choices=TYPE_CHOICES, default='IN')
+    release_data = JSONField(default={})
+    # TODO: add taxonomy_stats JSON field
 
     @property
     def avg_annotations_per_sound(self):
@@ -892,7 +894,8 @@ class GroundTruthAnnotation(models.Model):
     from_candidate_annotations = models.ManyToManyField(CandidateAnnotation,
                                                         related_name='generated_ground_truth_annotations')
     from_propagation = models.BooleanField(default=False)  # true when this annotation was generated only from propagation
-
+    dataset_release = models.ManyToManyField(DatasetRelease, related_name='ground_truth_annotations')
+    
     class Meta:
         unique_together = ('taxonomy_node', 'sound_dataset',)
 
