@@ -5,7 +5,7 @@
 {% block page_js %}
     <script type="text/javascript">
         $(document).ready(function() {
-            loadDatasetReleasesTable();
+            loadDatasetStateTable();
             {% if dataset_release_form_errors %}
                 $('#make_release_modal').modal('show');
             {% endif %}
@@ -23,67 +23,8 @@
 			;
         });
 
-        function loadDatasetReleasesTable() {
-            $( "#dataset_releases_table_placeholder" ).load( "{% url 'state-table' dataset.short_name %}", function() {
-                {% if user_is_maintainer %}
-                    startUpdatingPercentages();
-                {% endif %}
-            });
-        }
-
-        function updateReleasePercentages() {
-            n_polling_checks += 1;
-            $.get( "{% url 'check-release-progresses' dataset.short_name %}", function( data ) {
-
-                // First check if there is any data returned, if not stop the polling (no releases)
-                if ($.isEmptyObject(data)){
-                    window.clearInterval(polling_timer);
-                    polling_timer = undefined;
-                    n_polling_checks = 0;
-                    return;
-                }
-
-                // First check if all releases are complete
-                var allComplete = true;
-                for (var key in data) {
-                    if (data.hasOwnProperty(key)) {
-                        if (data[key] != 100) {
-                            allComplete = false;
-                        }
-                    }
-                }
-
-                // If all releases are complete at first check, there is no progress to track, cancel timer
-                if (allComplete && n_polling_checks === 1){
-                    window.clearInterval(polling_timer);
-                    polling_timer = undefined;
-                    n_polling_checks = 0;
-                } else {
-                    if (allComplete && n_polling_checks > 1){
-                        // If all are complete and we checked more than once, this means that those which
-                        // were progressing have now finished
-                        loadDatasetReleasesTable();
-                        n_polling_checks = 0;
-                    }
-                    // If not all are complete or we're at later polling check, update progress bars
-                    for (var key in data) {
-                        if (data.hasOwnProperty(key)) {
-                            $('#release_percentage_bar_' + key).progress({
-                                percent: data[key],
-                                text: {active: '{percent}%'}
-                            });
-                        }
-                    }
-                }
-            });
-        }
-
-        var polling_timer = undefined;
-        var n_polling_checks = 0;
-        function startUpdatingPercentages(){
-            if (polling_timer === undefined) {
-                polling_timer = setInterval(function(){ updateReleasePercentages(); }, 1000);
-            }
+        function loadDatasetStateTable() {
+            $( "#dataset_releases_table_placeholder" ).load( "{% url 'state-table' dataset.short_name %}");
         }
 
         function loadDatasetTaxonomyTable(){
@@ -101,9 +42,6 @@
                 $('#dataset_contents_paginate').parent().attr('style', 'width: 100% !important');
             });
         }
-
-
-
 
     </script>
 {% endblock %}
