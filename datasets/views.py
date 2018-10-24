@@ -884,12 +884,6 @@ def release_taxonomy_table(request, short_name, release_tag):
     dataset = get_object_or_404(Dataset, short_name=short_name)
     release = get_object_or_404(DatasetRelease, dataset=dataset, release_tag=release_tag)
 
-    # Get request info to chose which button to place per category
-    category_link_to = {
-        'e': ('dataset-explore-taxonomy-node', 'Explore'),
-        'cva': ('contribute-validate-annotations-category', 'Choose'),
-    }[request.GET.get('link_to', 'e')]
-
     # Get previously stored dataset taxonomy stats
     taxonomy_node_stats = release.taxonomy_node_stats
 
@@ -897,5 +891,4 @@ def release_taxonomy_table(request, short_name, release_tag):
         'dataset': dataset,
         'release': release,
         'taxonomy_node_stats': taxonomy_node_stats,
-        'category_link_to': category_link_to
     })

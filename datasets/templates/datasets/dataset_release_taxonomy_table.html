@@ -14,8 +14,8 @@
         <tr>
             <td>{{ node.name }}</td>
             <td>{{ node.num_sounds }}</td>
-            <td class="right aligned"><a href="{% url category_link_to.0 dataset.short_name node.url_id %}"
-                                         class="blue ui button right labeled icon">{{ category_link_to.1 }}
+            <td class="right aligned"><a href="{% url 'release-taxonomy-node' dataset.short_name release.release_tag node.url_id %}"
+                                         class="blue ui button right labeled icon">Explore
                 <i class="right arrow icon"></i></a></td>
         </tr>
     {% endfor %}
