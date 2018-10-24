@@ -773,7 +773,7 @@ def download_script(request, short_name):
 
 def release_explore(request, short_name, release_tag):
     dataset = get_object_or_404(Dataset, short_name=short_name)
-    release = get_object_or_404(DatasetRelease, release_tag=release_tag)
+    release = get_object_or_404(DatasetRelease, dataset=dataset, release_tag=release_tag)
     user_is_maintainer = dataset.user_is_maintainer(request.user)
 
     return render(request, 'datasets/dataset_release_explore.html', {
@@ -794,9 +794,9 @@ def download_release(request, short_name, release_tag):
     formatted_script = highlight(script, PythonLexer(), HtmlFormatter())
     highlighting_styles = HtmlFormatter().get_style_defs('.highlight')
     return render(request, 'datasets/download.html', {'dataset': dataset,
-                                             'release': release,
-                                             'formatted_script': formatted_script,
-                                             'highlighting_styles': highlighting_styles})
+                                                      'release': release,
+                                                      'formatted_script': formatted_script,
+                                                      'highlighting_styles': highlighting_styles})
 
 
 @login_required
@@ -833,9 +833,9 @@ def delete_release(request, short_name, release_tag):
 
 
 @login_required
-def check_release_progresse(request, short_name, release_tag):
+def check_release_progress(request, short_name, release_tag):
     dataset = get_object_or_404(Dataset, short_name=short_name)
-    release = get_object_or_404(DatasetRelease, release_tag=release_tag)
+    release = get_object_or_404(DatasetRelease, dataset=dataset, release_tag=release_tag)
     if not dataset.user_is_maintainer(request.user):
         raise HttpResponseNotAllowed
 
@@ -844,7 +844,7 @@ def check_release_progresse(request, short_name, release_tag):
 
 def dataset_release_table(request, short_name, release_tag):
     dataset = get_object_or_404(Dataset, short_name=short_name)
-    release = get_object_or_404(DatasetRelease, release_tag=release_tag)
+    release = get_object_or_404(DatasetRelease, dataset=dataset, release_tag=release_tag)
     user_is_maintainer = dataset.user_is_maintainer(request.user)
 
     return render(request, 'datasets/dataset_release_table.html', {
@@ -856,7 +856,7 @@ def dataset_release_table(request, short_name, release_tag):
 
 def release_taxonomy_table(request, short_name, release_tag):
     dataset = get_object_or_404(Dataset, short_name=short_name)
-    release = get_object_or_404(DatasetRelease, release_tag=release_tag)
+    release = get_object_or_404(DatasetRelease, dataset=dataset, release_tag=release_tag)
 
     # Get request info to chose which button to place per category
     category_link_to = {
