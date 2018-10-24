@@ -783,6 +783,15 @@ def release_explore(request, short_name, release_tag):
     })
 
 
+def release_taxonomy_node(request, short_name, release_tag, node_id):
+    dataset = get_object_or_404(Dataset, short_name=short_name)
+    release = get_object_or_404(DatasetRelease, dataset=dataset, release_tag=release_tag)
+    node_id = unquote(node_id)
+    ground_truth_annotations = release.get_ground_truth_annotations_taxonomy_node(node_id)
+    return render(request, 'datasets/release_taxonomy_node.html', {
+
+    })
+
 @login_required
 def download_release(request, short_name, release_tag):
     dataset = get_object_or_404(Dataset, short_name=short_name)

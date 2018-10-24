@@ -781,6 +781,9 @@ class DatasetRelease(models.Model):
         # have been errors with the computation and we can show it on screen
         return self.processing_last_updated < (timezone.now() - datetime.timedelta(minutes=2))
 
+    def get_ground_truth_annotations_taxonomy_node(self, node_id):
+        return self.ground_truth_annotations.filter(taxonomy_node__node_id=node_id)
+
 
 class SoundDataset(models.Model):
     sound = models.ForeignKey(Sound, null=True, blank=True, on_delete=models.SET_NULL)

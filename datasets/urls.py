@@ -14,7 +14,7 @@ urlpatterns = [
 
     # Dataset release
     path('<short_name>/release/<release_tag>/', release_explore, name='dataset-release'),
-    re_path(r'^(?P<short_name>[^\/]+)/check_release_progresses/(?P<release_tag>[^\/]+)/$', check_release_progresse,
+    re_path(r'^(?P<short_name>[^\/]+)/check_release_progresses/(?P<release_tag>[^\/]+)/$', check_release_progress,
             name='check-release-progresses'),
     re_path(r'^(?P<short_name>[^\/]+)/release/(?P<release_tag>[^\/]+)/change/$', change_release_type,
             name='change-release-type'),
@@ -25,6 +25,7 @@ urlpatterns = [
     path('<short_name>/release_table/<release_tag>/', dataset_release_table, name='release-table'),
     path('<short_name>/release_table/<release_tag>/taxonomy_table/', release_taxonomy_table,
          name='release-taxonomy-table'),
+    path('<short_name>/release/<release_tag>/<node_id>/', release_taxonomy_node, name='release-taxonomy-node'),
 
     # Explore, visu tools
 
