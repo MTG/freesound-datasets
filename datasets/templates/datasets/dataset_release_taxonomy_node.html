@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load dataset_templatetags %}
+{% load general_templatetags %}
+{% block title %}{{ node.name }}{% endblock title %}
+
+{% block content %}
+    <div class="ui breadcrumb">
+        <h1 class="ui header" style="display: inline-block;"><a href="{% url 'dataset' dataset.short_name %}">{{ dataset.short_name|upper }}</a> <i class="right arrow icon divider"></i> {{ node.name }}</h1>
+        {% if user_is_maintainer %}
+            {% load admin_urls %}
+            &nbsp;<a title="Edit in administration page" href="{% url node|admin_urlname:'change' node.pk %}" target="_blank"><i class="edit icon"></i></a>
+        {% endif %}
+    </div>
+    {% display_taxonomy_node_info dataset node.node_id %}
+    <br>
+    <h2>Audio samples from <div class="ui huge label">{{ node.name }}</div></h2>
+
+<div class="pagination">
+    <table id="node_sounds" class="ui unstackable table" width="100%">
+        <thead>
+            <tr>
+                <th>Sound</th>
+                <th>Freesound URL</th>
+                <th>Degree of presence</th>
+                <th>Report error</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for annotation in annotations %}
+                <tr>
+                    <td>
+                        {% sound_player dataset annotation.sound_dataset.sound.freesound_id "small" %}
+                    </td>
+                    <td><a href="http://freesound.org/s/{{ annotation.sound_dataset.sound.freesound_id }}" target="_blank">
+                        see in <img class="ui inline image" style="width:80px;"
+                           src="{% static 'img/freesound_logo_color.png' %}"></a>
+                    </td>
+                    <td>{{ annotation.ground_truth }}</td>
+                    <td><button class="circular inverted big ui icon button"><i class="exclamation red triangle icon"></i></button></td>
+                </tr>
+            {% endfor %} 
+        </tbody>
+    </table>
+    <div class="ui pagination menu" style="float:right">
+        {% if annotations.has_previous %}
+            <a class="item" href="?page={{ sounds.previous_page_number }}"> Previous </a>
+        {% else %}
+            <a class="disabled item"> Previous </a>
+        {% endif %}
+        {% if annotations.has_previous %}
+            <a class="item" href="?page=1"> 1 </a>
+        {% endif %}
+        {% if annotations.number > 3 %}
+            <div class="disabled item">
+                ...
+            </div>
+        {% endif %}
+        {% if annotations.has_previous and annotations.previous_page_number != 1 %}
+            <a class="item" href="?page={{ annotations.previous_page_number }}"> {{ annotations.previous_page_number }} </a>
+        {% endif %}
+            <a class="active item"> {{ annotations.number }} </a>
+        {% if annotations.has_next and annotations.next_page_number != annotations.paginator.num_pages %}
+            <a class="item" href="?page={{ annotations.next_page_number }}"> {{ annotations.next_page_number }} </a>
+        {% endif %}
+        {% if annotations.number|add:1 < annotations.paginator.num_pages %}
+            <div class="disabled item">
+                ...
+            </div>
+        {% endif %}
+        {% if sounds.has_next %}
+            <a class="item" href="?page={{ sounds.paginator.num_pages }}"> {{ sounds.paginator.num_pages }} </a>
+        {% endif %}
+        {% if sounds.has_next %}
+            <a class="item" href="?page={{ sounds.next_page_number }}"> Next </a>
+        {% else %}
+            <a class="disabled item"> Next </a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

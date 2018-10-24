@@ -787,10 +787,27 @@ def release_taxonomy_node(request, short_name, release_tag, node_id):
     dataset = get_object_or_404(Dataset, short_name=short_name)
     release = get_object_or_404(DatasetRelease, dataset=dataset, release_tag=release_tag)
     node_id = unquote(node_id)
-    ground_truth_annotations = release.get_ground_truth_annotations_taxonomy_node(node_id)
-    return render(request, 'datasets/release_taxonomy_node.html', {
+    node = dataset.taxonomy.get_element_at_id(node_id)
+    ground_truth_annotations = release.get_ground_truth_annotations_taxonomy_node(node_id)\
+        .order_by('pk')
 
+    paginator = Paginator(ground_truth_annotations, 10)
+    page = request.GET.get('page')
+    try:
+        annotations = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        annotations = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        annotations = paginator.page(paginator.num_pages)
+
+    return render(request, 'datasets/dataset_release_taxonomy_node.html', {
+        'dataset': dataset,
+        'node': node,
+        'annotations': annotations
     })
+
 
 @login_required
 def download_release(request, short_name, release_tag):
