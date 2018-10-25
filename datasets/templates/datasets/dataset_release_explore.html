@@ -86,8 +86,12 @@
 <!-- CONTENT -->
 
 <!--<div class="ui main text container">-->
-<h1 class="ui header">Explore the {{ dataset.short_name|upper }}</h1>
-<p>The table shows some current basic stats of {{ dataset.short_name|upper }}. Hover your mouse over the headers for more info.</p>
+<h1 class="ui header">
+    Explore the {{ dataset.short_name|upper }} {{ release.release_tag }} release
+</h1>
+<p>
+    The table shows some current basic stats of the {{ release.release_tag }} release of the {{ dataset.short_name|upper }} dataset.
+</p>
 <!--</div>-->
 <!--<h2>Current status &ndash; statistics:</h2>-->
 <div>

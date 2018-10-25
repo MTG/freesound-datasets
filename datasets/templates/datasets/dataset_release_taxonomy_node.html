@@ -6,7 +6,12 @@
 
 {% block content %}
     <div class="ui breadcrumb">
-        <h1 class="ui header" style="display: inline-block;"><a href="{% url 'dataset' dataset.short_name %}">{{ dataset.short_name|upper }}</a> <i class="right arrow icon divider"></i> {{ node.name }}</h1>
+        <h1 class="ui header" style="display: inline-block;">
+            <a href="{% url 'dataset' dataset.short_name %}">{{ dataset.short_name|upper }}</a>
+            <i class="caret right icon divider"></i>
+            <a href="{% url 'dataset-release' dataset.short_name release.release_tag %}">{{ release.release_tag }}</a>
+            <i class="right arrow icon divider"></i>
+            {{ node.name }}</h1>
         {% if user_is_maintainer %}
             {% load admin_urls %}
             &nbsp;<a title="Edit in administration page" href="{% url node|admin_urlname:'change' node.pk %}" target="_blank"><i class="edit icon"></i></a>
