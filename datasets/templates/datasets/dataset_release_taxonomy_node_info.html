@@ -120,6 +120,12 @@
                 </div></td>
             </tr>
         {% endif %}
-        <tr><td># audio samples</td><td>{{ node_stats.num_sounds }}</td></tr>
+        <tr><td># audio samples</td><td>
+            {% if node_stats.num_sounds %}
+                {{ node_stats.num_sounds }}
+            {% else %}
+                0
+            {% endif %}
+        </td></tr>
     </tbody>
 </table>
