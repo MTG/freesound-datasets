@@ -54,7 +54,11 @@
 {% if show_go_button > 0 %}
 <div style="text-align:right;">
     <a class="primary basic ui button right labeled icon"
-         href="{% url 'dataset-explore-taxonomy-node' dataset.short_name node.url_id %}" target="_blank">
+        {% if release_tag %}
+            href="{% url 'release-taxonomy-node' dataset.short_name release_tag node.url_id %}" target="_blank">
+        {% else %}
+            href="{% url 'dataset-explore-taxonomy-node' dataset.short_name node.url_id %}" target="_blank">
+        {% endif %}
         Go to <i>{{node.name}}</i> page<i class="right arrow icon"></i>
     </a>
 </div>

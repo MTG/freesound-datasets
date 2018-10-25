@@ -129,7 +129,8 @@ def display_release_taxonomy_node_info(dataset, release, node_id):
     return {
         'dataset': dataset,
         'node_stats': node_stats,
-        'node': node
+        'node': node,
+        'release': release
     }
 
 

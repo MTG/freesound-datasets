@@ -68,7 +68,10 @@
                                     {% taxonomy_node dataset node_id as sub_node_data  %}
                                     <div class="item" style="margin-left:0px;margin-right:5px;">
                                         >
-                                        <a class="my-pop ui label" data-html='' ajax_done=0 ajax_url="{% url 'get-mini-node-info' dataset.short_name sub_node_data.url_id %}?sgt=1">{{ sub_node_data.name }}</a>
+                                        <a class="my-pop ui label" data-html='' ajax_done=0
+                                           ajax_url="{% url 'get-mini-node-info' dataset.short_name sub_node_data.url_id %}?release-tag={{ release.release_tag }}">
+                                            {{ sub_node_data.name }}
+                                        </a>
                                     </div>
                                 {% endfor %}
                             </div>
@@ -94,7 +97,9 @@
                     {% for node_id in node.sibling_ids %}
                         {% taxonomy_node dataset node_id as sub_node_data %}
                         <div class="item" style="margin-left:0px;margin-right:5px;">
-                            <a class="my-pop ui label" data-html='' ajax_done=0 ajax_url = "{% url 'get-mini-node-info' dataset.short_name sub_node_data.url_id %}?sgt=1">{{ sub_node_data.name }}</a>
+                            <a class="my-pop ui label" data-html='' ajax_done=0
+                               ajax_url="{% url 'get-mini-node-info' dataset.short_name sub_node_data.url_id %}?release-tag={{ release.release_tag }}">
+                                {{ sub_node_data.name }}</a>
                         </div>
                     {% endfor %}
                 </div></td>
@@ -107,7 +112,9 @@
                     {% for node_id in node.child_ids %}
                         {% taxonomy_node dataset node_id as sub_node_data %}
                         <div class="item" style="margin-left:0px;margin-right:5px;">
-                            <a class="my-pop ui label" data-html='' ajax_done=0 ajax_url = "{% url 'get-mini-node-info' dataset.short_name sub_node_data.url_id %}?sgt=1">{{ sub_node_data.name }}</a>
+                            <a class="my-pop ui label" data-html='' ajax_done=0
+                               ajax_url="{% url 'get-mini-node-info' dataset.short_name sub_node_data.url_id %}?release-tag={{ release.release_tag }}">
+                                {{ sub_node_data.name }}</a>
                         </div>
                     {% endfor %}
                 </div></td>
