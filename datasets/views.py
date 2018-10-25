@@ -805,7 +805,8 @@ def release_taxonomy_node(request, short_name, release_tag, node_id):
     return render(request, 'datasets/dataset_release_taxonomy_node.html', {
         'dataset': dataset,
         'node': node,
-        'annotations': annotations
+        'annotations': annotations,
+        'release': release
     })
 
 

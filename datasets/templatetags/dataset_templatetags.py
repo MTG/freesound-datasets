@@ -119,6 +119,20 @@ def display_taxonomy_node_mini_info(dataset, node_id):
     return {'dataset': dataset, 'node': node}
 
 
+@register.inclusion_tag('datasets/dataset_release_taxonomy_node_info.html')
+def display_release_taxonomy_node_info(dataset, release, node_id):
+    all_node_stats = release.taxonomy_node_stats
+    node_stats = next((d for d in all_node_stats if d["node_id"] == node_id), None)
+    node = dataset.taxonomy.get_element_at_id(node_id).as_dict()
+    hierarchy_paths = dataset.taxonomy.get_hierarchy_paths(node_id)
+    node['hierarchy_paths'] = hierarchy_paths if hierarchy_paths is not None else []
+    return {
+        'dataset': dataset,
+        'node_stats': node_stats,
+        'node': node
+    }
+
+
 @register.simple_tag(takes_context=False)
 def sounds_per_taxonomy_node(dataset, node_id, N):
     return dataset.sounds_per_taxonomy_node(node_id)[0:N]

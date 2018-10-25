@@ -1,0 +1,118 @@
+{% load staticfiles %}
+{% load dataset_templatetags %}
+{% load general_templatetags %}
+{% block extra_head %}
+    {% load_sound_player_files %}
+{% endblock %}
+
+{% block page_js %}
+    <script type="text/javascript">
+    var popupLoading = '<div style="height:310px; width:730px" class="ui loading segment">Loading</div>';
+    $('.my-pop').ready(function() {
+        $('.my-pop').popup({
+            on: 'click',
+            html: popupLoading,
+            onShow: function(el){
+                var ajax_done = el.getAttribute('ajax_done')
+                if (ajax_done == 0) {
+                    var popup = this
+                    var ajax_url = el.getAttribute('ajax_url')
+                    $.ajax({
+                        url: ajax_url,
+                    }).done(function(result) {
+                        popup.html(result);
+                        el.setAttribute("data-html", result);
+                        el.setAttribute("ajax_done", 1);
+                    }).fail(function() {
+                        popup.html('error')
+                    });
+                }
+            },
+
+            onHide: function() {
+                var popup = this;
+                $(popup).find(".soundplayer").each( function () {
+                    var plId = '#' + this.id;
+                    if (typeof(window.players) !== "undefined") {
+                        var players = window.players;
+                        for (var i = 0; i < players.length; i++) {
+                            var player = players[i];
+                            if (player.playerDom === plId) {
+                                player.destroy();
+                                var idx = players.indexOf(player);
+                                if (idx > -1) {
+                                    players.splice(idx, 1);
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        });
+    });
+    </script>
+{% endblock %}
+<table class="ui unstackable table" width="100%">
+    <tbody>
+        <tr>
+            <td>Hierarchy</td>
+            <td>
+                <div class="ui list">
+                    {% for hierarchy_path in node.hierarchy_paths %}
+                        <div class="item">
+                            <div class="ui horizontal list">
+                                <div class="item">
+                                    <i class="tree icon"></i>
+                                </div>
+                                {% for node_id in hierarchy_path %}
+                                    {% taxonomy_node dataset node_id as sub_node_data  %}
+                                    <div class="item" style="margin-left:0px;margin-right:5px;">
+                                        >
+                                        <a class="my-pop ui label" data-html='' ajax_done=0 ajax_url="{% url 'get-mini-node-info' dataset.short_name sub_node_data.url_id %}?sgt=1">{{ sub_node_data.name }}</a>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                {% empty %}
+                    <div class="item">-</div>
+                {% endfor %}
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td class="three wide">Description</td>
+            <td>{{ node.description }}</td>
+        </tr>
+        <tr>
+            <td>URI</td>
+            <td>{% if node.citation_uri %}<a href="{{ node.citation_uri }}" target="_blank">{{ node.citation_uri }}</a>{% else %}-{% endif %}</td>
+        </tr>
+        {% if node.sibling_ids %}
+            <tr>
+                <td>Siblings</td>
+                <td><div class="ui horizontal list">
+                    {% for node_id in node.sibling_ids %}
+                        {% taxonomy_node dataset node_id as sub_node_data %}
+                        <div class="item" style="margin-left:0px;margin-right:5px;">
+                            <a class="my-pop ui label" data-html='' ajax_done=0 ajax_url = "{% url 'get-mini-node-info' dataset.short_name sub_node_data.url_id %}?sgt=1">{{ sub_node_data.name }}</a>
+                        </div>
+                    {% endfor %}
+                </div></td>
+            </tr>
+        {% endif %}
+        {% if node.child_ids %}
+            <tr>
+                <td>Direct children</td>
+                <td><div class="ui horizontal list">
+                    {% for node_id in node.child_ids %}
+                        {% taxonomy_node dataset node_id as sub_node_data %}
+                        <div class="item" style="margin-left:0px;margin-right:5px;">
+                            <a class="my-pop ui label" data-html='' ajax_done=0 ajax_url = "{% url 'get-mini-node-info' dataset.short_name sub_node_data.url_id %}?sgt=1">{{ sub_node_data.name }}</a>
+                        </div>
+                    {% endfor %}
+                </div></td>
+            </tr>
+        {% endif %}
+        <tr><td># audio samples</td><td>{{ node_stats.num_sounds }}</td></tr>
+    </tbody>
+</table>

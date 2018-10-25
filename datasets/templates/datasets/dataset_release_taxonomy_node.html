@@ -12,7 +12,7 @@
             &nbsp;<a title="Edit in administration page" href="{% url node|admin_urlname:'change' node.pk %}" target="_blank"><i class="edit icon"></i></a>
         {% endif %}
     </div>
-    {% display_taxonomy_node_info dataset node.node_id %}
+    {% display_release_taxonomy_node_info dataset release node.node_id %}
     <br>
     <h2>Audio samples from <div class="ui huge label">{{ node.name }}</div></h2>
 
