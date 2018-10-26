@@ -1104,6 +1104,25 @@ class CategoryComment(models.Model):
     # NOTE: this should refer to the db object id.
 
 
+class ErrorReport(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
+    annotation = models.ForeignKey(GroundTruthAnnotation, on_delete=models.CASCADE)
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+    reviewed = models.CharField(
+        max_length=2,
+        choices=(
+            ('NR', 'Not Reviewed'),
+            ('V', 'Valid'),
+            ('NV', 'Not Valid'),
+        ),
+        default='NR',
+    )
+
+    class Meta:
+        unique_together = ('annotation', 'created_by')
+
+
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     test = models.CharField(max_length=2, choices=TEST_CHOICES, default='UN')  # Store test result
