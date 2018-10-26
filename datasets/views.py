@@ -12,7 +12,7 @@ from django.db.models import Count, F, Q
 from django.db import transaction, connection
 from django.forms import formset_factory
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from datasets.models import Dataset, DatasetRelease, CandidateAnnotation, Vote, TaxonomyNode, SoundDataset, Sound, User
+from datasets.models import Dataset, DatasetRelease, CandidateAnnotation, Vote, TaxonomyNode, SoundDataset, Sound, User, ErrorReport
 from datasets import utils
 from django.utils import timezone
 from datasets.forms import DatasetReleaseForm, PresentNotPresentUnsureForm, CategoryCommentForm
@@ -896,3 +896,17 @@ def release_taxonomy_table(request, short_name, release_tag):
         'release': release,
         'taxonomy_node_stats': taxonomy_node_stats,
     })
+
+
+def report_ground_truth_annotation(request, short_name, release_tag, annotation_id):
+    created = False
+    if request.method == 'POST':
+        dataset = get_object_or_404(Dataset, short_name=short_name)
+        release = get_object_or_404(DatasetRelease, dataset=dataset, release_tag=release_tag)
+        annotation = release.ground_truth_annotations.filter(pk=annotation_id).first()
+        if annotation:
+            error_report, created = ErrorReport.objects.get_or_create(
+                created_by=request.user,
+                annotation=annotation
+            )
+    return JsonResponse({'created': created})
