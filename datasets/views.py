@@ -907,14 +907,28 @@ def release_taxonomy_table(request, short_name, release_tag):
 
 def report_ground_truth_annotation(request, short_name, release_tag):
     created = False
+    undo = False
     if request.method == 'POST':
         dataset = get_object_or_404(Dataset, short_name=short_name)
         release = get_object_or_404(DatasetRelease, dataset=dataset, release_tag=release_tag)
         annotation_id = request.POST.get('annotation_id')
         annotation = release.ground_truth_annotations.filter(pk=annotation_id).first()
+        report_or_undo = request.POST.get('report_or_undo')
         if annotation:
-            error_report, created = ErrorReport.objects.get_or_create(
-                created_by=request.user,
-                annotation=annotation
-            )
-    return JsonResponse({'created': created})
+            if report_or_undo == 'report':
+                error_report, created = ErrorReport.objects.get_or_create(
+                    created_by=request.user,
+                    annotation=annotation
+                )
+            elif report_or_undo == 'undo':
+                error_report = ErrorReport.objects.filter(
+                    created_by=request.user,
+                    annotation=annotation
+                ).first()
+                if error_report:
+                    error_report.delete()
+                    undo = True
+    return JsonResponse({
+        'created': created,
+        'undo': undo
+    })

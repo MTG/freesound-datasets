@@ -9,20 +9,25 @@
             $(".report-button").click(function (event) {
                 var button = $(this);
                 var annotation_id = button.attr('annotation-id');
+                var report_or_undo = button.hasClass("reported-annotation") ? 'undo' : 'report';
                 $.ajax({
                   type: "POST",
                   url: "{% url 'report-ground-truth-annotation' dataset.short_name release.release_tag %}",
                   dataType: 'json',
                   data: {
                       "annotation_id": annotation_id,
+                      "report_or_undo": report_or_undo,
                       csrfmiddlewaretoken: "{{ csrf_token }}"
                   }
                 }).done(function(data) {
-                  if (data.created) {
                     var num_reported_container = button.parent().find(".num-reported-container");
                     var num_reported = num_reported_container.text();
+                  if (data.created) {
                     num_reported_container.text(parseInt(num_reported)+1);
-                    button.prop("disabled",true);
+                    button.addClass("reported-annotation");
+                  } else if (data.undo) {
+                    num_reported_container.text(parseInt(num_reported)-1);
+                    button.removeClass("reported-annotation");
                   }
                 });
                 event.preventDefault();
@@ -70,8 +75,8 @@
                            src="{% static 'img/freesound_logo_color.png' %}"></a>
                     </td>
                     <td>{{ annotation.ground_truth }}</td>
-                    <td><button annotation-id="{{ annotation.pk }}" class="circular inverted big ui icon button report-button"
-                         {% if annotation.user_reported %}disabled=""{% endif%}>
+                    <td><button annotation-id="{{ annotation.pk }}" class="circular inverted big ui icon button report-button
+                         {% if annotation.user_reported %}reported-annotation{% endif%}">
                         <i class="exclamation red triangle icon"></i></button>
                         <p class="small text">reported by
                             <span class="num-reported-container">{{ annotation.num_reports }}</span>
