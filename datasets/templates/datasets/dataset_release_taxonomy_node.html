@@ -8,6 +8,7 @@
         $( document ).ready(function() {
             $(".report-button").click(function (event) {
                 var button = $(this);
+                button.prop('disabled', true);
                 var annotation_id = button.attr('annotation-id');
                 var report_or_undo = button.hasClass("reported-annotation") ? 'undo' : 'report';
                 $.ajax({
@@ -29,6 +30,7 @@
                     num_reported_container.text(parseInt(num_reported)-1);
                     button.removeClass("reported-annotation");
                   }
+                  button.prop('disabled', false);
                 });
                 event.preventDefault();
             });
