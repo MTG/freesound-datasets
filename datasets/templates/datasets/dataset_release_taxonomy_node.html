@@ -7,7 +7,8 @@
     <script type="text/javascript">
         $( document ).ready(function() {
             $(".report-button").click(function (event) {
-                var annotation_id = $(this).attr('annotation-id');
+                var button = $(this);
+                var annotation_id = button.attr('annotation-id');
                 $.ajax({
                   type: "POST",
                   url: "{% url 'report-ground-truth-annotation' dataset.short_name release.release_tag %}",
@@ -17,7 +18,12 @@
                       csrfmiddlewaretoken: "{{ csrf_token }}"
                   }
                 }).done(function(data) {
-                  console.log(data)
+                  if (data.created) {
+                    var num_reported_container = button.parent().find(".num-reported-container");
+                    var num_reported = num_reported_container.text();
+                    num_reported_container.text(parseInt(num_reported)+1);
+                    button.prop("disabled",true);
+                  }
                 });
                 event.preventDefault();
             });
@@ -64,8 +70,13 @@
                            src="{% static 'img/freesound_logo_color.png' %}"></a>
                     </td>
                     <td>{{ annotation.ground_truth }}</td>
-                    <td><button annotation-id="{{ annotation.pk }}" class="circular inverted big ui icon button report-button">
+                    <td><button annotation-id="{{ annotation.pk }}" class="circular inverted big ui icon button report-button"
+                         {% if annotation.user_reported %}disabled=""{% endif%}>
                         <i class="exclamation red triangle icon"></i></button>
+                        <p class="small text">reported by
+                            <span class="num-reported-container">{{ annotation.num_reports }}</span>
+                            {% if annotation.num_reports > 1 %}users{% else %}user{% endif %}
+                        </p>
                     </td>
                 </tr>
             {% endfor %} 
