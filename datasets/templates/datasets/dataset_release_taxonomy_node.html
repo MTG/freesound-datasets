@@ -3,6 +3,28 @@
 {% load dataset_templatetags %}
 {% load general_templatetags %}
 {% block title %}{{ node.name }}{% endblock title %}
+{% block page_js %}
+    <script type="text/javascript">
+        $( document ).ready(function() {
+            $(".report-button").click(function (event) {
+                var annotation_id = $(this).attr('annotation-id');
+                $.ajax({
+                  type: "POST",
+                  url: "{% url 'report-ground-truth-annotation' dataset.short_name release.release_tag %}",
+                  dataType: 'json',
+                  data: {
+                      "annotation_id": annotation_id,
+                      csrfmiddlewaretoken: "{{ csrf_token }}"
+                  }
+                }).done(function(data) {
+                  console.log(data)
+                });
+                event.preventDefault();
+            });
+        });
+
+    </script>
+{% endblock %}
 
 {% block content %}
     <div class="ui breadcrumb">
@@ -42,7 +64,9 @@
                            src="{% static 'img/freesound_logo_color.png' %}"></a>
                     </td>
                     <td>{{ annotation.ground_truth }}</td>
-                    <td><button class="circular inverted big ui icon button"><i class="exclamation red triangle icon"></i></button></td>
+                    <td><button annotation-id="{{ annotation.pk }}" class="circular inverted big ui icon button report-button">
+                        <i class="exclamation red triangle icon"></i></button>
+                    </td>
                 </tr>
             {% endfor %} 
         </tbody>

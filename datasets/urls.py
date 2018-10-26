@@ -25,9 +25,9 @@ urlpatterns = [
     path('<short_name>/release_table/<release_tag>/', dataset_release_table, name='release-table'),
     path('<short_name>/release_table/<release_tag>/taxonomy_table/', release_taxonomy_table,
          name='release-taxonomy-table'),
-    path('<short_name>/release/<release_tag>/<node_id>/', release_taxonomy_node, name='release-taxonomy-node'),
-    path('<short_name>/release/<release_tag>/<annotation_id>/report/', report_ground_truth_annotation,
+    path('<short_name>/release/<release_tag>/report_annotation/', report_ground_truth_annotation,
          name='report-ground-truth-annotation'),
+    path('<short_name>/release/<release_tag>/<node_id>/', release_taxonomy_node, name='release-taxonomy-node'),
 
     # Explore, visu tools
 

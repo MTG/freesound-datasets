@@ -898,11 +898,12 @@ def release_taxonomy_table(request, short_name, release_tag):
     })
 
 
-def report_ground_truth_annotation(request, short_name, release_tag, annotation_id):
+def report_ground_truth_annotation(request, short_name, release_tag):
     created = False
     if request.method == 'POST':
         dataset = get_object_or_404(Dataset, short_name=short_name)
         release = get_object_or_404(DatasetRelease, dataset=dataset, release_tag=release_tag)
+        annotation_id = request.POST.get('annotation_id')
         annotation = release.ground_truth_annotations.filter(pk=annotation_id).first()
         if annotation:
             error_report, created = ErrorReport.objects.get_or_create(
