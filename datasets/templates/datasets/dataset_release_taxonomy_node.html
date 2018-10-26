@@ -57,12 +57,18 @@
     <h2>Audio samples from <div class="ui huge label">{{ node.name }}</div></h2>
 
 <div class="pagination">
-    <table id="node_sounds" class="ui unstackable table" width="100%">
+    <table id="node_sounds" class="ui very compact unstackable table" width="100%">
         <thead>
             <tr>
                 <th>Sound</th>
                 <th>Freesound URL</th>
-                <th>Degree of presence</th>
+                <th>Ground Truth</th>
+                <th># PP</th>
+                <th># PNP</th>
+                <th># NP</th>
+                <th># U</th>
+                <th>From propagation</th>
+                <th>Partition</th>
                 <th>Report error</th>
             </tr>
         </thead>
@@ -76,7 +82,13 @@
                         see in <img class="ui inline image" style="width:80px;"
                            src="{% static 'img/freesound_logo_color.png' %}"></a>
                     </td>
-                    <td>{{ annotation.ground_truth }}</td>
+                    <td>{{ annotation.ground_truth_str }}</td>
+                    <td>{{ annotation.num_PP }}</td>
+                    <td>{{ annotation.num_PNP }}</td>
+                    <td>{{ annotation.num_NP }}</td>
+                    <td>{{ annotation.num_U }}</td>
+                    <td>{{ annotation.from_propagation }}</td>
+                    <td> - </td>
                     <td><button annotation-id="{{ annotation.pk }}" class="circular inverted big ui icon button report-button
                          {% if annotation.user_reported %}reported-annotation{% endif%}">
                         <i class="exclamation red triangle icon"></i></button>

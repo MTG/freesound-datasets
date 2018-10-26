@@ -8,7 +8,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector, TrigramSimilarity, TrigramDistance
 from django.conf import settings
 from django.urls import reverse
-from django.db.models import Count, Case, When, BooleanField, F, Q
+from django.db.models import Count, Case, When, BooleanField, CharField, Value, F, Q
 from django.db import transaction, connection
 from django.forms import formset_factory
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -793,13 +793,27 @@ def release_taxonomy_node(request, short_name, release_tag, node_id):
     node = dataset.taxonomy.get_element_at_id(node_id)
     ground_truth_annotations = release.get_ground_truth_annotations_taxonomy_node(node_id)\
         .annotate(num_reports=Count('errorreport'))\
+        .annotate(ground_truth_str=Case(
+            When(ground_truth=1.0, then=Value('PP')),
+            When(ground_truth=0.5, then=Value('PNP')),
+            When(ground_truth=0, then=Value('U')),
+            When(ground_truth=-1, then=Value('NP')),
+            output_field=CharField(),
+        ))\
+        .annotate(num_PP=Count('from_candidate_annotation__votes',
+                               filter=Q(from_candidate_annotation__votes__vote=1.0)))\
+        .annotate(num_PNP=Count('from_candidate_annotation__votes',
+                               filter=Q(from_candidate_annotation__votes__vote=0.5)))\
+        .annotate(num_U=Count('from_candidate_annotation__votes',
+                               filter=Q(from_candidate_annotation__votes__vote=0)))\
+        .annotate(num_NP=Count('from_candidate_annotation__votes',
+                               filter=Q(from_candidate_annotation__votes__vote=-1)))\
         .annotate(
             user_reported=Case(
                 When(errorreport__created_by=request.user, then=True),
                 default=False,
                 output_field=BooleanField()),
-        )\
-        .order_by('pk')
+        ).order_by('pk')
 
     paginator = Paginator(ground_truth_annotations, 10)
     page = request.GET.get('page')
