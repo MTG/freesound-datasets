@@ -774,6 +774,7 @@ def download_script(request, short_name):
     return response
 
 
+@login_required
 def release_explore(request, short_name, release_tag):
     dataset = get_object_or_404(Dataset, short_name=short_name)
     release = get_object_or_404(DatasetRelease, dataset=dataset, release_tag=release_tag)
@@ -786,6 +787,7 @@ def release_explore(request, short_name, release_tag):
     })
 
 
+@login_required
 def release_taxonomy_node(request, short_name, release_tag, node_id):
     dataset = get_object_or_404(Dataset, short_name=short_name)
     release = get_object_or_404(DatasetRelease, dataset=dataset, release_tag=release_tag)
@@ -893,6 +895,7 @@ def check_release_progress(request, short_name, release_tag):
     return JsonResponse(release.processing_progress, safe=False)
 
 
+@login_required
 def dataset_release_table(request, short_name, release_tag):
     dataset = get_object_or_404(Dataset, short_name=short_name)
     release = get_object_or_404(DatasetRelease, dataset=dataset, release_tag=release_tag)
@@ -905,6 +908,7 @@ def dataset_release_table(request, short_name, release_tag):
     })
 
 
+@login_required
 def release_taxonomy_table(request, short_name, release_tag):
     dataset = get_object_or_404(Dataset, short_name=short_name)
     release = get_object_or_404(DatasetRelease, dataset=dataset, release_tag=release_tag)
@@ -919,6 +923,7 @@ def release_taxonomy_table(request, short_name, release_tag):
     })
 
 
+@login_required
 def report_ground_truth_annotation(request, short_name, release_tag):
     created = False
     undo = False
