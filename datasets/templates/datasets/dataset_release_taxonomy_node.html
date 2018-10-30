@@ -76,9 +76,9 @@
             {% for annotation in annotations %}
                 <tr>
                     <td>
-                        {% sound_player dataset annotation.sound_dataset.sound.freesound_id "small" %}
+                        {% sound_player dataset annotation.sound_dataset__sound__freesound_id "small" %}
                     </td>
-                    <td><a href="http://freesound.org/s/{{ annotation.sound_dataset.sound.freesound_id }}" target="_blank">
+                    <td><a href="http://freesound.org/s/{{ annotation.sound_dataset__sound__freesound_id }}" target="_blank">
                         see in <img class="ui inline image" style="width:80px;"
                            src="{% static 'img/freesound_logo_color.png' %}"></a>
                     </td>
@@ -127,11 +127,11 @@
                 ...
             </div>
         {% endif %}
-        {% if sounds.has_next %}
-            <a class="item" href="?page={{ sounds.paginator.num_pages }}"> {{ sounds.paginator.num_pages }} </a>
+        {% if annotations.has_next %}
+            <a class="item" href="?page={{ annotations.paginator.num_pages }}"> {{ annotations.paginator.num_pages }} </a>
         {% endif %}
-        {% if sounds.has_next %}
-            <a class="item" href="?page={{ sounds.next_page_number }}"> Next </a>
+        {% if annotations.has_next %}
+            <a class="item" href="?page={{ annotations.next_page_number }}"> Next </a>
         {% else %}
             <a class="disabled item"> Next </a>
         {% endif %}

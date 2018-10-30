@@ -794,27 +794,28 @@ def release_taxonomy_node(request, short_name, release_tag, node_id):
     node_id = unquote(node_id)
     node = dataset.taxonomy.get_element_at_id(node_id)
     ground_truth_annotations = release.get_ground_truth_annotations_taxonomy_node(node_id)\
-        .annotate(num_reports=Count('errorreport'))\
-        .annotate(ground_truth_str=Case(
-            When(ground_truth=1.0, then=Value('PP')),
-            When(ground_truth=0.5, then=Value('PNP')),
-            When(ground_truth=0, then=Value('U')),
-            When(ground_truth=-1, then=Value('NP')),
-            output_field=CharField(),
-        ))\
-        .annotate(num_PP=Count('from_candidate_annotation__votes',
-                               filter=Q(from_candidate_annotation__votes__vote=1.0)))\
-        .annotate(num_PNP=Count('from_candidate_annotation__votes',
-                               filter=Q(from_candidate_annotation__votes__vote=0.5)))\
-        .annotate(num_U=Count('from_candidate_annotation__votes',
-                               filter=Q(from_candidate_annotation__votes__vote=0)))\
-        .annotate(num_NP=Count('from_candidate_annotation__votes',
-                               filter=Q(from_candidate_annotation__votes__vote=-1)))\
         .annotate(
-            user_reported=Case(
-                When(errorreport__created_by=request.user, then=True),
-                default=False,
-                output_field=BooleanField()),
+            num_reports=Count('errorreport', distinct=True),
+            ground_truth_str=Case(
+                When(ground_truth=1.0, then=Value('PP')),
+                When(ground_truth=0.5, then=Value('PNP')),
+                When(ground_truth=0, then=Value('U')),
+                When(ground_truth=-1, then=Value('NP')),
+                output_field=CharField(),
+            ),
+            num_PP=Count('from_candidate_annotation__votes',
+                         filter=Q(from_candidate_annotation__votes__vote=1.0)),
+            num_PNP=Count('from_candidate_annotation__votes',
+                          filter=Q(from_candidate_annotation__votes__vote=0.5)),
+            num_U=Count('from_candidate_annotation__votes',
+                        filter=Q(from_candidate_annotation__votes__vote=0)),
+            num_NP=Count('from_candidate_annotation__votes',
+                         filter=Q(from_candidate_annotation__votes__vote=-1)),
+            user_reported=Count('errorreport',
+                                filter=Q(errorreport__created_by=request.user))
+        ).values(
+            'num_reports', 'ground_truth_str', 'num_PP', 'num_PNP', 'num_U', 'num_NP',
+            'user_reported', 'sound_dataset__sound__freesound_id', 'from_propagation', 'pk'
         ).order_by('pk')
 
     paginator = Paginator(ground_truth_annotations, 10)
