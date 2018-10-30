@@ -4,6 +4,10 @@ from freesound_datasets.views import discussion
 
 
 urlpatterns = [
+    # this url needs to be in first position to unsure a correct mapping
+    re_path(r'^save_contribute_validate_annotations_category/$', save_contribute_validate_annotations_category,
+            name='save-contribute-validate-annotations-per-category'),
+
     #  Dataset
     re_path(r'^(?P<short_name>[^\/]+)/$', dataset, name='dataset'),
     re_path(r'^(?P<short_name>[^\/]+)/explore/$', dataset_explore, name='dataset-explore'),
@@ -27,10 +31,10 @@ urlpatterns = [
          name='release-taxonomy-table'),
     path('<short_name>/release/<release_tag>/report_annotation/', report_ground_truth_annotation,
          name='report-ground-truth-annotation'),
+    # this url needs to be after the ones above to unsure a correct mapping
     path('<short_name>/release/<release_tag>/<node_id>/', release_taxonomy_node, name='release-taxonomy-node'),
 
     # Explore, visu tools
-
     re_path(r'^(?P<short_name>[^\/]+)/taxonomy_table/$', dataset_taxonomy_table, name='taxonomy-table'),
     re_path(r'^(?P<short_name>[^\/]+)/taxonomy_tree/$', dataset_taxonomy_tree, name='taxonomy-tree'),
     re_path(r'^(?P<short_name>[^\/]+)/releases_table/$', dataset_releases_table, name='releases-table'),
@@ -38,6 +42,10 @@ urlpatterns = [
             name='dataset-explore-taxonomy-node'),
     re_path(r'^(?P<short_name>[^\/]+)/mini-node-info/(?P<node_id>[^\/]+)/$', get_mini_node_info,
             name='get-mini-node-info'),
+    re_path(r'^(?P<short_name>[^\/]+)/node-info/(?P<node_name>[^\/]+)/$', get_node_info, name='get-node-info'),
+    re_path(r'^(?P<short_name>[^\/]+)/explore-taxonomy/$', explore_taxonomy, name='explore_taxonomy'),
+    re_path(r'^(?P<short_name>[^\/]+)/search_taxonomy_node/$', search_taxonomy_node,
+        name='search-taxonomy-node'),
 
     # Annotate
     re_path(r'^(?P<short_name>[^\/]+)/annotate/$', contribute, name='contribute'),
@@ -55,12 +63,7 @@ urlpatterns = [
     re_path(r'^(?P<short_name>[^\/]+)/annotate/validate_annotations_all/$', contribute_validate_annotations_all,
         name='contribute-validate-annotations-all'),
     re_path(r'^(?P<short_name>[^\/]+)/annotate/choose_category_table_search_all/$', dataset_taxonomy_table_search_all,
-        name='taxonomy-table-search-all'),
-    re_path(r'^(?P<short_name>[^\/]+)/mini-node-info/(?P<node_id>[^\/]+)/$', get_mini_node_info, name='get-mini-node-info'),
-    re_path(r'^(?P<short_name>[^\/]+)/node-info/(?P<node_name>[^\/]+)/$', get_node_info, name='get-node-info'),
-    re_path(r'^(?P<short_name>[^\/]+)/explore-taxonomy/$', explore_taxonomy, name='explore_taxonomy'),
-    re_path(r'^(?P<short_name>[^\/]+)/search_taxonomy_node/$', search_taxonomy_node,
-        name='search-taxonomy-node'),
+        name='taxonomy-table-search-all'),   
     re_path(r'^(?P<short_name>[^\/]+)/annotate/curate_sound/(?P<sound_id>[^\/]+)/$', curate_sounds,
         name='expert-curate-sounds'),
     re_path(r'^(?P<short_name>[^\/]+)/annotate/save_expert_votes_curate/(?P<sound_id>[^\/]+)/$', save_expert_votes_curation_task,
