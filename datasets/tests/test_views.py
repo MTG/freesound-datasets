@@ -4,6 +4,7 @@ from datasets.views import *
 from datasets.forms import *
 from datasets.management.commands.generate_fake_data import create_sounds, create_users, create_candidate_annotations, \
     add_taxonomy_nodes, VALID_FS_IDS, get_dataset
+from time import sleep
 
 
 class ContributeTest(TestCase):
@@ -158,6 +159,185 @@ class AdvancedContributeTest(TestCase):
         self.assertListEqual(expected_annotation_ids, selected_candidates)
 
 
+def create_release():
+    release = DatasetRelease.objects.create(release_tag='test', type='IN')
+    release.dataset = Dataset.objects.get(short_name='fsd')
+    release.save()
+
+
+class DatasetReleaseTests(TestCase):
+    fixtures = ['datasets/fixtures/initial.json']
+
+    def setUp(self):
+        add_taxonomy_nodes(Taxonomy.objects.get())
+        create_sounds('fsd', 10)
+        create_users(1)
+        user = User.objects.first()
+        dataset = Dataset.objects.get(short_name='fsd')
+        dataset.maintainers.add(user)
+        dataset.save()
+        create_candidate_annotations('fsd', 20)
+        # create ground truth annotations
+        for candidate_annotation in CandidateAnnotation.objects.all():
+            GroundTruthAnnotation.objects.get_or_create(
+                start_time=candidate_annotation.start_time,
+                end_time=candidate_annotation.end_time,
+                ground_truth=candidate_annotation.ground_truth,
+                created_by=candidate_annotation.created_by,
+                sound_dataset=candidate_annotation.sound_dataset,
+                taxonomy_node=candidate_annotation.taxonomy_node,
+                from_candidate_annotation=candidate_annotation,
+                from_propagation=False)
+
+        # add preview url for sounds
+        sounds = Sound.objects.all()
+        with transaction.atomic():
+            for sound in sounds:
+                sound.extra_data['previews'] = 'http://www.freesound.org/data/previews/188/188440_3399958-hq.ogg'
+                sound.save()
+
+        self.client.login(username='username_0', password='123456')
+
+    def test_create_release(self):
+        # create release
+        form_data = {
+            'release_tag': ['test'],
+            'type': ['IN'],
+            'max_number_of_sounds': ['']
+        }
+
+        response = self.client.post(reverse('dataset-explore',
+                                            kwargs={
+                                                'short_name': 'fsd'
+                                            }),
+                                    data=form_data)
+        self.assertEquals(response.status_code, 302)  # http redirect
+
+        # check that the release has been correctly created
+        release = DatasetRelease.objects.first()
+        self.assertEqual(release.release_tag, 'test')
+        self.assertEqual(release.type, 'IN')
+        """
+        # TODO: it seems that celery task do not work inside tests, maybe django-celery with CeleryTestSuiteRunner can
+        # be a good choice. The following waits that the celery async processing finishes, and it in fact never ends.
+        
+        while True:  # we need to wait that the release has finished being processed
+            release = DatasetRelease.objects.first()
+            print(release.is_processed)
+            if release.is_processed:
+                self.assertSetEqual(set(release.ground_truth_annotations.all()),
+                                    set(GroundTruthAnnotation.objects.all()))
+                break
+            else:
+                sleep(1)
+        """
+
+    def test_release_explore(self):
+        create_release()
+
+        # release page
+        response = self.client.get(reverse('dataset-release',
+                                           kwargs={
+                                               'short_name': 'fsd',
+                                               'release_tag': 'test'
+                                           }))
+
+        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.context['release'].release_tag, 'test')
+
+    def test_download_release(self):
+        create_release()
+
+        # access download page
+        response = self.client.get(reverse('download-release',
+                                           kwargs={
+                                               'short_name': 'fsd',
+                                               'release_tag': 'test'
+                                           }))
+        self.assertEqual(response.status_code, 200)
+
+    def test_delete_release(self):
+        create_release()
+
+        # delete release and then check that it does not exist anymore
+        response = self.client.get(reverse('delete-release',
+                                           kwargs={
+                                               'short_name': 'fsd',
+                                               'release_tag': 'test'
+                                           }))
+
+        self.assertEqual(list(DatasetRelease.objects.all()), [])
+        self.assertEquals(response.status_code, 302)  # http redirect
+
+    def test_release_table(self):
+        create_release()
+        # create release and process it
+        """
+        # Here we need to enable celery async task for using the generate_release_index function.
+        # For now we only test response status_code.
+        
+        DatasetRelease.objects.create(release_tag='test', type='IN')
+        dataset = Dataset.objects.get(short_name='fsd')
+        release = DatasetRelease.objects.get(release_tag='test')
+        generate_release_index(dataset.id, release.id)
+        """
+        response = self.client.get(reverse('release-table',
+                                           kwargs={
+                                               'short_name': 'fsd',
+                                               'release_tag': 'test'
+                                           }))
+        self.assertEqual(response.status_code, 200)
+        # check that there are 10 sounds in the release
+        # self.assertEqual(response.context['release'].num_sounds, 10)
+
+    def test_release_taxonomy_table(self):
+        create_release()
+
+        response = self.client.get(reverse('release-taxonomy-table',
+                                           kwargs={
+                                               'short_name': 'fsd',
+                                               'release_tag': 'test'
+                                           }))
+        self.assertEqual(response.status_code, 200)
+
+    def test_release_taxonomy_node(self):
+        create_release()
+        ground_truth_annotation = GroundTruthAnnotation.objects.first()
+        release = DatasetRelease.objects.get(release_tag='test')
+        release.ground_truth_annotations.add(ground_truth_annotation)
+
+        response = self.client.get(reverse('release-taxonomy-node',
+                                           kwargs={
+                                               'short_name': 'fsd',
+                                               'release_tag': 'test',
+                                               'node_id': ground_truth_annotation.taxonomy_node.url_id
+                                           }))
+        self.assertEqual(response.status_code, 200)
+
+    def test_report_ground_truth_annotation(self):
+        create_release()
+        ground_truth_annotation = GroundTruthAnnotation.objects.first()
+        ground_truth_annotation_pk = ground_truth_annotation.pk
+        release = DatasetRelease.objects.get(release_tag='test')
+        release.ground_truth_annotations.add(ground_truth_annotation)
+
+        # report a ground truth and check that it is in the db
+        form_data = {
+            'annotation_id': ground_truth_annotation_pk,
+            'report_or_undo': 'report'
+        }
+
+        response = self.client.post(reverse('report-ground-truth-annotation',
+                                            kwargs={
+                                                'short_name': 'fsd',
+                                                'release_tag': 'test'
+                                            }),
+                                    data=form_data)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(GroundTruthAnnotation.objects.get(pk=ground_truth_annotation_pk).errorreport_set.count(), 1)
+
+
 class Basic200ResponseTest(TestCase):
     fixtures = ['datasets/fixtures/initial.json']
 
@@ -205,8 +385,8 @@ class Basic200ResponseTest(TestCase):
                                            }))
         self.assertEquals(response.status_code, 200)
 
-    def test_dataset_releases_table(self):
-        response = self.client.get(reverse('releases-table',
+    def test_dataset_state_table(self):
+        response = self.client.get(reverse('state-table',
                                            kwargs={
                                                'short_name': 'fsd'
                                            }))
