@@ -4,7 +4,7 @@ from datasets.views import *
 from datasets.forms import *
 from datasets.management.commands.generate_fake_data import create_sounds, create_users, create_candidate_annotations, \
     add_taxonomy_nodes, VALID_FS_IDS, get_dataset
-from time import sleep
+from datasets.tasks import generate_release_index
 
 
 class ContributeTest(TestCase):
@@ -271,24 +271,21 @@ class DatasetReleaseTests(TestCase):
 
     def test_release_table(self):
         create_release()
-        # create release and process it
-        """
-        # Here we need to enable celery async task for using the generate_release_index function.
-        # For now we only test response status_code.
-        
-        DatasetRelease.objects.create(release_tag='test', type='IN')
-        dataset = Dataset.objects.get(short_name='fsd')
         release = DatasetRelease.objects.get(release_tag='test')
+        dataset = Dataset.objects.get(short_name='fsd')
+
         generate_release_index(dataset.id, release.id)
-        """
+
         response = self.client.get(reverse('release-table',
                                            kwargs={
                                                'short_name': 'fsd',
                                                'release_tag': 'test'
                                            }))
+
         self.assertEqual(response.status_code, 200)
-        # check that there are 10 sounds in the release
-        # self.assertEqual(response.context['release'].num_sounds, 10)
+        self.assertEqual(response.context['release'].num_sounds,
+                         Sound.objects.exclude(sounddataset__ground_truth_annotations=None).count())
+        self.assertEqual(response.context['release'].num_annotations, 20)
 
     def test_release_taxonomy_table(self):
         create_release()
