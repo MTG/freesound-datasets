@@ -7,7 +7,8 @@ services:
     - docker-compose
 
 before_install:
-    - touch freesound_datasets/local_settings.py
+    - grep -v "uwsgi" requirements.txt > requirements_.txt; mv requirements_.txt requirements.txt
+    - mv freesound_datasets/local_setting.example.py freesound_datasets/local_settings.py
 
 install:
     - docker build -t mtgupf/freesound-datasets-web .
