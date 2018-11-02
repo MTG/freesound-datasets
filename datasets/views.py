@@ -7,13 +7,14 @@ from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector, TrigramSimilarity, TrigramDistance
 from django.conf import settings
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db.models import Count, F, Q
 from django.db import transaction, connection
 from django.forms import formset_factory
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from datasets.models import Dataset, DatasetRelease, CandidateAnnotation, Vote, TaxonomyNode, SoundDataset, Sound, User
 from datasets import utils
+from django.utils import timezone
 from datasets.forms import DatasetReleaseForm, PresentNotPresentUnsureForm, CategoryCommentForm
 from pygments import highlight
 from pygments.lexers import PythonLexer
@@ -457,7 +458,7 @@ def save_contribute_validate_annotations_category(request):
                     if annotation_id not in test_annotations_id and annotation_id != 0:  # store only the votes for non test annotations
                         check = Vote.objects.filter(created_by=request.user,
                                                     candidate_annotation_id=annotation_id,
-                                                    created_at__gt=datetime.datetime.now()
+                                                    created_at__gt=timezone.now()
                                                                    - datetime.timedelta(seconds=5))
                         if not check.exists():
                             # Save votes for annotations

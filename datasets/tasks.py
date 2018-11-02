@@ -1,18 +1,18 @@
 from datasets.models import Dataset, DatasetRelease, CandidateAnnotation, Vote, TaxonomyNode, Sound
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.contrib.auth.models import User
 from django.db import transaction
 from celery import shared_task
 from django.utils import timezone
 from utils.redis_store import store
 from datasets.templatetags.dataset_templatetags import calculate_taxonomy_node_stats
-from datasets.utils import query_freesound_by_id
+from datasets.utils import query_freesound_by_id, chunks
+import sys
 import json
 import math
 import logging
 import datetime
 from datasets.utils import stem
-
 logger = logging.getLogger('tasks')
 
 
@@ -79,7 +79,7 @@ def compute_dataset_basic_stats(store_key, dataset_id):
         dataset = Dataset.objects.get(id=dataset_id)
         store.set(store_key, {
             'num_taxonomy_nodes': dataset.taxonomy.get_num_nodes(),
-            'num_sounds': dataset.num_sounds,
+            'num_sounds': dataset.num_sounds_with_candidate,
             'num_annotations': dataset.num_annotations,
             'avg_annotations_per_sound': dataset.avg_annotations_per_sound,
             'percentage_validated_annotations': dataset.percentage_validated_annotations,
@@ -308,11 +308,23 @@ def refresh_sound_extra_data():
 def compute_priority_score_candidate_annotations():
     logger.info('Start computing priority score of candidate annotations')
     dataset = Dataset.objects.get(short_name='fsd')
-    candidate_annotations = dataset.candidate_annotations.filter(ground_truth=None)
-    with transaction.atomic():
-        for candidate_annotation in candidate_annotations:
-            candidate_annotation.priority_score = candidate_annotation.return_priority_score()
-            candidate_annotation.save()
+    candidate_annotations = dataset.candidate_annotations.filter(ground_truth=None)\
+                                   .select_related('sound_dataset__sound')\
+                                   .annotate(num_present_votes=Count('votes',
+                                                                     filter=~Q(votes__test='FA')
+                                                                            & Q(votes__vote__in=('1', '0.5'))))
+    num_annotations = candidate_annotations.count()
+    count = 0
+    # Iterate all the sounds in chunks so we can do all transactions of a chunk atomically
+    for chunk in chunks(list(candidate_annotations), 500):
+        sys.stdout.write('\rUpdating priority score of candidate annotation %i of %i (%.2f%%)'
+                         % (count + 1, num_annotations, 100.0 * (count + 1) / num_annotations))
+        sys.stdout.flush()
+        with transaction.atomic():
+            for candidate_annotation in chunk:
+                count += 1
+                candidate_annotation.priority_score = candidate_annotation.return_priority_score()
+                candidate_annotation.save(update_fields=['priority_score'])
     logger.info('Finished computing priority score of candidate annotations')
 
 

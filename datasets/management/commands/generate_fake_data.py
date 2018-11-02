@@ -73,7 +73,7 @@ def create_users(num_users):
             )
 
 
-def create_annotations(dataset_short_name, num_annotations):
+def create_candidate_annotations(dataset_short_name, num_annotations):
     """Create fake Annotation object instances.
     
     Create fake annotations to random sound in the dataset instance with the specified short name.
@@ -185,5 +185,5 @@ class Command(BaseCommand):
         create_sounds(short_name, num_sounds)
         create_users(num_users)
         add_taxonomy_nodes(dataset.taxonomy)
-        create_annotations(short_name, num_annotations)
+        create_candidate_annotations(short_name, num_annotations)
         create_votes(num_votes)

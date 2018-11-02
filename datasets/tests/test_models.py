@@ -1,6 +1,7 @@
-from django.test import TestCase
-from datasets.management.commands.generate_fake_data import add_taxonomy_nodes
+from django.test import Client, TestCase
 from datasets import models
+from datasets.management.commands.generate_fake_data import create_sounds, create_users, create_candidate_annotations, \
+    add_taxonomy_nodes, VALID_FS_IDS, get_dataset
 
 
 class TaxonomyTest(TestCase):
@@ -146,3 +147,77 @@ class TaxonomyTestAdvanced(TestCase):
         nodes = sorted([n.node_id for n in self.taxobj.get_nodes_at_level(2)])
         self.assertListEqual(expected, nodes)
 
+
+class DatasetTest(TestCase):
+    fixtures = ['datasets/fixtures/initial.json']
+
+    def setUp(self):
+        # For these tests we create only one sound and one candidate annotation
+        add_taxonomy_nodes(models.Taxonomy.objects.get())
+        create_sounds('fsd', 1)
+        create_users(2)
+        create_candidate_annotations('fsd', 1)
+        candidate_annotation = models.CandidateAnnotation.objects.first()
+        users = models.User.objects.all()
+        self.dataset = models.Dataset.objects.get(short_name='fsd')
+
+        # create 2 votes for the candidate annotations (it should create ground truth annotations)
+        for user in users:
+            self.dataset.maintainers.add(user)
+            models.Vote.objects.create(
+                created_by=user,
+                vote=1.0,
+                visited_sound=False,
+                candidate_annotation_id=candidate_annotation.id,
+                test='AP',
+                from_test_page=True,
+                from_task='AD',
+            )
+        self.dataset.save()
+
+    def test_get_candidate_annotations(self):
+        expected = models.CandidateAnnotation.objects.first()
+        candidate_annotation = self.dataset.candidate_annotations.first()
+        self.assertEqual(expected, candidate_annotation)
+
+    def test_get_ground_truth_annotations(self):
+        # check that there is one (non propagated) ground truth annotation
+        self.assertEqual(self.dataset.ground_truth_annotations.filter(from_propagation=False).count(), 1)
+
+    def test_num_sounds(self):
+        self.assertEqual(self.dataset.num_sounds, 1)
+
+    def test_num_sounds_with_candidate(self):
+        self.assertEqual(self.dataset.num_sounds_with_candidate, 1)
+
+    def test_num_validated_annotations(self):
+        self.assertEqual(self.dataset.num_validated_annotations, 1)
+
+    def test_percentage_validated_annotations(self):
+        self.assertEqual(self.dataset.percentage_validated_annotations, 100.0)
+
+    def test_num_verified_annotations(self):
+        self.assertEqual(self.dataset.num_verified_annotations, 1)
+
+    def test_percentage_verified_annotations(self):
+        self.assertEqual(self.dataset.percentage_verified_annotations, 100.0)
+
+    def test_num_user_contributions(self):
+        self.assertEqual(self.dataset.num_user_contributions, 2)
+
+    def test_get_categories_to_validate(self):
+        user = models.User.objects.first()
+        self.assertEqual(self.dataset.get_categories_to_validate(user).count(), 0)
+
+    def test_user_can_annotate(self):
+        user = models.User.objects.first()
+        node = models.CandidateAnnotation.objects.first().taxonomy_node
+        self.assertEqual(self.dataset.user_can_annotate(node.node_id, user), False)
+
+    def test_num_votes_with_value(self):
+        node = models.CandidateAnnotation.objects.first().taxonomy_node
+        self.assertEqual(self.dataset.num_votes_with_value(node.node_id, 1.0), 2)
+
+    def test_user_is_maintainer(self):
+        user = models.User.objects.first()
+        self.assertEqual(self.dataset.user_is_maintainer(user), True)
