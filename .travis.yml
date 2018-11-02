@@ -8,7 +8,7 @@ services:
 
 before_install:
     - grep -v "uwsgi" requirements.txt > requirements_.txt; mv requirements_.txt requirements.txt
-    - mv freesound_datasets/local_setting.example.py freesound_datasets/local_settings.py
+    - mv freesound_datasets/local_settings.example.py freesound_datasets/local_settings.py
 
 install:
     - docker build -t mtgupf/freesound-datasets-web .
