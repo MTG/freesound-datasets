@@ -641,7 +641,7 @@ class Dataset(models.Model):
                                       taxonomy_node=None,
                                       taxonomy_node_verification=None,
                                       deleted_in_freesound=False,
-                                      priority_score__gt=0)\
+                                      sounddataset__candidate_annotations__priority_score__gt=0)\
             .values_list('sounddataset__candidate_annotations__taxonomy_node', flat=True)
         num_nodes_finished_verifying = self.taxonomy.taxonomynode_set.filter(omitted=False, nb_ground_truth__lt=100)\
             .exclude(pk__in=set(nodes_pk)).count()
