@@ -637,8 +637,11 @@ class Dataset(models.Model):
     @property
     def num_categories_reached_goal(self):
         num_nodes_reached_goal = self.taxonomy.taxonomynode_set.filter(omitted=False, nb_ground_truth__gte=100).count()
-        nodes_pk = self.sounds.filter(sounddataset__candidate_annotations__ground_truth=None)\
-            .filter(taxonomy_node=None, taxonomy_node_verification=None)\
+        nodes_pk = self.sounds.filter(sounddataset__candidate_annotations__ground_truth=None,
+                                      taxonomy_node=None,
+                                      taxonomy_node_verification=None,
+                                      deleted_in_freesound=False,
+                                      priority_score__gt=0)\
             .values_list('sounddataset__candidate_annotations__taxonomy_node', flat=True)
         num_nodes_finished_verifying = self.taxonomy.taxonomynode_set.filter(omitted=False, nb_ground_truth__lt=100)\
             .exclude(pk__in=set(nodes_pk)).count()
