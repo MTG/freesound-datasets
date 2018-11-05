@@ -484,7 +484,7 @@ def dataset_taxonomy_table_choose(request, short_name):
 
         # choose a category at the given node_id level
         if node_id != str(0):
-            if node_id in taxonomy.get_nodes_at_level(0):
+            if node_id in [node.node_id for node in taxonomy.get_nodes_at_level(0)]:
                 # remove node that them and all their children are omitted.
                 # Here we should remove also the categories which all its children have no more annotations tu validate.
                 # Doing it with dataset.get_categories_to_validate() or with dataset.user_can_annotated() on all
