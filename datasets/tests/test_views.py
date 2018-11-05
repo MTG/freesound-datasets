@@ -198,7 +198,7 @@ class DatasetReleaseTests(TestCase):
 
         self.client.login(username='username_0', password='123456')
 
-    def test_create_release(self):
+    def test_create_release_launch(self):
         # create release
         form_data = {
             'release_tag': ['test'],
@@ -217,20 +217,15 @@ class DatasetReleaseTests(TestCase):
         release = DatasetRelease.objects.first()
         self.assertEqual(release.release_tag, 'test')
         self.assertEqual(release.type, 'IN')
-        """
-        # TODO: it seems that celery task do not work inside tests, maybe django-celery with CeleryTestSuiteRunner can
-        # be a good choice. The following waits that the celery async processing finishes, and it in fact never ends.
-        
-        while True:  # we need to wait that the release has finished being processed
-            release = DatasetRelease.objects.first()
-            print(release.is_processed)
-            if release.is_processed:
-                self.assertSetEqual(set(release.ground_truth_annotations.all()),
-                                    set(GroundTruthAnnotation.objects.all()))
-                break
-            else:
-                sleep(1)
-        """
+
+    def test_create_release(self):
+        create_release()
+        release = DatasetRelease.objects.get(release_tag='test')
+        dataset = Dataset.objects.get(short_name='fsd')
+        generate_release_index(dataset.id, release.id)
+
+        self.assertSetEqual(set(release.ground_truth_annotations.all()),
+                            set(GroundTruthAnnotation.objects.all()))
 
     def test_release_explore(self):
         create_release()
