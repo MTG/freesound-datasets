@@ -556,7 +556,10 @@ class Dataset(models.Model):
         """
         taxonomy_node_pk = self.sounds.filter(sounddataset__candidate_annotations__ground_truth=None)\
             .exclude(sounddataset__candidate_annotations__votes__created_by=user)\
-            .filter(taxonomy_node=None, taxonomy_node_verification=None)\
+            .filter(taxonomy_node=None,
+                    taxonomy_node_verification=None,
+                    deleted_in_freesound=False,
+                    sounddataset__candidate_annotations__priority_score__gt=0)\
             .values_list('sounddataset__candidate_annotations__taxonomy_node', flat=True)
         return self.taxonomy.taxonomynode_set.filter(pk__in=set(taxonomy_node_pk))
 
