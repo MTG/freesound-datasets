@@ -3,7 +3,7 @@ django-debug-toolbar==1.7
 django-extensions==2.1.2
 psycopg2==2.7.5
 dj-database-url==0.4.1
-uwsgi==2.0.14
+uwsgi==2.0.15
 markdown==2.6.8
 Pygments==2.2.0
 social-auth-app-django==2.1.0
