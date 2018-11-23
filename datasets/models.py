@@ -775,7 +775,7 @@ class CandidateAnnotation(models.Model):
         ('UK', 'Unknown'),
     )
     type = models.CharField(max_length=2, choices=TYPE_CHOICES, default='UK')
-    algorithm = models.CharField(max_length=200, blank=True, null=True)
+    algorithm = models.TextField(max_length=1000, blank=True, null=True)
     start_time = models.DecimalField(max_digits=6, decimal_places=3, blank=True, null=True)
     end_time = models.DecimalField(max_digits=6, decimal_places=3, blank=True, null=True)
     ground_truth = models.FloatField(null=True, blank=True, default=None)
