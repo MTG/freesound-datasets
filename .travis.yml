@@ -7,7 +7,6 @@ services:
     - docker-compose
 
 before_install:
-    - grep -v "uwsgi" requirements.txt > requirements_.txt; mv requirements_.txt requirements.txt
     - touch freesound_datasets/local_settings.py
 
 install:
