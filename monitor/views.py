@@ -156,6 +156,8 @@ def mapping_category(request, short_name, node_id):
         # Submit the retrieved sounds
         elif run_or_submit == 'submit':
             freesound_ids_str = dict(request.POST).get('freesound-ids', ['false'])[0]
+            children_node = dataset.taxonomy.get_all_propagate_from_children(node.node_id)
+            num_candidates_added = 0
 
             # Retrieved by Freesound IDs
             if freesound_ids_str != 'false':
@@ -166,14 +168,18 @@ def mapping_category(request, short_name, node_id):
                     num_new_sounds = new_sounds.count()
                     with transaction.atomic():
                         for sound in new_sounds:
-                            c = CandidateAnnotation.objects.create(
-                                sound_dataset=sound.sounddataset_set.filter(dataset=dataset).first(),
-                                type='MA',
-                                algorithm='platform_manual: By Freesound ID',
-                                taxonomy_node=node,
-                                created_by=request.user
-                            )
-                            c.update_priority_score()
+                            # add the candidate only if it does not exist in a child
+                            if CandidateAnnotation.objects.filter(taxonomy_node__in=children_node,
+                                                                  sound_dataset__sound=sound).count() == 0:
+                                c = CandidateAnnotation.objects.create(
+                                    sound_dataset=sound.sounddataset_set.filter(dataset=dataset).first(),
+                                    type='MA',
+                                    algorithm='platform_manual: By Freesound ID',
+                                    taxonomy_node=node,
+                                    created_by=request.user
+                                )
+                                c.update_priority_score()
+                                num_candidates_added += 1
                 except:
                     return JsonResponse({'error': True})
 
@@ -197,14 +203,18 @@ def mapping_category(request, short_name, node_id):
                     try:
                         with transaction.atomic():
                             for sound in new_sounds:
-                                c = CandidateAnnotation.objects.create(
-                                    sound_dataset=sound.sounddataset_set.filter(dataset=dataset).first(),
-                                    type='AU',
-                                    algorithm='platform_mapping: {}'.format(name_algorithm),
-                                    taxonomy_node=node,
-                                    created_by=request.user
-                                )
-                                c.update_priority_score()
+                                # add the candidate only if it does not exist in a child
+                                if CandidateAnnotation.objects.filter(taxonomy_node__in=children_node,
+                                                                      sound_dataset__sound=sound).count() == 0:
+                                    c = CandidateAnnotation.objects.create(
+                                        sound_dataset=sound.sounddataset_set.filter(dataset=dataset).first(),
+                                        type='AU',
+                                        algorithm='platform_mapping: {}'.format(name_algorithm),
+                                        taxonomy_node=node,
+                                        created_by=request.user
+                                    )
+                                    c.update_priority_score()
+                                    num_candidates_added += 1
                     except:
                         return JsonResponse({'error': True})
 
@@ -219,19 +229,23 @@ def mapping_category(request, short_name, node_id):
                                                                     .delete()[0]
                             num_new_sounds = new_sounds.count()
                             for sound in new_sounds:
-                                c = CandidateAnnotation.objects.create(
-                                    sound_dataset=sound.sounddataset_set.filter(dataset=dataset).first(),
-                                    type='AU',
-                                    algorithm='platform_mapping: {}'.format(name_algorithm),
-                                    taxonomy_node=node,
-                                    created_by=request.user
-                                )
-                                c.update_priority_score()
+                                # add the candidate only if it does not exist in a child
+                                if CandidateAnnotation.objects.filter(taxonomy_node__in=children_node,
+                                                                      sound_dataset__sound=sound).count() == 0:
+                                    c = CandidateAnnotation.objects.create(
+                                        sound_dataset=sound.sounddataset_set.filter(dataset=dataset).first(),
+                                        type='AU',
+                                        algorithm='platform_mapping: {}'.format(name_algorithm),
+                                        taxonomy_node=node,
+                                        created_by=request.user
+                                    )
+                                    c.update_priority_score()
+                                    num_candidates_added += 1
                     except:
                         return JsonResponse({'error': True})
 
                 return JsonResponse({'error': False,
-                                     'num_candidates_added': num_new_sounds,
+                                     'num_candidates_added': num_candidates_added,
                                      'num_candidates_deleted': num_deleted})
 
     elif request.method == 'GET':
