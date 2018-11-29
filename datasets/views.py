@@ -599,13 +599,6 @@ def get_mini_node_info(request, short_name, node_id):
                    'show_hierarchy': show_hierarchy, 'show_name_table_lines': show_name_table_lines})
 
 
-def contribute_generate_annotations(request, short_name):
-    dataset = get_object_or_404(Dataset, short_name=short_name)
-    sound_id = request.GET.get('fsid', dataset.sounds.first().freesound_id)
-    return render(request, 'datasets/contribute_generate_annotations.html',
-                  {'dataset': dataset, 'freesound_sound_id': sound_id})
-
-
 def save_generate_annotations(request, short_name):
     if request.method == 'POST':
         data = json.loads(request.POST.dict()['jsonData'])
@@ -633,16 +626,6 @@ def refine_annotations(request, short_name, sound_id):
     return render(request, 'datasets/refine_annotations.html',
                   {'dataset': dataset, 'freesound_sound_id': freesound_sound_id,
                    'labels_name_and_id': labels_name_and_id})
-
-
-def taxonomy_table_extended(request, short_name):
-    dataset = get_object_or_404(Dataset, short_name=short_name)
-    nodes = dataset.taxonomy.taxonomynode_set.all()
-    dataset_taxonomy_stats = data_from_async_task(compute_dataset_taxonomy_stats, [dataset.id], {},
-                                                  DATASET_TAXONOMY_STATS_KEY_TEMPLATE.format(dataset.id), 60)
-    nodes_data = dataset_taxonomy_stats.get('nodes_data', {})
-    return render(request, 'datasets/dataset_taxonomy_table_extended.html',
-                  {'dataset': dataset, 'nodes_data': nodes_data})
 
 
 def get_hierachy_paths(request, short_name):

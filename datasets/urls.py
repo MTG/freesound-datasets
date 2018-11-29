@@ -36,10 +36,6 @@ urlpatterns = [
     re_path(r'^(?P<short_name>[^\/]+)/annotate/choose_category_table_search_all/$', dataset_taxonomy_table_search_all,
         name='taxonomy-table-search-all'),
     re_path(r'^(?P<short_name>[^\/]+)/mini-node-info/(?P<node_id>[^\/]+)/$', get_mini_node_info, name='get-mini-node-info'),
-    re_path(r'^(?P<short_name>[^\/]+)/annotate/generate_annotations/', contribute_generate_annotations,
-        name='contribute-generate-annotations'),
-    re_path(r'^(?P<short_name>[^\/]+)/annotate/taxonomy_table_extended/', taxonomy_table_extended,
-        name='taxonomy-table-extended'),
     re_path(r'^(?P<short_name>[^\/]+)/hierarchy_paths/', get_hierachy_paths,
         name='get_hierachy_paths'),
     re_path(r'^(?P<short_name>[^\/]+)/annotate/save_generated_annotations/', save_generate_annotations,
@@ -52,4 +48,7 @@ urlpatterns = [
         name='search-taxonomy-node'),
     re_path(r'^(?P<short_name>[^\/]+)/annotate/explore_generate_annotations/(?P<sound_id>[^\/]+)/$', generate_annotations,
         name='generate-annotations'),
+    re_path(r'^(?P<short_name>[^\/]+)/annotate/curate_sound/(?P<sound_id>[^\/]+)/$', generate_annotations,
+            name='generate-annotations'),
+
 ]
