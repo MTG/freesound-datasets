@@ -70,12 +70,22 @@
                 resDiv.append("<div class='ui large label' style='margin:2px; display:block'>No categories found</div>");
             } else {
                 for (var i = 0; i < data.length; i++) {
-                    var el = $("<a class='ui teal large label' style='margin:2px; display:block' big-id=" + data[i].big_id + ">" + data[i].path + "</a>");
+                    var el = $("<div class='ui large label' style='margin:2px; display:block' big-id="
+                        + data[i].big_id + ">" + data[i].path + "&emsp;"
+                        + "<a class='add-button ui mini teal button'><i class=\"plus icon\"></i></a>"
+                        + "<a class='locate-button ui mini teal button'><i class=\"search icon\"></i></a>"
+                        + "</div>");
                     resDiv.append(el);
-                    el.click(function () {
+
+                    el.children('.locate-button').click(function () {
                         resDiv.slideUp(200);
-                        TT.locateCategory($(this).attr('big-id'));
+                        TT.locateCategory($(this).parent().attr('big-id'));
                     });
+                    el.children('.add-button').click(function () {
+                        resDiv.slideUp(200);
+                        TT.addCategory($(this).parent().attr('big-id'));
+                    });
+
                 }
             }
             if (!resDiv.is(':empty'))

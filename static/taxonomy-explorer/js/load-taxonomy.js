@@ -196,6 +196,13 @@ TaxonomyTree.prototype = {
             proms.push(category.hideInfo());
         }
         return proms;
+    },
+
+    addCategory: function (bigId) {
+        var tt = this;
+        var cat_idx = tt.id_to_idx[bigId];
+        var category = tt.categories[cat_idx];
+        category.addCategoryLabel();
     }
 
 };
