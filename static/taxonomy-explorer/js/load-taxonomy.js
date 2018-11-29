@@ -293,9 +293,9 @@ Category.prototype = {
             btn_add.click(function () {
                 if (!ct.added) {
                     ct.addCategoryLabel();
-                    btn_add.removeClass("primary").addClass("green basic");
-                    btn_add.empty().append("Label added!");
-                    btn_add.prop("disabled", true);
+                    // btn_add.removeClass("primary").addClass("green basic");
+                    // btn_add.empty().append("Label added!");
+                    // btn_add.prop("disabled", true);
                 }
             });
         }
@@ -313,6 +313,7 @@ Category.prototype = {
 
     addCategoryLabel: function () {
         var ct = this;
+        var btn_add = $(ct.DOM.find(".add-label")[0]);
         var added = $("<div>", {
             class: "added-label ui label",
             "label-name": ct.name
@@ -323,7 +324,6 @@ Category.prototype = {
         });
         icon.on("click", function () {
             $(this).parent(".label").remove();
-            var btn_add = $(ct.DOM.find(".add-label")[0]);
             btn_add.removeClass("green basic").addClass("primary");
             btn_add.empty().append("Add");
             btn_add.prop("disabled", false);
@@ -334,6 +334,10 @@ Category.prototype = {
         $("#label-container").append(added);
 
         ct.added = true;
+
+        btn_add.removeClass("primary").addClass("green basic");
+        btn_add.empty().append("Label added!");
+        btn_add.prop("disabled", true);
     },
 
     hideInfo: function () {
