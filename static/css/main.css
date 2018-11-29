@@ -190,11 +190,7 @@ ul {
 }
 
 
-/* GENERATE LABEL TASK*/
-.generated-label {
-	margin: 5px!important;
-}
-
-.group-label {
-	margin: 10px!important;
+/* GENERATE LABEL EXPERT TASK*/
+.added-label {
+    margin: 5px!important;
 }

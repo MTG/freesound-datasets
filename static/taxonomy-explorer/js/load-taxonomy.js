@@ -314,10 +314,11 @@ Category.prototype = {
     addCategoryLabel: function () {
         var ct = this;
         var btn_add = $(ct.DOM.find(".add-label")[0]);
-        var added = $("<div>", {
-            class: "added-label ui label",
-            "label-name": ct.name
-        });
+        // var added = $("<div>", {
+        //     class: "added-label ui label",
+        //     "label-name": ct.name
+        // });
+        var added = $(label_with_form(ct.name, ct.id));
 
         var icon = $("<i>", {
             class: "close icon"
@@ -330,7 +331,7 @@ Category.prototype = {
             ct.added = false;
         });
 
-        added.append([ct.name, icon]);
+        added.append([icon]);
         $("#label-container").append(added);
 
         ct.added = true;
@@ -532,3 +533,32 @@ Category.prototype = {
     }
 
 };
+
+
+function label_with_form(label_name, label_id) {
+    return "<div class='ui label added-label' label-name='"+ label_name +"' label-id='"+ label_id +"'>\n"
+        + label_name +
+        "<div class=\"ui form\">\n" +
+        "  <div class=\"grouped fields\">\n" +
+        "    <div class=\"field\">\n" +
+        "      <div class=\"ui radio checkbox\">\n" +
+        "        <input value =\"1.0\" name=\""+label_id+"\" type=\"radio\">\n" +
+        "        <label>Present and predominant</label>\n" +
+        "      </div>\n" +
+        "    </div>\n" +
+        "    <div class=\"field\">\n" +
+        "      <div class=\"ui radio checkbox\">\n" +
+        "        <input value =\"0.5\" name=\""+label_id+"\" type=\"radio\">\n" +
+        "        <label>Present but not predominant</label>\n" +
+        "      </div>\n" +
+        "    </div>\n" +
+        "    <div class=\"field\">\n" +
+        "      <div class=\"ui radio checkbox\">\n" +
+        "        <input value =\"-1.0\" name=\""+label_id+"\" type=\"radio\">\n" +
+        "        <label>Not present</label>\n" +
+        "      </div>\n" +
+        "    </div>\n" +
+        "  </div>\n" +
+        "</div>\n" +
+        "</div>"
+}

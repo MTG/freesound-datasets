@@ -97,13 +97,15 @@
     }
 
     function getAddedGroupLabels() {
-        var addedGroupLabelIds = [];
-        var addedGroupLabelNames = [];
+        var data = [];
         $('.added-label').each(function() {
-            addedGroupLabelIds.push();
-            addedGroupLabelNames.push($(this).attr('label-name'));
+            data.push({
+                'label-id': $(this).attr('label-id'),
+                'label-name': $(this).attr('label-name'),
+                'label-presence': $(this).find("input:checked").val()
+            })
         });
-        return [addedGroupLabelIds, addedGroupLabelNames]
+        return data
     }
 
     function submitForm() {
