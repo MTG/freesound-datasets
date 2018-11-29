@@ -194,3 +194,7 @@ ul {
 .added-label {
     margin: 5px!important;
 }
+
+.close-icon, .locate-icon {
+    cursor: pointer!important;
+}

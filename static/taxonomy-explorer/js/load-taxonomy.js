@@ -320,19 +320,32 @@ Category.prototype = {
         // });
         var added = $(label_with_form(ct.name, ct.id));
 
-        var icon = $("<i>", {
-            class: "close icon"
-        });
-        icon.on("click", function () {
-            $(this).parent(".label").remove();
+        // var icon = $("<i>", {
+        //     class: "close icon"
+        // });
+        // icon.on("click", function () {
+        //     $(this).parent(".label").remove();
+        //     btn_add.removeClass("green basic").addClass("primary");
+        //     btn_add.empty().append("Add");
+        //     btn_add.prop("disabled", false);
+        //     ct.added = false;
+        // });
+        //
+        // added.append([icon]);
+
+        $("#label-container").append(added);
+
+        added.find('.close-icon').on("click", function () {
+            $(this).parents(".card").remove();
             btn_add.removeClass("green basic").addClass("primary");
             btn_add.empty().append("Add");
             btn_add.prop("disabled", false);
             ct.added = false;
         });
 
-        added.append([icon]);
-        $("#label-container").append(added);
+        added.find('.locate-icon').on("click", function () {
+            ct.TT.locateCategory(ct.bigId);
+        });
 
         ct.added = true;
 
@@ -536,26 +549,30 @@ Category.prototype = {
 
 
 function label_with_form(label_name, label_id) {
-    return "<div class='ui label added-label' label-name='"+ label_name +"' label-id='"+ label_id +"'>\n"
-        + label_name +
+    return "<div class='ui card added-label' label-name='"+ label_name +"' label-id='"+ label_id +"'>" +
+        "<div class=\"content\">\n" +
+        "<i class='right floated close icon close-icon'></i>" +
+        "<i class='right floated search icon locate-icon'></i>" +
+        "<div class='header left floated' style='margin-bottom:8px;'>" + label_name + '</div>' +
+        "<div class='description' style='margin-bottom:-15px;'>" +
         "<div class=\"ui form\">\n" +
-        "  <div class=\"grouped fields\">\n" +
+        "  <div class=\"inline fields\">\n" +
         "    <div class=\"field\">\n" +
         "      <div class=\"ui radio checkbox\">\n" +
         "        <input value =\"1.0\" name=\""+label_id+"\" type=\"radio\">\n" +
-        "        <label>Present and predominant</label>\n" +
+        "        <label>PP</label>\n" +
         "      </div>\n" +
         "    </div>\n" +
         "    <div class=\"field\">\n" +
         "      <div class=\"ui radio checkbox\">\n" +
         "        <input value =\"0.5\" name=\""+label_id+"\" type=\"radio\">\n" +
-        "        <label>Present but not predominant</label>\n" +
+        "        <label>PNP</label>\n" +
         "      </div>\n" +
         "    </div>\n" +
         "    <div class=\"field\">\n" +
         "      <div class=\"ui radio checkbox\">\n" +
         "        <input value =\"-1.0\" name=\""+label_id+"\" type=\"radio\">\n" +
-        "        <label>Not present</label>\n" +
+        "        <label>NP</label>\n" +
         "      </div>\n" +
         "    </div>\n" +
         "  </div>\n" +
