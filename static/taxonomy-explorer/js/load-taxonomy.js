@@ -161,11 +161,11 @@ TaxonomyTree.prototype = {
         else {
             offset = el_offset;
         }
-
-        var body = $('body');
-        return body.stop().animate({
-            scrollTop: offset
-        }, 200).promise();
+        window.scroll({top:offset});  // the jquery animation does not work
+        // var body = $('body');
+        // return body.stop().animate({
+        //     scrollTop: offset
+        // }, 200).promise();
     },
 
     collapseAll: function () {
