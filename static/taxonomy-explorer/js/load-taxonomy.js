@@ -49,6 +49,9 @@ TaxonomyTree.prototype = {
             .done(function (data) {
                 tt.data = data;
                 tt.update();
+                $.each(existing_annotations, function (i, val) {
+                    tt.addGroundTruthCategory(val.big_id, val.ground_truth);
+                })
             })
     },
 
@@ -203,6 +206,13 @@ TaxonomyTree.prototype = {
         var cat_idx = tt.id_to_idx[bigId];
         var category = tt.categories[cat_idx];
         category.addCategoryLabel();
+    },
+
+    addGroundTruthCategory: function (bigId, precense) {
+        var tt = this;
+        var cat_idx = tt.id_to_idx[bigId];
+        var category = tt.categories[cat_idx];
+        category.addExistingCategoryLabel(precense);
     }
 
 };
@@ -348,6 +358,29 @@ Category.prototype = {
         });
 
         ct.added = true;
+
+        btn_add.removeClass("primary").addClass("green basic");
+        btn_add.empty().append("Label added!");
+        btn_add.prop("disabled", true);
+    },
+
+    addExistingCategoryLabel: function (presence) {
+        var ct = this;
+        var btn_add = $(ct.DOM.find(".add-label")[0]);
+        var added = $(label_with_form(ct.name, ct.id));
+
+        $("#label-container").append(added);
+
+        added.find('.close-icon').hide();
+
+        added.find('.locate-icon').on("click", function () {
+            ct.TT.locateCategory(ct.bigId);
+        });
+
+        ct.added = true;
+
+        added.find("input[value='"+ parseFloat(presence).toFixed(1) +"']").prop("checked", true);
+        added.css("background-color", "rgba(100, 200, 0, 0.3)");
 
         btn_add.removeClass("primary").addClass("green basic");
         btn_add.empty().append("Label added!");

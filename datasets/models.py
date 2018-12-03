@@ -202,6 +202,9 @@ class Sound(models.Model):
     def get_candidate_annotations(self, dataset):
         return CandidateAnnotation.objects.filter(sound_dataset__in=self.sounddataset_set.filter(dataset=dataset))
 
+    def get_ground_truth_annotations(self, dataset):
+        return GroundTruthAnnotation.objects.filter(sound_dataset__in=self.sounddataset_set.filter(dataset=dataset))
+
     def get_image_url(self, img_type, size):
         img_types = ['spectrogram', 'waveform']
         sizes = ['M', 'L']

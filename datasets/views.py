@@ -611,10 +611,25 @@ def save_generate_annotations(request, short_name):
 
 def generate_annotations(request, short_name, sound_id):
     dataset = get_object_or_404(Dataset, short_name=short_name)
+    taxonomy = dataset.taxonomy
     sound = Sound.objects.get(freesound_id=sound_id)
+    existing_annotations = sound.get_ground_truth_annotations(dataset)\
+                                .filter(from_propagation=False)\
+                                .select_related('taxonomy_node')\
+                                .values('taxonomy_node__node_id', 'taxonomy_node__name', 'ground_truth')
+    existing_annotations_formated = [{'node_id': annotation['taxonomy_node__node_id'],
+                                      'node_name': annotation['taxonomy_node__name'],
+                                      'ground_truth': annotation['ground_truth'],
+                                      'big_id': ','.join(taxonomy.get_hierarchy_paths(
+                                            annotation['taxonomy_node__node_id'])[0]),
+                                      } for annotation in existing_annotations]
+
     freesound_sound_id = sound.freesound_id
     return render(request, 'datasets/generate_annotations.html',
-                  {'dataset': dataset, 'freesound_sound_id': freesound_sound_id, 'generation_task': '1'})
+                  {'dataset': dataset,
+                   'freesound_sound_id': freesound_sound_id,
+                   'generation_task': '1',
+                   'existing_annotations': existing_annotations_formated})
 
 
 def refine_annotations(request, short_name, sound_id):
