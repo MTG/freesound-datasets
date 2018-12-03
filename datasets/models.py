@@ -936,6 +936,7 @@ class Vote(models.Model):
         ('AD', 'Advanced')
     )
     from_task = models.CharField(max_length=2, choices=TASK_TYPES, default='AD')  # store from which validation task
+    from_expert = models.BooleanField(default=False)
 
     def __str__(self):
         return 'Vote for annotation {0}'.format(self.candidate_annotation.id)
