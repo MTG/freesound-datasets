@@ -632,6 +632,17 @@ def generate_annotations(request, short_name, sound_id):
                    'existing_annotations': existing_annotations_formated})
 
 
+def save_expert_votes_curation_task(request, short_name, sound_id):
+    if request.method == 'POST':
+        annotation_votes = json.loads(request.POST.dict()['jsonData'])
+        # check that all the annotations are voted
+        if not all('label-presence' in annotation_vote for annotation_vote in annotation_votes):
+            return JsonResponse({'errors': True})
+        else:
+            # create votes and candidate annotations
+            pass
+    return JsonResponse({'errors': False})
+
 def refine_annotations(request, short_name, sound_id):
     dataset = get_object_or_404(Dataset, short_name=short_name)
     sound = Sound.objects.get(freesound_id=sound_id)

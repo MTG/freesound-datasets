@@ -96,7 +96,7 @@
         thenPromise.fail( function(){ console.log('failure'); } );
     }
 
-    function getAddedGroupLabels() {
+    function getAddedVotes() {
         var data = [];
         $('.added-label').each(function() {
             data.push({
@@ -109,27 +109,23 @@
     }
 
     function submitForm() {
-        var addedGroupLabels = getAddedGroupLabels();
-        var labelIds = addedGroupLabels[0];
-        var labelNames = addedGroupLabels[1];
-        var labelVotes = addedGroupLabels[2];
-        var jsonData = JSON.stringify({
-            freesound_sound_id: "{{ freesound_sound_id }}",
-            labelIds: labelIds,
-            labelNames: labelNames,
-            labelVotes: labelVotes
-        });
+        var votes = getAddedVotes();
+        var jsonData = JSON.stringify(votes);
         var data = {
                jsonData : jsonData,
                csrfmiddlewaretoken: "{{csrf_token}}"
             };
         $.ajax({
             type: "POST",
-            url: "{% url 'save-contribute-generate-annotations' dataset.short_name %}",
+            url: "{% url 'save-expert-votes-curate-sounds' dataset.short_name freesound_sound_id %}",
             data: data,
             traditional:true
         }).done(function(result) {
-            document.getElementById("submitButton").disabled = true;
+            if (result.errors) {
+                // TODO: show modal that tell to the user to give label precense degree
+            } else {
+                document.getElementById("submitButton").disabled = true;
+            }
         });
     }
     </script>
