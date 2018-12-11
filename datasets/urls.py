@@ -49,6 +49,6 @@ urlpatterns = [
     re_path(r'^(?P<short_name>[^\/]+)/annotate/explore_generate_annotations/(?P<sound_id>[^\/]+)/$', generate_annotations,
         name='generate-annotations'),
     re_path(r'^(?P<short_name>[^\/]+)/annotate/curate_sound/(?P<sound_id>[^\/]+)/$', generate_annotations,
-            name='generate-annotations'),
+        name='expert-curate-annotations'),
 
 ]
