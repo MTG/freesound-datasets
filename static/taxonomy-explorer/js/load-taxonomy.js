@@ -212,7 +212,7 @@ TaxonomyTree.prototype = {
         var tt = this;
         var cat_idx = tt.id_to_idx[bigId];
         var category = tt.categories[cat_idx];
-        category.addExistingCategoryLabel(precense);
+        category.addExistingCategoryLabel(precense, ground_truth=true);
     }
 
 };
@@ -364,7 +364,7 @@ Category.prototype = {
         btn_add.prop("disabled", true);
     },
 
-    addExistingCategoryLabel: function (presence) {
+    addExistingCategoryLabel: function (presence, ground_truth=false) {
         var ct = this;
         var btn_add = $(ct.DOM.find(".add-label")[0]);
         var added = $(label_with_form(ct.name, ct.id));
@@ -376,6 +376,10 @@ Category.prototype = {
         added.find('.locate-icon').on("click", function () {
             ct.TT.locateCategory(ct.bigId);
         });
+
+        if (ground_truth) {
+            added.addClass('ground-truth-label');
+        }
 
         ct.added = true;
 

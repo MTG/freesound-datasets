@@ -641,7 +641,8 @@ def save_expert_votes_curation_task(request, short_name, sound_id):
             return JsonResponse(error_response)
         else:
             # create votes and candidate annotations
-            pass
+            ground_truth_annotation_votes = [el for el in annotation_votes if el['ground-truth']]
+            new_annotation_votes = [el for el in annotation_votes if not el['ground-truth']]
     return JsonResponse({'errors': False})
 
 def refine_annotations(request, short_name, sound_id):

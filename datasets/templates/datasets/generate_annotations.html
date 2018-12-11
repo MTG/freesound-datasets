@@ -102,7 +102,8 @@
             data.push({
                 'label-id': $(this).attr('label-id'),
                 'label-name': $(this).attr('label-name'),
-                'label-presence': $(this).find("input:checked").val()
+                'label-presence': $(this).find("input:checked").val(),
+                'ground-truth': $(this).hasClass('ground-truth-label')
             })
         });
         return data
