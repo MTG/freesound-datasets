@@ -637,7 +637,8 @@ def save_expert_votes_curation_task(request, short_name, sound_id):
         annotation_votes = json.loads(request.POST.dict()['jsonData'])
         # check that all the annotations are voted
         if not all('label-presence' in annotation_vote for annotation_vote in annotation_votes):
-            return JsonResponse({'errors': True})
+            error_response = {'errors': [value['label-id'] for count, value in enumerate(annotation_votes) if 'label-presence' not in value]}
+            return JsonResponse(error_response)
         else:
             # create votes and candidate annotations
             pass
