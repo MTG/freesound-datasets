@@ -639,9 +639,6 @@ def save_expert_votes_curation_task(request, short_name, sound_id):
         else:
             # create candidate annotations and expert votes
             # we can treat both case at once thanks to get_or_create() method
-            ground_truth_annotation_votes = [el for el in annotation_votes if el['ground-truth']]
-            new_annotation_votes = [el for el in annotation_votes if not el['ground-truth']]
-
             for new_annotation_vote in annotation_votes:
                 annotation, _ = CandidateAnnotation.objects.get_or_create(
                     sound_dataset=SoundDataset.objects.get(sound__freesound_id=sound_id, 
