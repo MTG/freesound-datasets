@@ -982,7 +982,8 @@ class Vote(models.Model):
     from_test_page = models.NullBooleanField(null=True, blank=True, default=None)  # Store if votes are from a test page
     TASK_TYPES = (
         ('BE', 'Beginner'),
-        ('AD', 'Advanced')
+        ('AD', 'Advanced'),
+        ('CU', 'Curation')
     )
     from_task = models.CharField(max_length=2, choices=TASK_TYPES, default='AD')  # store from which validation task
     from_expert = models.BooleanField(default=False)
