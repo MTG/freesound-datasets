@@ -599,6 +599,7 @@ def get_mini_node_info(request, short_name, node_id):
                    'show_hierarchy': show_hierarchy, 'show_name_table_lines': show_name_table_lines})
 
 
+@login_required
 def curate_sounds(request, short_name, sound_id):
     dataset = get_object_or_404(Dataset, short_name=short_name)
     taxonomy = dataset.taxonomy
@@ -622,9 +623,14 @@ def curate_sounds(request, short_name, sound_id):
                    'existing_annotations': existing_annotations_formated})
 
 
+@transaction.atomic
 def save_expert_votes_curation_task(request, short_name, sound_id):
+    if not request.user.is_authenticated:
+        return HttpResponse('Unauthorized', status=401)
+    dataset = get_object_or_404(Dataset, short_name=short_name)
+    if not dataset.user_is_maintainer(request.user):
+        raise HttpResponseNotAllowed
     if request.method == 'POST':
-        dataset = get_object_or_404(Dataset, short_name=short_name)
         annotation_votes = json.loads(request.POST.dict()['jsonData'])
         # check that all the annotations are voted
         if not all('label-presence' in annotation_vote for annotation_vote in annotation_votes):
