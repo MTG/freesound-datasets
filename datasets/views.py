@@ -634,16 +634,38 @@ def generate_annotations(request, short_name, sound_id):
 
 def save_expert_votes_curation_task(request, short_name, sound_id):
     if request.method == 'POST':
+        dataset = get_object_or_404(Dataset, short_name=short_name)
         annotation_votes = json.loads(request.POST.dict()['jsonData'])
         # check that all the annotations are voted
         if not all('label-presence' in annotation_vote for annotation_vote in annotation_votes):
             error_response = {'errors': [value['label-id'] for count, value in enumerate(annotation_votes) if 'label-presence' not in value]}
             return JsonResponse(error_response)
         else:
-            # create votes and candidate annotations
+            # create candidate annotations and expert votes
+            # we can treat both case at once thanks to get_or_create() method
             ground_truth_annotation_votes = [el for el in annotation_votes if el['ground-truth']]
             new_annotation_votes = [el for el in annotation_votes if not el['ground-truth']]
+
+            for new_annotation_vote in annotation_votes:
+                annotation, _ = CandidateAnnotation.objects.get_or_create(
+                    sound_dataset=SoundDataset.objects.get(sound__freesound_id=sound_id, 
+                                                           dataset=dataset),
+                    taxonomy_node=TaxonomyNode.objects.get(node_id=new_annotation_vote['label-id']),
+                    defaults={
+                        'type': 'MA',
+                        'created_by': request.user,
+                    }
+                )
+                Vote.objects.create(
+                    created_by=request.user,
+                    vote=new_annotation_vote['label-presence'],
+                    candidate_annotation=annotation,
+                    from_task='CU',
+                    from_expert=True,
+                )
+
     return JsonResponse({'errors': False})
+
 
 def refine_annotations(request, short_name, sound_id):
     dataset = get_object_or_404(Dataset, short_name=short_name)
