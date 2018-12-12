@@ -599,17 +599,7 @@ def get_mini_node_info(request, short_name, node_id):
                    'show_hierarchy': show_hierarchy, 'show_name_table_lines': show_name_table_lines})
 
 
-def save_generate_annotations(request, short_name):
-    if request.method == 'POST':
-        data = json.loads(request.POST.dict()['jsonData'])
-        data['username'] = request.user.username
-        print(data)
-        num_files = len(os.listdir('./json/'))
-        json.dump(data, open('/code/json/{}.json'.format(num_files), 'w'))
-    return JsonResponse({'errors': False})
-
-
-def generate_annotations(request, short_name, sound_id):
+def curate_sounds(request, short_name, sound_id):
     dataset = get_object_or_404(Dataset, short_name=short_name)
     taxonomy = dataset.taxonomy
     sound = Sound.objects.get(freesound_id=sound_id)
@@ -665,17 +655,6 @@ def save_expert_votes_curation_task(request, short_name, sound_id):
                 )
 
     return JsonResponse({'errors': False})
-
-
-def refine_annotations(request, short_name, sound_id):
-    dataset = get_object_or_404(Dataset, short_name=short_name)
-    sound = Sound.objects.get(freesound_id=sound_id)
-    freesound_sound_id = sound.freesound_id
-    annotations = sound.get_candidate_annotations(dataset)
-    labels_name_and_id = json.dumps([[a.taxonomy_node.name, a.taxonomy_node.node_id] for a in annotations])
-    return render(request, 'datasets/refine_annotations.html',
-                  {'dataset': dataset, 'freesound_sound_id': freesound_sound_id,
-                   'labels_name_and_id': labels_name_and_id})
 
 
 def get_hierachy_paths(request, short_name):
