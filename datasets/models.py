@@ -813,13 +813,19 @@ class CandidateAnnotation(models.Model):
         vote_values_expert = [v.vote for v in self.votes.all() if v.test != 'FA' and v.from_expert]
 
         if vote_values_expert:
-            if vote_values_expert.count(1) > 0:
+            num_PP = vote_values_expert.count(1)
+            num_PNP = vote_values_expert.count(0.5)
+            num_U = vote_values_expert.count(0)
+            num_NP = vote_values_expert.count(-1)
+            lst = [num_PP, num_PNP, num_U, num_NP]
+            most_occuring = lst.index(max(lst))
+            if most_occuring == 0:
                 return 1
-            if vote_values_expert.count(0.5) > 0:
+            if most_occuring == 1:
                 return 0.5
-            if vote_values_expert.count(0) > 0:
+            if most_occuring == 2:
                 return 0
-            if vote_values_expert.count(-1) > 0:
+            if most_occuring == 3:
                 return -1
         else:
             if vote_values_non_expert.count(1) > 1:
