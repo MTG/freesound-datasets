@@ -510,3 +510,70 @@ class VoteTest(TestCase):
     def test_save_one_NP_expert_vote_deletes_propagated_ground_truth_annotations(self):
         pass
         # TODO: this test needs more controllable data such as the one in GroundTruthAnnotationTest setUp taxonomy
+
+
+class CandidateAnnotationTest(TestCase):
+    fixtures = ['datasets/fixtures/initial.json']
+
+    def setUp(self):
+        # For these tests we create only one sound and one candidate annotation
+        add_taxonomy_nodes(models.Taxonomy.objects.get())
+        create_sounds('fsd', 1)
+        create_users(5)
+        create_candidate_annotations('fsd', 1)
+        self.candidate_annotation = models.CandidateAnnotation.objects.first()
+        self.users = models.User.objects.all()
+        self.dataset = models.Dataset.objects.get(short_name='fsd')
+        for user in self.users:
+            self.dataset.maintainers.add(user)
+        self.dataset.save()
+
+    def create_vote(self, user, vote_value, test, from_task='AD', from_expert=False):
+        models.Vote.objects.create(
+            created_by=user,
+            vote=vote_value,
+            visited_sound=False,
+            candidate_annotation_id=self.candidate_annotation.id,
+            test=test,
+            from_test_page=True,
+            from_task='AD',
+            from_expert=from_expert,
+        )
+
+    def test_ground_truth_state_wo_expert_votes_two_PP(self):
+        for user in self.users[:2]:
+            self.create_vote(user, 1.0, 'AP')
+        self.assertEqual(1, self.candidate_annotation.ground_truth_state)
+
+    def test_ground_truth_state_wo_expert_votes_one_PP_one_PNP(self):
+        votes = [1.0, 0.5]
+        for idx, user in enumerate(self.users[:2]):
+            self.create_vote(user, votes[idx], 'AP')
+        self.assertEqual(None, self.candidate_annotation.ground_truth_state)
+
+    def test_ground_truth_state_wo_expert_votes_one_PP_two_PNP_one_U_one_NP(self):
+        votes = [1.0, 0.5, 0.5, 0, -1.0]
+        for idx, user in enumerate(self.users):
+            self.create_vote(user, votes[idx], 'AP')
+        self.assertEqual(0.5, self.candidate_annotation.ground_truth_state)
+
+    def test_ground_truth_state_does_not_count_FA_votes(self):
+        votes = [1.0, 1.0, 1.0]
+        for idx, user in enumerate(self.users[:3]):
+            self.create_vote(user, votes[idx], 'FA')
+        self.assertEqual(None, self.candidate_annotation.ground_truth_state)
+
+    def test_ground_truth_state_two_NP_and_one_PP_expert(self):
+        votes = [-1.0, -1.0]
+        for idx, user in enumerate(self.users[:2]):
+            self.create_vote(user, votes[idx], 'AP')
+        self.create_vote(self.users[2], 1.0, 'UN', from_task='CU', from_expert=True)
+        self.assertEqual(1.0, self.candidate_annotation.ground_truth_state)
+
+    def test_ground_truth_state_last_expert_vote_wins(self):
+        votes = [0, 0, 1.0]
+        for idx, user in enumerate(self.users[:3]):
+            self.create_vote(user, votes[idx], 'UN', from_task='CU', from_expert=True)
+        self.assertEqual(1.0, self.candidate_annotation.ground_truth_state)
+
+    # TODO: add test priority score
