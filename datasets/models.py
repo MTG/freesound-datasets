@@ -809,24 +809,12 @@ class CandidateAnnotation(models.Model):
         Returns None if there is no ground truth value
         """
         # all the test cases are considered valid except the Failed one
-        vote_values_non_expert = [v.vote for v in self.votes.all() if v.test != 'FA' and not v.from_expert]
-        vote_values_expert = [v.vote for v in self.votes.all() if v.test != 'FA' and v.from_expert]
+        votes = self.votes.exclude(test='FA').values_list('vote', 'from_expert').order_by('created_at')
+        vote_values_non_expert = [v[0] for v in votes if not v[1]]
+        vote_values_expert = [v[0] for v in votes if v[1]]
 
         if vote_values_expert:
-            num_PP = vote_values_expert.count(1)
-            num_PNP = vote_values_expert.count(0.5)
-            num_U = vote_values_expert.count(0)
-            num_NP = vote_values_expert.count(-1)
-            lst = [num_PP, num_PNP, num_U, num_NP]
-            most_occuring = lst.index(max(lst))
-            if most_occuring == 0:
-                return 1
-            if most_occuring == 1:
-                return 0.5
-            if most_occuring == 2:
-                return 0
-            if most_occuring == 3:
-                return -1
+            return vote_values_expert[-1]
         else:
             if vote_values_non_expert.count(1) > 1:
                 return 1
