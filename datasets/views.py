@@ -615,7 +615,7 @@ def curate_sounds(request, short_name, sound_id):
             'big_id': ','.join(taxonomy.get_hierarchy_paths(annotation.taxonomy_node.node_id)[0]),
         } for annotation in existing_annotations]
     freesound_sound_id = sound.freesound_id
-    return render(request, 'datasets/generate_annotations.html',
+    return render(request, 'datasets/curate_sounds.html',
                   {'dataset': dataset,
                    'freesound_sound_id': freesound_sound_id,
                    'generation_task': '1',
