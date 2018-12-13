@@ -26,6 +26,10 @@
         TT.load();
     });
 
+    function openFreesoundSoundPage(freesound_id, sound_idx){
+        window.open('https://freesound.org/s/' + freesound_id + '/');
+    }
+
 </script>
 {% endblock %}
 
@@ -143,7 +147,10 @@
     <div class="ui basic segment">
         <center>
             <h3>Listen to the following sound and add labels!</h3>
+            <div style="float:right;"><a href="javascript:void(0);" onclick="openFreesoundSoundPage('{{ freesound_sound_id }}');">
+                see in <img class="ui image" style="width: 80px;" src="{% static 'img/freesound_logo_color.png' %}"></a></div>
             {{ freesound_sound_id| fs_embed_large | safe }}
+            <!-- {% sound_player dataset freesound_sound_id "medium" %} -->
             <div class="ui segment">
                 <h6 class="ui header">Added labels</h6>
                 <div id="label-container"></div>
