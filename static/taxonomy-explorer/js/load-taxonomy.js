@@ -50,7 +50,7 @@ TaxonomyTree.prototype = {
                 tt.data = data;
                 tt.update();
                 $.each(existing_annotations, function (i, val) {
-                    tt.addGroundTruthCategory(val.big_id, val.ground_truth);
+                    tt.addGroundTruthCategory(val.big_id, val.ground_truth, val.parents_to_propagate_to);
                 })
             })
     },
@@ -85,7 +85,8 @@ TaxonomyTree.prototype = {
             children: node.children,
             id: node.node_id,
             TT: tt,
-            bigId: cur_bigId
+            bigId: cur_bigId,
+            parents_to_propagate_to: node.parents_to_propagate_to
         };
 
         var category = new Category(category_info);
@@ -224,6 +225,7 @@ function Category(Info) {
     this.children = Info.children;
     this.skipped = Info.skipped || false;
     this.expanded = Info.expanded || false;
+    this.parents_to_propagate_to = Info.parents_to_propagate_to;
     this.open = false;
     this.added = false;
     this.active_button = true;
@@ -328,7 +330,7 @@ Category.prototype = {
         //     class: "added-label ui label",
         //     "label-name": ct.name
         // });
-        var added = $(label_with_form(ct.name, ct.id));
+        var added = $(label_with_form(ct.name, ct.id, ct.parents_to_propagate_to));
 
         // var icon = $("<i>", {
         //     class: "close icon"
@@ -356,6 +358,7 @@ Category.prototype = {
         added.find('.locate-icon').on("click", function () {
             ct.TT.locateCategory(ct.bigId);
         });
+        added.find('.locate-icon').popup();
 
         ct.added = true;
 
@@ -367,7 +370,7 @@ Category.prototype = {
     addExistingCategoryLabel: function (presence, ground_truth=false) {
         var ct = this;
         var btn_add = $(ct.DOM.find(".add-label")[0]);
-        var added = $(label_with_form(ct.name, ct.id));
+        var added = $(label_with_form(ct.name, ct.id, ct.parents_to_propagate_to));
 
         $("#label-container").append(added);
 
@@ -376,6 +379,7 @@ Category.prototype = {
         added.find('.locate-icon').on("click", function () {
             ct.TT.locateCategory(ct.bigId);
         });
+        added.find('.locate-icon').popup();
 
         if (ground_truth) {
             added.addClass('ground-truth-label');
@@ -585,11 +589,11 @@ Category.prototype = {
 };
 
 
-function label_with_form(label_name, label_id) {
+function label_with_form(label_name, label_id, parents_to_propagate_to=null) {
     return "<div class='ui card added-label' label-name='"+ label_name +"' label-id='"+ label_id +"'>" +
         "<div class=\"content\">\n" +
         "<i class='right floated close icon close-icon'></i>" +
-        "<i class='right floated search icon locate-icon'></i>" +
+        "<i class='ui right floated search icon locate-icon' data-content='" + parents_to_propagate_to + "'></i>" +
         "<div class='header left floated' style='margin-bottom:8px;'>" + label_name + '</div>' +
         "<div class='description' style='margin-bottom:-15px;'>" +
         "<div class=\"ui form\">\n" +

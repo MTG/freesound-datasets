@@ -171,6 +171,8 @@ class Taxonomy(models.Model):
                 if child.omitted:
                     child_name["mark"].append("omittedTT")
                 child_name["children"] = get_all_children(child.node_id)
+                child_name["parents_to_propagate_to"] = ', '.join(list(self.get_element_at_id(child.node_id)\
+                    .propagate_to_parents.values_list('name', flat=True)))
                 children_names.append(child_name)
             if children_names: 
                 return children_names
@@ -178,7 +180,8 @@ class Taxonomy(models.Model):
         higher_categories = self.taxonomynode_set.filter(parents=None)
         output_dict = {"name": "Ontology", "children": []}
         for node in higher_categories:
-            dict_level = {"name": node.name, "mark": [], "node_id": node.node_id}
+            dict_level = {"name": node.name, "mark": [], "node_id": node.node_id, 
+                          "parents_to_propagate_to": []}
             if node.abstract:
                 dict_level["mark"].append("abstract")
             if node.omitted:

@@ -606,15 +606,14 @@ def curate_sounds(request, short_name, sound_id):
     sound = Sound.objects.get(freesound_id=sound_id)
     existing_annotations = sound.get_ground_truth_annotations(dataset)\
                                 .filter(from_propagation=False)\
-                                .select_related('taxonomy_node')\
-                                .values('taxonomy_node__node_id', 'taxonomy_node__name', 'ground_truth')
-    existing_annotations_formated = [{'node_id': annotation['taxonomy_node__node_id'],
-                                      'node_name': annotation['taxonomy_node__name'],
-                                      'ground_truth': annotation['ground_truth'],
-                                      'big_id': ','.join(taxonomy.get_hierarchy_paths(
-                                            annotation['taxonomy_node__node_id'])[0]),
-                                      } for annotation in existing_annotations]
-
+                                .select_related('taxonomy_node')
+    existing_annotations_formated = [
+        {
+            'node_id': annotation.taxonomy_node.node_id,
+            'node_name': annotation.taxonomy_node.name,
+            'ground_truth': annotation.ground_truth,
+            'big_id': ','.join(taxonomy.get_hierarchy_paths(annotation.taxonomy_node.node_id)[0]),
+        } for annotation in existing_annotations]
     freesound_sound_id = sound.freesound_id
     return render(request, 'datasets/generate_annotations.html',
                   {'dataset': dataset,
