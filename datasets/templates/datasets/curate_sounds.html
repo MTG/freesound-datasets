@@ -134,11 +134,11 @@
                     $('#on_error_modal').modal('show');
                 } else {
                     document.getElementById("submitButton").disabled = true;
-                    $('#on_success_modal').modal().modal('show');
+                    $('#on_success_modal').modal({closable: false}).modal('show');
                 }
             },
             error: function(e) {
-                $('#on_request_retry_modal').modal().modal('show');
+                $('#on_request_retry_modal').modal('show');
             },
             dataType: 'json',
         });
@@ -183,9 +183,9 @@
                 You can close the page and go on with a new sound.
             </p>
         </div>
-        <div class="actions">
+        <!-- <div class="actions">
             <div class="green ui inverted button icon cancel">Ok</div>
-        </div>
+        </div> -->
     </div>
     <!-- end on success modal -->
 
