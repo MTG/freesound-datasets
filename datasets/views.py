@@ -151,7 +151,11 @@ def explore_taxonomy(request, short_name):
 
 
 def search_taxonomy_node(request, short_name):
+    if not request.user.is_authenticated:
+        return HttpResponse('Unauthorized', status=401)
     dataset = get_object_or_404(Dataset, short_name=short_name)
+    if not dataset.user_is_maintainer(request.user):
+        raise HttpResponseNotAllowed
     taxonomy = dataset.taxonomy
     query = request.GET.get('q', '')
 
@@ -602,6 +606,8 @@ def get_mini_node_info(request, short_name, node_id):
 @login_required
 def curate_sounds(request, short_name, sound_id):
     dataset = get_object_or_404(Dataset, short_name=short_name)
+    if not dataset.user_is_maintainer(request.user):
+        raise HttpResponseNotAllowed
     taxonomy = dataset.taxonomy
     sound = Sound.objects.get(freesound_id=sound_id)
     existing_annotations = sound.get_ground_truth_annotations(dataset)\
@@ -681,18 +687,13 @@ def get_node_info(request, short_name, node_name):
     generation_task = request.GET.get('gen-task', '0')
     node = dataset.taxonomy.get_element_from_name(node_name)
     hp = [node.get_parents()]
-
     node = node.as_dict()
-    hierarchy_paths = dataset.taxonomy.get_hierarchy_paths(node['node_id'])
-    node['hierarchy_paths'] = hierarchy_paths if hierarchy_paths is not None else []
-    #node['node_id'] = unquote(node['node_id'])
-    return render(request, 'datasets/explore_taxonomy_node_info.html',
+    return render(request, 'datasets/taxonomy_node_info_for_taxonomy_table.html',
                   {
                       'dataset': dataset,
                       'node': node,
                       'hp': hp,
                       'generation_task': generation_task,
-                      #'hierarchy_path': hierarchy_path
                   })
 
 
