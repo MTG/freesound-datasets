@@ -49,8 +49,11 @@ TaxonomyTree.prototype = {
             .done(function (data) {
                 tt.data = data;
                 tt.update();
-                $.each(existing_annotations, function (i, val) {
+                $.each(existing_gt_annotations, function (i, val) {
                     tt.addGroundTruthCategory(val.big_id, val.ground_truth, val.parents_to_propagate_to);
+                })
+                $.each(existing_candidate_annotations, function (i, val) {
+                    tt.addCategory(val.big_id);
                 })
             })
     },

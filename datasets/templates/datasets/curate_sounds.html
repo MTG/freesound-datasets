@@ -14,7 +14,8 @@
 
 {% block page_js %}
 <script type="text/javascript">
-    existing_annotations = {{ existing_annotations | safe }};
+    existing_gt_annotations = {{ existing_gt_annotations | safe }};
+    existing_candidate_annotations = {{ existing_candidate_annotations | safe }};
     $(function () {
         TT = new TaxonomyTree({
 {#            url: "{% static "taxonomy-explorer/taxonomy-tree.json" %}",#}

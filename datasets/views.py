@@ -610,22 +610,36 @@ def curate_sounds(request, short_name, sound_id):
         raise HttpResponseNotAllowed
     taxonomy = dataset.taxonomy
     sound = Sound.objects.get(freesound_id=sound_id)
-    existing_annotations = sound.get_ground_truth_annotations(dataset)\
+    existing_gt_annotations = sound.get_ground_truth_annotations(dataset)\
                                 .filter(from_propagation=False)\
                                 .select_related('taxonomy_node')
-    existing_annotations_formated = [
+    existing_candidate_annotations = sound.get_candidate_annotations(dataset)\
+                                          .filter(ground_truth=None)\
+                                          .select_related('taxonomy_node')\
+                                          .exclude(taxonomy_node__id__in=
+                                                existing_gt_annotations.values_list('taxonomy_node__id', flat=True))
+    existing_gt_annotations_formated = [
         {
             'node_id': annotation.taxonomy_node.node_id,
             'node_name': annotation.taxonomy_node.name,
             'ground_truth': annotation.ground_truth,
             'big_id': ','.join(taxonomy.get_hierarchy_paths(annotation.taxonomy_node.node_id)[0]),
-        } for annotation in existing_annotations]
+        } for annotation in existing_gt_annotations]
+    
+    existing_candidate_annotations_formated = [
+        {
+            'node_id': annotation.taxonomy_node.node_id,
+            'node_name': annotation.taxonomy_node.name,
+            'big_id': ','.join(taxonomy.get_hierarchy_paths(annotation.taxonomy_node.node_id)[0]),
+        } for annotation in existing_candidate_annotations]
+    
     freesound_sound_id = sound.freesound_id
     return render(request, 'datasets/curate_sounds.html',
                   {'dataset': dataset,
                    'freesound_sound_id': freesound_sound_id,
                    'generation_task': '1',
-                   'existing_annotations': existing_annotations_formated})
+                   'existing_gt_annotations': existing_gt_annotations_formated,
+                   'existing_candidate_annotations': existing_candidate_annotations_formated})
 
 
 @transaction.atomic
