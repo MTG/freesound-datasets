@@ -37,7 +37,7 @@
                     </td>
                     <td><a href="http://freesound.org/s/{{ sound.freesound_id }}" target="_blank">http://freesound.org/s/{{ sound.freesound_id }}</a></td>
                     {% if user_is_maintainer %}
-                        <td><a href="{% url 'expert-curate-sounds' dataset.short_name sound.sound_dataset.sound.id %}">
+                        <td><a href="{% url 'expert-curate-sounds' dataset.short_name sound.sound_dataset.sound.freesound_id %}">
                             <i class="eye icon"></i>
                         </a></td>
                     {% endif %}
