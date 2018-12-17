@@ -70,4 +70,3 @@ DATASET_DIFFICULT_AGREEMENT_CATEGORIES = 'dataset_difficult_agreement_categories
 DATASET_REMAINING_CANDIDATE_ANNOTATIONS_PER_CATEGORIES = 'dataset_remaining_candidate_annotations_per_categories_{0}'
 DATASET_CONTRIBUTIONS_PER_DAY = 'dataset_num_contributions_per_day_{0}'
 DATASET_GROUND_TRUTH_PER_DAY = 'dataset_num_ground_truth_per_day_{0}'
-DATASET_HIERARCHY_PATHS = 'dataset_hierarchy_paths_{0}'

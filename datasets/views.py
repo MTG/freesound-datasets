@@ -20,9 +20,9 @@ from pygments import highlight
 from pygments.lexers import PythonLexer
 from pygments.formatters import HtmlFormatter
 from datasets.tasks import generate_release_index, compute_dataset_basic_stats, compute_dataset_taxonomy_stats, \
-    compute_annotators_ranking, compute_hierarchy_paths
+    compute_annotators_ranking
 from utils.redis_store import store, DATASET_BASIC_STATS_KEY_TEMPLATE, DATASET_TAXONOMY_STATS_KEY_TEMPLATE, \
-    DATASET_ANNOTATORS_RANKING_TEMPLATE, DATASET_HIERARCHY_PATHS
+    DATASET_ANNOTATORS_RANKING_TEMPLATE
 from utils.async_tasks import data_from_async_task
 import os
 import random
@@ -677,23 +677,6 @@ def save_expert_votes_curation_task(request, short_name, sound_id):
                 )
 
     return JsonResponse({'errors': False})
-
-
-def get_hierachy_paths(request, short_name):
-    dataset = get_object_or_404(Dataset, short_name=short_name)
-    leaf_nodes_id = TaxonomyNode.objects.filter(children__isnull=True).distinct().values_list('node_id', flat=True)
-    nodes_hierarchy_paths = data_from_async_task(compute_hierarchy_paths, [dataset.id], {},
-                                                 DATASET_HIERARCHY_PATHS.format(dataset.id), 60)
-    hierachy_paths = [path for node_id, paths in nodes_hierarchy_paths['hierarchy_paths'].items()
-                      if node_id in leaf_nodes_id
-                      for path in paths]
-    id_to_name = {node.node_id: node.name for node in TaxonomyNode.objects.all()}
-
-    all_node_ids = dataset.taxonomy.get_all_node_ids()
-    id_to_ajax = {node_id: '/fsd/mini-node-info/' + quote(node_id, safe='') + '/?se=1&sb=0&sh=0' for node_id in all_node_ids}
-    return JsonResponse({'hierachy_paths': hierachy_paths,
-                         'id_to_name': id_to_name,
-                         'id_to_ajax': id_to_ajax}, safe=False)
 
 
 def get_node_info(request, short_name, node_name):

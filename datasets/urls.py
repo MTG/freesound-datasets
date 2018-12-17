@@ -36,8 +36,6 @@ urlpatterns = [
     re_path(r'^(?P<short_name>[^\/]+)/annotate/choose_category_table_search_all/$', dataset_taxonomy_table_search_all,
         name='taxonomy-table-search-all'),
     re_path(r'^(?P<short_name>[^\/]+)/mini-node-info/(?P<node_id>[^\/]+)/$', get_mini_node_info, name='get-mini-node-info'),
-    re_path(r'^(?P<short_name>[^\/]+)/hierarchy_paths/', get_hierachy_paths,
-        name='get_hierachy_paths'),
     re_path(r'^(?P<short_name>[^\/]+)/node-info/(?P<node_name>[^\/]+)/$', get_node_info, name='get-node-info'),
     re_path(r'^(?P<short_name>[^\/]+)/explore-taxonomy/$', explore_taxonomy, name='explore_taxonomy'),
     re_path(r'^(?P<short_name>[^\/]+)/search_taxonomy_node/$', search_taxonomy_node,

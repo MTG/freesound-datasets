@@ -174,24 +174,6 @@ def compute_dataset_taxonomy_stats(store_key, dataset_id):
 
 
 @shared_task
-def compute_hierarchy_paths(store_key, dataset_id):
-    logger.info('Start computing data for {0}'.format(store_key))
-    try:
-        dataset = Dataset.objects.get(id=dataset_id)
-        taxonomy = dataset.taxonomy
-        node_ids = dataset.taxonomy.get_all_node_ids()
-        hierarchy_paths = {}
-        for node_id in node_ids:
-            hierarchy_paths[node_id] = taxonomy.get_hierarchy_paths(node_id)
-        store.set(store_key, {
-            'hierarchy_paths': hierarchy_paths
-        })
-        logger.info('Finished computing data for {0}'.format(store_key))
-    except Dataset.DoesNotExist:
-        pass
-
-
-@shared_task
 def compute_annotators_ranking(store_key, dataset_id, N=10):
     logger.info('Start computing data for {0}'.format(store_key))
     try:
