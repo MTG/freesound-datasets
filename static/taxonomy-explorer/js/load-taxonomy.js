@@ -47,6 +47,7 @@ TaxonomyTree.prototype = {
         var tt = this;
         $.getJSON(tt.url)
             .done(function (data) {
+                console.log('sss')
                 tt.data = data;
                 tt.update();
                 $.each(existing_gt_annotations, function (i, val) {

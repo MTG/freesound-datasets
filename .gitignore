@@ -88,7 +88,8 @@ ENV/
 .DS_Store
 fsdatasets_releases
 
-*.json
+.vscode
+/json/*
 *.sql
 *.pkl
 *.pid
