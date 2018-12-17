@@ -955,6 +955,16 @@ class GroundTruthAnnotation(models.Model):
             taxonomy_nodes_to_update = [gt.taxonomy_node for gt in ground_truth_annotations_to_delete]
             ground_truth_annotations_to_delete.delete()
             for node in taxonomy_nodes_to_update:
+                # modify ground truth state of possibly existing candidate annotation
+                try:
+                    candidate_annotation = CandidateAnnotation.objects.get(sound_dataset=self.sound_dataset,
+                                                                           taxonomy_node=node)
+                    candidate_annotation.ground_truth = -1
+                    candidate_annotation.save()
+                except:
+                    pass
+
+                # update taxonomy_node nb ground truth
                 node.nb_ground_truth = node.num_ground_truth_annotations
                 node.save()
 
