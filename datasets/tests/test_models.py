@@ -331,13 +331,13 @@ class GroundTruthAnnotationTest(TestCase):
         existing_gt_annotation.from_candidate_annotations.add(self.candidate_annotation)
         self.gt_annotation.propagate_annotation()
 
-        # check that it did not create another ground truth annotation, neither altered it
+        # check that it did not create another ground truth annotation, and altered it
         num_gt_annotations = models.GroundTruthAnnotation.objects.filter(
             taxonomy_node=self.taxonomy_node_to_propagate_to).count()
         self.assertEqual(1, num_gt_annotations)
         gt_annotation = models.GroundTruthAnnotation.objects.filter(
             taxonomy_node=self.taxonomy_node_to_propagate_to).first()
-        self.assertEqual(existing_gt_value, gt_annotation.ground_truth)
+        self.assertEqual(self.gt_annotation.ground_truth, gt_annotation.ground_truth)
 
     def test_propagate_ground_truth_annotations_expert(self):
         existing_gt_value = 0.5
@@ -351,7 +351,7 @@ class GroundTruthAnnotationTest(TestCase):
         )
         existing_gt_annotation.from_candidate_annotations.add(self.candidate_annotation)
 
-        self.gt_annotation.propagate_annotation(from_expert=True)
+        self.gt_annotation.propagate_annotation()
 
         # check that it did not create another ground truth annotation, and did altered its ground truth value
         num_gt_annotations = models.GroundTruthAnnotation.objects.filter(
