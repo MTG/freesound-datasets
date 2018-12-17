@@ -41,6 +41,9 @@ class Taxonomy(models.Model):
     def get_element_at_id(self, node_id):
         return self.taxonomynode_set.get(node_id=node_id)
 
+    def get_element_from_name(self, name):
+        return self.taxonomynode_set.get(name=name)
+
     def get_all_nodes(self):
         return self.taxonomynode_set.all().order_by('name')
 
@@ -162,20 +165,23 @@ class Taxonomy(models.Model):
             children = self.get_children(node_id)
             children_names = []
             for child in children:
-                child_name = {"name":child.name, "mark":[]}
+                child_name = {"name": child.name, "mark": [], "node_id": child.node_id}
                 if child.abstract:
                     child_name["mark"].append("abstract")
                 if child.omitted:
                     child_name["mark"].append("omittedTT")
                 child_name["children"] = get_all_children(child.node_id)
+                child_name["parents_to_propagate_to"] = ', '.join(list(self.get_element_at_id(child.node_id)\
+                    .propagate_to_parents.values_list('name', flat=True)))
                 children_names.append(child_name)
             if children_names: 
                 return children_names
         
         higher_categories = self.taxonomynode_set.filter(parents=None)
-        output_dict = {"name":"Ontology", "children":[]}
+        output_dict = {"name": "Ontology", "children": []}
         for node in higher_categories:
-            dict_level = {"name":node.name, "mark":[]}
+            dict_level = {"name": node.name, "mark": [], "node_id": node.node_id, 
+                          "parents_to_propagate_to": []}
             if node.abstract:
                 dict_level["mark"].append("abstract")
             if node.omitted:
@@ -198,6 +204,9 @@ class Sound(models.Model):
 
     def get_candidate_annotations(self, dataset):
         return CandidateAnnotation.objects.filter(sound_dataset__in=self.sounddataset_set.filter(dataset=dataset))
+
+    def get_ground_truth_annotations(self, dataset):
+        return GroundTruthAnnotation.objects.filter(sound_dataset__in=self.sounddataset_set.filter(dataset=dataset))
 
     def get_image_url(self, img_type, size):
         img_types = ['spectrogram', 'waveform']
@@ -273,8 +282,8 @@ validator_list_examples = RegexValidator('^([0-9]+(?:,[0-9]+)*)*$', message='Ent
 
 class TaxonomyNode(models.Model):
     node_id = models.CharField(max_length=20)
-    name = models.CharField(max_length=100)
-    description = models.CharField(max_length=500)
+    name = models.CharField(max_length=100, db_index=True)
+    description = models.CharField(max_length=500, db_index=True)
     citation_uri = models.CharField(max_length=100, null=True, blank=True)
     abstract = models.BooleanField(default=False)
     omitted = models.BooleanField(default=False, db_index=True)
@@ -414,6 +423,9 @@ class TaxonomyNode(models.Model):
         return self.freesound_examples.filter(deleted_in_freesound=False).values_list('freesound_id', flat=True)
 
     @property
+    def hierarchy_paths(self):
+        return self.taxonomy.get_hierarchy_paths(self.node_id)
+
     def quality_estimate(self):
         votes = list(Vote.objects.filter(candidate_annotation__taxonomy_node=self)\
                                  .exclude(test='FA')\
@@ -799,18 +811,24 @@ class CandidateAnnotation(models.Model):
         Returns the ground truth vote value of the annotation
         Returns None if there is no ground truth value
         """
-        vote_values = [v.vote for v in self.votes.all() if v.test != 'FA']
         # all the test cases are considered valid except the Failed one
-        if vote_values.count(1) > 1:
-            return 1
-        if vote_values.count(0.5) > 1:
-            return 0.5
-        if vote_values.count(0) > 1:
-            return 0
-        if vote_values.count(-1) > 1:
-            return -1
+        votes = self.votes.exclude(test='FA').values_list('vote', 'from_expert').order_by('created_at')
+        vote_values_non_expert = [v[0] for v in votes if not v[1]]
+        vote_values_expert = [v[0] for v in votes if v[1]]
+
+        if vote_values_expert:
+            return vote_values_expert[-1]
         else:
-            return None
+            if vote_values_non_expert.count(1) > 1:
+                return 1
+            if vote_values_non_expert.count(0.5) > 1:
+                return 0.5
+            if vote_values_non_expert.count(0) > 1:
+                return 0
+            if vote_values_non_expert.count(-1) > 1:
+                return -1
+            else:
+                return None
 
     @property
     def freesound_id(self):
@@ -864,8 +882,13 @@ class GroundTruthAnnotation(models.Model):
                                       null=True, blank=True, on_delete=models.SET_NULL)
     taxonomy_node = models.ForeignKey(TaxonomyNode, related_name='ground_truth_annotations',
                                       null=True, blank=True, on_delete=models.SET_NULL)
-    from_candidate_annotation = models.ForeignKey(CandidateAnnotation, null=True, blank=True, on_delete=models.SET_NULL)
-    from_propagation = models.BooleanField(default=False)
+    # keep all the candidate annotations that generated this annotation (from progation or not)
+    from_candidate_annotations = models.ManyToManyField(CandidateAnnotation,
+                                                        related_name='generated_ground_truth_annotations')
+    from_propagation = models.BooleanField(default=False)  # true when this annotation was generated only from propagation
+
+    class Meta:
+        unique_together = ('taxonomy_node', 'sound_dataset',)
 
     @property
     def value(self):
@@ -877,18 +900,49 @@ class GroundTruthAnnotation(models.Model):
     def propagate_annotation(self):
         propagate_to_parents = self.taxonomy_node.taxonomy.get_all_propagate_to_parents(self.taxonomy_node.node_id)
         for parent in propagate_to_parents:
-            annotation_exists = GroundTruthAnnotation.objects.filter(sound_dataset=self.sound_dataset,
-                                                                     taxonomy_node=parent) \
-                .count() > 0
-            if not annotation_exists:
-                GroundTruthAnnotation.objects.get_or_create(start_time=self.start_time,
-                                                            end_time=self.end_time,
-                                                            ground_truth=self.ground_truth,
-                                                            created_by=self.created_by,
-                                                            sound_dataset=self.sound_dataset,
-                                                            taxonomy_node=parent,
-                                                            from_candidate_annotation=self.from_candidate_annotation,
-                                                            from_propagation=True)
+            gt_annotation, created = GroundTruthAnnotation.objects.get_or_create(
+                    sound_dataset=self.sound_dataset,
+                    taxonomy_node=parent,
+                    defaults={
+                        'start_time': self.start_time,
+                        'end_time': self.end_time,
+                        'ground_truth': self.ground_truth,
+                        'created_by': self.created_by,
+                        'from_propagation': True,
+                    }
+            )
+            gt_annotation.from_candidate_annotations.add(*self.from_candidate_annotations.all())
+
+            if not created:
+                # take the maximum presence value from all the candidate annotations
+                gt_annotation.ground_truth = max(gt_annotation.from_candidate_annotations.values_list(
+                    'ground_truth', flat=True))
+                gt_annotation.save()
+
+    def unpropagate_annotation(self, origin_candidate_annotation):
+        propagate_to_parents = self.taxonomy_node.taxonomy.get_all_propagate_to_parents(self.taxonomy_node.node_id)
+
+        propagated_annotations = GroundTruthAnnotation.objects.filter(sound_dataset=self.sound_dataset,
+                                                                      taxonomy_node__in=propagate_to_parents)
+
+        # remove the candidate annotation from the which we unpropagate
+        for annotation in propagated_annotations:
+            annotation.from_candidate_annotations.remove(origin_candidate_annotation)
+
+        # delete the ground truth annotations that have no candidate from the which it originally propagated
+        # update num ground truth annotations for the parent taxonomy node
+        ground_truth_annotations_to_delete = GroundTruthAnnotation.objects.filter(
+            sound_dataset=self.sound_dataset,
+            taxonomy_node__in=propagate_to_parents,
+            from_candidate_annotations__isnull=True,
+        ).select_related('taxonomy_node')
+
+        if ground_truth_annotations_to_delete:
+            taxonomy_nodes_to_update = [gt.taxonomy_node for gt in ground_truth_annotations_to_delete]
+            ground_truth_annotations_to_delete.delete()
+            for node in taxonomy_nodes_to_update:
+                node.nb_ground_truth = node.num_ground_truth_annotations
+                node.save()
 
     # Update number of ground truth annotations per taxonomy node each time a ground truth annotations is generated
     # Update priority score of candidate annotations associated to the same sound (only for non propagated gt annotations)
@@ -924,9 +978,11 @@ class Vote(models.Model):
     from_test_page = models.NullBooleanField(null=True, blank=True, default=None)  # Store if votes are from a test page
     TASK_TYPES = (
         ('BE', 'Beginner'),
-        ('AD', 'Advanced')
+        ('AD', 'Advanced'),
+        ('CU', 'Curation')
     )
     from_task = models.CharField(max_length=2, choices=TASK_TYPES, default='AD')  # store from which validation task
+    from_expert = models.BooleanField(default=False)
 
     def __str__(self):
         return 'Vote for annotation {0}'.format(self.candidate_annotation.id)
@@ -936,29 +992,60 @@ class Vote(models.Model):
         # here calculate ground truth for vote.annotation
         # create ground truth annotations, update priority score when needed
         candidate_annotation = self.candidate_annotation
+        initial_ground_truth = candidate_annotation.ground_truth
+
+        # maximum one annotation exists with unique pair (taxonomy_node, sound_dataset,)
+        existing_annotation = GroundTruthAnnotation.objects.filter(
+            sound_dataset=candidate_annotation.sound_dataset,
+            taxonomy_node=candidate_annotation.taxonomy_node,
+        ).first()
+
         ground_truth_state = candidate_annotation.ground_truth_state
-        if ground_truth_state in (-1.0, 0):     # annotation reach NP or U state
-            candidate_annotation.ground_truth = ground_truth_state
-            candidate_annotation.save()
-        elif ground_truth_state in (0.5, 1.0):  # annotation reach PP or PNP state
-            candidate_annotation.ground_truth = ground_truth_state
-            candidate_annotation.save()
-            annotation_exists = GroundTruthAnnotation.objects.filter(sound_dataset=candidate_annotation.sound_dataset,
-                                                                     taxonomy_node=candidate_annotation.taxonomy_node)\
-                .count() > 0
-            if not annotation_exists:
-                ground_truth_annotation, created = GroundTruthAnnotation.objects.get_or_create(
-                    start_time=candidate_annotation.start_time,
-                    end_time=candidate_annotation.end_time,
-                    ground_truth=candidate_annotation.ground_truth,
-                    created_by=candidate_annotation.created_by,
-                    sound_dataset=candidate_annotation.sound_dataset,
-                    taxonomy_node=candidate_annotation.taxonomy_node,
-                    from_candidate_annotation=candidate_annotation,
-                    from_propagation=False)
-                if created:
+
+        if initial_ground_truth != ground_truth_state:
+
+            if ground_truth_state in (-1.0, 0):     # annotation reach NP or U state
+                candidate_annotation.ground_truth = ground_truth_state
+                candidate_annotation.save()
+
+                # a ground truth can be deleted if an expert votes it U or NP
+                # in this case we unpropagate the annotation and remove it
+                if existing_annotation:
+                    if self.from_expert:
+                        associated_sound_dataset = existing_annotation.sound_dataset
+                        existing_annotation.unpropagate_annotation(candidate_annotation)
+                        existing_annotation.delete()
+                        for candidate_annotation in associated_sound_dataset.candidate_annotations.all():
+                            candidate_annotation.update_priority_score()
+
+            elif ground_truth_state in (0.5, 1.0):  # annotation reach PP or PNP state
+                candidate_annotation.ground_truth = ground_truth_state
+                candidate_annotation.save()
+
+                if existing_annotation:  # update ground truth (take max of PP and PNP)
+                    existing_annotation.from_candidate_annotations.add(candidate_annotation)
+                    existing_annotation.ground_truth = max(existing_annotation.from_candidate_annotations.values_list(
+                        'ground_truth', flat=True))
+                    existing_annotation.save()
+                    if self.from_expert:  # a ground truth could be modified when voted by an expert
+                        existing_annotation.ground_truth = candidate_annotation.ground_truth
+                        existing_annotation.save()
+                    existing_annotation.propagate_annotation()
+
+                else:
+                    # normal agreement reached -> create a ground truth annotation
+                    ground_truth_annotation = GroundTruthAnnotation.objects.create(
+                        start_time=candidate_annotation.start_time,
+                        end_time=candidate_annotation.end_time,
+                        ground_truth=candidate_annotation.ground_truth,
+                        created_by=candidate_annotation.created_by,
+                        sound_dataset=candidate_annotation.sound_dataset,
+                        taxonomy_node=candidate_annotation.taxonomy_node,
+                        from_propagation=False)
+                    ground_truth_annotation.from_candidate_annotations.add(candidate_annotation)
                     ground_truth_annotation.propagate_annotation()
-        else:  # annotation does not reach gt state, update its priority score
+
+        else:  # no change on the ground truth state, update the priority score which depends on his number of votes
             candidate_annotation.update_priority_score()
 
 

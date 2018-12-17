@@ -36,4 +36,12 @@ urlpatterns = [
     re_path(r'^(?P<short_name>[^\/]+)/annotate/choose_category_table_search_all/$', dataset_taxonomy_table_search_all,
         name='taxonomy-table-search-all'),
     re_path(r'^(?P<short_name>[^\/]+)/mini-node-info/(?P<node_id>[^\/]+)/$', get_mini_node_info, name='get-mini-node-info'),
+    re_path(r'^(?P<short_name>[^\/]+)/node-info/(?P<node_name>[^\/]+)/$', get_node_info, name='get-node-info'),
+    re_path(r'^(?P<short_name>[^\/]+)/explore-taxonomy/$', explore_taxonomy, name='explore_taxonomy'),
+    re_path(r'^(?P<short_name>[^\/]+)/search_taxonomy_node/$', search_taxonomy_node,
+        name='search-taxonomy-node'),
+    re_path(r'^(?P<short_name>[^\/]+)/annotate/curate_sound/(?P<sound_id>[^\/]+)/$', curate_sounds,
+        name='expert-curate-sounds'),
+    re_path(r'^(?P<short_name>[^\/]+)/annotate/save_expert_votes_curate/(?P<sound_id>[^\/]+)/$', save_expert_votes_curation_task,
+        name='save-expert-votes-curate-sounds'),
 ]

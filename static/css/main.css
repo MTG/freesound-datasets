@@ -188,3 +188,13 @@ ul {
 .blanched_yellow {
 	color: #f9efe0;
 }
+
+
+/* GENERATE LABEL EXPERT TASK*/
+.added-label {
+    margin: 5px!important;
+}
+
+.close-icon, .locate-icon {
+    cursor: pointer!important;
+}

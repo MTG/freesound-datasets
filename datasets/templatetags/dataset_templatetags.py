@@ -51,6 +51,7 @@ def calculate_taxonomy_node_stats(
         'num_verified_annotations': node['nb_verified_annotations'],
         'num_user_contributions': node['nb_user_contributions'],
         'faq': node['faq'],
+        'description': node['description']
     }
 
 
@@ -133,6 +134,18 @@ def fs_embed_small(value):
 def fs_embed(value):
     embed_code = '<iframe frameborder="0" scrolling="no" src="https://www.freesound.org/embed/sound/iframe/{0}/simple/medium_no_info/?spec=1&td=1" width="130" height="80"></iframe>'
     return embed_code.format(str(value))
+
+
+@register.filter()
+def fs_embed_large(value):
+    embed_code = '<iframe frameborder="0" scrolling="no" src="https://www.freesound.org/embed/sound/iframe/{0}/simple/large_no_info/?spec=1&td=1" width="920" height="245"></iframe>'
+    return embed_code.format(str(value))
+
+
+@register.inclusion_tag('datasets/dataset_taxonomy_table_extended.html')
+def taxonomy_table_extended(dataset):
+    nodes = dataset.taxonomy.taxonomynode_set.all()
+    return {'dataset': dataset, 'nodes': nodes}
 
 
 @register.filter()

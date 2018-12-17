@@ -1,0 +1,514 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load dataset_templatetags %}
+{% load general_templatetags %}
+{% block title %}Refine annotations{% endblock title %}
+{% block page_js %}
+    <script type="text/javascript">
+        $(document).ready(function() {
+            labels_name_and_id = JSON.parse('{{ labels_name_and_id|escapejs }}');
+            getHierarchyPathsAndNameId();
+            $('.menu .item').tab();
+        });
+
+        function uniq(a) {
+            var hash = {};
+            var out = [];
+            for (var i = 0, l = a.length; i < l; i++) {
+                var key = a[i].join('|');
+                if (!hash[key]) {
+                    out.push(a[i]);
+                    hash[key] = 'found';
+                }
+            }
+            return out
+        }
+
+        function getHierarchyPathsAndNameId() {
+            $.ajax({url: "{% url 'get_hierachy_paths' dataset.short_name %}",
+                type: "GET",
+                success: function(result) {
+                    hierarchy_paths = result.hierachy_paths;
+                    id_to_name = result.id_to_name;
+                    id_to_ajax = result.id_to_ajax;
+                    // Add candidate labels
+                    for (var i=0; i < labels_name_and_id.length; i++) {
+                        addLabelGroups(labels_name_and_id[i][0], labels_name_and_id[i][1])
+                    }
+                }
+            });
+        }
+
+        function searchPaths(node_id) {
+            var found_paths = [];
+            for (j=0; j < hierarchy_paths.length; j++) {
+                var found = hierarchy_paths[j].find(k => k === node_id);
+                if (found) found_paths.push(hierarchy_paths[j]);
+            }
+            return found_paths
+        }
+
+        function parentPaths(paths, node_id) {
+            var parent_paths = [];
+            for (var i=0; i < paths.length; i++) {
+                var index = paths[i].indexOf(node_id);
+                parent_paths.push(paths[i].slice(0, index));
+            }
+            return uniq(parent_paths)
+        }
+
+        function childrenPaths(paths, node_id) {
+            var children_paths = [];
+            for (var i=0; i < paths.length; i++) {
+                var index = paths[i].indexOf(node_id);
+                children_paths.push(paths[i].slice(index+1, paths[i].length));
+            }
+            return children_paths
+        }
+
+        function getParents(node_id) {
+            var parents = [];
+            var paths = searchPaths(node_id);
+            for (var i=0; i < paths.length; i++) {
+                var index = paths[i].indexOf(node_id);
+                parents.push(paths[i][index-1]);
+            }
+            return Array.from(new Set(parents));
+        }
+
+        function getChildren(node_id) {
+            var children = [];
+            var paths = searchPaths(node_id);
+            for (var i=0; i < paths.length; i++) {
+                var index = paths[i].indexOf(node_id);
+                if (paths[i][index+1] !== undefined) {
+                    children.push(paths[i][index + 1]);
+                }
+            }
+            return Array.from(new Set(children));
+        }
+
+        function getSiblings(node_id) {
+            var siblings = [];
+            var parents = getParents(node_id);
+            for (var i=0; i < parents.length; i++) {
+                Array.prototype.push.apply(siblings, getChildren(parents[i]));
+            }
+            return Array.from(new Set(siblings))
+        }
+
+        function addPopUpEvent(targets) {
+            var popupLoading = '<div style="height:130px; width:400px" class="ui loading segment">Loading</div>';
+            $('.my-pop').ready(function() {
+                if (typeof targets === 'undefined') {
+                    var my_pops = $('.my-pop[event-added=0]');
+                } else {
+                    var my_pops = targets;
+                }
+                my_pops.attr('event-added', 1);
+                my_pops.popup({
+                    position: 'top right',
+                    on: 'hover',
+                    html: popupLoading,
+                    hoverable: true,
+                    onShow: function(el){
+                        var ajax_done = el.getAttribute('ajax_done');
+                        if (ajax_done == 0) {
+                            var popup = this;
+                            var ajax_url = el.getAttribute('ajax_url').replace('se=0', 'se=1') + '&sh=0' + '&sn=0';
+                            $.ajax({
+                                url: ajax_url
+                            }).done(function(result) {
+                                el.setAttribute("data-html", result);
+                                el.setAttribute("ajax_done", 1);
+                                popup.html(result);
+                            }).fail(function() {
+                                popup.html('error')
+                            });
+                        }
+                    },
+                    onHide: function() {
+                        var popup = this;
+                        $(popup).find(".soundplayer").each( function () {
+                            var plId = '#' + this.id;
+                            if (typeof(window.players) !== "undefined") {
+                                var players = window.players;
+                                for (var i = 0; i < players.length; i++) {
+                                    var player = players[i];
+                                    if (player.playerDom === plId) {
+                                        player.destroy();
+                                        var idx = players.indexOf(player);
+                                        if (idx > -1) {
+                                            players.splice(idx, 1);
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                    }
+                });
+            });
+        }
+
+        function addLabelGroups(label_name, label_id) {
+            // add all the group label corresponding to the selected label (multiple parents creates several label groups)
+            var paths = searchPaths(label_id);
+            var parent_paths = parentPaths(paths, label_id);
+            for (var i=0; i < parent_paths.length; i++) {
+                var group_id = label_id + i;
+                addLabelGroup(parent_paths[i], group_id, label_name, label_id);
+            }
+        }
+
+        function addLabelGroup(path, group_id, label_name, label_id) {
+            $('#label-container').append('<div class="group-label ui message" group-id="'+ group_id +'"></div>');
+            for (var j=0; j < path.length; j++) {
+                addLabel(id_to_name[path[j]], path[j], group_id);
+                $('div[group-id="'+group_id+'"]').append('>');
+            }
+            addLastLabel(label_name, label_id,  group_id);
+            addChildrenLabel(label_name, label_id,  group_id);
+{#            addRemoveEvent(group_id);#}
+            addDuplicateEvent(group_id);
+            $('div[group-id="'+group_id+'"]').append(form(group_id));
+        }
+
+        function updateLabelGroup(group_id, old_label_id, new_label_id) {
+            var group_div = $('div[group-id="'+group_id+'"]');
+            var path = group_div.find('.generated-label').attrs('label-id');
+            var idx = path.indexOf(old_label_id);
+            var candidate_label =  group_div.find('.current').attrs('label-id')[0];
+            var candidate_label_idx = path.indexOf(candidate_label);
+            path[idx] = new_label_id;
+            group_div.empty();
+            for (var j=0; j <= idx; j++) {
+                if (j < candidate_label_idx) {
+                    addLabel(id_to_name[path[j]], path[j], group_id);
+                    group_div.append('>');
+                } else {
+                    if (j < idx) {
+                        addLastLabel(id_to_name[path[j]], path[j], group_id);
+                        group_div.append('>');
+                    } else {
+                        var label_name = id_to_name[new_label_id];
+                        addLastLabel(label_name, new_label_id, group_id);
+                    }
+                }
+            }
+            addChildrenLabel(label_name, new_label_id, group_id);
+            if (group_div.hasClass("duplicate")) {
+                addRemoveEvent(group_id);
+            } else {
+                addDuplicateEvent(group_id);
+            }
+            $('div[group-id="'+group_id+'"]').append(form(group_id));
+        }
+
+        function addDuplicateEvent(group_id) {
+            var labelGroup = $('div[group-id="'+group_id+'"]');
+            labelGroup.append('<i style="float:right; cursor: copy;" class="copy icon"></i>');
+            var group_duplicate = $('div[group-id="'+group_id+'"] > .copy');
+            group_duplicate.click(function() {
+                duplicateLabelGroup(group_id);
+            });
+        }
+
+        function duplicateLabelGroup(group_id) {
+            var old_group = $('div[group-id="'+group_id+'"]');
+            var idx = 0;
+            while (idx<100) {
+                if ($('div[group-id="'+group_id+idx+'"]').length === 0) {
+                    break
+                }
+                idx += 1;
+            }
+            var current_label = old_group.children('.current').last();
+            var label_id = current_label.attr('label-id');
+            group_id = group_id+idx;
+            var clone = old_group.clone();
+            clone.attr("group-id", group_id);
+            clone.addClass("duplicate");
+            old_group.after(clone);
+            updateLabelGroup(group_id, label_id, label_id);
+        }
+
+        function removeLabelGroup(group_id) {
+            var group_div = $('div[group-id="'+group_id+'"]');
+            var children = group_div.children('.generated-label');
+            for (i=0 ; i<children.length; i++) {
+                removeLabel(children.eq(i).attr('label-name'));
+            }
+            group_div.remove();
+        }
+
+        function addLabel(label_name, label_id, group_id) {
+            var ajax_url = getEncodedUrl(label_id);
+            $('div[group-id="'+group_id+'"]').append('<div class="generated-label ui large label" label-name="'
+                                                     + label_name+'" label-id="'+ label_id +'">'+label_name
+                                                     + '<span class="my-pop ui" event-added=0 data-html="" ajax_done=0 '
+                                                     + 'style="margin-left:5px;" ajax_url="' + ajax_url
+                                                     + '"><i class="help circle icon"></i></span>'
+                                                     + '</div>');
+            addPopUpEvent();
+        }
+
+        function addLastLabel(label_name, label_id, group_id) {
+            var group_div = $('div[group-id="'+group_id+'"]');
+            var parent_id = group_div.children('.generated-label').last().attr('label-id');
+            var siblings = getChildren(parent_id);
+            var ajax_url = getEncodedUrl(label_id);
+            var el = '';
+            el += '<div class="current generated-label ui compact inverted blue inline scrolling dropdown button" label-name="';
+            el += label_name + '" ';
+            el += 'label-id="'+ label_id +'">';
+            el += '<div class="text">' + label_name;
+            el += '<span class="my-pop ui" event-added=0 data-html="" ajax_done=0 style="margin-left:5px;" ajax_url="';
+            el += ajax_url;
+            el += '"><i class="help inverted blue circle icon"></i></span>';
+            el += '</div>';
+            el += '<i class="dropdown icon"></i>';
+            el += '<div class="menu">';
+            for (var i=0; i < siblings.length; i++) {
+                ajax_url = getEncodedUrl(siblings[i]);
+                el += '<div data-value="'+ siblings[i] +'" class="item" label-id="'+ siblings[i] +'">'
+                    + id_to_name[siblings[i]]
+                    + '<span class="my-pop ui" event-added=0 data-html="" ajax_done=0 style="margin-left:5px;" ajax_url="'
+                    + ajax_url
+                    + '"><i class="help grey circle icon"></i></span>'
+                    + '</div>';
+            }
+            el += '<div data-value="0" class="item">None</div>';
+            el += '</div>';
+
+            group_div.append(el);
+            $('div[group-id="'+group_id+'"] > .current').dropdown({
+                onChange: function(value, text, $selectedItem) {
+                    // update label attributes
+                    var current_label = $selectedItem.parents('.generated-label');
+                    var old_label_id = current_label.attr('label-id');
+                    var new_label_id = value;
+                    // update label group
+                    if (value !== "0") {
+                        updateLabelGroup(group_id, old_label_id, new_label_id);
+                    } else {
+                        current_label.attr('label-name', 'none');
+                        current_label.attr('label-id', 'none');
+                    }
+                },
+                onHide: function() {
+                    var popup = this;
+                    $(popup).find(".soundplayer").each( function () {
+                        var plId = '#' + this.id;
+                        if (typeof(window.players) !== "undefined") {
+                            var players = window.players;
+                            for (var i = 0; i < players.length; i++) {
+                                var player = players[i];
+                                if (player.playerDom === plId) {
+                                    player.destroy();
+                                    var idx = players.indexOf(player);
+                                    if (idx > -1) {
+                                        players.splice(idx, 1);
+                                    }
+                                }
+                            }
+                        }
+                    });
+                    // don't hide the dorpdown when clicking on an popup (= when a popup is visible)
+                    return $('.my-pop.visible').length === 0
+                }
+            });
+            addPopUpEvent();
+        }
+
+        function addChildrenLabel(label_name, label_id, group_id) {
+            var children = getChildren(label_id);
+            var ajax_url;
+            if (children.length > 0) {
+                var el = '>';
+                el += '<div class="children generated-label ui compact inverted blue inline scrolling dropdown button" label-name=""';
+                el += 'label-id="">';
+                el += '<div class="text"> Select';
+                el += '</div>';
+                el += '<i class="dropdown icon"></i>';
+                el += '<div class="menu">';
+                for (var i=0; i < children.length; i++) {
+                    ajax_url = getEncodedUrl(children[i]);
+{#                        $('button[label-id="'+children[i]+'"]').parents('tr').find('.my-pop').attr('ajax_url');#}
+                    el += '<div data-value="'+ children[i] +'" class="item" label-id="'+ children[i] +'">'
+                        + id_to_name[children[i]]
+                        + '<span class="my-pop ui" event-added=0 data-html="" ajax_done=0 style="margin-left:5px;" ajax_url="'
+                        + ajax_url
+                        + '"><i class="help grey circle icon"></i></span>'
+                        + '</div>';
+                }
+                el += '<div data-value="0" class="item">None</div>';
+                el += '</div>';
+
+                $('div[group-id="'+group_id+'"]').append(el);
+                $('div[group-id="'+group_id+'"] > .children').dropdown({
+                    onChange: function(value, text, $selectedItem) {
+                        // update label attributes
+                        var current_label = $selectedItem.parents('.generated-label');
+                        var old_label_id = current_label.attr('label-id');
+                        var new_label_id = value;
+                        // update label group
+                        if (value !== "0") {
+                            updateLabelGroup(group_id, old_label_id, new_label_id);
+                        } else {
+                            current_label.attr('label-name', 'none');
+                            current_label.attr('label-id', 'none');
+                        }
+                    },
+                    onHide: function() {
+                        var popup = this;
+                        $(popup).find(".soundplayer").each( function () {
+                            var plId = '#' + this.id;
+                            if (typeof(window.players) !== "undefined") {
+                                var players = window.players;
+                                for (var i = 0; i < players.length; i++) {
+                                    var player = players[i];
+                                    if (player.playerDom === plId) {
+                                        player.destroy();
+                                        var idx = players.indexOf(player);
+                                        if (idx > -1) {
+                                            players.splice(idx, 1);
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                        // don't hide the dorpdown when clicking on an popup (= when a popup is visible)
+                        return $('.my-pop.visible').length === 0
+                    }
+                });
+                addPopUpEvent();
+            }
+        }
+
+        function removeLabel(label_name, group_id) {
+             $('div[group-id="'+group_id+'"] > div[label-name="'+label_name+'"]').remove();
+        }
+
+        function addRemoveEvent(group_id) {
+            var labelGroup = $('div[group-id="'+group_id+'"]');
+            labelGroup.append('<i class="close icon"></i>');
+            var group_delete = $('div[group-id="'+group_id+'"] > .close');
+            group_delete.click(function() {
+                removeLabelGroup(group_id);
+            });
+        }
+
+        function getAddedLabels() {
+            return Array.from(new Set($('.generated-label').attrs('label-id')))
+        }
+
+        function getAddedGroupLabels() {
+            var addedGroupLabelIds = [];
+            var addedGroupLabelNames = [];
+            var addedGroupLabelVotes = [];
+            $('.group-label').each(function() {
+                addedGroupLabelIds.push($(this).children('.generated-label').attrs('label-id'));
+                addedGroupLabelNames.push($(this).children('.generated-label').attrs('label-name'));
+                addedGroupLabelVotes.push($(this).find("input:checked").val());
+            });
+            return [addedGroupLabelIds, addedGroupLabelNames, addedGroupLabelVotes]
+        }
+
+        function form(group_id) {
+            return "<div class=\"ui form\">\n" +
+                "  <div class=\"grouped fields\">\n" +
+                "    <div class=\"field\">\n" +
+                "      <div class=\"ui radio checkbox\">\n" +
+                "        <input value =\"1.0\" name=\""+group_id+"\" type=\"radio\">\n" +
+                "        <label>Present and predominant</label>\n" +
+                "      </div>\n" +
+                "    </div>\n" +
+                "    <div class=\"field\">\n" +
+                "      <div class=\"ui radio checkbox\">\n" +
+                "        <input value =\"0.5\" name=\""+group_id+"\" type=\"radio\">\n" +
+                "        <label>Present but not predominant</label>\n" +
+                "      </div>\n" +
+                "    </div>\n" +
+                "    <div class=\"field\">\n" +
+                "      <div class=\"ui radio checkbox\">\n" +
+                "        <input value =\"-1.0\" name=\""+group_id+"\" type=\"radio\">\n" +
+                "        <label>Not present</label>\n" +
+                "      </div>\n" +
+                "    </div>\n" +
+                "    <div class=\"field\">\n" +
+                "      <div class=\"ui radio checkbox\">\n" +
+                "        <input value =\"0\" name=\""+group_id+"\" type=\"radio\">\n" +
+                "        <label>Unsure</label>\n" +
+                "      </div>\n" +
+                "    </div>\n" +
+                "  </div>\n" +
+                "</div>"
+        }
+
+        function getEncodedUrl(node_id) {
+            return encodeURI(id_to_ajax[node_id])
+        }
+
+        jQuery.fn.extend({
+            attrs: function (attributeName) {
+                var results = [];
+                $.each(this, function (i, item) {
+                    results.push(item.getAttribute(attributeName));
+                });
+                return results;
+            }
+        });
+
+        function submitForm() {
+            var addedGroupLabels = getAddedGroupLabels();
+            var labelIds = addedGroupLabels[0];
+            var labelNames = addedGroupLabels[1];
+            var labelVotes = addedGroupLabels[2];
+            var jsonData = JSON.stringify({
+                freesound_sound_id: "{{ freesound_sound_id }}",
+                labelIds: labelIds,
+                labelNames: labelNames,
+                labelVotes: labelVotes
+            });
+            var data = {
+                    jsonData : jsonData,
+                    csrfmiddlewaretoken: "{{csrf_token}}"
+                };
+            $.ajax({
+                type: "POST",
+                url: "{% url 'save-contribute-generate-annotations' dataset.short_name %}",
+                data: data,
+                traditional:true
+            }).done(function(result) {
+                document.getElementById("submitButton").disabled = true;
+            });
+        }
+    </script>
+{% endblock %}
+{% block content %}
+    <center>
+        <h3>Listen to the following sound and refine the proposed labels!</h3>
+        {{ freesound_sound_id| fs_embed_large | safe }}
+    </center>
+    <br>
+
+    <div class="">
+        <div id="label-container"></div>
+    </div>
+
+    <center>
+        <button id="submitButton" class="ui green big button" onclick="submitForm();">Submit</button>
+    </center>
+{% endblock %}
+
+{% block extra_head %}
+    <style>
+        .ui.popup {
+            max-width: 400px;
+        }
+        #submitButton {
+            margin: 30px;
+        }
+    </style>
+    {% load_sound_player_files %}
+{% endblock extra_head%}

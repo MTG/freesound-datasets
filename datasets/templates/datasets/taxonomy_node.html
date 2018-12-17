@@ -22,6 +22,7 @@
             <tr>
                 <th>Sound</th>
                 <th>Freesound URL</th>
+                {% if user_is_maintainer %}<th>Sound page</th>{% endif %}
                 <th><div data-tooltip="Number of times validated as present and predominant"># PP</div></th>
                 <th><div data-tooltip="Number of times validated as present but not predominant"># PNP</div></th>
                 <th><div data-tooltip="Number of times validated as not present"># NP</div></th>
@@ -35,6 +36,11 @@
                         {% sound_player dataset sound.freesound_id "small" %}
                     </td>
                     <td><a href="http://freesound.org/s/{{ sound.freesound_id }}" target="_blank">http://freesound.org/s/{{ sound.freesound_id }}</a></td>
+                    {% if user_is_maintainer %}
+                        <td><a href="{% url 'expert-curate-sounds' dataset.short_name sound.sound_dataset.sound.freesound_id %}">
+                            <i class="eye icon"></i>
+                        </a></td>
+                    {% endif %}
                     <td>{{ sound.num_PP }}</td>
                     <td>{{ sound.num_PNP }}</td>
                     <td>{{ sound.num_NP }}</td>

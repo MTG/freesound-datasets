@@ -3,35 +3,37 @@
 
 <table class="ui unstackable table bottom attached" width="100%" style="margin-bottom:7px;">
     <tbody>
-    <td>Hierarchy</td>
-    <td>
-        <div class="ui list">
-            {% for hierarchy_path in node.hierarchy_paths %}
-                <div class="item">
-                    <div class="ui horizontal list">
-                        <div class="item">
-                            <i class="tree icon"></i>
-                        </div>
-                        {% for node_id in hierarchy_path %}
-                            {% taxonomy_node dataset node_id as sub_node_data  %}
-                            <div class="item" style="margin-left:0px;margin-right:5px;">
-                                >
-                                <span>{{ sub_node_data.name }}</span>
+    {% if show_hierarchy > 0 %}
+        {% if show_name_table_lines > 0 %}<td>Hierarchy</td>{% endif %}
+        <td>
+            <div class="ui list">
+                {% for hierarchy_path in node.hierarchy_paths %}
+                    <div class="item">
+                        <div class="ui horizontal list">
+                            <div class="item">
+                                <i class="tree icon"></i>
                             </div>
-                        {% endfor %}
+                            {% for node_id in hierarchy_path %}
+                                {% taxonomy_node dataset node_id as sub_node_data  %}
+                                <div class="item" style="margin-left:0px;margin-right:5px;">
+                                    >
+                                    <span>{{ sub_node_data.name }}</span>
+                                </div>
+                            {% endfor %}
+                        </div>
                     </div>
-                </div>
-            {% empty %}
-                <div class="item">-</div>
-            {% endfor %}
-        </div>
-    </td>
+                {% empty %}
+                    <div class="item">-</div>
+                {% endfor %}
+            </div>
+        </td>
+    {% endif %}
         <tr>
-            <td class="three wide">Description</td>
+            {% if show_name_table_lines > 0 %}<td class="three wide">Description</td>{% endif %}
             <td>{{ node.description }}</td>
         </tr>
         {% if node.freesound_examples and show_examples > 0 %}
-            <tr><td>Examples</td>
+            <tr>{% if show_name_table_lines > 0 %}<td>Examples</td>{% endif %}
                 <td>
                     {% for fsid in node.freesound_examples %}
                         {% sound_player dataset fsid "small" %}
@@ -40,7 +42,7 @@
             </tr>
         {% endif %}
         {% if show_num_gt > 0 %}
-            <tr><td># ground truth</td>
+            <tr>{% if show_name_table_lines > 0 %}<td># ground truth</td>{% endif %}
                 <td>
                     {{ node.nb_ground_truth }} &emsp;&emsp;&emsp; (propagated from children: {{ node.nb_propagated_ground_truth }})
                 </td>

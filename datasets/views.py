@@ -1,13 +1,14 @@
 from urllib.request import urlopen
 from urllib.error import HTTPError
-from urllib.parse import urlencode, unquote
+from urllib.parse import urlencode, unquote, quote
 from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse, HttpResponseNotAllowed, HttpResponseRedirect
 from django.views.decorators.cache import cache_page
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector, TrigramSimilarity, TrigramDistance
 from django.conf import settings
 from django.urls import reverse
-from django.db.models import Count
+from django.db.models import Count, F, Q
 from django.db import transaction, connection
 from django.forms import formset_factory
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -140,6 +141,44 @@ def taxonomy_node(request, short_name, node_id):
     return render(request, 'datasets/taxonomy_node.html', {'dataset': dataset, 'node': node,
                                                            'user_is_maintainer': user_is_maintainer,
                                                            'sounds': annotations})
+
+
+def explore_taxonomy(request, short_name):
+    dataset = get_object_or_404(Dataset, short_name=short_name)
+    return render(request, 'datasets/explore_taxonomy.html', {
+        'dataset': dataset
+    })
+
+
+def search_taxonomy_node(request, short_name):
+    if not request.user.is_authenticated:
+        return HttpResponse('Unauthorized', status=401)
+    dataset = get_object_or_404(Dataset, short_name=short_name)
+    if not dataset.user_is_maintainer(request.user):
+        raise HttpResponseNotAllowed
+    taxonomy = dataset.taxonomy
+    query = request.GET.get('q', '')
+
+    # vector = SearchVector('name', weight='A') + SearchVector('description', weight='C')
+    # query = SearchQuery(query)
+    # qs_results = TaxonomyNode.objects.filter(taxonomy__dataset=dataset)\
+    #                                  .annotate(rank=SearchRank(vector, query)).filter(rank__gte=0.3)\
+    #                                  .order_by('rank')
+
+    qs_results = TaxonomyNode.objects.filter(taxonomy__dataset=dataset)\
+                                     .annotate(similarity=TrigramSimilarity('name', query) +
+                                                          TrigramSimilarity('description', query),)\
+                                     .filter(similarity__gte=0.2)\
+                                     .order_by('-similarity')
+
+    results = [{'name': node.name,
+                'node_id': node.node_id,
+                'path': ' > '.join([TaxonomyNode.objects.get(node_id=node_id).name for node_id in path_list]),
+                'big_id': ','.join(path_list)}
+               for node in qs_results
+               for path_list in taxonomy.get_hierarchy_paths(node.node_id)]
+
+    return JsonResponse(results[:10], safe=False)
 
 
 #############################
@@ -477,6 +516,7 @@ def dataset_taxonomy_table_choose(request, short_name):
     taxonomy = dataset.taxonomy
     hierarchy_paths = []
     end_of_table = False
+    add_label_or_choose_category = request.POST.get('add_label_or_choose_category', 'choose_category')
 
     # nodes for Free choose table
     if request.method == 'POST':
@@ -489,16 +529,22 @@ def dataset_taxonomy_table_choose(request, short_name):
                 # Here we should remove also the categories which all its children have no more annotations tu validate.
                 # Doing it with dataset.get_categories_to_validate() or with dataset.user_can_annotated() on all
                 # children would be too slow
-                nodes = [node for node in taxonomy.get_children(node_id) if node.self_and_children_advanced_task
-                         and not node.self_and_children_omitted]
+                if add_label_or_choose_category == 'choose_category':
+                    nodes = [node for node in taxonomy.get_children(node_id) if node.self_and_children_advanced_task
+                             and not node.self_and_children_omitted]
+                else:
+                    nodes = [node for node in taxonomy.get_children(node_id)]
             else:
                 end_of_table = True  # end of continue, now the user will choose a category to annotate
                 nodes = list(taxonomy.get_all_children(node_id)) + [taxonomy.get_element_at_id(node_id)] \
                     + list(taxonomy.get_all_parents(node_id))
                 # we should remove the nodes that have no more annotations to validate for the user
                 # by using dataset.user_can_annotate(), but it is too slow
-                nodes = [node for node in nodes
-                         if node.advanced_task and not node.omitted]
+                if add_label_or_choose_category == 'choose_category':
+                    nodes = [node for node in nodes
+                             if node.advanced_task and not node.omitted]
+                else:
+                    pass
             hierarchy_paths = dataset.taxonomy.get_hierarchy_paths(node_id)
 
         # start choosing category
@@ -515,7 +561,8 @@ def dataset_taxonomy_table_choose(request, short_name):
             .exclude(omitted=True).order_by('nb_ground_truth')[:20]
 
     return render(request, 'datasets/dataset_taxonomy_table_choose.html', {
-        'dataset': dataset, 'end_of_table': end_of_table, 'hierarchy_paths': hierarchy_paths, 'nodes': nodes})
+        'dataset': dataset, 'end_of_table': end_of_table, 'hierarchy_paths': hierarchy_paths, 'nodes': nodes,
+        'add_label_or_choose_category': add_label_or_choose_category})
 
 
 def dataset_taxonomy_table_search(request, short_name):
@@ -543,6 +590,8 @@ def get_mini_node_info(request, short_name, node_id):
     show_examples = int(request.GET.get('se', 1))
     show_go_button = int(request.GET.get('sb', 1))
     show_num_gt = int(request.GET.get('sgt', 0))
+    show_hierarchy = int(request.GET.get('sh', 1))
+    show_name_table_lines = int(request.GET.get('sn', 1))
     node_id = unquote(node_id)
     dataset = get_object_or_404(Dataset, short_name=short_name)
     node = dataset.taxonomy.get_element_at_id(node_id).as_dict()
@@ -550,7 +599,99 @@ def get_mini_node_info(request, short_name, node_id):
     node['hierarchy_paths'] = hierarchy_paths if hierarchy_paths is not None else []
     return render(request, 'datasets/taxonomy_node_mini_info.html',
                   {'dataset': dataset, 'node': node, 'show_examples': show_examples,
-                   'show_go_button': show_go_button, 'show_num_gt': show_num_gt})
+                   'show_go_button': show_go_button, 'show_num_gt': show_num_gt,
+                   'show_hierarchy': show_hierarchy, 'show_name_table_lines': show_name_table_lines})
+
+
+@login_required
+def curate_sounds(request, short_name, sound_id):
+    dataset = get_object_or_404(Dataset, short_name=short_name)
+    if not dataset.user_is_maintainer(request.user):
+        raise HttpResponseNotAllowed
+    taxonomy = dataset.taxonomy
+    sound = Sound.objects.get(freesound_id=sound_id)
+    existing_gt_annotations = sound.get_ground_truth_annotations(dataset)\
+                                .filter(from_propagation=False)\
+                                .select_related('taxonomy_node')
+    existing_candidate_annotations = sound.get_candidate_annotations(dataset)\
+                                          .filter(ground_truth=None)\
+                                          .select_related('taxonomy_node')\
+                                          .exclude(taxonomy_node__id__in=
+                                                existing_gt_annotations.values_list('taxonomy_node__id', flat=True))
+    existing_gt_annotations_formated = [
+        {
+            'node_id': annotation.taxonomy_node.node_id,
+            'node_name': annotation.taxonomy_node.name,
+            'ground_truth': annotation.ground_truth,
+            'big_id': ','.join(taxonomy.get_hierarchy_paths(annotation.taxonomy_node.node_id)[0]),
+        } for annotation in existing_gt_annotations]
+    
+    existing_candidate_annotations_formated = [
+        {
+            'node_id': annotation.taxonomy_node.node_id,
+            'node_name': annotation.taxonomy_node.name,
+            'big_id': ','.join(taxonomy.get_hierarchy_paths(annotation.taxonomy_node.node_id)[0]),
+        } for annotation in existing_candidate_annotations]
+    
+    freesound_sound_id = sound.freesound_id
+    return render(request, 'datasets/curate_sounds.html',
+                  {'dataset': dataset,
+                   'freesound_sound_id': freesound_sound_id,
+                   'generation_task': '1',
+                   'existing_gt_annotations': existing_gt_annotations_formated,
+                   'existing_candidate_annotations': existing_candidate_annotations_formated})
+
+
+@transaction.atomic
+def save_expert_votes_curation_task(request, short_name, sound_id):
+    if not request.user.is_authenticated:
+        return HttpResponse('Unauthorized', status=401)
+    dataset = get_object_or_404(Dataset, short_name=short_name)
+    if not dataset.user_is_maintainer(request.user):
+        raise HttpResponseNotAllowed
+    if request.method == 'POST':
+        annotation_votes = json.loads(request.POST.dict()['jsonData'])
+        # check that all the annotations are voted
+        if not all('label-presence' in annotation_vote for annotation_vote in annotation_votes):
+            error_response = {'errors': [value['label-id'] for count, value in enumerate(annotation_votes) if 'label-presence' not in value]}
+            return JsonResponse(error_response)
+        else:
+            # create candidate annotations and expert votes
+            # we can treat both case at once thanks to get_or_create() method
+            for new_annotation_vote in annotation_votes:
+                annotation, _ = CandidateAnnotation.objects.get_or_create(
+                    sound_dataset=SoundDataset.objects.get(sound__freesound_id=sound_id, 
+                                                           dataset=dataset),
+                    taxonomy_node=TaxonomyNode.objects.get(node_id=new_annotation_vote['label-id']),
+                    defaults={
+                        'type': 'MA',
+                        'created_by': request.user,
+                    }
+                )
+                Vote.objects.create(
+                    created_by=request.user,
+                    vote=new_annotation_vote['label-presence'],
+                    candidate_annotation=annotation,
+                    from_task='CU',
+                    from_expert=True,
+                )
+
+    return JsonResponse({'errors': False})
+
+
+def get_node_info(request, short_name, node_name):
+    dataset = get_object_or_404(Dataset, short_name=short_name)
+    generation_task = request.GET.get('gen-task', '0')
+    node = dataset.taxonomy.get_element_from_name(node_name)
+    hp = [node.get_parents()]
+    node = node.as_dict()
+    return render(request, 'datasets/taxonomy_node_info_for_taxonomy_table.html',
+                  {
+                      'dataset': dataset,
+                      'node': node,
+                      'hp': hp,
+                      'generation_task': generation_task,
+                  })
 
 
 ########################
