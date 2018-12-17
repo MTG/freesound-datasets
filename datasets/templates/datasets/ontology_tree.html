@@ -1,3 +1,4 @@
+{% load staticfiles %}
 {% block content %}
 <div id="dataset_taxonomy_tree_placeholder">
     <div id="ontology_placeholder"></div>
@@ -10,7 +11,7 @@
 
 
 function loadOntologyTree(){
-    $.ajax({url: "{% url 'taxonomy-tree' dataset.short_name %}",
+    $.ajax({url: "{% static 'taxonomy-explorer/taxonomy_tree.json' %}",
         type: "GET",
         success: function(result){
             show_ontology(result);
