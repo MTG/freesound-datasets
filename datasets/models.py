@@ -1046,11 +1046,8 @@ class Vote(models.Model):
                 candidate_annotation.ground_truth = ground_truth_state
                 candidate_annotation.save()
 
-                if existing_annotation:  # update ground truth (take max of PP and PNP)
+                if existing_annotation:
                     existing_annotation.from_candidate_annotations.add(candidate_annotation)
-                    existing_annotation.ground_truth = max(existing_annotation.from_candidate_annotations.values_list(
-                        'ground_truth', flat=True))
-                    existing_annotation.save()
                     if self.from_expert:  # a ground truth could be modified when voted by an expert
                         existing_annotation.ground_truth = candidate_annotation.ground_truth
                         existing_annotation.save()
