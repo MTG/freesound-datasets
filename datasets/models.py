@@ -897,7 +897,7 @@ class GroundTruthAnnotation(models.Model):
     def __str__(self):
         return 'Annotation for sound {0}'.format(self.sound_dataset.sound.id)
 
-    def propagate_annotation(self, from_expert=False):
+    def propagate_annotation(self):
         propagate_to_parents = self.taxonomy_node.taxonomy.get_all_propagate_to_parents(self.taxonomy_node.node_id)
         for parent in propagate_to_parents:
             gt_annotation, created = GroundTruthAnnotation.objects.get_or_create(
@@ -914,11 +914,10 @@ class GroundTruthAnnotation(models.Model):
             gt_annotation.from_candidate_annotations.add(*self.from_candidate_annotations.all())
 
             if not created:
-                if from_expert:  # a ground truth could be modified when voted by an expert
-                    # take the maximum presence value from all the candidate annotations
-                    gt_annotation.ground_truth = max(gt_annotation.from_candidate_annotations.values_list(
-                        'ground_truth', flat=True))
-                    gt_annotation.save()
+                # take the maximum presence value from all the candidate annotations
+                gt_annotation.ground_truth = max(gt_annotation.from_candidate_annotations.values_list(
+                    'ground_truth', flat=True))
+                gt_annotation.save()
 
     def unpropagate_annotation(self, origin_candidate_annotation):
         propagate_to_parents = self.taxonomy_node.taxonomy.get_all_propagate_to_parents(self.taxonomy_node.node_id)
@@ -1031,7 +1030,7 @@ class Vote(models.Model):
                     if self.from_expert:  # a ground truth could be modified when voted by an expert
                         existing_annotation.ground_truth = candidate_annotation.ground_truth
                         existing_annotation.save()
-                        existing_annotation.propagate_annotation(from_expert=True)
+                    existing_annotation.propagate_annotation()
 
                 else:
                     # normal agreement reached -> create a ground truth annotation
