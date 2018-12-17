@@ -912,11 +912,25 @@ class GroundTruthAnnotation(models.Model):
                     }
             )
             gt_annotation.from_candidate_annotations.add(*self.from_candidate_annotations.all())
+            
+            greatest_ground_truth = max(gt_annotation.from_candidate_annotations.values_list(
+                    'ground_truth', flat=True))
+
+            # set ground truth state of candidate annotations
+            gt_annotation.from_candidate_annotations.all().update(ground_truth=greatest_ground_truth)
+
+            # modify ground truth state of possibly existing candidate annotation
+            try:
+                candidate_annotation = CandidateAnnotation.objects.get(sound_dataset=self.sound_dataset,
+                                                                       taxonomy_node=parent)
+                candidate_annotation.ground_truth = greatest_ground_truth
+                candidate_annotation.save()
+            except:
+                pass
 
             if not created:
                 # take the maximum presence value from all the candidate annotations
-                gt_annotation.ground_truth = max(gt_annotation.from_candidate_annotations.values_list(
-                    'ground_truth', flat=True))
+                gt_annotation.ground_truth = greatest_ground_truth
                 gt_annotation.save()
 
     def unpropagate_annotation(self, origin_candidate_annotation):
@@ -1046,6 +1060,8 @@ class Vote(models.Model):
                     ground_truth_annotation.propagate_annotation()
 
         else:  # no change on the ground truth state, update the priority score which depends on his number of votes
+            if existing_annotation:
+                existing_annotation.propagate_annotation()
             candidate_annotation.update_priority_score()
 
 
