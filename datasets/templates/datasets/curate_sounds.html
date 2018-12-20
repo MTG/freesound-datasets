@@ -74,11 +74,20 @@
                 resDiv.append("<div class='ui large label' style='margin:2px; display:block'>No categories found</div>");
             } else {
                 for (var i = 0; i < data.length; i++) {
-                    var el = $("<div class='ui large label' style='margin:2px; display:block' big-id="
-                        + data[i].big_id + ">" + data[i].path + "&emsp;"
-                        + "<a class='add-button ui mini teal button'><i class=\"plus icon\"></i></a>"
+                    if (data[i].omitted) {
+                        console.log(data)
+                        var el = $("<div class='ui large label' style='margin:2px; display:block' big-id="
+                        + data[i].big_id + ">" + data[i].path + "&emsp;" + '<i class="exclamation circle icon"></i>'
+                        + "<a class='add-button disabled ui mini grey button' disabled><i class=\"plus icon\"></i></a>"
                         + "<a class='locate-button ui mini teal button'><i class=\"search icon\"></i></a>"
                         + "</div>");
+                    } else {
+                        var el = $("<div class='ui large label' style='margin:2px; display:block' big-id="
+                            + data[i].big_id + ">" + data[i].path + "&emsp;"
+                            + "<a class='add-button ui mini teal button'><i class=\"plus icon\"></i></a>"
+                            + "<a class='locate-button ui mini teal button'><i class=\"search icon\"></i></a>"
+                            + "</div>");
+                    }
                     resDiv.append(el);
 
                     el.children('.locate-button').click(function () {

@@ -89,7 +89,8 @@ TaxonomyTree.prototype = {
             id: node.node_id,
             TT: tt,
             bigId: cur_bigId,
-            parents_to_propagate_to: node.parents_to_propagate_to
+            parents_to_propagate_to: node.parents_to_propagate_to,
+            omitted: node.mark ? (node.mark.indexOf('omittedTT') >= 0 ? true : false) : false
         };
 
         var category = new Category(category_info);
@@ -239,7 +240,7 @@ function Category(Info) {
     this.path = Info.path;
     this.bigId = Info.bigId;
     this.hdr;
-
+    this.omitted = Info.omitted;
     this.buildCategory();
 }
 
@@ -305,14 +306,19 @@ Category.prototype = {
 
             var btn_add = $(card.find(".add-label").eq(0));
 
-            btn_add.click(function () {
-                if (!ct.added) {
-                    ct.addCategoryLabel();
-                    // btn_add.removeClass("primary").addClass("green basic");
-                    // btn_add.empty().append("Label added!");
-                    // btn_add.prop("disabled", true);
-                }
-            });
+            if (ct.omitted) {  // if omitted disable button
+                btn_add.prop( "disabled", true );
+                btn_add.append('<i class="exclamation circle icon"></i>')
+            } else {
+                btn_add.click(function () {
+                    if (!ct.added) {
+                        ct.addCategoryLabel();
+                        // btn_add.removeClass("primary").addClass("green basic");
+                        // btn_add.empty().append("Label added!");
+                        // btn_add.prop("disabled", true);
+                    }
+                });
+            }
         }
 
         // add classes and show card
@@ -468,7 +474,11 @@ Category.prototype = {
         * */
 
         var ct = this;
-        var category_name = ct.name;
+        if (ct.omitted) {
+            var category_name = ct.name + '<i class="exclamation circle icon"></i>'
+        } else {
+            var category_name = ct.name;
+        }
 
         var category_DOM = $("<div>", {
             class: "item"
