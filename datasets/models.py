@@ -189,7 +189,7 @@ class Taxonomy(models.Model):
             if node.omitted:
                 dict_level["mark"].append("omittedTT")
             if node.omitted_curation_task:
-                child_name["mark"].append("omittedCurationTask")
+                node["mark"].append("omittedCurationTask")
             dict_level["children"] = get_all_children(node.node_id)
             output_dict["children"].append(dict_level)
             
