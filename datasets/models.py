@@ -170,6 +170,8 @@ class Taxonomy(models.Model):
                     child_name["mark"].append("abstract")
                 if child.omitted:
                     child_name["mark"].append("omittedTT")
+                if child.omitted_curation_task:
+                    child_name["mark"].append("omittedCurationTask")
                 child_name["children"] = get_all_children(child.node_id)
                 child_name["parents_to_propagate_to"] = ', '.join(list(self.get_element_at_id(child.node_id)\
                     .propagate_to_parents.values_list('name', flat=True)))
@@ -186,6 +188,8 @@ class Taxonomy(models.Model):
                 dict_level["mark"].append("abstract")
             if node.omitted:
                 dict_level["mark"].append("omittedTT")
+            if child.omitted_curation_task:
+                child_name["mark"].append("omittedCurationTask")
             dict_level["children"] = get_all_children(node.node_id)
             output_dict["children"].append(dict_level)
             
