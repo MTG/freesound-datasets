@@ -308,7 +308,7 @@ Category.prototype = {
 
             if (ct.omitted) {  // if omitted disable button
                 btn_add.prop( "disabled", true );
-                btn_add.append('<i class="exclamation circle icon"></i>')
+                btn_add.append('<i class="ban grey icon"></i>')
             } else {
                 btn_add.click(function () {
                     if (!ct.added) {
@@ -475,7 +475,7 @@ Category.prototype = {
 
         var ct = this;
         if (ct.omitted) {
-            var category_name = ct.name + '<i class="exclamation circle icon"></i>'
+            var category_name = ct.name + ' <i class="ban grey icon"></i>'
         } else {
             var category_name = ct.name;
         }
