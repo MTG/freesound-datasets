@@ -90,7 +90,7 @@ TaxonomyTree.prototype = {
             TT: tt,
             bigId: cur_bigId,
             parents_to_propagate_to: node.parents_to_propagate_to,
-            omitted: node.mark ? (node.mark.indexOf('omittedTT') >= 0 ? true : false) : false
+            omitted: node.mark ? (node.mark.indexOf('omittedCurationTask') >= 0 ? true : false) : false
         };
 
         var category = new Category(category_info);
