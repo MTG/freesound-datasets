@@ -13,6 +13,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='taxonomynode',
             name='omitted_curation_task',
-            field=models.BooleanField(db_index=True, default=True),
+            field=models.BooleanField(db_index=True, default=False),
         ),
     ]
