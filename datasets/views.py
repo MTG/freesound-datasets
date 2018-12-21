@@ -175,7 +175,7 @@ def search_taxonomy_node(request, short_name):
                 'node_id': node.node_id,
                 'path': ' > '.join([TaxonomyNode.objects.get(node_id=node_id).name for node_id in path_list]),
                 'big_id': ','.join(path_list),
-                'omitted': node.omitted_curation_task}
+                'omitted': node.omitted_curation_task or node.abstract}
                for node in qs_results
                for path_list in taxonomy.get_hierarchy_paths(node.node_id)]
 
