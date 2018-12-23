@@ -175,6 +175,15 @@ def compute_dataset_num_contributions_per_day(store_key, dataset_id):
 
         contributions = Vote.objects\
             .filter(candidate_annotation__sound_dataset__dataset=dataset)\
+            .filter(from_expert=False)\
+            .annotate(day=TruncDay('created_at'))\
+            .values('day')\
+            .annotate(count=Count('id'))\
+            .values('day', 'count')
+
+        contributions_expert = Vote.objects\
+            .filter(candidate_annotation__sound_dataset__dataset=dataset)\
+            .filter(from_expert=True)\
             .annotate(day=TruncDay('created_at'))\
             .values('day')\
             .annotate(count=Count('id'))\
@@ -189,8 +198,15 @@ def compute_dataset_num_contributions_per_day(store_key, dataset_id):
         contributions_per_day = {d: 0 for d in dates}
         contributions_per_day.update({str(o['day'])[:10]: o['count'] for o in contributions})
 
-        store.set(store_key, {'contribution_per_day': json.dumps([[day, count]
-                                                                  for day, count in contributions_per_day.items()])})
+        contributions_per_day_expert = {d: 0 for d in dates}
+        contributions_per_day_expert.update({str(o['day'])[:10]: o['count'] for o in contributions_expert})
+
+        store.set(store_key, {
+            'contribution_per_day': json.dumps([[day, count]
+                                                for day, count in contributions_per_day.items()]),
+            'contribution_per_day_expert': json.dumps([[day, count]
+                                                      for day, count in contributions_per_day_expert.items()])
+        })
 
         logger.info('Finished computing data for {0}'.format(store_key))
 
