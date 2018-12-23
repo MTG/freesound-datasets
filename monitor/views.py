@@ -43,16 +43,16 @@ def monitor(request, short_name):
     num_ground_truth_per_day = data_from_async_task(compute_dataset_num_ground_truth_per_day, [dataset.id], {},
                                                     DATASET_GROUND_TRUTH_PER_DAY.format(dataset.id), 60)
 
-    users = User.objects.annotate(num_votes=Count('votes')).filter(num_votes__gt=0)
+    users = User.objects.annotate(num_votes=Count('votes')).filter(num_votes__gt=0).select_related('profile')
 
     return render(request, 'monitor/monitor.html', {'dataset': dataset,
-                                                               'top_contributed': top_contributed_categories,
-                                                               'bad_mapping': bad_mapping_categories,
-                                                               'difficult_agreement': difficult_agreement_categories,
-                                                               'remaining_annotations': remaining_annotations,
-                                                               'num_contributions_per_day': num_contributions_per_day,
-                                                               'num_ground_truth_per_day': num_ground_truth_per_day,
-                                                               'users': users})
+                                                    'top_contributed': top_contributed_categories,
+                                                    'bad_mapping': bad_mapping_categories,
+                                                    'difficult_agreement': difficult_agreement_categories,
+                                                    'remaining_annotations': remaining_annotations,
+                                                    'num_contributions_per_day': num_contributions_per_day,
+                                                    'num_ground_truth_per_day': num_ground_truth_per_day,
+                                                    'users': users})
 
 
 def monitor_category(request, short_name, node_id):
