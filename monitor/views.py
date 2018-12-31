@@ -94,23 +94,25 @@ def monitor_user(request, short_name, user_id):
                                       .values('day').annotate(count=Count('id'))
                                       .values_list('day', 'count', 'candidate_annotation__taxonomy_node__name', 'vote'))
 
-    contribs[0] += ('g',)
-    for idx, contrib in enumerate(contribs):
-        if idx>0:
-            if contrib[0] == contribs[idx-1][0]:
-                contribs[idx] += (contribs[idx-1][3],)
-            else:
-                contribs[idx] += ('g',) if contribs[idx-1][3] == 'w' else ('w',)
+    if contribs:
+        contribs[0] += ('g',)
+        for idx, contrib in enumerate(contribs):
+            if idx>0:
+                if contrib[0] == contribs[idx-1][0]:
+                    contribs[idx] += (contribs[idx-1][3],)
+                else:
+                    contribs[idx] += ('g',) if contribs[idx-1][3] == 'w' else ('w',)
 
-    contribs_curation_task[0] += ('g',)
-    for idx, contrib in enumerate(contribs_curation_task):
-        if idx>0:
-            if contrib[0] == contribs_curation_task[idx-1][0]:
-                contribs_curation_task[idx] += (contribs_curation_task[idx-1][4],)
-            else:
-                contribs_curation_task[idx] += ('g',) if contribs_curation_task[idx-1][3] == 'w' else ('w',)
+    if contribs_curation_task:
+        contribs_curation_task[0] += ('g',)
+        for idx, contrib in enumerate(contribs_curation_task):
+            if idx>0:
+                if contrib[0] == contribs_curation_task[idx-1][0]:
+                    contribs_curation_task[idx] += (contribs_curation_task[idx-1][4],)
+                else:
+                    contribs_curation_task[idx] += ('g',) if contribs_curation_task[idx-1][3] == 'w' else ('w',)
 
-    if len(contribs_failed) > 0:
+    if contribs_failed:
         contribs_failed[0] += ('g',)
         for idx, contrib in enumerate(contribs_failed):
             if idx>0:
