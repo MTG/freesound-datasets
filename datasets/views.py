@@ -336,7 +336,6 @@ def contribute_validate_annotations_category(request, short_name, node_id, html_
                                   .values('candidate_annotation_id'))\
                          .exclude(id__in=annotation_examples_verification_ids)\
                          .exclude(id__in=annotation_examples_ids)\
-                         .exclude(priority_score=0)\
                          .filter(sound_dataset__sound__deleted_in_freesound=False)\
                          .order_by('-priority_score', '?')
 
