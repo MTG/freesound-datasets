@@ -175,7 +175,7 @@ def search_taxonomy_node(request, short_name):
                 'node_id': node.node_id,
                 'path': ' > '.join([TaxonomyNode.objects.get(node_id=node_id).name for node_id in path_list]),
                 'big_id': ','.join(path_list),
-                'omitted': node.omitted_curation_task or node.abstract}
+                'omitted': node.omitted_curation_task}
                for node in qs_results
                for path_list in taxonomy.get_hierarchy_paths(node.node_id)]
 
@@ -612,10 +612,10 @@ def curate_sounds(request, short_name, sound_id):
     taxonomy = dataset.taxonomy
     sound = Sound.objects.get(freesound_id=sound_id)
     existing_gt_annotations = sound.get_ground_truth_annotations(dataset)\
-                                .filter(from_propagation=False, taxonomy_node__omitted=False)\
+                                .filter(from_propagation=False, taxonomy_node__omitted_curation_task=False)\
                                 .select_related('taxonomy_node')
     existing_candidate_annotations = sound.get_candidate_annotations(dataset)\
-                                          .filter(ground_truth=None, taxonomy_node__omitted=False)\
+                                          .filter(ground_truth=None, taxonomy_node__omitted_curation_task=False)\
                                           .select_related('taxonomy_node')\
                                           .exclude(taxonomy_node__id__in=
                                                 existing_gt_annotations.values_list('taxonomy_node__id', flat=True))
