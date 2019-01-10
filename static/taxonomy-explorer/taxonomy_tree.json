@@ -2,7 +2,7 @@
 	"name": "Ontology",
 	"children": [{
 		"name": "Source-ambiguous sounds",
-		"mark": ["abstract", "omittedTT"],
+		"mark": ["abstract", "omittedTT", "omittedCurationTask"],
 		"node_id": "/t/dd00098",
 		"parents_to_propagate_to": [],
 		"children": [{
@@ -13,7 +13,7 @@
 			"parents_to_propagate_to": "Source-ambiguous sounds"
 		}, {
 			"name": "Onomatopoeia",
-			"mark": ["abstract", "omittedTT"],
+			"mark": ["abstract", "omittedTT", "omittedCurationTask"],
 			"node_id": "/m/05n1m",
 			"children": [{
 				"name": "Rumble",
@@ -379,7 +379,7 @@
 			"parents_to_propagate_to": "Source-ambiguous sounds"
 		}, {
 			"name": "Deformable shell",
-			"mark": ["abstract", "omittedTT"],
+			"mark": ["abstract", "omittedTT", "omittedCurationTask"],
 			"node_id": "/t/dd00110",
 			"children": [{
 				"name": "Crushing",
@@ -931,7 +931,7 @@
 			"parents_to_propagate_to": "Sounds of things"
 		}, {
 			"name": "Miscellaneous sources",
-			"mark": ["abstract", "omittedTT"],
+			"mark": ["abstract", "omittedTT", "omittedCurationTask"],
 			"node_id": "/t/dd00089",
 			"children": [{
 				"name": "Duck call (hunting tool)",
@@ -1639,7 +1639,7 @@
 			"parents_to_propagate_to": "Sounds of things"
 		}, {
 			"name": "Specific impact sounds",
-			"mark": ["abstract", "omittedTT"],
+			"mark": ["abstract", "omittedTT", "omittedCurationTask"],
 			"node_id": "/t/dd00133",
 			"children": [{
 				"name": "Basketball bounce",
@@ -1813,7 +1813,7 @@
 		"parents_to_propagate_to": [],
 		"children": [{
 			"name": "Human locomotion",
-			"mark": ["abstract", "omittedTT"],
+			"mark": ["abstract", "omittedTT", "omittedCurationTask"],
 			"node_id": "/m/0bpl036",
 			"children": [{
 				"name": "Run",
@@ -1915,7 +1915,7 @@
 			"parents_to_propagate_to": "Human sounds"
 		}, {
 			"name": "Digestive",
-			"mark": ["abstract", "omittedTT"],
+			"mark": ["abstract", "omittedTT", "omittedCurationTask"],
 			"node_id": "/m/0160x5",
 			"children": [{
 				"name": "Biting",
@@ -2127,7 +2127,7 @@
 					"parents_to_propagate_to": "Musical instrument, Singing"
 				}, {
 					"name": "Chant",
-					"mark": [],
+					"mark": ["omittedCurationTask"],
 					"node_id": "/m/02bk07",
 					"children": [{
 						"name": "Mantra",
@@ -2239,7 +2239,7 @@
 			"parents_to_propagate_to": "Human sounds"
 		}, {
 			"name": "Human group actions",
-			"mark": ["abstract", "omittedTT"],
+			"mark": ["abstract", "omittedTT", "omittedCurationTask"],
 			"node_id": "/t/dd00012",
 			"children": [{
 				"name": "Children shouting",
@@ -3601,7 +3601,7 @@
 						"parents_to_propagate_to": "Mallet percussion"
 					}, {
 						"name": "Steelpan",
-						"mark": ["omittedTT", "omittedCurationTask"],
+						"mark": ["omittedTT"],
 						"node_id": "/m/0l156b",
 						"children": null,
 						"parents_to_propagate_to": "Mallet percussion"
@@ -3699,7 +3699,7 @@
 					"parents_to_propagate_to": "Canidae, dogs, wolves, Dog"
 				}, {
 					"name": "Yip",
-					"mark": ["omittedTT", "omittedCurationTask"],
+					"mark": ["omittedTT"],
 					"node_id": "/m/07r_k2n",
 					"children": null,
 					"parents_to_propagate_to": "Dog"
@@ -4009,7 +4009,7 @@
 					"node_id": "/m/0h0rv",
 					"children": [{
 						"name": "Coo",
-						"mark": ["omittedTT", "omittedCurationTask"],
+						"mark": ["omittedTT"],
 						"node_id": "/m/07r_25d",
 						"children": null,
 						"parents_to_propagate_to": "Pigeon, dove"
@@ -4091,7 +4091,7 @@
 				"parents_to_propagate_to": "Wild animals"
 			}, {
 				"name": "Whale vocalization",
-				"mark": ["omittedTT", "omittedCurationTask"],
+				"mark": ["omittedTT"],
 				"node_id": "/m/032n05",
 				"children": null,
 				"parents_to_propagate_to": "Wild animals"
