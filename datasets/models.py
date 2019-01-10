@@ -431,6 +431,7 @@ class TaxonomyNode(models.Model):
     def hierarchy_paths(self):
         return self.taxonomy.get_hierarchy_paths(self.node_id)
 
+    @property
     def quality_estimate(self):
         votes = list(Vote.objects.filter(candidate_annotation__taxonomy_node=self)\
                                  .exclude(test='FA')\
@@ -728,7 +729,7 @@ class Dataset(models.Model):
             'num_votes': num_votes,
             'tags_in_NP': tags_with_count
         }
-
+        print(result)
         return result
 
 
