@@ -919,24 +919,27 @@ class GroundTruthAnnotation(models.Model):
             )
             gt_annotation.from_candidate_annotations.add(*self.from_candidate_annotations.all())
             
-            greatest_ground_truth = max(gt_annotation.from_candidate_annotations.values_list(
-                    'ground_truth', flat=True))
+            # This seems to lead to problems when we sequentially update state of annotations in the same hierarchy branch.
+            # As a fix, we take the ground truth of the ground truth annotation considered instead.
+            # ground_truth = max(gt_annotation.from_candidate_annotations.values_list(
+            #         'ground_truth', flat=True))
+            ground_truth = self.ground_truth
 
             # set ground truth state of candidate annotations
-            gt_annotation.from_candidate_annotations.all().update(ground_truth=greatest_ground_truth)
+            gt_annotation.from_candidate_annotations.all().update(ground_truth=ground_truth)
 
             # modify ground truth state of possibly existing candidate annotation
             try:
                 candidate_annotation = CandidateAnnotation.objects.get(sound_dataset=self.sound_dataset,
                                                                        taxonomy_node=parent)
-                candidate_annotation.ground_truth = greatest_ground_truth
+                candidate_annotation.ground_truth = ground_truth
                 candidate_annotation.save()
             except:
                 pass
 
             if not created:
                 # take the maximum presence value from all the candidate annotations
-                gt_annotation.ground_truth = greatest_ground_truth
+                gt_annotation.ground_truth = ground_truth
                 gt_annotation.save()
 
     def unpropagate_annotation(self, origin_candidate_annotation):
@@ -1055,7 +1058,7 @@ class Vote(models.Model):
                 if existing_annotation:
                     existing_annotation.from_candidate_annotations.add(candidate_annotation)
                     if self.from_expert:  # a ground truth could be modified when voted by an expert
-                        existing_annotation.ground_truth = candidate_annotation.ground_truth
+                        existing_annotation.ground_truth = ground_truth_state
                         existing_annotation.save()
                     existing_annotation.propagate_annotation()
 
