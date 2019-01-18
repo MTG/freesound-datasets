@@ -1072,8 +1072,16 @@ class Vote(models.Model):
                     ground_truth_annotation.from_candidate_annotations.add(candidate_annotation)
                     ground_truth_annotation.propagate_annotation()
 
-        else:  # no change on the ground truth state, update the priority score which depends on his number of votes
+        else:  # no change on the ground truth state
             if existing_annotation:
+                # it happened that a gt annotation ground_truth prop was not sync with the associated candidate annotation.
+                # as a fix, we check that the ground_truth props are equal, if not, we update the gt annotation state
+                if self.from_expert:
+                    if existing_annotation.ground_truth != ground_truth_state:
+                        existing_annotation.ground_truth = ground_truth_state
+                        existing_annotation.save()
+
+                # update the priority score which depends on his number of votes
                 existing_annotation.propagate_annotation()
             candidate_annotation.update_priority_score()
 
