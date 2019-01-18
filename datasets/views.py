@@ -642,6 +642,7 @@ def curate_sounds(request, short_name, sound_id):
                    'existing_candidate_annotations': existing_candidate_annotations_formated})
 
 
+@transaction.atomic
 def save_expert_votes_curation_task(request, short_name, sound_id):
     if not request.user.is_authenticated:
         return HttpResponse('Unauthorized', status=401)
