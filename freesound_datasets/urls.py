@@ -1,6 +1,5 @@
 from django.urls import include, re_path, path
 from django.contrib import admin
-from django.contrib.auth.views import logout
 from freesound_datasets.views import *
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from datasets.views import get_access_token
@@ -10,7 +9,7 @@ urlpatterns = [
     re_path(r'^$', index, name='index'),
     re_path(r'^crash/$', crash_me, name='crash_me'),
     re_path(r'^login/$', login, name='login'),
-    re_path(r'^logout/$', logout, {'next_page': '/'}, name='logout'),
+    re_path(r'^logout/$', logout, name='logout'),
     re_path(r'^admin/', admin.site.urls),
     re_path(r'^social/', include('social_django.urls', namespace='social')),
     re_path(r'^get-access-token/$', get_access_token, name='get_access_token'),
