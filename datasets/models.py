@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 
 import collections
-from django.db import models
+from django.db import models, transaction
 from django.db.models import Count, Q
 from django.contrib.postgres.fields import JSONField
 from django.contrib.auth.models import User
@@ -16,6 +16,7 @@ from django.utils import timezone
 from django.core.validators import RegexValidator
 from django.core.exceptions import ObjectDoesNotExist
 from urllib.parse import quote
+from functools import reduce
 
 
 class Taxonomy(models.Model):
@@ -39,6 +40,9 @@ class Taxonomy(models.Model):
 
     def get_element_at_id(self, node_id):
         return self.taxonomynode_set.get(node_id=node_id)
+
+    def get_element_from_name(self, name):
+        return self.taxonomynode_set.get(name=name)
 
     def get_all_nodes(self):
         return self.taxonomynode_set.all().order_by('name')
@@ -161,24 +165,31 @@ class Taxonomy(models.Model):
             children = self.get_children(node_id)
             children_names = []
             for child in children:
-                child_name = {"name":child.name, "mark":[]}
+                child_name = {"name": child.name, "mark": [], "node_id": child.node_id}
                 if child.abstract:
                     child_name["mark"].append("abstract")
                 if child.omitted:
                     child_name["mark"].append("omittedTT")
+                if child.omitted_curation_task:
+                    child_name["mark"].append("omittedCurationTask")
                 child_name["children"] = get_all_children(child.node_id)
+                child_name["parents_to_propagate_to"] = ', '.join(list(self.get_element_at_id(child.node_id)\
+                    .propagate_to_parents.values_list('name', flat=True)))
                 children_names.append(child_name)
             if children_names: 
                 return children_names
         
         higher_categories = self.taxonomynode_set.filter(parents=None)
-        output_dict = {"name":"Ontology", "children":[]}
+        output_dict = {"name": "Ontology", "children": []}
         for node in higher_categories:
-            dict_level = {"name":node.name, "mark":[]}
+            dict_level = {"name": node.name, "mark": [], "node_id": node.node_id, 
+                          "parents_to_propagate_to": []}
             if node.abstract:
                 dict_level["mark"].append("abstract")
             if node.omitted:
                 dict_level["mark"].append("omittedTT")
+            if node.omitted_curation_task:
+                dict_level["mark"].append("omittedCurationTask")
             dict_level["children"] = get_all_children(node.node_id)
             output_dict["children"].append(dict_level)
             
@@ -190,13 +201,16 @@ class Sound(models.Model):
     name = models.CharField(max_length=200)
     freesound_id = models.IntegerField(db_index=True)
     deleted_in_freesound = models.BooleanField(default=False, db_index=True)
-    extra_data = JSONField(default={})
+    extra_data = JSONField(default=dict)
 
     app_label = 'datasets'
     model_name = 'sound'
 
     def get_candidate_annotations(self, dataset):
         return CandidateAnnotation.objects.filter(sound_dataset__in=self.sounddataset_set.filter(dataset=dataset))
+
+    def get_ground_truth_annotations(self, dataset):
+        return GroundTruthAnnotation.objects.filter(sound_dataset__in=self.sounddataset_set.filter(dataset=dataset))
 
     def get_image_url(self, img_type, size):
         img_types = ['spectrogram', 'waveform']
@@ -206,7 +220,7 @@ class Sound(models.Model):
         if size not in sizes:
             raise ValueError
         url_parts = self.extra_data['previews'].split('previews')
-        prefix = url_parts[0][5:]   # remove 'http'
+        prefix = url_parts[0].replace('https:', '').replace('http:', '')   # remove 'https:' or 'http:'
         freesound_id_pref = url_parts[1].split('/')[1]
         user_id = url_parts[1].split('_')[-1].split('-')[0]
         params = {
@@ -272,11 +286,12 @@ validator_list_examples = RegexValidator('^([0-9]+(?:,[0-9]+)*)*$', message='Ent
 
 class TaxonomyNode(models.Model):
     node_id = models.CharField(max_length=20)
-    name = models.CharField(max_length=100)
-    description = models.CharField(max_length=500)
+    name = models.CharField(max_length=100, db_index=True)
+    description = models.CharField(max_length=500, db_index=True)
     citation_uri = models.CharField(max_length=100, null=True, blank=True)
     abstract = models.BooleanField(default=False)
     omitted = models.BooleanField(default=False, db_index=True)
+    omitted_curation_task = models.BooleanField(default=False, db_index=True)
     freesound_examples = models.ManyToManyField(Sound, related_name='taxonomy_node')
     freesound_examples_verification = models.ManyToManyField(Sound, related_name='taxonomy_node_verification')
     positive_verification_examples_activated = models.BooleanField(default=True)
@@ -302,22 +317,24 @@ class TaxonomyNode(models.Model):
         if old:
             if old.list_freesound_examples != self.list_freesound_examples:
                 self.freesound_examples.clear()
-                for fsid in self.list_freesound_examples.split(','):
-                    if fsid != '':
-                        try:
-                            sound = Sound.objects.get(freesound_id=fsid)
-                            self.freesound_examples.add(sound)
-                        except ObjectDoesNotExist:
-                            pass
+                if self.list_freesound_examples:
+                    for fsid in self.list_freesound_examples.split(','):
+                        if fsid != '':
+                            try:
+                                sound = Sound.objects.get(freesound_id=fsid)
+                                self.freesound_examples.add(sound)
+                            except ObjectDoesNotExist:
+                                pass
             if old.list_freesound_examples_verification != self.list_freesound_examples_verification:
                 self.freesound_examples_verification.clear()
-                for fsid in self.list_freesound_examples_verification.split(','):
-                    if fsid != '':
-                        try:
-                            sound = Sound.objects.get(freesound_id=fsid)
-                            self.freesound_examples_verification.add(sound)
-                        except ObjectDoesNotExist:
-                            pass
+                if self.list_freesound_examples_verification:
+                    for fsid in self.list_freesound_examples_verification.split(','):
+                        if fsid != '':
+                            try:
+                                sound = Sound.objects.get(freesound_id=fsid)
+                                self.freesound_examples_verification.add(sound)
+                            except ObjectDoesNotExist:
+                                pass
             if old.freesound_examples != self.freesound_examples:
                 self.list_freesound_examples = ','.join(
                     [str(fsid) for fsid in list(self.freesound_examples.values_list('freesound_id', flat=True))])
@@ -410,6 +427,35 @@ class TaxonomyNode(models.Model):
     def valid_examples(self):
         return self.freesound_examples.filter(deleted_in_freesound=False).values_list('freesound_id', flat=True)
 
+    @property
+    def hierarchy_paths(self):
+        return self.taxonomy.get_hierarchy_paths(self.node_id)
+
+    @property
+    def quality_estimate(self):
+        votes = list(Vote.objects.filter(candidate_annotation__taxonomy_node=self)\
+                                 .exclude(test='FA')\
+                                 .values_list('vote', flat=True))
+        num_PP = votes.count(1.0)
+        num_PNP = votes.count(0.5)
+        num_NP = votes.count(-1)
+        num_U = votes.count(0)
+        num_votes = num_PP + num_PNP + num_NP + num_U
+        try:
+            quality_estimate = float(num_PP + num_PNP) / num_votes
+        except ZeroDivisionError:
+            quality_estimate = 0
+
+        return {
+            'quality_estimate': quality_estimate,
+            'num_PP': num_PP,
+            'num_PNP': num_PNP,
+            'num_NP': num_NP,
+            'num_U': num_U,
+            'num_votes': num_votes,
+            'num_sounds': self.candidate_annotations.count()
+        }
+
     def __str__(self):
         return '{0} ({1})'.format(self.name, self.node_id)
 
@@ -441,6 +487,10 @@ class Dataset(models.Model):
     @property
     def num_sounds(self):
         return self.sounds.all().count()
+
+    @property
+    def num_sounds_with_candidate(self):
+        return self.sounds.filter(sounddataset__candidate_annotations__isnull=False).distinct().count()
 
     @property
     def num_non_omitted_nodes(self):
@@ -524,7 +574,10 @@ class Dataset(models.Model):
         """
         taxonomy_node_pk = self.sounds.filter(sounddataset__candidate_annotations__ground_truth=None)\
             .exclude(sounddataset__candidate_annotations__votes__created_by=user)\
-            .filter(taxonomy_node=None, taxonomy_node_verification=None)\
+            .filter(taxonomy_node=None,
+                    taxonomy_node_verification=None,
+                    deleted_in_freesound=False,
+                    sounddataset__candidate_annotations__priority_score__gt=0)\
             .values_list('sounddataset__candidate_annotations__taxonomy_node', flat=True)
         return self.taxonomy.taxonomynode_set.filter(pk__in=set(taxonomy_node_pk))
 
@@ -545,10 +598,14 @@ class Dataset(models.Model):
             sound_dataset__sound__in=sound_examples,
             taxonomy_node=node).values_list('id', flat=True)
 
-        num_eligible_annotations = self.non_ground_truth_annotations_per_taxonomy_node(node_id)\
-            .exclude(votes__created_by=user)\
-            .exclude(id__in=annotation_examples_verification_ids)\
-            .exclude(id__in=annotation_examples_ids)\
+        num_eligible_annotations = self.non_ground_truth_annotations_per_taxonomy_node(node_id) \
+            .exclude(id__in=Vote.objects.filter(candidate_annotation__taxonomy_node=node,
+                                                created_by=user,
+                                                test__in=('UN', 'AP', 'PP', 'NA', 'NP'))
+                     .values('candidate_annotation_id')) \
+            .exclude(id__in=annotation_examples_verification_ids) \
+            .exclude(id__in=annotation_examples_ids) \
+            .exclude(priority_score=0) \
             .filter(sound_dataset__sound__deleted_in_freesound=False).count()
 
         if num_eligible_annotations == 0:
@@ -601,16 +658,83 @@ class Dataset(models.Model):
     @property
     def num_categories_reached_goal(self):
         num_nodes_reached_goal = self.taxonomy.taxonomynode_set.filter(omitted=False, nb_ground_truth__gte=100).count()
-        nodes_pk = self.sounds.filter(sounddataset__candidate_annotations__ground_truth=None)\
-            .filter(taxonomy_node=None, taxonomy_node_verification=None)\
+        nodes_pk = self.sounds.filter(sounddataset__candidate_annotations__ground_truth=None,
+                                      taxonomy_node=None,
+                                      taxonomy_node_verification=None,
+                                      deleted_in_freesound=False,
+                                      sounddataset__candidate_annotations__priority_score__gt=0)\
             .values_list('sounddataset__candidate_annotations__taxonomy_node', flat=True)
         num_nodes_finished_verifying = self.taxonomy.taxonomynode_set.filter(omitted=False, nb_ground_truth__lt=100)\
             .exclude(pk__in=set(nodes_pk)).count()
         return num_nodes_reached_goal + num_nodes_finished_verifying
 
+    def retrieve_sound_by_tags(self, positive_tags, negative_tags, preproc_positive=True, preproc_negative=False):
+        r = self.sounds.all()
+        if positive_tags:
+            if preproc_positive:
+                r = r.filter(reduce(lambda x, y: x | y,
+                                    [reduce(lambda w, z: w & z, [Q(extra_data__stemmed_tags__contains=item)
+                                                                 if type(items) == list
+                                                                 else Q(extra_data__stemmed_tags__contains=items)
+                                                                 for item in items])
+                                     for items in positive_tags]))
+            else:
+                r = r.filter(reduce(lambda x, y: x | y,
+                                    [reduce(lambda w, z: w & z, [Q(extra_data__tags__contains=item)
+                                                                 if type(items) == list
+                                                                 else Q(extra_data__tags__contains=items)
+                                                                 for item in items])
+                                     for items in positive_tags]))
+
+        if negative_tags:
+            if preproc_negative:
+                for negative_tag in negative_tags:
+                    r = r.exclude(extra_data__stemmed_tags__contains=negative_tag)
+            else:
+                for negative_tag in negative_tags:
+                    r = r.exclude(extra_data__tags__contains=negative_tag)
+        return r
+
+    def quality_estimate_mapping(self, results, node_id):
+        votes = Vote.objects.filter(candidate_annotation__sound_dataset__dataset=self,
+                                    candidate_annotation__taxonomy_node__node_id=node_id,
+                                    candidate_annotation__sound_dataset__sound__in=results.values_list('id', flat=True))\
+                            .exclude(test='FA')
+        votes_values = list(votes.values_list('vote', flat=True))
+        num_votes = len(votes_values)
+
+        num_PP = votes_values.count(1.0)
+        num_PNP = votes_values.count(0.5)
+        num_NP = votes_values.count(-1)
+        num_U = votes_values.count(0)
+
+        tags_in_NP = [tag
+                      for v in votes if v.vote == -1
+                      for tag in v.candidate_annotation.sound_dataset.sound.extra_data['tags']]
+        tags_with_count = sorted(list(set([(i, tags_in_NP.count(i)) for i in tags_in_NP])),
+                                 key=lambda x: x[1],
+                                 reverse=True)
+
+        try:
+            quality_estimate = float(num_PP + num_PNP) / num_votes
+        except ZeroDivisionError:
+            quality_estimate = 0
+
+        result = {
+            'quality_estimate': quality_estimate,
+            'num_PP': num_PP,
+            'num_PNP': num_PNP,
+            'num_NP': num_NP,
+            'num_U': num_U,
+            'num_votes': num_votes,
+            'tags_in_NP': tags_with_count
+        }
+        print(result)
+        return result
+
 
 class DatasetRelease(models.Model):
-    dataset = models.ForeignKey(Dataset)
+    dataset = models.ForeignKey(Dataset, null=True, blank=True, on_delete=models.SET_NULL)
     num_sounds = models.IntegerField(default=0)
     num_nodes = models.IntegerField(default=0)
     num_annotations = models.IntegerField(default=0)
@@ -657,8 +781,8 @@ class DatasetRelease(models.Model):
 
 
 class SoundDataset(models.Model):
-    sound = models.ForeignKey(Sound)
-    dataset = models.ForeignKey(Dataset)
+    sound = models.ForeignKey(Sound, null=True, blank=True, on_delete=models.SET_NULL)
+    dataset = models.ForeignKey(Dataset, null=True, blank=True, on_delete=models.SET_NULL)
 
 
 class CandidateAnnotation(models.Model):
@@ -669,13 +793,16 @@ class CandidateAnnotation(models.Model):
         ('UK', 'Unknown'),
     )
     type = models.CharField(max_length=2, choices=TYPE_CHOICES, default='UK')
-    algorithm = models.CharField(max_length=200, blank=True, null=True)
+    algorithm = models.TextField(max_length=1000, blank=True, null=True)
     start_time = models.DecimalField(max_digits=6, decimal_places=3, blank=True, null=True)
     end_time = models.DecimalField(max_digits=6, decimal_places=3, blank=True, null=True)
     ground_truth = models.FloatField(null=True, blank=True, default=None)
     created_by = models.ForeignKey(User, related_name='candidate_annotations', null=True, on_delete=models.SET_NULL)
-    sound_dataset = models.ForeignKey(SoundDataset, related_name='candidate_annotations')
-    taxonomy_node = models.ForeignKey(TaxonomyNode, blank=True, null=True, related_name='candidate_annotations')
+    sound_dataset = models.ForeignKey(SoundDataset, related_name='candidate_annotations',
+                                      null=True, blank=True, on_delete=models.SET_NULL)
+    taxonomy_node = models.ForeignKey(TaxonomyNode, related_name='candidate_annotations',
+                                      null=True, blank=True, on_delete=models.SET_NULL)
+    priority_score = models.IntegerField(default=1)
 
     def __str__(self):
         return 'Annotation for sound {0}'.format(self.sound_dataset.sound.id)
@@ -690,18 +817,24 @@ class CandidateAnnotation(models.Model):
         Returns the ground truth vote value of the annotation
         Returns None if there is no ground truth value
         """
-        vote_values = [v.vote for v in self.votes.all() if v.test != 'FA']
         # all the test cases are considered valid except the Failed one
-        if vote_values.count(1) > 1:
-            return 1
-        if vote_values.count(0.5) > 1:
-            return 0.5
-        if vote_values.count(0) > 1:
-            return 0
-        if vote_values.count(-1) > 1:
-            return -1
+        votes = self.votes.exclude(test='FA').values_list('vote', 'from_expert').order_by('created_at')
+        vote_values_non_expert = [v[0] for v in votes if not v[1]]
+        vote_values_expert = [v[0] for v in votes if v[1]]
+
+        if vote_values_expert:
+            return vote_values_expert[-1]
         else:
-            return None
+            if vote_values_non_expert.count(1) > 1:
+                return 1
+            if vote_values_non_expert.count(0.5) > 1:
+                return 0.5
+            if vote_values_non_expert.count(0) > 1:
+                return 0
+            if vote_values_non_expert.count(-1) > 1:
+                return -1
+            else:
+                return None
 
     @property
     def freesound_id(self):
@@ -727,6 +860,23 @@ class CandidateAnnotation(models.Model):
     def num_NP(self):
         return self.num_vote_value(-1)
 
+    def return_priority_score(self):
+        sound_duration = self.sound_dataset.sound.extra_data['duration']
+        num_present_votes = self.num_present_votes if hasattr(self, 'num_present_votes') \
+                            else self.votes.exclude(test='FA').filter(vote__in=('1', '0.5')).count()
+        if not 0.3 <= sound_duration <= 30:
+            return num_present_votes
+        else:
+            duration_score = 3 if sound_duration <= 10 else 2 if sound_duration <= 20 else 1
+            num_gt_same_sound = self.sound_dataset.ground_truth_annotations.filter(from_propagation=False).count()
+            return 1000 * num_present_votes \
+                 +  100 * duration_score \
+                 +        num_gt_same_sound
+
+    def update_priority_score(self):
+        self.priority_score = self.return_priority_score()
+        self.save()
+
 
 class GroundTruthAnnotation(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
@@ -734,10 +884,17 @@ class GroundTruthAnnotation(models.Model):
     end_time = models.DecimalField(max_digits=6, decimal_places=3, blank=True, null=True)
     ground_truth = models.FloatField(null=True, blank=True, default=None)
     created_by = models.ForeignKey(User, related_name='ground_truth_annotations', null=True, on_delete=models.SET_NULL)
-    sound_dataset = models.ForeignKey(SoundDataset, related_name='ground_truth_annotations')
-    taxonomy_node = models.ForeignKey(TaxonomyNode, blank=True, null=True, related_name='ground_truth_annotations')
-    from_candidate_annotation = models.ForeignKey(CandidateAnnotation, blank=True, null=True)
-    from_propagation = models.BooleanField(default=False)
+    sound_dataset = models.ForeignKey(SoundDataset, related_name='ground_truth_annotations',
+                                      null=True, blank=True, on_delete=models.SET_NULL)
+    taxonomy_node = models.ForeignKey(TaxonomyNode, related_name='ground_truth_annotations',
+                                      null=True, blank=True, on_delete=models.SET_NULL)
+    # keep all the candidate annotations that generated this annotation (from progation or not)
+    from_candidate_annotations = models.ManyToManyField(CandidateAnnotation,
+                                                        related_name='generated_ground_truth_annotations')
+    from_propagation = models.BooleanField(default=False)  # true when this annotation was generated only from propagation
+
+    class Meta:
+        unique_together = ('taxonomy_node', 'sound_dataset',)
 
     @property
     def value(self):
@@ -749,24 +906,86 @@ class GroundTruthAnnotation(models.Model):
     def propagate_annotation(self):
         propagate_to_parents = self.taxonomy_node.taxonomy.get_all_propagate_to_parents(self.taxonomy_node.node_id)
         for parent in propagate_to_parents:
-            annotation_exists = GroundTruthAnnotation.objects.filter(sound_dataset=self.sound_dataset,
-                                                                     taxonomy_node=parent) \
-                .count() > 0
-            if not annotation_exists:
-                GroundTruthAnnotation.objects.get_or_create(start_time=self.start_time,
-                                                            end_time=self.end_time,
-                                                            ground_truth=self.ground_truth,
-                                                            created_by=self.created_by,
-                                                            sound_dataset=self.sound_dataset,
-                                                            taxonomy_node=parent,
-                                                            from_candidate_annotation=self.from_candidate_annotation,
-                                                            from_propagation=True)
+            gt_annotation, created = GroundTruthAnnotation.objects.get_or_create(
+                    sound_dataset=self.sound_dataset,
+                    taxonomy_node=parent,
+                    defaults={
+                        'start_time': self.start_time,
+                        'end_time': self.end_time,
+                        'ground_truth': self.ground_truth,
+                        'created_by': self.created_by,
+                        'from_propagation': True,
+                    }
+            )
+            gt_annotation.from_candidate_annotations.add(*self.from_candidate_annotations.all())
+            
+            # This seems to lead to problems when we sequentially update state of annotations in the same hierarchy branch.
+            # As a fix, we take the ground truth of the ground truth annotation considered instead.
+            # ground_truth = max(gt_annotation.from_candidate_annotations.values_list(
+            #         'ground_truth', flat=True))
+            ground_truth = self.ground_truth
+
+            # set ground truth state of candidate annotations
+            gt_annotation.from_candidate_annotations.all().update(ground_truth=ground_truth)
+
+            # modify ground truth state of possibly existing candidate annotation
+            try:
+                candidate_annotation = CandidateAnnotation.objects.get(sound_dataset=self.sound_dataset,
+                                                                       taxonomy_node=parent)
+                candidate_annotation.ground_truth = ground_truth
+                candidate_annotation.save()
+            except:
+                pass
+
+            if not created:
+                # take the maximum presence value from all the candidate annotations
+                gt_annotation.ground_truth = ground_truth
+                gt_annotation.save()
+
+    def unpropagate_annotation(self, origin_candidate_annotation):
+        propagate_to_parents = self.taxonomy_node.taxonomy.get_all_propagate_to_parents(self.taxonomy_node.node_id)
+
+        propagated_annotations = GroundTruthAnnotation.objects.filter(sound_dataset=self.sound_dataset,
+                                                                      taxonomy_node__in=propagate_to_parents)
+
+        # remove the candidate annotation from the which we unpropagate
+        for annotation in propagated_annotations:
+            annotation.from_candidate_annotations.remove(origin_candidate_annotation)
+
+        # delete the ground truth annotations that have no candidate from the which it originally propagated
+        # update num ground truth annotations for the parent taxonomy node
+        ground_truth_annotations_to_delete = GroundTruthAnnotation.objects.filter(
+            sound_dataset=self.sound_dataset,
+            taxonomy_node__in=propagate_to_parents,
+            from_candidate_annotations__isnull=True,
+        ).select_related('taxonomy_node')
+
+        if ground_truth_annotations_to_delete:
+            taxonomy_nodes_to_update = [gt.taxonomy_node for gt in ground_truth_annotations_to_delete]
+            ground_truth_annotations_to_delete.delete()
+            for node in taxonomy_nodes_to_update:
+                # modify ground truth state of possibly existing candidate annotation
+                try:
+                    candidate_annotation = CandidateAnnotation.objects.get(sound_dataset=self.sound_dataset,
+                                                                           taxonomy_node=node)
+                    candidate_annotation.ground_truth = -1
+                    candidate_annotation.save()
+                except:
+                    pass
+
+                # update taxonomy_node nb ground truth
+                node.nb_ground_truth = node.num_ground_truth_annotations
+                node.save()
 
     # Update number of ground truth annotations per taxonomy node each time a ground truth annotations is generated
+    # Update priority score of candidate annotations associated to the same sound (only for non propagated gt annotations)
     def save(self, *args, **kwargs):
         super(GroundTruthAnnotation, self).save(*args, **kwargs)
         self.taxonomy_node.nb_ground_truth = self.taxonomy_node.num_ground_truth_annotations
         self.taxonomy_node.save()
+        if not self.from_propagation:
+            for candidate_annotation in self.sound_dataset.candidate_annotations.all():
+                candidate_annotation.update_priority_score()
 
 
 # choices for quality control test used in Vote and User Profile
@@ -784,16 +1003,19 @@ class Vote(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(User, related_name='votes', null=True, on_delete=models.SET_NULL)
     vote = models.FloatField()
-    candidate_annotation = models.ForeignKey(CandidateAnnotation, related_name='votes', null=True)
+    candidate_annotation = models.ForeignKey(CandidateAnnotation, related_name='votes',
+                                             null=True, on_delete=models.CASCADE)
     visited_sound = models.NullBooleanField(null=True, blank=True, default=None)
     # 'visited_sound' is to store whether the user needed to open the sound in Freesound to perform this vote
     test = models.CharField(max_length=2, choices=TEST_CHOICES, default='UN')  # Store test result
     from_test_page = models.NullBooleanField(null=True, blank=True, default=None)  # Store if votes are from a test page
     TASK_TYPES = (
         ('BE', 'Beginner'),
-        ('AD', 'Advanced')
+        ('AD', 'Advanced'),
+        ('CU', 'Curation')
     )
     from_task = models.CharField(max_length=2, choices=TASK_TYPES, default='AD')  # store from which validation task
+    from_expert = models.BooleanField(default=False)
 
     def __str__(self):
         return 'Vote for annotation {0}'.format(self.candidate_annotation.id)
@@ -801,35 +1023,76 @@ class Vote(models.Model):
     def save(self, request=False, *args, **kwargs):
         super(Vote, self).save(*args, **kwargs)
         # here calculate ground truth for vote.annotation
+        # create ground truth annotations, update priority score when needed
         candidate_annotation = self.candidate_annotation
+        initial_ground_truth = candidate_annotation.ground_truth
+
+        # maximum one annotation exists with unique pair (taxonomy_node, sound_dataset,)
+        existing_annotation = GroundTruthAnnotation.objects.filter(
+            sound_dataset=candidate_annotation.sound_dataset,
+            taxonomy_node=candidate_annotation.taxonomy_node,
+        ).first()
+
         ground_truth_state = candidate_annotation.ground_truth_state
-        if ground_truth_state in (-1.0, 0):     # annotation reach NP or U state
-            candidate_annotation.ground_truth = ground_truth_state
-            candidate_annotation.save()
-        elif ground_truth_state in (0.5, 1.0):  # annotation reach PP or PNP state
-            candidate_annotation.ground_truth = ground_truth_state
-            candidate_annotation.save()
-            annotation_exists = GroundTruthAnnotation.objects.filter(sound_dataset=candidate_annotation.sound_dataset,
-                                                                     taxonomy_node=candidate_annotation.taxonomy_node)\
-                .count() > 0
-            if not annotation_exists:
-                ground_truth_annotation, created = GroundTruthAnnotation.objects.get_or_create(
-                    start_time=candidate_annotation.start_time,
-                    end_time=candidate_annotation.end_time,
-                    ground_truth=candidate_annotation.ground_truth,
-                    created_by=candidate_annotation.created_by,
-                    sound_dataset=candidate_annotation.sound_dataset,
-                    taxonomy_node=candidate_annotation.taxonomy_node,
-                    from_candidate_annotation=candidate_annotation,
-                    from_propagation=False)
-                if created:
+
+        if initial_ground_truth != ground_truth_state:
+
+            if ground_truth_state in (-1.0, 0):     # annotation reach NP or U state
+                candidate_annotation.ground_truth = ground_truth_state
+                candidate_annotation.save()
+
+                # a ground truth can be deleted if an expert votes it U or NP
+                # in this case we unpropagate the annotation and remove it
+                if existing_annotation:
+                    if self.from_expert:
+                        associated_sound_dataset = existing_annotation.sound_dataset
+                        existing_annotation.unpropagate_annotation(candidate_annotation)
+                        existing_annotation.delete()
+                        for candidate_annotation in associated_sound_dataset.candidate_annotations.all():
+                            candidate_annotation.update_priority_score()
+
+            elif ground_truth_state in (0.5, 1.0):  # annotation reach PP or PNP state
+                candidate_annotation.ground_truth = ground_truth_state
+                candidate_annotation.save()
+
+                if existing_annotation:
+                    existing_annotation.from_candidate_annotations.add(candidate_annotation)
+                    if self.from_expert:  # a ground truth could be modified when voted by an expert
+                        existing_annotation.ground_truth = ground_truth_state
+                        existing_annotation.save()
+                    existing_annotation.propagate_annotation()
+
+                else:
+                    # normal agreement reached -> create a ground truth annotation
+                    ground_truth_annotation = GroundTruthAnnotation.objects.create(
+                        start_time=candidate_annotation.start_time,
+                        end_time=candidate_annotation.end_time,
+                        ground_truth=candidate_annotation.ground_truth,
+                        created_by=candidate_annotation.created_by,
+                        sound_dataset=candidate_annotation.sound_dataset,
+                        taxonomy_node=candidate_annotation.taxonomy_node,
+                        from_propagation=False)
+                    ground_truth_annotation.from_candidate_annotations.add(candidate_annotation)
                     ground_truth_annotation.propagate_annotation()
+
+        else:  # no change on the ground truth state
+            if existing_annotation:
+                # it happened that a gt annotation ground_truth prop was not sync with the associated candidate annotation.
+                # as a fix, we check that the ground_truth props are equal, if not, we update the gt annotation state
+                if self.from_expert:
+                    if existing_annotation.ground_truth != ground_truth_state:
+                        existing_annotation.ground_truth = ground_truth_state
+                        existing_annotation.save()
+
+                # update the priority score which depends on his number of votes
+                existing_annotation.propagate_annotation()
+            candidate_annotation.update_priority_score()
 
 
 class CategoryComment(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(User, related_name='comments', null=True, on_delete=models.SET_NULL)
-    dataset = models.ForeignKey(Dataset)
+    dataset = models.ForeignKey(Dataset, null=True, on_delete=models.SET_NULL)
     comment = models.TextField(blank=True)
     category_id = models.CharField(max_length=200)
     # NOTE: this should refer to the db object id.
@@ -839,7 +1102,8 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     test = models.CharField(max_length=2, choices=TEST_CHOICES, default='UN')  # Store test result
     countdown_trustable = models.IntegerField(default=0)  # count for make the user pass the test again
-    last_category_annotated = models.ForeignKey(TaxonomyNode, null=True, blank=True, default=None)
+    last_category_annotated = models.ForeignKey(TaxonomyNode,
+                                                null=True, blank=True, default=None, on_delete=models.SET_NULL)
     # this store the last category the user contributed to
 
     def refresh_countdown(self):

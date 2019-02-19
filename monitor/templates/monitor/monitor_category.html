@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load humanize %}
-{% load staticfiles %}
+{% load static %}
 {% load admin_urls %}
 {% load general_templatetags %}
 {% load dataset_templatetags %}
@@ -24,6 +24,8 @@
         &nbsp<a title="Edit in administration page" href="{% url node|admin_urlname:'change' node.pk %}" target="_blank"><i class="edit large icon"></i></a>
     {% endif %}
     </div>
+    <br>
+    <a href="{% url 'mapping-category' dataset.short_name node.url_id %}" class="blue ui button right labeled icon">Monitor mapping<i class="right arrow icon"></i></a>
     <br>
     <div class="ui basic segment">
         <div class="ui message">

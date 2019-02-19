@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load humanize %}
-{% load staticfiles %}
+{% load static %}
 {% load general_templatetags %}
 {% load dataset_templatetags %}
 {% block title %}Monitor user activity{% endblock title %}
@@ -38,6 +38,41 @@
                         </td>
                         <td class="center aligned">
                             {{ num }}
+                        </td>
+                        <td class="center aligned">
+                            {{ date |date:"D d M Y"}}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {#    CONTRIBUTIONS CURATION TASK    #}
+        <div class="title">
+            <h2 class="ui header"><i class="dropdown icon"></i>Contributions curation task</h2>
+        </div>
+        <div class="content">
+            <table class="ui unstackable table" width="100%">
+                <thead>
+                <tr>
+                    <th class="center aligned">Category name</th>
+                    <th class="center aligned"># votes</th>
+                    <th class="center aligned">vote values</th>
+                    <th class="center aligned">Date</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for date, num, name, vote, color in contribs_curation %}
+                    <tr {% if color == 'g' %}bgcolor="#E8E8E8"{% endif %}>
+                        <td class="center aligned">
+                            {{ name }}
+                        </td>
+                        <td class="center aligned">
+                            {{ num }}
+                        </td>
+                        <td class="center aligned">
+                            {{ vote }}
                         </td>
                         <td class="center aligned">
                             {{ date |date:"D d M Y"}}

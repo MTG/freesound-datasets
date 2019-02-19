@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% load general_templatetags %}
+
+{% block extra_head %}
+    <link rel="stylesheet" type="text/css" href="{% static "css/exploreTaxonomy.css" %}"/>
+    <script src="{% static "taxonomy-explorer/js/load-taxonomy.js" %}" type="text/javascript"></script>
+    {% load_sound_player_files %}
+{% endblock %}
+
+{% block title %}Explore taxonomy{% endblock %}
+
+{% block page_js %}
+<script type="text/javascript">
+
+    $(function () {
+        TT = new TaxonomyTree({
+            url: "{% static 'taxonomy-explorer/taxonomy_tree.json' %}",
+            container: "#taxonomy-tree",
+            skipCategories: ["Ontology"]
+        });
+        TT.load();
+    });
+
+
+
+</script>
+{% endblock %}
+
+{% block content %}
+<h1 class="ui title">Explore the taxonomy</h1>
+    <script type="text/javascript">
+    var currentPromise = $.Deferred().resolve().promise();
+    function displayResults(numberOfRes, text) {
+
+        var resDiv = $(".results");
+
+        $(document).mouseup(function(e) {
+            var container = $(".searchbox-container");
+            //var results = $(".results");
+            var searchbox = $(".searchbox");
+            // if the target of the click isn't the container nor a descendant of the container
+            if (!container.is(e.target) &&
+                container.has(e.target).length === 0)
+            {
+                resDiv.slideUp(200);
+            }
+
+            searchbox.on("focus", function() {
+                if (!resDiv.is(':empty'))
+                    resDiv.slideDown(200);
+            })
+        });
+
+        var searchPromise = $.ajax({
+            url: "{% url 'search-taxonomy-node' dataset.short_name %}?q="+text.value,
+            type: "GET"
+        });
+
+        var thenPromise = currentPromise.then(
+            function () { return searchPromise;},
+            function () { return searchPromise;});
+
+        currentPromise = thenPromise;
+
+        thenPromise.done( function(data){
+            resDiv.empty();
+            if (data.length <= 0 && text.value !== '') {
+                resDiv.append("<div class='ui large label' style='margin:2px; display:block'>No categories found</div>");
+            } else {
+                for (var i = 0; i < data.length; i++) {
+                    var el = $("<a class='ui teal large label' style='margin:2px; display:block' big-id=" + data[i].big_id + ">" + data[i].path + "</a>");
+                    resDiv.append(el);
+                    el.click(function () {
+                        resDiv.slideUp(200);
+                        TT.locateCategory($(this).attr('big-id'));
+                    });
+                }
+            }
+            if (!resDiv.is(':empty'))
+                resDiv.slideDown(200);
+            else
+                resDiv.slideUp(200);
+        });
+        thenPromise.fail( function(){ console.log('failure'); } );
+    }
+
+    </script>
+    <div class="ui basic segment">
+        <div class="searchbox-container">
+            <div class="ui icon input">
+                <input placeholder="Search categories..." type="search" oninput="displayResults(5, this)" class="searchbox">
+                <i class="search icon"></i>
+            </div>
+            <div class="ui results" style="display: none;">
+            </div>
+        </div>
+        <br>
+        <div id="taxonomy-tree">
+        </div>
+    </div>
+{% endblock %}

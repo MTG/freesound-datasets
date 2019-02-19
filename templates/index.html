@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load staticfiles %}
+{% load static %}
 {% block title %}Freesound Datasets - Index{% endblock title %}
 
 {% block content_large %}
@@ -18,7 +18,8 @@
     <div class="value">
       {{ num_categories_reached_goal }} / {{ num_non_omitted_nodes }}
     </div>
-  </div> <br>
+  </div>
+    <br>
   <a href="{% url 'contribute' 'fsd' %}" class="ui big button right labeled icon">Get started with our annotation tasks! <i class="right arrow icon"></i></a>
   <br><br><br><br><br><br><br>
 </div>

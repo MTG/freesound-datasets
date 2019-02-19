@@ -1,0 +1,839 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% load static %}
+{% load general_templatetags %}
+{% block title %}Monitor category mapping{% endblock title %}
+{% block extra_head %}
+    {% load_sound_player_files %}
+{% endblock %}
+
+{% block page_js %}
+    <script type="text/javascript">
+
+    $(function () {
+        $(".submit-form").on("click", function () {
+            submitForm();
+        });
+        $(".submit-id-form").on("click", function () {
+            submitIdForm();
+        });
+    });
+
+    function openFreesoundSoundPage(freesound_id){
+        window.open('https://freesound.org/s/' + freesound_id + '/');
+    }
+
+    function addTagRow() {
+
+        var container = $(".tag-inputs");
+
+        var row = $("<div>", {
+            class: "inline field tag-group-or"
+        });
+        var input = $("<input>", {
+            type: "text",
+            placeholder: "Tag string"
+        });
+        var button_container = $("<span>");
+        var button = $("<button>", {
+            class: "ui circular red icon tiny button"
+        });
+        var close = $("<i>", {
+            class: "ui close icon"
+        });
+
+        button.append(close);
+        button.on("click", function () {
+            row.remove();
+        });
+        button_container.append(button);
+        row.append([input, button_container]);
+        container.append(row);
+
+    }
+
+    function submitForm() {
+
+        var tag_containers = $('.tag-group-or');
+        var positive_tag_list = [];
+        tag_containers.each( function () {
+            var input = $(this).find('input');
+            positive_tag_list.push(input.val());
+        });
+        var preproc_positive = $('#preproc-positive').is(":checked");
+        var negative_tags = $('#negative-tags').val();
+        var preproc_negative = $('#preproc-negative').is(":checked");
+
+        $.ajax({
+            url: "{% url 'mapping-category' dataset.short_name node.url_id %}",
+            type: "POST",
+            data: {
+                "positive-tags": positive_tag_list,
+                "preproc-positive": preproc_positive,
+                "negative-tags": negative_tags,
+                "preproc-negative": preproc_negative,
+                csrfmiddlewaretoken: "{{ csrf_token }}"
+            },
+            traditional: true
+        })
+            .done(function (d) {
+                showStats(d);
+                addAllTags(d.retrieved.tags_in_NP);
+                $("#players_container").empty();
+                if (window.players)
+                    window.players.length = 0;
+                freesound_ids = d.retrieved.freesound_ids;
+                getPlayers(freesound_ids, 0);
+            })
+    }
+
+    function submitIdForm() {
+        var input_freesound_ids = $('#freesound-ids').val();
+        $.ajax({
+            url: "{% url 'mapping-category' dataset.short_name node.url_id %}",
+            type: "POST",
+            data: {
+                "positive-tags": null,
+                "preproc-positive": null,
+                "negative-tags": null,
+                "preproc-negative": null,
+                "add-or-replace": 'add',
+                "run-or-submit": "submit",
+                "freesound-ids": input_freesound_ids,
+                csrfmiddlewaretoken: "{{ csrf_token }}"
+            },
+            traditional: true
+        }).done(function(d) {
+            if (d.error) {
+                $('#feedback-span').html('An error occurred, nothing happened. Contact administrator if it happens again');
+            } else {
+                $('#feedback-span').html('Added ' + d.num_candidates_added + ' candidates!' +
+                    ' Removed ' + d.num_candidates_deleted + ' candidates!');
+            }
+            $('.feedback.ui.modal').modal('show');
+        });
+    }
+
+    function submitMapping(add_or_replace) {
+        var tag_containers = $('.tag-group-or');
+        var positive_tag_list = [];
+        tag_containers.each( function () {
+            var input = $(this).find('input');
+            positive_tag_list.push(input.val());
+        });
+        var preproc_positive = $('#preproc-positive').is(":checked");
+        var negative_tags = $('#negative-tags').val();
+        var preproc_negative = $('#preproc-negative').is(":checked");
+
+        var switches = $('.three-way-switch');
+        var negative_sounds = [];
+        switches.each(function() {
+            if ($(this).hasClass('s-N')) {
+                negative_sounds.push($(this).find("input").attr("name"));
+            }
+        });
+        $('.loading.modal').modal({closable  : false}).modal('show');
+        $.ajax({
+            url: "{% url 'mapping-category' dataset.short_name node.url_id %}",
+            type: "POST",
+            data: {
+                "positive-tags": positive_tag_list,
+                "preproc-positive": preproc_positive,
+                "negative-tags": negative_tags,
+                "preproc-negative": preproc_negative,
+                csrfmiddlewaretoken: "{{ csrf_token }}",
+                "run-or-submit": "submit",
+                "voted-negative": negative_sounds,
+                "add-or-replace": add_or_replace,
+                "freesound-ids": false
+            },
+            traditional: true
+        }).done(function(d) {
+            if (d.error) {
+                $('#feedback-span').html('An error occurred, nothing happened. Contact administrator if it happens again');
+            } else {
+                $('#feedback-span').html('Added ' + d.num_candidates_added + ' candidates!' +
+                    ' Removed ' + d.num_candidates_deleted + ' candidates!');
+            }
+            $('.feedback.ui.modal').modal({
+                onApprove: function() {
+                    $('.loading.modal').modal('hide');
+            }
+            }).modal('show');
+        });
+    }
+
+    function showModal() {
+        $('.ui.basic.modal').modal('show');
+    }
+
+    function showConfirmModal(d) {
+        $('#add-or-replace-span').html(d);
+        $('.confirm.ui.test.modal').modal({
+            onApprove: function() {
+                submitMapping(d);
+            }
+        }).modal('show');
+    }
+
+    function getMoreSounds() {
+        var num_sounds = $(".vote-sound").length;
+        getPlayers(freesound_ids, num_sounds);
+    }
+
+    function getPlayers(freesound_ids, start_index) {
+        for (var i = start_index; i < Math.min(start_index + 20, freesound_ids.length); i++) {
+            getPlayer(freesound_ids[i])
+        }
+    }
+
+    function getPlayer(f_id) {
+        $.ajax({
+            url: "/fsd/sound_player/" + f_id + "/",
+            dataType: 'html'
+        }).done(function (data) {
+            buildVotePlayer(f_id, data);
+        })
+    }
+
+    function buildVotePlayer(f_id, player_dom) {
+        var vote_sound = $("<div>", {
+            class: "vote-sound"
+        });
+        var see_in_freesound = $("<div>", {
+            class: "right floated meta"
+        });
+        see_in_freesound.append(
+            $("<a>", {
+                href: "javascript:void(0);"
+            }).on("click", function () {
+                openFreesoundSoundPage(f_id)
+            }).append([
+                "see in ",
+                $("<img>", {
+                    class: "ui image",
+                    style: "width: 80px; display: inline-block",
+                    src: "{% static 'img/freesound_logo_color.png' %}"
+                })
+            ])
+        );
+
+        vote_sound.append(see_in_freesound, [$(player_dom), createSwitch(f_id)]);
+        $('#players_container').append(vote_sound);
+    }
+
+    function updateQualityScore() {
+        var quality_container = $('#quality-container');
+        var switches = $('.three-way-switch');
+        var score = 0;
+        var num_votes = 0;
+        var labels = ['s-Y', 's-U', 's-N'];
+        switches.each(function() {
+            if ($(this).hasClass(labels[0])) {
+                score += 1;
+                num_votes += 1;
+            } else if ($(this).hasClass(labels[2])) {
+                num_votes += 1;
+            }
+        });
+        if (num_votes > 0) {
+            var quality = score / num_votes * 100;
+        } else {
+            var quality = 0;
+        }
+        quality_container.html(quality.toFixed(2));
+    }
+
+    function switchOption(class_name, switch_dom, switch_button) {
+        return function () {
+            var labels = ['s-Y', 's-U', 's-N'];
+            for (var i = 0; i < 3; i++) {
+                switch_dom.removeClass(labels[i]);
+            }
+            switch_dom.addClass(class_name);
+            updateQualityScore();
+        }
+    }
+
+    function createSwitch(f_id) {
+        var labels = ['s-Y', 's-U', 's-N'];
+        var three_way_switch = $("<div>", {
+            class: "three-way-switch s-U"
+        });
+
+        for (var i = 0; i < 3; i++) {
+
+            var ui_switch = $("<div>", {
+                class: "ui radio checkbox"
+            });
+
+            var f_switch = $("<input>", {
+                type: "radio",
+                name: f_id,
+                checked: i === 1
+            });
+            f_switch.on("click", switchOption(labels[i], three_way_switch, f_switch));
+
+            var icon = '';
+            if (i !== 1) {
+                var i_class = i ? "red close icon" : "green check icon";
+                icon = $("<i>", {
+                    class: i_class
+                });
+            }
+
+            var label = $("<label>", {
+                class: "switch-label"
+            }).append(icon);
+
+            ui_switch.append([f_switch, label]);
+            three_way_switch.append(ui_switch);
+        }
+
+        return three_way_switch;
+    }
+
+    function showStats (data) {
+
+        var common = data.num_common_sounds;
+        var scale = 0.8;
+
+        var cur_quality_est = data.mapping.quality_estimate;
+        var cur_num_votes = data.mapping.num_votes;
+        var cur_num_sounds = data.mapping.num_sounds;
+        var cur_np = data.mapping.num_NP / cur_num_votes * 100;
+        var cur_pnp = data.mapping.num_PNP / cur_num_votes * 100;
+        var cur_pp = data.mapping.num_PP / cur_num_votes * 100;
+        var cur_u = data.mapping.num_U / cur_num_votes * 100;
+
+        var new_quality_est = data.retrieved.quality_estimate;
+        var new_num_votes = data.retrieved.num_votes;
+        var new_num_sounds = data.retrieved.num_sounds;
+        var new_np = data.retrieved.num_NP / new_num_votes * 100;
+        var new_pnp = data.retrieved.num_PNP / new_num_votes * 100;
+        var new_pp = data.retrieved.num_PP / new_num_votes * 100;
+        var new_u = data.retrieved.num_U / new_num_votes * 100;
+
+        $(".curr-map-quality").text((cur_quality_est * 100).toFixed(2) + "%");
+        $(".curr-num-votes").text(cur_num_votes);
+        $(".curr-num-sounds").text(cur_num_sounds);
+        $(".curr-distr .np .bar")
+            .width(cur_np * scale + "%")
+            .height("20px");
+        $(".curr-distr .np .val")
+            .text(cur_np.toFixed(1) + "%");
+        $(".curr-distr .pnp .bar")
+            .width(cur_pnp * scale + "%")
+            .height("20px");
+        $(".curr-distr .pnp .val")
+            .text(cur_pnp.toFixed(1) + "%");
+        $(".curr-distr .pp .bar")
+            .width(cur_pp * scale + "%")
+            .height("20px");
+        $(".curr-distr .pp .val")
+            .text(cur_pp.toFixed(1) + "%");
+        $(".curr-distr .u .bar")
+            .width(cur_u * scale + "%")
+            .height("20px");
+        $(".curr-distr .u .val")
+            .text(cur_u.toFixed(1) + "%");
+
+        $(".new-map-quality").text((new_quality_est * 100).toFixed(2) + "%");
+        $(".new-num-votes").text(new_num_votes);
+        var common_text = $("<span>", {
+            class: "common_text"
+        });
+        var text = " (" + common + " from current)";
+        common_text.append(text);
+        $(".new-num-sounds")
+            .empty()
+            .append([new_num_sounds, common_text]);
+
+        $(".new-distr .np .bar")
+            .width(new_np * scale + "%")
+            .height("20px");
+        $(".new-distr .np .val")
+            .text(new_np.toFixed(1) + "%");
+        $(".new-distr .pnp .bar")
+            .width(new_pnp * scale + "%")
+            .height("20px");
+        $(".new-distr .pnp .val")
+            .text(new_pnp.toFixed(1) + "%");
+        $(".new-distr .pp .bar")
+            .width(new_pp * scale + "%")
+            .height("20px");
+        $(".new-distr .pp .val")
+            .text(new_pp.toFixed(1) + "%");
+        $(".new-distr .u .bar")
+            .width(new_u * scale + "%")
+            .height("20px");
+        $(".new-distr .u .val")
+            .text(new_u.toFixed(1) + "%");
+    }
+
+    function returnTag(tag) {
+
+        var label = $('<span>', {
+            class: 'ui small label'
+        }).append(tag[0]);
+        var detail = $('<div>', {
+            class: 'detail'
+        }).append(tag[1]);
+        return label.append(detail);
+    }
+
+    function addAllTags(tags) {
+        var container = $('#tags-container');
+        container.empty();
+        for (var i=0; i<tags.length; i++) {
+            container.append(returnTag(tags[i]));
+        }
+    }
+    </script>
+{% endblock %}
+
+{% block content %}
+    <h1 class="ui header">Monitor the mapping of <span class="ui big label">{{ node.name }}</span></h1>
+
+    <div class="ui segment" style="position: relative;">
+        <h4>Mapping rules originally used:</h4>
+        <div class="ui stackable grid">
+            <div class="eight wide column">
+                <div class="ui green header">Include tags</div> {{ mapping_rule.0 }}
+            </div>
+            <div class="eight wide column">
+                <div class="ui red header">Omit tags</div> {{ mapping_rule.1 }}
+            </div>
+        </div>
+        <h4>Mapping rules used in the platform:</h4>
+        {% for platform_mapping_rule in platform_mapping_rules %}
+            <div class="ui stackable grid">
+                <div class="eight wide column">
+                    <div class="ui green header">Include tags</div> {{ platform_mapping_rule.0 }}
+                </div>
+                <div class="eight wide column">
+                    <div class="ui red header">Omit tags</div> {{ platform_mapping_rule.1 }}
+                </div>
+            </div>
+        {% empty %}
+            -
+        {% endfor %}
+    </div>
+
+    <div class="ui raised segment" style="position: relative;">
+        <h4 class="ui dividing header" style="margin-bottom:25px;">
+            <div class="content">
+                Filter by ID
+            </div>
+        </h4>
+
+        <div class="ui stackable grid">
+            <div class="ui form">
+                <div class="inline field">
+                    <label>Comma separated Freesound IDs</label>
+                    <input type="text" placeholder="Freesound IDs string" id="freesound-ids" style="width: 100%;"/>
+                </div>
+            </div>
+        </div>
+        <div class="ui clearing divider" style="margin-top:25px;"></div>
+
+        <center>
+        <button type="button" class="ui circular icon button submit-id-form">
+            <i class="ui plus icon"></i>
+            Add new candidates
+        </button>
+        </center>
+    </div>
+
+    <div class="ui raised segment" style="position: relative;">
+        <h4 class="ui dividing header">
+            <div class="content">
+                Filter by tags
+                <div class="sub header">Add the tags you want to be selected</div>
+            </div>
+        </h4>
+
+        <div class="ui stackable grid">
+
+            <div class="eight wide column">
+                <div class="ui green header">Include tags</div>
+                <div class="ui form">
+
+                    <div class="tag-inputs">
+                        <div class="inline field tag-group-or">
+                            <label>Comma separated tags (e.g.: dog, bark, panting)</label>
+                            <input type="text" placeholder="Tag string"/>
+                        </div>
+                    </div>
+
+                    <button type="button" style="margin:5px;" class="ui circular blue icon button" onclick="addTagRow();">
+                        <i class="ui plus icon"></i>
+                        Add alternative tag group
+                    </button>
+
+                    <div class="actions">
+                        <div class="ui checked checkbox">
+                            <input type="checkbox" checked="" tabindex="0" name="preproc-positive" id="preproc-positive"/>
+                            <label>Stem tags</label>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="eight wide column">
+                <div class="ui form">
+                    <div class="ui red header">Omit tags</div>
+
+                    <div class="field">
+                        <label>Comma separated tags (e.g.: dog, bark, panting)</label>
+                        <input type="text" id="negative-tags" placeholder="Tag string"/>
+                    </div>
+
+                    <div class="actions">
+                        <div class="ui checkbox">
+                            <input type="checkbox" tabindex="0" name="preproc-negative" id="preproc-negative"/>
+                            <label>Stem tags</label>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <div class="ui clearing divider"></div>
+
+        <center>
+            <div class="section">
+                <button class="ui button submit-form">
+                    Submit
+                </button>
+            </div>
+        </center>
+
+    </div>
+
+    <div class="res-content">
+        <h4 class="ui horizontal divider header">
+            <i class="bar chart icon"></i>
+            Inspect
+        </h4>
+        <div class="ui three column stackable grid">
+
+            <div class="six wide column right aligned">
+                <div class="ui header">New mapping</div>
+                <div class="ui sub header new-num-sounds">-</div>
+                <div class="ui sub header new-map-quality">-</div>
+                <div class="ui sub header new-num-votes">-</div>
+                <div class="ui sub header new-distr" style="position: relative;">
+                    <div class="pp">
+                        <div class="val"></div>
+                        <div class="bar"></div>
+                    </div>
+                    <div class="pnp">
+                        <div class="val"></div>
+                        <div class="bar"></div>
+                    </div>
+                    <div class="u">
+                        <div class="val"></div>
+                        <div class="bar"></div>
+                    </div>
+                    <div class="np">
+                        <div class="val"></div>
+                        <div class="bar"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="four wide column center aligned">
+                <div class="ui header" style="visibility: hidden">---</div>
+                <div class="ui sub header">Total sounds</div>
+                <div class="ui sub header">Quality</div>
+                <div class="ui sub header">Total votes</div>
+                <div class="ui sub header distr">
+                    <div class="ui sub header">PP</div>
+                    <div class="ui sub header">PNP</div>
+                    <div class="ui sub header">U</div>
+                    <div class="ui sub header">NP</div>
+                </div>
+            </div>
+
+            <div class="six wide column left aligned">
+                <div class="ui header">Current mapping</div>
+                <div class="ui sub header curr-num-sounds">-</div>
+                <div class="ui sub header curr-map-quality">-</div>
+                <div class="ui sub header curr-num-votes">-</div>
+                <div class="ui sub header curr-distr" style="position: relative;">
+                    <div class="pp">
+                        <div class="bar"></div>
+                        <div class="val"></div>
+                    </div>
+                    <div class="pnp">
+                        <div class="bar"></div>
+                        <div class="val"></div>
+                    </div>
+                    <div class="u">
+                        <div class="bar"></div>
+                        <div class="val"></div>
+                    </div>
+                    <div class="np">
+                        <div class="bar"></div>
+                        <div class="val"></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <h4 class="ui horizontal divider header">
+        <i class="tag icon"></i>
+        Tags occurring in wrong sounds
+    </h4>
+
+    <div id="tags-container">
+    </div>
+
+    <h4 class="ui horizontal divider header">
+        <i class="music icon"></i>
+        Sound examples
+    </h4>
+    <div class="ui header">Quality:
+        <span id="quality-container">-</span> %
+    </div>
+
+    <div id="players_container">
+    </div>
+
+    <button type="button" class="ui circular blue icon button" onclick="getMoreSounds();">
+        <i class="ui plus icon"></i>
+        Get more sounds
+    </button>
+
+    <br> <br>
+    <center>
+    <button type="button" class="ui circular icon button" onclick="showModal();">
+        <i class="ui plus icon"></i>
+        Add new candidates
+    </button>
+    </center>
+
+    <div class="ui basic modal">
+      <div class="ui icon header">
+        <i class="archive icon"></i>
+        Update candidates
+      </div>
+      <div class="content">
+        <p>
+            You are about to add new candidates based on the tag-based mapping rule you proposed.
+            You can add new candidates, or erase all existing ones and replace them by the one retrieved by your method.
+        </p>
+      </div>
+      <div class="actions">
+        <div class="ui red basic cancel inverted button">
+          <i class="remove icon"></i>
+          Cancel
+        </div>
+        <div class="ui green ok inverted button" onclick="showConfirmModal('add');">
+          <i class="plus icon"></i>
+          Add
+        </div>
+        <div class="ui red inverted button" onclick="showConfirmModal('replace');">
+          <i class="exchange icon"></i>
+          Replace
+        </div>
+      </div>
+    </div>
+
+  <div class="confirm ui tiny test modal transition">
+    <div class="header">
+      Update candidates
+    </div>
+    <div class="content">
+
+        <p><span><i class="massive exclamation triangle icon"></i></span>
+            Are you sure you want to <span style="color:red" id="add-or-replace-span">add</span> the candidates?</p>
+    </div>
+    <div class="actions">
+      <div class="ui negative button">
+        No
+      </div>
+      <div class="ui positive right labeled icon button">
+        Yes
+        <i class="checkmark icon"></i>
+      </div>
+    </div>
+  </div>
+
+  <div class="feedback ui tiny test modal transition">
+    <div class="header">
+      Candidates updated
+    </div>
+    <div class="content">
+        <p><span id="feedback-span">add</span></p>
+    </div>
+    <div class="actions">
+      <div class="ui positive button">
+        Close
+      </div>
+    </div>
+  </div>
+
+    <div class="loading ui modal">
+    </div>
+
+    <style type="text/css">
+
+    .common_text {
+        font-weight: 400;
+        text-transform: lowercase;
+    }
+
+    .distr > div {
+        height: 20px;
+    }
+
+    .new-distr > div,
+    .curr-distr > div {
+        display: block;
+        position: relative;
+        clear: both;
+        width: 100%;
+        height: 20px
+    }
+
+    .new-distr > div {
+        float: right;
+        text-align: right;
+    }
+    .curr-distr > div {
+        float: left;
+        text-align: left;
+    }
+
+    .bar {
+        display: inline-block;
+    }
+    .val {
+        display: inline-block;
+        position: relative;
+        bottom: 4px;
+        padding: 0 4px;
+    }
+
+    .res-content .pp .bar {
+        background-color: #21ba45;
+    }
+    .res-content .pnp .bar {
+        background-color: #b5cc18;
+    }
+    .res-content .u .bar {
+        background-color: #eaae00;
+    }
+    .res-content .np .bar {
+        background-color: #f26202;
+    }
+
+    #tags-container {
+        max-height: 120px;
+        overflow-y: scroll;
+    }
+
+    #players_container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        overflow-y: scroll;
+        max-height: 500px;
+        margin-bottom: 20px;
+    }
+
+    .vote-sound {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        justify-content: space-around;
+        margin-right: 20px;
+        margin-bottom: 20px;
+        border: solid 1px lightgray;
+        border-radius: 5px;
+        padding: 0;
+        max-width: 200px;
+        font-size: 12px;
+    }
+
+    .vote-sound a {
+        color: gray;
+    }
+
+    .three-way-switch {
+        position: relative;
+        display: inline-flex;
+        flex-direction: column;
+        justify-content: center;
+        width: 20px;
+        border: solid lightgray 1px;
+        -webkit-border-radius: 20px;
+        -moz-border-radius: 20px;
+        border-radius: 20px;
+    }
+
+    .three-way-switch.s-U {
+        background-color: gray;
+    }
+
+    .three-way-switch.s-Y {
+        background-color: lightgreen;
+    }
+
+    .three-way-switch.s-N {
+        background-color: lightcoral;
+    }
+    .three-way-switch:after {
+        content: '';
+        position: absolute;
+        top: initial;
+        bottom: initial;
+        left: -1px;
+        width: 20px;
+        height: 20px;
+        outline: red;
+        background-color: lightgray;
+        border-radius: 100px;
+        z-index: 1;
+    }
+    .three-way-switch.s-Y:after {
+        background-color: green;
+        bottom: initial;
+        top: 0;
+    }
+    .three-way-switch.s-N:after {
+        background-color: red;
+        top: initial;
+        bottom: 0;
+    }
+
+    .three-way-switch .switch-label {
+        position: absolute;
+        left: 0;
+        padding: 0 !important;
+    }
+
+    .three-way-switch .checkbox:first-child .switch-label {
+        top: -20px;
+    }
+
+    .three-way-switch .checkbox:last-child .switch-label {
+        bottom: -20px;
+    }
+
+    .three-way-switch .checkbox input,
+    .switch-label:before,
+    .switch-label:after {
+        opacity: 0 !important;
+    }
+
+    </style>
+
+{% endblock %}

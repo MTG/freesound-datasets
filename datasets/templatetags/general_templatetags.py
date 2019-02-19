@@ -1,6 +1,6 @@
 from django import template
 from django.conf import settings
-from django.core import urlresolvers
+from django.urls import resolve
 from django.utils.safestring import mark_safe
 from django.conf import settings
 from uuid import uuid4
@@ -22,7 +22,7 @@ def current(context, url_name, return_value=' current', **kwargs):
 def current_url_equals(context, url_name, **kwargs):
     resolved = False
     try:
-        resolved = urlresolvers.resolve(context.get('request').path)
+        resolved = resolve(context.get('request').path)
     except:
         pass
     matches = resolved and (resolved.url_name == url_name or url_name in resolved.url_name)
@@ -63,7 +63,7 @@ def load_sound_player_files():
 @register.inclusion_tag('datasets/player.html')
 def sound_player(dataset, freesound_sound_id, player_size, normalization=None):
     sound = dataset.sounds.get(freesound_id=freesound_sound_id)
-    sound_url = sound.extra_data['previews'][5:]
+    sound_url = sound.extra_data['previews'].replace('https:', '').replace('http:', '')
     spec_size = 'M' if player_size in ("mini", "small") else 'L'
     spectrogram_url = sound.get_image_url('spectrogram', spec_size)
     waveform_url = sound.get_image_url('waveform', 'M')

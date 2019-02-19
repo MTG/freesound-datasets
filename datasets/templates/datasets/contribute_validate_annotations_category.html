@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load staticfiles %}
+{% load static %}
 {% load dataset_templatetags %}
 {% load general_templatetags %}
 {% block title %}Validate category {{ node.name }}{% endblock title %}
@@ -162,7 +162,7 @@
     </div>
     {% display_taxonomy_node_small_info dataset node.node_id 'cva' %}
 
-    {% if not node.omitted %}
+    {% if node.advanced_task %}
          <div id="start_annotating_info_div" class="ui aligned basic segment" style="padding: 0px;">
 
              <div class="ui message">

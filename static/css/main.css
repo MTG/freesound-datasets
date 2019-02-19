@@ -1,3 +1,7 @@
+html {
+    overflow-x:initial;
+}
+
 body {
 	background-color: #FFFFFF;
 	height: 100%;
@@ -183,4 +187,14 @@ ul {
 
 .blanched_yellow {
 	color: #f9efe0;
+}
+
+
+/* GENERATE LABEL EXPERT TASK*/
+.added-label {
+    margin: 5px!important;
+}
+
+.close-icon, .locate-icon {
+    cursor: pointer!important;
 }

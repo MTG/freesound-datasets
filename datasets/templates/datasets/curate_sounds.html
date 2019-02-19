@@ -1,0 +1,234 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% load general_templatetags %}
+{% load dataset_templatetags %}
+
+{% block extra_head %}
+    <link rel="stylesheet" type="text/css" href="{% static "css/exploreTaxonomy.css" %}"/>
+    <script src="{% static "taxonomy-explorer/js/load-taxonomy.js" %}" type="text/javascript"></script>
+    {% load_sound_player_files %}
+{% endblock %}
+
+{% block title %}Generate annotations{% endblock %}
+
+{% block page_js %}
+<script type="text/javascript">
+    existing_gt_annotations = {{ existing_gt_annotations | safe }};
+    existing_candidate_annotations = {{ existing_candidate_annotations | safe }};
+    $(function () {
+        TT = new TaxonomyTree({
+            url: "{% static 'taxonomy-explorer/taxonomy_tree.json' %}",
+            container: "#taxonomy-tree",
+            skipCategories: ["Ontology"],
+            generation_task: {{ generation_task }}
+        });
+        TT.load();
+    });
+
+    function openFreesoundSoundPage(freesound_id, sound_idx){
+        window.open('https://freesound.org/s/' + freesound_id + '/');
+    }
+
+</script>
+{% endblock %}
+
+{% block content %}
+    <script type="text/javascript">
+    var currentPromise = $.Deferred().resolve().promise();
+    function displayResults(numberOfRes, text) {
+
+        var resDiv = $(".results");
+
+        $(document).mouseup(function(e) {
+            var container = $(".searchbox-container");
+            var results = $(".results");
+            var searchbox = $(".searchbox");
+            // if the target of the click isn't the container nor a descendant of the container
+            if (!container.is(e.target) &&
+                container.has(e.target).length === 0)
+            {
+                results.slideUp(200);
+            }
+
+            searchbox.on("focus", function() {
+                if (!resDiv.is(':empty'))
+                    results.slideDown(200);
+            })
+        });
+
+        var searchPromise = $.ajax({
+            url: "{% url 'search-taxonomy-node' dataset.short_name %}?q="+text.value,
+            type: "GET"
+        });
+
+        var thenPromise = currentPromise.then(
+            function () { return searchPromise;},
+            function () { return searchPromise;});
+
+        currentPromise = thenPromise;
+
+        thenPromise.done( function(data){
+            resDiv.empty();
+            if (data.length <= 0 && text.value !== '') {
+                resDiv.append("<div class='ui large label' style='margin:2px; display:block'>No categories found</div>");
+            } else {
+                for (var i = 0; i < data.length; i++) {
+                    if (data[i].omitted) {
+                        var el = $("<div class='ui large label' style='margin:2px; display:block' big-id="
+                        + data[i].big_id + ">" + data[i].path + "&emsp;"
+                        + "<a class='add-button disabled ui mini grey button' disabled><i class=\"ban icon\"></i></a>"
+                        + "<a class='locate-button ui mini teal button'><i class=\"search icon\"></i></a>"
+                        + "</div>");
+                    } else {
+                        var el = $("<div class='ui large label' style='margin:2px; display:block' big-id="
+                            + data[i].big_id + ">" + data[i].path + "&emsp;"
+                            + "<a class='add-button ui mini teal button'><i class=\"plus icon\"></i></a>"
+                            + "<a class='locate-button ui mini teal button'><i class=\"search icon\"></i></a>"
+                            + "</div>");
+                    }
+                    resDiv.append(el);
+
+                    el.children('.locate-button').click(function () {
+                        resDiv.slideUp(200);
+                        TT.locateCategory($(this).parent().attr('big-id'));
+                    });
+                    el.children('.add-button').click(function () {
+                        resDiv.slideUp(200);
+                        TT.addCategory($(this).parent().attr('big-id'));
+                    });
+
+                }
+            }
+            if (!resDiv.is(':empty'))
+                resDiv.slideDown(200);
+            else
+                resDiv.slideUp(200);
+        });
+        thenPromise.fail( function(){ console.log('failure'); } );
+    }
+
+    function getAddedVotes() {
+        var data = [];
+        $('.added-label').each(function() {
+            data.push({
+                'label-id': $(this).attr('label-id'),
+                'label-name': $(this).attr('label-name'),
+                'label-presence': $(this).find("input:checked").val(),
+                'ground-truth': $(this).hasClass('ground-truth-label')
+            })
+        });
+        return data
+    }
+
+    function submitForm() {
+        var votes = getAddedVotes();
+        var jsonData = JSON.stringify(votes);
+        var data = {
+               jsonData : jsonData,
+               csrfmiddlewaretoken: "{{csrf_token}}"
+            };
+        $.ajax({
+            type: "POST",
+            url: "{% url 'save-expert-votes-curate-sounds' dataset.short_name freesound_sound_id %}",
+            data: data,
+            traditional:true,
+            success: function(data) {
+                if (data.errors) {
+                    for (var index in data.errors) {
+                        var labelId = data.errors[index];
+                        $('.added-label[label-id="' + labelId + '"]').addClass('red');
+                    }
+                    $('#on_error_modal').modal('show');
+                } else {
+                    document.getElementById("submitButton").disabled = true;
+                    $('#on_success_modal').modal({closable: false}).modal('show');
+                }
+            },
+            error: function(e) {
+                $('#on_request_retry_modal').modal('show');
+            },
+            dataType: 'json',
+        });
+    }
+    </script>
+    <div class="ui basic segment">
+        <center>
+            <h3>Listen to the following sound and add labels!</h3>
+            <div style="float:right;"><a href="javascript:void(0);" onclick="openFreesoundSoundPage('{{ freesound_sound_id }}');">
+                see in <img class="ui image" style="width: 80px;" src="{% static 'img/freesound_logo_color.png' %}"></a></div>
+            {{ freesound_sound_id| fs_embed_large | safe }}
+            <!-- {% sound_player dataset freesound_sound_id "medium" %} -->
+            <div class="ui segment">
+                <h6 class="ui header">Added labels</h6>
+                <div id="label-container"></div>
+                <button id="submitButton" class="ui green big button" onclick="submitForm();" style="margin-top: 5px;">Submit</button>
+            </div>
+        </center>
+
+        <br>
+
+        <div class="searchbox-container">
+            <div class="ui icon input">
+                <input placeholder="Search categories..." type="search" oninput="displayResults(5, this)" class="searchbox">
+                <i class="search icon"></i>
+            </div>
+            <div class="ui results" style="display: none;">
+            </div>
+        </div>
+        <br>
+        <div id="taxonomy-tree">
+        </div>
+    </div>
+
+    <!-- on success modal -->
+    <div id="on_success_modal" class="ui basic modal">
+        <div class="ui icon header"><i class="smile icon"></i>
+            Thanks!
+        </div>
+        <div class="content">
+            <p>
+                You can close the page and go on with a new sound.
+            </p>
+        </div>
+        <!-- <div class="actions">
+            <div class="green ui inverted button icon cancel">Ok</div>
+        </div> -->
+    </div>
+    <!-- end on success modal -->
+
+    <!-- on error modal -->
+    <div id="on_error_modal" class="ui basic modal">
+        <div class="ui icon header"><i class="meh icon"></i>
+            Meh!
+        </div>
+        <div class="content">
+            <p>
+                We can't submit yet your votes because you need to provide a vote for each sound.
+                Please, check those highlighted in red.
+            </p>
+        </div>
+        <div class="actions">
+            <div class="green ui inverted button icon cancel">Ok</div>
+        </div>
+    </div>
+    <!-- end on error modal -->
+
+    <!-- retry error modal, connexion problem for instance -->
+    <div id="on_request_retry_modal" class="ui basic modal">
+        <div class="ui icon header"><i class="meh icon"></i>
+            Meh!
+        </div>
+        <div class="content">
+            <p>
+                There was an error with your submission.<br>
+                Please check your internet connexion and retry.
+            </p>
+        </div>
+        <div class="actions">
+            <div class="green ui inverted button icon cancel">Ok</div>
+        </div>
+    </div>
+    <!-- end of retry error modal, connexion problem for instance -->
+
+{% endblock %}

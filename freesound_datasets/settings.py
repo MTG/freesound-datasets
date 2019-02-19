@@ -29,7 +29,7 @@ if os.getenv('DEPLOY_ENV', 'dev') == 'prod':
     if SECRET_KEY == 'default_secret_key':
         print("Please configure your secret key by setting DJANGO_SECRET_KEY environment variable")
     DEBUG = False
-    ALLOWED_HOSTS = ['localhost', 'asplab-web1', 'asplab-web1.s.upf.edu', 'datasets.freesound.org']
+    ALLOWED_HOSTS = ['localhost', 'asplab-web1', 'asplab-web1.s.upf.edu', 'datasets.freesound.org', 'annotator.freesound.org']
 else:
     DEBUG = True
     INTERNAL_IPS = ['127.0.0.1']
@@ -46,6 +46,22 @@ else:
     DEBUG_TOOLBAR_CONFIG = {
         'SHOW_TOOLBAR_CALLBACK': 'freesound_datasets.settings.show_toolbar',
     }
+
+    DEBUG_TOOLBAR_PANELS = [
+        'debug_toolbar.panels.versions.VersionsPanel',
+        'debug_toolbar.panels.timer.TimerPanel',
+        'debug_toolbar.panels.settings.SettingsPanel',
+        'debug_toolbar.panels.headers.HeadersPanel',
+        'debug_toolbar.panels.request.RequestPanel',
+        'debug_toolbar.panels.sql.SQLPanel',
+        'debug_toolbar.panels.staticfiles.StaticFilesPanel',
+        'debug_toolbar.panels.templates.TemplatesPanel',
+        'debug_toolbar.panels.cache.CachePanel',
+        'debug_toolbar.panels.signals.SignalsPanel',
+        'debug_toolbar.panels.logging.LoggingPanel',
+        'debug_toolbar.panels.redirects.RedirectsPanel',
+        'debug_toolbar.panels.profiling.ProfilingPanel'
+    ]
 
 DATABASE_URL_ENV_NAME = 'DJANGO_DATABASE_URL'
 DATABASES = {'default': dj_database_url.config(
@@ -64,6 +80,7 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
     'django_extensions',
     'debug_toolbar',
+    'freesound_datasets',
     'datasets',
     'monitor',
     'social_django',

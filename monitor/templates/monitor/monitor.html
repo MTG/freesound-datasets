@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load staticfiles %}
+{% load static %}
 {% load humanize %}
 {% load general_templatetags %}
 {% block title %}Monitor category page{% endblock title %}
@@ -14,6 +14,7 @@
             $('#user-table').DataTable();
 
             var contributions = JSON.parse('{{ num_contributions_per_day.contribution_per_day | safe }}');
+            var contributions_expert = JSON.parse('{{ num_contributions_per_day.contribution_per_day_expert | safe }}');
 
             var ground_truth_not_from_propagation =
                 JSON.parse('{{ num_ground_truth_per_day.num_ground_truth_not_from_propagation_per_day | safe }}');
@@ -29,6 +30,17 @@
             for (var i=0 ; i<contributions.length; i++) {
                 total_votes += contributions[i][1];
                 cumulative_contributions_data.push([new Date(contributions[i][0]).getTime(), total_votes]);
+            }
+
+            var contributions_expert_data = [];
+            for (var i=0 ; i<contributions_expert.length; i++) {
+                contributions_expert_data.push([new Date(contributions_expert[i][0]).getTime(), contributions_expert[i][1]]);
+            }
+            var cumulative_contributions_experts_data = [];
+            var total_votes = 0;
+            for (var i=0 ; i<contributions_expert.length; i++) {
+                total_votes += contributions_expert[i][1];
+                cumulative_contributions_experts_data.push([new Date(contributions_expert[i][0]).getTime(), total_votes]);
             }
 
             var total_ground_truth_data = [];
@@ -91,6 +103,15 @@
                     {
                         name: 'number of votes (cumulative)',
                         data: cumulative_contributions_data
+                    },
+                    {
+                        name: 'number of expert votes',
+                        data: contributions_expert_data
+                    },
+                    {
+                        name: 'number of expert votes (cumulative)',
+                        data: cumulative_contributions_experts_data
+
                     }],
                 legend: {
                     enabled: true,
@@ -496,7 +517,7 @@
                 <tr>
                     <td>{{ user.username }}</td>
                     <td>{{ user.num_votes }}</td>
-                    <td><span style="display:none;">{{ user.profile.last_date_annotated |date:"Ymd" }}</span>{{ user.profile.last_date_annotated }}</td>
+                    <td><span style="display:none;">{{ user.profile.last_date_annotated |date:"YmdHis" }}</span>{{ user.profile.last_date_annotated }}</td>
                     <td class="right aligned"><a href="{% url 'monitor-user' dataset.short_name user.id %}" class="blue ui button right labeled icon">Go<i class="right arrow icon"></i></a></td>
                 </tr>
             {% endfor %}

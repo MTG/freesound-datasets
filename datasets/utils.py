@@ -1,9 +1,10 @@
 import os
 from urllib.parse import urljoin
 from django.conf import settings
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.template.loader import render_to_string
 import datasets.freesound as fs
+from nltk import PorterStemmer
 
 
 def generate_download_script(dataset):
@@ -37,3 +38,8 @@ def query_freesound_by_id(list_ids, fields="id,name", descriptors=""):
                                          descriptors=descriptors)
         results += [s for s in page_result]
     return results
+
+
+def stem(word):
+    ps = PorterStemmer()
+    return ps.stem(word)

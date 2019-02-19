@@ -54,6 +54,9 @@ class RedisStore(object):
             count += 1
         return count
 
+    def delete_compute_keys(self):
+        return self.delete_keys('computing-*')
+
 
 store = RedisStore(verbose=False)
 

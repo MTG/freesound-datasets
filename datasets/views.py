@@ -1,18 +1,20 @@
 from urllib.request import urlopen
 from urllib.error import HTTPError
-from urllib.parse import urlencode, unquote
+from urllib.parse import urlencode, unquote, quote
 from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse, HttpResponseNotAllowed, HttpResponseRedirect
 from django.views.decorators.cache import cache_page
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector, TrigramSimilarity, TrigramDistance
 from django.conf import settings
-from django.core.urlresolvers import reverse
-from django.db.models import Count
+from django.urls import reverse
+from django.db.models import Count, F, Q
 from django.db import transaction, connection
 from django.forms import formset_factory
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from datasets.models import Dataset, DatasetRelease, CandidateAnnotation, Vote, TaxonomyNode, SoundDataset, Sound
+from datasets.models import Dataset, DatasetRelease, CandidateAnnotation, Vote, TaxonomyNode, SoundDataset, Sound, User
 from datasets import utils
+from django.utils import timezone
 from datasets.forms import DatasetReleaseForm, PresentNotPresentUnsureForm, CategoryCommentForm
 from pygments import highlight
 from pygments.lexers import PythonLexer
@@ -25,6 +27,7 @@ from utils.async_tasks import data_from_async_task
 import os
 import random
 import json
+import datetime
 
 
 #######################
@@ -140,6 +143,45 @@ def taxonomy_node(request, short_name, node_id):
                                                            'sounds': annotations})
 
 
+def explore_taxonomy(request, short_name):
+    dataset = get_object_or_404(Dataset, short_name=short_name)
+    return render(request, 'datasets/explore_taxonomy.html', {
+        'dataset': dataset
+    })
+
+
+def search_taxonomy_node(request, short_name):
+    if not request.user.is_authenticated:
+        return HttpResponse('Unauthorized', status=401)
+    dataset = get_object_or_404(Dataset, short_name=short_name)
+    if not dataset.user_is_maintainer(request.user):
+        raise HttpResponseNotAllowed
+    taxonomy = dataset.taxonomy
+    query = request.GET.get('q', '')
+
+    # vector = SearchVector('name', weight='A') + SearchVector('description', weight='C')
+    # query = SearchQuery(query)
+    # qs_results = TaxonomyNode.objects.filter(taxonomy__dataset=dataset)\
+    #                                  .annotate(rank=SearchRank(vector, query)).filter(rank__gte=0.3)\
+    #                                  .order_by('rank')
+
+    qs_results = TaxonomyNode.objects.filter(taxonomy__dataset=dataset)\
+                                     .annotate(similarity=TrigramSimilarity('name', query) +
+                                                          TrigramSimilarity('description', query),)\
+                                     .filter(similarity__gte=0.2)\
+                                     .order_by('-similarity')
+
+    results = [{'name': node.name,
+                'node_id': node.node_id,
+                'path': ' > '.join([TaxonomyNode.objects.get(node_id=node_id).name for node_id in path_list]),
+                'big_id': ','.join(path_list),
+                'omitted': node.omitted_curation_task}
+               for node in qs_results
+               for path_list in taxonomy.get_hierarchy_paths(node.node_id)]
+
+    return JsonResponse(results[:10], safe=False)
+
+
 #############################
 # CONTRIBUTE TO DATASET VIEWS
 #############################
@@ -147,13 +189,15 @@ def taxonomy_node(request, short_name, node_id):
 def contribute(request, short_name, beginner_task_finished=False):
     dataset = get_object_or_404(Dataset, short_name=short_name)
 
+    n_contributors = User.objects.annotate(num_votes=Count('votes')).filter(num_votes__gt=0).count()
+
     user_is_maintainer = dataset.user_is_maintainer(request.user)
 
     # Get previously stored annotators ranking
     annotators_ranking = data_from_async_task(compute_annotators_ranking, [dataset.id], {},
                                               DATASET_ANNOTATORS_RANKING_TEMPLATE.format(dataset.id), 60 * 1)
 
-    return render(request, 'datasets/contribute.html', {'dataset': dataset, 'annotators_ranking': annotators_ranking,
+    return render(request, 'datasets/contribute.html', {'dataset': dataset, 'n_contributors': n_contributors, 'annotators_ranking': annotators_ranking,
                                                         'beginner_task_finished': beginner_task_finished,
                                                         'user_is_maintainer': user_is_maintainer})
 
@@ -258,7 +302,7 @@ def contribute_validate_annotations_category(request, short_name, node_id, html_
                                                                       taxonomy_node=node).values_list('id', flat=True)
 
     sound_examples = node.freesound_examples.all().filter(deleted_in_freesound=False)
-    annotation_examples_ids = dataset.candidate_annotations.filter(sound_dataset__sound__in=sound_examples, taxonomy_node=node) \
+    annotation_examples_ids = dataset.candidate_annotations.filter(sound_dataset__sound__in=sound_examples, taxonomy_node=node)\
         .values_list('id', flat=True)
 
     if node.positive_verification_examples_activated:
@@ -281,80 +325,34 @@ def contribute_validate_annotations_category(request, short_name, node_id, html_
                 annotation_ids += [None]  # count as an added annotation but does not retrieve any annotation later,
                 #  the false annotation "negative_annotation_example" is added manually
 
-    # Get annotation that are not ground truth and that have been never annotated by the user, exclude test examples
-    annotations = dataset.non_ground_truth_annotations_per_taxonomy_node(node_id) \
-        .exclude(votes__created_by=user).exclude(id__in=annotation_examples_verification_ids) \
-        .exclude(id__in=annotation_examples_ids) \
-        .exclude(sound_dataset__sound__extra_data__duration__gt=30) \
-        .exclude(sound_dataset__sound__extra_data__duration__lt=0.3) \
-        .filter(sound_dataset__sound__deleted_in_freesound=False).annotate(num_votes=Count('votes'))
+    # Get non ground truth annotations, never voted by the user (with positive test),
+    # exclude test examples, order by priority score & random,
+    # exclude candidate outside of [0.3, 30] sec and with 0 votes
+    # TODO: put this in a class method and do a test
+    annotations = dataset.non_ground_truth_annotations_per_taxonomy_node(node_id)\
+                         .exclude(id__in=Vote.objects.filter(candidate_annotation__taxonomy_node=node,
+                                                             created_by=user,
+                                                             test__in=('UN', 'AP', 'PP', 'NA', 'NP'))
+                                  .values('candidate_annotation_id'))\
+                         .exclude(id__in=annotation_examples_verification_ids)\
+                         .exclude(id__in=annotation_examples_ids)\
+                         .filter(sound_dataset__sound__deleted_in_freesound=False)\
+                         .order_by('-priority_score', '?')
 
     # Exclude annotations that have votes (for kaggle dataset) and that have nc and sampling+ licenses
     if new_annotations == '1':
+        # this will discard the annotations with no votes
+        # out of [0.3, 30] secondes
+        # and with NC licenses
         annotations = annotations\
-            .exclude(num_votes__gt=0)\
+            .exclude(priority_score__gte=1000)\
+            .exclude(priority_score__lte=100)\
             .exclude(sound_dataset__sound__extra_data__license__in=('http://creativecommons.org/licenses/by-nc/3.0/',
                                                                     'http://creativecommons.org/licenses/sampling+/1.0/'
                                                                     ))
 
-    # Extract the voted annotations ids
-    annotation_with_vote_ids = annotations.filter(num_votes__gt=0).values_list('id', flat=True)
-
-    # Get annotations corresponding to short sounds (<10sec)
-    annotation_with_vote_short_ids = annotations.filter(id__in=annotation_with_vote_ids,
-                                                        sound_dataset__sound__extra_data__duration__lte=10)\
-        .values_list('id', flat=True)
-
-    # Order by number of ground truth annotations that the corresponding sound has, and randomize (complete labeling)
-    annotation_with_vote_short_complete_ids = \
-        get_candidate_annotations_complete_ids_random_from(annotation_with_vote_short_ids)
-
-    # Add them to the annotation list
     N_ANNOTATIONS_TO_VALIDATE = NB_TOTAL_ANNOTATIONS - len(annotation_ids)
-    N_with_vote_short_complete = min(len(annotation_with_vote_short_complete_ids), N_ANNOTATIONS_TO_VALIDATE)
-    if N_with_vote_short_complete:
-        annotation_ids += annotation_with_vote_short_complete_ids[:N_with_vote_short_complete]
-
-    # If we don't have enough annotations, add the one that correspond to long sounds (>10sec) - Same priority steps
-    if len(annotation_ids) < NB_TOTAL_ANNOTATIONS:
-        annotation_with_vote_long = annotations.filter(id__in=annotation_with_vote_ids)\
-                .exclude(id__in=annotation_with_vote_short_ids)\
-                .values_list('id', flat=True)
-        annotation_with_vote_long_complete_ids = \
-            get_candidate_annotations_complete_ids_random_from(annotation_with_vote_long)
-        N_with_vote_long_complete = min(len(annotation_with_vote_long_complete_ids),
-                                        NB_TOTAL_ANNOTATIONS - len(annotation_ids))
-        if N_with_vote_long_complete:
-            annotation_ids += annotation_with_vote_long_complete_ids[:N_with_vote_long_complete]
-
-        # If there is not enough annotations, add non voted annotations - Same priority steps
-        if len(annotation_ids) < NB_TOTAL_ANNOTATIONS:
-            # Get annotations corresponding to short sounds
-            annotation_with_no_vote_short_ids = annotations.filter(num_votes=0,
-                                                                   sound_dataset__sound__extra_data__duration__lte=10)\
-                .values_list('id', flat=True)
-
-            # Order by number of ground truth annotations that the corresponding sound has, and randomize
-            annotation_with_no_vote_short_complete_ids = \
-                get_candidate_annotations_complete_ids_random_from(annotation_with_no_vote_short_ids)
-
-            N_with_no_vote_short_complete = min(len(annotation_with_no_vote_short_complete_ids),
-                                                NB_TOTAL_ANNOTATIONS - len(annotation_ids))
-            if N_with_no_vote_short_complete:
-                annotation_ids += annotation_with_no_vote_short_complete_ids[:N_with_no_vote_short_complete]
-
-            # If we don't have enough annotations, add the one that correspond to long sounds
-            if len(annotation_ids) < NB_TOTAL_ANNOTATIONS:
-                annotation_with_no_vote_ids = annotations.filter(num_votes=0)\
-                    .exclude(id__in=annotation_with_no_vote_short_ids)\
-                    .values_list('id', flat=True)
-                annotation_with_no_vote_complete_ids = \
-                    get_candidate_annotations_complete_ids_random_from(annotation_with_no_vote_ids)
-
-                N_with_no_vote_long = min(len(annotation_with_no_vote_complete_ids),
-                                     NB_TOTAL_ANNOTATIONS - len(annotation_ids))
-                if N_with_no_vote_long:
-                    annotation_ids += annotation_with_no_vote_complete_ids[:N_with_no_vote_long]
+    annotation_ids += annotations[:N_ANNOTATIONS_TO_VALIDATE].values_list('id', flat=True)
 
     # If not candidate annotations left, remove test annotations
     if annotations.count() == 0:
@@ -380,6 +378,7 @@ def contribute_validate_annotations_category(request, short_name, node_id, html_
         request.session['nb_task1_pages'] = 1
         nb_task1_pages = 1
 
+    # For beginner task html_url argument is given
     if not html_url:
         html_url = 'datasets/contribute_validate_annotations_category.html'
 
@@ -462,7 +461,9 @@ def save_contribute_validate_annotations_category(request):
                     annotation_id = form.cleaned_data['annotation_id']
                     if annotation_id not in test_annotations_id and annotation_id != 0:  # store only the votes for non test annotations
                         check = Vote.objects.filter(created_by=request.user,
-                                                    candidate_annotation_id=annotation_id)
+                                                    candidate_annotation_id=annotation_id,
+                                                    created_at__gt=timezone.now()
+                                                                   - datetime.timedelta(seconds=5))
                         if not check.exists():
                             # Save votes for annotations
                             Vote.objects.create(
@@ -515,6 +516,7 @@ def dataset_taxonomy_table_choose(request, short_name):
     taxonomy = dataset.taxonomy
     hierarchy_paths = []
     end_of_table = False
+    add_label_or_choose_category = request.POST.get('add_label_or_choose_category', 'choose_category')
 
     # nodes for Free choose table
     if request.method == 'POST':
@@ -522,21 +524,27 @@ def dataset_taxonomy_table_choose(request, short_name):
 
         # choose a category at the given node_id level
         if node_id != str(0):
-            if node_id in taxonomy.get_nodes_at_level(0):
+            if node_id in [node.node_id for node in taxonomy.get_nodes_at_level(0)]:
                 # remove node that them and all their children are omitted.
                 # Here we should remove also the categories which all its children have no more annotations tu validate.
                 # Doing it with dataset.get_categories_to_validate() or with dataset.user_can_annotated() on all
                 # children would be too slow
-                nodes = [node for node in taxonomy.get_children(node_id) if node.self_and_children_advanced_task
-                         and not node.self_and_children_omitted]
+                if add_label_or_choose_category == 'choose_category':
+                    nodes = [node for node in taxonomy.get_children(node_id) if node.self_and_children_advanced_task
+                             and not node.self_and_children_omitted]
+                else:
+                    nodes = [node for node in taxonomy.get_children(node_id)]
             else:
                 end_of_table = True  # end of continue, now the user will choose a category to annotate
                 nodes = list(taxonomy.get_all_children(node_id)) + [taxonomy.get_element_at_id(node_id)] \
                     + list(taxonomy.get_all_parents(node_id))
                 # we should remove the nodes that have no more annotations to validate for the user
                 # by using dataset.user_can_annotate(), but it is too slow
-                nodes = [node for node in nodes
-                         if node.advanced_task and not node.omitted]
+                if add_label_or_choose_category == 'choose_category':
+                    nodes = [node for node in nodes
+                             if node.advanced_task and not node.omitted]
+                else:
+                    pass
             hierarchy_paths = dataset.taxonomy.get_hierarchy_paths(node_id)
 
         # start choosing category
@@ -553,14 +561,15 @@ def dataset_taxonomy_table_choose(request, short_name):
             .exclude(omitted=True).order_by('nb_ground_truth')[:20]
 
     return render(request, 'datasets/dataset_taxonomy_table_choose.html', {
-        'dataset': dataset, 'end_of_table': end_of_table, 'hierarchy_paths': hierarchy_paths, 'nodes': nodes})
+        'dataset': dataset, 'end_of_table': end_of_table, 'hierarchy_paths': hierarchy_paths, 'nodes': nodes,
+        'add_label_or_choose_category': add_label_or_choose_category})
 
 
 def dataset_taxonomy_table_search(request, short_name):
     if not request.user.is_authenticated:
         return HttpResponse('Unauthorized', status=401)
     dataset = get_object_or_404(Dataset, short_name=short_name)
-    nodes = dataset.get_categories().filter(advanced_task=True).exclude(omitted=True)  # sould use get_categories_to_validate() but it is too slow
+    nodes = dataset.get_categories().filter(advanced_task=True)  # sould use get_categories_to_validate() but it is too slow
     return render(request, 'datasets/dataset_taxonomy_table_search.html',
                   {'dataset': dataset, 'nodes': nodes, 'maintainer_task': 0, 'new_annotations': 0})
 
@@ -581,6 +590,8 @@ def get_mini_node_info(request, short_name, node_id):
     show_examples = int(request.GET.get('se', 1))
     show_go_button = int(request.GET.get('sb', 1))
     show_num_gt = int(request.GET.get('sgt', 0))
+    show_hierarchy = int(request.GET.get('sh', 1))
+    show_name_table_lines = int(request.GET.get('sn', 1))
     node_id = unquote(node_id)
     dataset = get_object_or_404(Dataset, short_name=short_name)
     node = dataset.taxonomy.get_element_at_id(node_id).as_dict()
@@ -588,7 +599,99 @@ def get_mini_node_info(request, short_name, node_id):
     node['hierarchy_paths'] = hierarchy_paths if hierarchy_paths is not None else []
     return render(request, 'datasets/taxonomy_node_mini_info.html',
                   {'dataset': dataset, 'node': node, 'show_examples': show_examples,
-                   'show_go_button': show_go_button, 'show_num_gt': show_num_gt})
+                   'show_go_button': show_go_button, 'show_num_gt': show_num_gt,
+                   'show_hierarchy': show_hierarchy, 'show_name_table_lines': show_name_table_lines})
+
+
+@login_required
+def curate_sounds(request, short_name, sound_id):
+    dataset = get_object_or_404(Dataset, short_name=short_name)
+    if not dataset.user_is_maintainer(request.user):
+        raise HttpResponseNotAllowed
+    taxonomy = dataset.taxonomy
+    sound = Sound.objects.get(freesound_id=sound_id)
+    existing_gt_annotations = sound.get_ground_truth_annotations(dataset)\
+                                .filter(from_propagation=False, taxonomy_node__omitted_curation_task=False)\
+                                .select_related('taxonomy_node')
+    existing_candidate_annotations = sound.get_candidate_annotations(dataset)\
+                                          .filter(ground_truth=None, taxonomy_node__omitted_curation_task=False)\
+                                          .select_related('taxonomy_node')\
+                                          .exclude(taxonomy_node__id__in=
+                                                existing_gt_annotations.values_list('taxonomy_node__id', flat=True))
+    existing_gt_annotations_formated = [
+        {
+            'node_id': annotation.taxonomy_node.node_id,
+            'node_name': annotation.taxonomy_node.name,
+            'ground_truth': annotation.ground_truth,
+            'big_id': ','.join(taxonomy.get_hierarchy_paths(annotation.taxonomy_node.node_id)[0]),
+        } for annotation in existing_gt_annotations]
+    
+    existing_candidate_annotations_formated = [
+        {
+            'node_id': annotation.taxonomy_node.node_id,
+            'node_name': annotation.taxonomy_node.name,
+            'big_id': ','.join(taxonomy.get_hierarchy_paths(annotation.taxonomy_node.node_id)[0]),
+        } for annotation in existing_candidate_annotations]
+    
+    freesound_sound_id = sound.freesound_id
+    return render(request, 'datasets/curate_sounds.html',
+                  {'dataset': dataset,
+                   'freesound_sound_id': freesound_sound_id,
+                   'generation_task': '1',
+                   'existing_gt_annotations': existing_gt_annotations_formated,
+                   'existing_candidate_annotations': existing_candidate_annotations_formated})
+
+
+@transaction.atomic
+def save_expert_votes_curation_task(request, short_name, sound_id):
+    if not request.user.is_authenticated:
+        return HttpResponse('Unauthorized', status=401)
+    dataset = get_object_or_404(Dataset, short_name=short_name)
+    if not dataset.user_is_maintainer(request.user):
+        raise HttpResponseNotAllowed
+    if request.method == 'POST':
+        annotation_votes = json.loads(request.POST.dict()['jsonData'])
+        # check that all the annotations are voted
+        if not all('label-presence' in annotation_vote for annotation_vote in annotation_votes):
+            error_response = {'errors': [value['label-id'] for count, value in enumerate(annotation_votes) if 'label-presence' not in value]}
+            return JsonResponse(error_response)
+        else:
+            # create candidate annotations and expert votes
+            # we can treat both case at once thanks to get_or_create() method
+            for new_annotation_vote in annotation_votes:
+                annotation, _ = CandidateAnnotation.objects.get_or_create(
+                    sound_dataset=SoundDataset.objects.get(sound__freesound_id=sound_id, 
+                                                           dataset=dataset),
+                    taxonomy_node=TaxonomyNode.objects.get(node_id=new_annotation_vote['label-id']),
+                    defaults={
+                        'type': 'MA',
+                        'created_by': request.user,
+                    }
+                )
+                Vote.objects.create(
+                    created_by=request.user,
+                    vote=new_annotation_vote['label-presence'],
+                    candidate_annotation=annotation,
+                    from_task='CU',
+                    from_expert=True,
+                )
+
+    return JsonResponse({'errors': False})
+
+
+def get_node_info(request, short_name, node_name):
+    dataset = get_object_or_404(Dataset, short_name=short_name)
+    generation_task = request.GET.get('gen-task', '0')
+    node = dataset.taxonomy.get_element_from_name(node_name)
+    hp = [node.get_parents()]
+    node = node.as_dict()
+    return render(request, 'datasets/taxonomy_node_info_for_taxonomy_table.html',
+                  {
+                      'dataset': dataset,
+                      'node': node,
+                      'hp': hp,
+                      'generation_task': generation_task,
+                  })
 
 
 ########################

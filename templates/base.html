@@ -1,4 +1,4 @@
-{% load staticfiles %}
+{% load static %}
 {% load general_templatetags %}
 
 <!DOCTYPE html>
@@ -32,90 +32,92 @@
     {% block extra_head %}
     {% endblock extra_head%}
 </head>
+
 <body>
-  <div class="main_wrapper">
-    <!-- HEADER -->
-    {% block header %}
-        {% if home %}
-        <div id="header_home" class="ui red inverted menu" style="border-radius: 0 !important; height: 50px !important;">
-        {% else %}
-        <div id="header_other" class="ui fixed red inverted menu">
-        {% endif %}
-          <div class="ui container">
-            {% if dataset %}
-                {% if dataset.short_name == "fsd" %}
-                    <a href="{% url 'dataset' dataset.short_name %}" class="{% if dataset_page %} active {% else %} {% endif %}item">
-                        <img style="padding: 5px;width: 120px;max-height:70px;" src="{% static "img/freesound_dataset_logo_b.svg" %}"></a>
-                {% else %}
-                    {{ dataset.name }}
-                {% endif %}
-                <a href="{% url 'dataset-explore' dataset.short_name %}" class="{% active_if_current 'dataset-explore' %}item">Explore</a>
-                <a href="{% url 'contribute' dataset.short_name %}" class="{% active_if_current 'contribute' %}item">Annotate</a>
-                <a href="{% url 'discussion' dataset.short_name %}" class="{% active_if_current 'discussion' %}item">Discussion</a>
-                {% if dataset.last_release_tag %}
-                    <a href="{% url 'download-release' dataset.short_name dataset.last_release_tag %}" class="{% active_if_current 'download' %}item">Download</a>
-                {% else %}
-                    <a href="#" class="item disabled">Download</a>
-                {% endif %}
-                {% if dataset.short_name == "fsd" %}
-                    {% if request.user.profile.is_fsd_maintainer %}
-                        <a href="{% url 'monitor' dataset.short_name %}" class="{% active_if_current 'monitor' %}item">Monitor</a>
-                    {% endif %}
-                {% endif %}
+    <div class="main_wrapper">
+        <!-- HEADER -->
+        {% block header %}
+            {% if home %}
+                <div id="header_home" class="ui red inverted menu" style="border-radius: 0 !important; height: 50px !important;">
             {% else %}
-                <img style=" visibility: hidden; padding: 5px;width: 300px;height:76px;" src="{% static "img/freesound_datasets_logo.svg" %}">
+                <div id="header_other" class="ui fixed red inverted menu">
             {% endif %}
-            <div class="right menu">
-                {% if request.user.is_authenticated %}
-                    <div class="item">{{ request.user.username }}</div>
-                    <a class="item" href="{% url 'logout' %}"><i class="user icon"></i>Logout</a>
+            <div class="ui container">
+                {% if dataset %}
+                    {% if dataset.short_name == "fsd" %}
+                        <a href="{% url 'dataset' dataset.short_name %}" class="{% if dataset_page %} active {% else %} {% endif %}item">
+                            <img style="padding: 5px;width: 120px;max-height:70px;" src="{% static "img/freesound_dataset_logo_b.svg" %}"></a>
+                    {% else %}
+                        {{ dataset.name }}
+                    {% endif %}
+                    <a href="{% url 'dataset-explore' dataset.short_name %}" class="{% active_if_current 'dataset-explore' %}item">Explore</a>
+                    <a href="{% url 'contribute' dataset.short_name %}" class="{% active_if_current 'contribute' %}item">Annotate</a>
+                    <a href="{% url 'discussion' dataset.short_name %}" class="{% active_if_current 'discussion' %}item">Discussion</a>
+                    {% if dataset.last_release_tag %}
+                        <a href="{% url 'download-release' dataset.short_name dataset.last_release_tag %}" class="{% active_if_current 'download' %}item">Download</a>
+                    {% else %}
+                        <a href="#" class="item disabled">Download</a>
+                    {% endif %}
+                    {% if dataset.short_name == "fsd" %}
+                        {% if request.user.profile.is_fsd_maintainer %}
+                            <a href="{% url 'monitor' dataset.short_name %}" class="{% active_if_current 'monitor' %}item">Monitor</a>
+                        {% endif %}
+                    {% endif %}
                 {% else %}
-                    <a class="item" href="{% url 'login' %}"><i class="user icon"></i>Login</a>
+                    <img style=" visibility: hidden; padding: 5px;width: 300px;height:76px;" src="{% static "img/freesound_datasets_logo.svg" %}">
                 {% endif %}
-                <a class="{% active_if_current 'index' %}item" href="{% url 'index' %}"><i class="home icon"></i>Home</a>
-                <div style="border-left:1px solid #C82727;height:60px"></div>
-            </div>
-          </div>
-        </div>
-    {% endblock %}
-
-    {% if home %}
-    <!-- CONTENT FULL PAGE -->
-    <div class="ui main">
-      {% block content_large %}
-      {% endblock content_large%}
-    </div>
-    {% else %}
-    <!-- CONTENT SMALL WIDTH -->
-    <div class="ui main text container">
-      {% block content %}
-      {% endblock content%}
-    </div>
-    {% endif %}
-
-    <!-- FOOTER -->
-    {% block footer %}
-        <div class="ui inverted red vertical footer segment">
-            <div class="ui center aligned container">
-                <div class="ui horizontal inverted small link list">
-                    <a class="item" href="{% url 'index' %}">
-                        <img class="ui image" style="width: 190px;" src="{% static "img/freesound_datasets_logo.svg" %}">
-                    </a>
-                    &nbsp; &nbsp; &nbsp; by:
-                    <a class="item" href="http://mtg.upf.edu/" target="_blank">
-                        <img class="ui image" style="width: 200px;" src="{% static "img/mtg_upf_logo.svg" %}">
-                    </a>
-                    <a class="item" href="http://freesound.org/" target="_blank">
-                        <img class="ui image" style="width: 120px;" src="{% static "img/freesound_logo.svg" %}">
-                    </a>
+                <div class="right menu">
+                    {% if request.user.is_authenticated %}
+                        <div class="item">{{ request.user.username }}</div>
+                        <a class="item" href="{% url 'logout' %}"><i class="user icon"></i>Logout</a>
+                    {% else %}
+                        <a class="item" href="{% url 'login' %}"><i class="user icon"></i>Login</a>
+                    {% endif %}
+                    <a class="{% active_if_current 'index' %}item" href="{% url 'index' %}"><i class="home icon"></i>Home</a>
+                    <div style="border-left:1px solid #C82727;height:60px"></div>
                 </div>
             </div>
         </div>
-      </div>
-{% endblock %}
+        {% endblock %}
 
-  {% block page_js %}
-  {% endblock %}
+        {% if home %}
+            <!-- CONTENT FULL PAGE -->
+            <div class="ui main">
+                {% block content_large %}
+                {% endblock content_large%}
+            </div>
+        {% else %}
+            <!-- CONTENT SMALL WIDTH -->
+            <div class="ui main text container">
+                {% block content %}
+                {% endblock content%}
+            </div>
+        {% endif %}
+
+        <!-- FOOTER -->
+        {% block footer %}
+            <div class="ui inverted red vertical footer segment">
+                <div class="ui center aligned container">
+                    <div class="ui horizontal inverted small link list">
+                        <a class="item" href="{% url 'index' %}">
+                            <img class="ui image" style="width: 190px;" src="{% static "img/freesound_datasets_logo.svg" %}">
+                        </a>
+                        &nbsp; &nbsp; &nbsp; by:
+                        <a class="item" href="http://mtg.upf.edu/" target="_blank">
+                            <img class="ui image" style="width: 200px;" src="{% static "img/mtg_upf_logo.svg" %}">
+                        </a>
+                        <a class="item" href="http://freesound.org/" target="_blank">
+                            <img class="ui image" style="width: 120px;" src="{% static "img/freesound_logo.svg" %}">
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% endblock %}
+
+    </div>
+
+    {% block page_js %}
+    {% endblock %}
 
 </body>
 </html>

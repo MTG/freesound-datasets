@@ -1,0 +1,39 @@
+{% load dataset_templatetags %}
+{% load general_templatetags %}
+
+<div class="ui card">
+
+    <div class="content">
+
+        <div class="right floated">
+            <a href="{% url 'dataset-explore-taxonomy-node' dataset.short_name node.url_id %}" title="Go to category page" target="_blank"><i class="external square alternate icon"></i></a>
+        </div>
+
+        <div class="ui header">
+            {{ node.name }}&nbsp;
+            <button class="ui circular icon basic button close-card" title="Hide additional info">
+                <i class="chevron up icon"></i>
+            </button>
+        </div>
+
+        <div class="ui small breadcrumb">
+            <div class="section">Ontology</div>
+        </div>
+
+        <div class="description">
+            <p>{{ node.description }}</p>
+        </div>
+        {% if node.freesound_examples %}
+            {% for fsid in node.freesound_examples %}
+            {% sound_player dataset fsid "mini" %}
+            {% endfor %}
+        {% endif %}
+
+        {% if generation_task == '1' %}
+            <button class="ui primary button add-label">
+                Add
+            </button>
+        {% endif %}
+
+    </div>
+</div>

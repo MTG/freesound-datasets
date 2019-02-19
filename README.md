@@ -41,6 +41,11 @@ Otherwise, to create a user using Django's models you can run
 
     docker-compose run --rm web python manage.py createsuperuser
 
+You will need to install the PostgreSQL [`pg_trgm`](https://www.postgresql.org/docs/9.6/pgtrgm.html) extension in order to enable the text-search in the *sound curation task*. After having started the containers (`docker-compose up`), from an other terminal, you can run
+
+    docker-compose run --rm db psql -h db -U postgres
+    CREATE EXTENSION pg_trgm;
+
 
 ### Running
 
