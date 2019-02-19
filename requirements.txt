@@ -1,7 +1,7 @@
 Django==2.1.7
 django-debug-toolbar==1.11
 django-extensions==2.1.2
-psycopg2==2.7.7 --no-binary :all:
+psycopg2==2.7.7 --no-binary psycopg2
 dj-database-url==0.4.1
 uwsgi==2.0.18
 markdown==2.6.8
