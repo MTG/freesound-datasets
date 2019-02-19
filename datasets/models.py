@@ -201,7 +201,7 @@ class Sound(models.Model):
     name = models.CharField(max_length=200)
     freesound_id = models.IntegerField(db_index=True)
     deleted_in_freesound = models.BooleanField(default=False, db_index=True)
-    extra_data = JSONField(default={})
+    extra_data = JSONField(default=dict)
 
     app_label = 'datasets'
     model_name = 'sound'
