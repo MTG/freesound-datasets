@@ -17,11 +17,15 @@ def crash_me(request):
 
 
 def index(request):
-    dataset = Dataset.objects.get(short_name='fsd')
-    dataset_basic_stats = data_from_async_task(compute_dataset_basic_stats, [dataset.id], {},
-                                               DATASET_BASIC_STATS_KEY_TEMPLATE.format(dataset.id), 60)
-    num_categories_reached_goal = dataset_basic_stats.get('num_categories_reached_goal', None)
-    num_non_omitted_nodes = dataset_basic_stats.get('num_non_omitted_nodes', None)
+    try:
+        dataset = Dataset.objects.get(short_name='fsd')
+        dataset_basic_stats = data_from_async_task(compute_dataset_basic_stats, [dataset.id], {},
+                                                   DATASET_BASIC_STATS_KEY_TEMPLATE.format(dataset.id), 60)
+        num_categories_reached_goal = dataset_basic_stats.get('num_categories_reached_goal', None)
+        num_non_omitted_nodes = dataset_basic_stats.get('num_non_omitted_nodes', None)
+    except:
+        num_categories_reached_goal = None
+        num_non_omitted_nodes = None
     
     return render(request, 'index.html', {'home': True,
                                           'num_categories_reached_goal': num_categories_reached_goal,
