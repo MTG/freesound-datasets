@@ -1,0 +1,46 @@
+[{
+        "model": "datasets.taxonomy",
+        "pk": 1,
+        "fields": {
+            "data": {
+                "/m/0bt9lr": {
+                    "restrictions": [],
+                    "name": "Dog",
+                    "parent_ids": [],
+                    "citation_uri": "https://en.wikipedia.org/wiki/Dog",
+                    "description": "The domestic dog is a member of the genus Canis (canines), which forms part of the wolf-like canids, and is the most widely abundant terrestrial carnivore.",
+                    "positive_examples_FS": [
+                        327666
+                    ],
+                    "id": "/m/0bt9lr",
+                    "positive_examples": [],
+                    "child_ids": []
+                },
+                "/m/01yrx": {
+                    "restrictions": [],
+                    "name": "Cat",
+                    "parent_ids": [],
+                    "citation_uri": "https://en.wikipedia.org/wiki/Cat",
+                    "description": "The cat or domestic cat is a small carnivorous mammal. It is the only domesticated species in the family Felidae.",
+                    "positive_examples_FS": [
+                        415209
+                    ],
+                    "id": "/m/01yrx",
+                    "positive_examples": [],
+                    "child_ids": []
+                }
+            }
+        }
+    },
+    {
+        "model": "datasets.dataset",
+        "pk": 1,
+        "fields": {
+            "created_at": "2017-03-14T15:30:36.112Z",
+            "name": "DogCatDataset",
+            "short_name": "dcds",
+            "description": "This is an example of a dataset with dog and cat categories.",
+            "taxonomy": 1
+        }
+    }
+]

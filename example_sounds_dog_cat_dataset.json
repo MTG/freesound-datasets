@@ -1,0 +1,105 @@
+{
+    "98672":{
+      "username":"Hamface",
+      "description":"cat licking sound",
+      "license":"http://creativecommons.org/licenses/sampling+/1.0/",
+      "tags":[
+         "cat",
+         "lick"
+      ],
+      "previews":"http://www.freesound.org/data/previews/98/98672_1658351-hq.ogg",
+      "duration":1.04430839002,
+      "aso_ids":[
+         "/m/01yrx"
+      ],
+      "name":"catlick.wav"
+   },
+   "365053":{
+      "username":"Ryntjie",
+      "description":"Multiple Jack Russells barking nondiscriminatory.",
+      "license":"http://creativecommons.org/licenses/by-nc/3.0/",
+      "tags":[
+         "jack-russel",
+         "terrier",
+         "creature",
+         "animal",
+         "dog",
+         "barking",
+         "owi",
+         "good-boy"
+      ],
+      "previews":"http://www.freesound.org/data/previews/365/365053_6586255-hq.ogg",
+      "duration":12.6213,
+      "aso_ids":[
+         "/m/0bt9lr"
+      ],
+      "name":"Dog Barking - Jack Russel"
+   },
+   "16363": {
+      "username":"kcparker",
+      "description":"dog lapping water, kitchen sounds, frying",
+      "license":"http://creativecommons.org/licenses/sampling+/1.0/",
+      "tags":[
+         "dog",
+         "drinking",
+         "frying"
+      ],
+      "previews":"http://www.freesound.org/data/previews/16/16363_53789-hq.ogg",
+      "duration":11.1455782313,
+      "aso_ids":[
+         "/m/0bt9lr"
+      ],
+      "name":"dog_drinking_frying.wav"
+   },
+   "210179":{
+      "username":"Augdog",
+      "description":"the sound of a cat walking.",
+      "license":"http://creativecommons.org/licenses/by/3.0/",
+      "tags":[
+         "walking",
+         "nature",
+         "cat"
+      ],
+      "previews":"http://www.freesound.org/data/previews/210/210179_3685050-hq.ogg",
+      "duration":4.01621,
+      "aso_ids":[
+         "/m/01yrx"
+      ],
+      "name":"Walking.wav"
+   },
+   "366411":{
+      "username":"Rach_Capache",
+      "description":"Cat sniffing: sniffing microphone. Recorded with a ZOOM H6 recorder and X/Y capsule. The sound was post-processed to remove any background noise or room tone.",
+      "license":"http://creativecommons.org/licenses/by-nc/3.0/",
+      "tags":[
+         "close",
+         "sniffing",
+         "cat",
+         "kitty",
+         "pet",
+         "sniff",
+         "owi"
+      ],
+      "previews":"http://www.freesound.org/data/previews/366/366411_5959200-hq.ogg",
+      "duration":5.0,
+      "aso_ids":[
+         "/m/01yrx"
+      ],
+      "name":"Cat Sniffing.wav"
+   },
+   "38121":{
+      "username":"deprogram",
+      "description":"dog bark ",
+      "license":"http://creativecommons.org/licenses/by-nc/3.0/",
+      "tags":[
+         "bark",
+         "dog"
+      ],
+      "previews":"http://www.freesound.org/data/previews/38/38121_389218-hq.ogg",
+      "duration":2.9953968254,
+      "aso_ids":[
+         "/m/0bt9lr"
+      ],
+      "name":"bark.wav"
+   }
+}
