@@ -7,7 +7,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-    <meta property="og:title" content="Freesound Datasets: A platform for the collaborative creation of open audio
+    <meta property="og:title" content="Freesound Annotator: A platform for the collaborative creation of open audio
     collections labeled by humans and based on Freesound content">
     <meta property="og:image" content={% static 'img/17.png' %}>
     <title>{% if dataset %}{{ dataset.name }} - {% endif %}{% block title %}{% endblock title %}</title>
@@ -62,7 +62,7 @@
                         {% endif %}
                     {% endif %}
                 {% else %}
-                    <img style=" visibility: hidden; padding: 5px;width: 300px;height:76px;" src="{% static "img/freesound_datasets_logo.svg" %}">
+                    <img style=" visibility: hidden; padding: 5px;width: 300px;height:76px;" src="{% static "img/freesound_annotator_logo.svg" %}">
                 {% endif %}
                 <div class="right menu">
                     {% if request.user.is_authenticated %}
@@ -98,7 +98,7 @@
                 <div class="ui center aligned container">
                     <div class="ui horizontal inverted small link list">
                         <a class="item" href="{% url 'index' %}">
-                            <img class="ui image" style="width: 190px;" src="{% static "img/freesound_datasets_logo.svg" %}">
+                            <img class="ui image" style="width: 190px;" src="{% static "img/freesound_annotator_logo.svg" %}">
                         </a>
                         &nbsp; &nbsp; &nbsp; by:
                         <a class="item" href="http://mtg.upf.edu/" target="_blank">

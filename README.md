@@ -1,19 +1,19 @@
-# Freesound Datasets
+# Freesound Annotator
 
-The [Freesound Datasets platform](https://datasets.freesound.org/) is a platform for the collaborative creation of open audio collections labeled by humans and based on Freesound content. The Freesound Datasets platform allows the following functionalites:
+[Freesound Annotator](https://annotator.freesound.org/) is a platform for the collaborative creation of open audio collections labeled by humans and based on Freesound content. Freesound Annotator allows the following functionalites:
 - **explore** the contents of datasets
 - **contribute** to the creation of the datasets by providing annotations
 - it will allow to **download** different _timestamped_ releases of the datasets
 - it also promotes **discussions** around both platform and datasets
 
 This repository serves the following main purposes:
-- **development and maintenance** of the Freesound Datasets platform
+- **development and maintenance** of the Freesound Annotator
 - allow people to see the ongoing progress in a **transparent** manner
 - concentrate **discussion** from the community
 
-We would like the community to get involved and to **share comments and suggestions** with us and other users. Feel free to take a look at the issues and join ongoing discussions, or create a new issue. We encourage discussion about several aspects of the datasets and the platform, including but not limited to: faulty audio samples, wrong annotations, annotation tasks protocol, etc. You can check the [Discussion page](https://datasets.freesound.org/fsd/discussion/) on the Freesound Datasets platform for some more ideas for discussion.
+We would like the community to get involved and to **share comments and suggestions** with us and other users. Feel free to take a look at the issues and join ongoing discussions, or create a new issue. We encourage discussion about several aspects of the datasets and the platform, including but not limited to: faulty audio samples, wrong annotations, annotation tasks protocol, etc. You can check the [Discussion page](https://annotator.freesound.org/fsd/discussion/) on the Freesound Annotator for some more ideas for discussion.
 
-The first dataset created through the Freesound Datasets platform is [FSD](https://datasets.freesound.org/fsd/): a large-scale, general-purpose dataset composed of [Freesound](https://freesound.org/) content annotated with labels from Google’s [AudioSet Ontology](https://research.google.com/audioset/ontology/index.html). All datasets collected through the platform will be openly available under Creative Commons licenses.
+The first dataset created through the Freesound Annotator is [FSD](https://annotator.freesound.org/fsd/): a large-scale, general-purpose dataset composed of [Freesound](https://freesound.org/) content annotated with labels from Google’s [AudioSet Ontology](https://research.google.com/audioset/ontology/index.html). All datasets collected through the platform will be openly available under Creative Commons licenses.
 
 You can find more information about the platform and the creation of FSD in our paper:
 
@@ -53,7 +53,7 @@ The first time you load the application you will need to perform migrations:
 
     docker-compose run --rm web python manage.py migrate
 
-Run Freesound datasets using docker-compose:
+Run Freesound Annotator using docker-compose:
 
     docker-compose up
 
