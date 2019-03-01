@@ -905,7 +905,7 @@
 				"parents_to_propagate_to": "Onomatopoeia"
 			}, {
 				"name": "Spray",
-				"mark": ["omittedTT", "omittedCurationTask"],
+				"mark": ["omittedTT"],
 				"node_id": "/m/07qlf79",
 				"children": null,
 				"parents_to_propagate_to": "Liquid"
@@ -4033,7 +4033,7 @@
 					"node_id": "/m/020bb7",
 					"children": [{
 						"name": "Squawk",
-						"mark": ["omittedTT", "omittedCurationTask"],
+						"mark": ["omittedTT"],
 						"node_id": "/m/07sx8x_",
 						"children": null,
 						"parents_to_propagate_to": "Bird vocalization, bird call, bird song"
