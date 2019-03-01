@@ -1,4 +1,5 @@
 # Freesound Annotator
+The platform changed its name from *Freesound Datasets* to *Freesound Annotator*.
 
 [Freesound Annotator](https://annotator.freesound.org/) is a platform for the collaborative creation of open audio collections labeled by humans and based on Freesound content. Freesound Annotator allows the following functionalites:
 - **explore** the contents of datasets
