@@ -154,7 +154,12 @@
     </script>
     <div class="ui basic segment">
         <center>
-            <h3>Listen to the following sound and add labels!</h3>
+            <h3>
+                Listen to the following sound and add labels! 
+                <a class="ui icon" target="blank" href="{% url 'monitor-sound' dataset.short_name freesound_sound_id %}">
+                    <i class="ui recycle icon"></i>
+                </a>
+            </h3>
             <div style="float:right;"><a href="javascript:void(0);" onclick="openFreesoundSoundPage('{{ freesound_sound_id }}');">
                 see in <img class="ui image" style="width: 80px;" src="{% static 'img/freesound_logo_color.png' %}"></a></div>
             {{ freesound_sound_id| fs_embed_large | safe }}

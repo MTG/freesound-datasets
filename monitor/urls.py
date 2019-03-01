@@ -7,5 +7,6 @@ urlpatterns = [
     re_path(r'^(?P<short_name>[^\/]+)/monitor_category/(?P<node_id>[^\/]+)/$', monitor_category, name='monitor-category'),
     re_path(r'^(?P<short_name>[^\/]+)/monitor_user/(?P<user_id>[^\/]+)/$', monitor_user, name='monitor-user'),
     re_path(r'^(?P<short_name>[^\/]+)/mapping_category/(?P<node_id>[^\/]+)/$', mapping_category, name='mapping-category'),
-    re_path(r'^(?P<short_name>[^\/]+)/sound_player/(?P<freesound_id>[^\/]+)/$', player, name='sound-player')
+    re_path(r'^(?P<short_name>[^\/]+)/sound_player/(?P<freesound_id>[^\/]+)/$', player, name='sound-player'),
+    re_path(r'^(?P<short_name>[^\/]+)/monitor_sound/(?P<freesound_id>[^\/]+)/$', monitor_sound, name='monitor-sound'),
 ]

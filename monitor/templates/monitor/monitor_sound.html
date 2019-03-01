@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% load static %}
+{% load general_templatetags %}
+{% load dataset_templatetags %}
+{% block title %}Monitor sound {{freesound_id}}{% endblock title %}
+{% block extra_head %}
+{% load_sound_player_files %}
+{% endblock extra_head%}
+
+
+{% block content %}
+
+    <h1>Sound with Freesound id {{sound.freesound_id}}</h1>
+    <center>
+        {{ sound.freesound_id| fs_embed_large | safe }}
+    </center>
+    <br>
+
+    <div class="title">
+        <h2 class="ui header">Ground truth annotations</h2>
+    </div>
+    <div class="content">
+        <table class="ui unstackable table" width="100%">
+            <thead>
+                <tr>
+                    <th class="center aligned">Category</th>
+                    <th class="center aligned">Precense</th>
+                    <th class="center aligned">From propagation</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for category, presence, from_propgation in ground_truth_annotations %}
+                <tr {% if color == 'g' %}bgcolor="#E8E8E8"{% endif %}>
+                    <td class="center aligned">
+                        {{ category }}
+                    </td>
+                    <td class="center aligned">
+                        {{ presence }}
+                    </td>
+                    <td class="center aligned">
+                        {{ from_propgation }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <br><br>
+
+    <div class="title">
+        <h2 class="ui header">Votes submitted to the related candidate annotations</h2>
+    </div>
+    <div class="content">
+        <table class="ui unstackable table" width="100%">
+            <thead>
+                <tr>
+                    <th class="center aligned">Category</th>
+                    <th class="center aligned">Vote</th>
+                    <th class="center aligned">Date</th>
+                    <th class="center aligned">User</th>
+                    <th class="center aligned">Curation Task</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for category, vote, user, date, expert, color in contribs %}
+                <tr {% if color == 'g' %}bgcolor="#E8E8E8"{% endif %}>
+                    <td class="center aligned">
+                        {{ category }}
+                    </td>
+                    <td class="center aligned">
+                        {{ vote }}
+                    </td>
+                    <td class="center aligned">
+                        {{ date |date:"D d M Y"}}
+                    </td>
+                    <td class="center aligned">
+                        {{ user }}
+                    </td>
+                    <td class="center aligned">
+                        {{ expert }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+{% endblock %}
