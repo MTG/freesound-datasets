@@ -6,7 +6,7 @@ from django.db.models import Count
 from django.db.models.functions import TruncDay
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.urls import reverse
-from datasets.models import Dataset, User, CandidateAnnotation
+from datasets.models import Dataset, User, CandidateAnnotation, Sound
 from datasets.utils import stem
 from datasets.templatetags.general_templatetags import sound_player
 from monitor.tasks import compute_dataset_top_contributed_categories, compute_dataset_bad_mapping, \
@@ -110,7 +110,7 @@ def monitor_user(request, short_name, user_id):
                 if contrib[0] == contribs_curation_task[idx-1][0]:
                     contribs_curation_task[idx] += (contribs_curation_task[idx-1][4],)
                 else:
-                    contribs_curation_task[idx] += ('g',) if contribs_curation_task[idx-1][3] == 'w' else ('w',)
+                    contribs_curation_task[idx] += ('g',) if contribs_curation_task[idx-1][4] == 'w' else ('w',)
 
     if contribs_failed:
         contribs_failed[0] += ('g',)
@@ -285,6 +285,39 @@ def mapping_category(request, short_name, node_id):
             'mapping_rule': mapping_rule,
             'platform_mapping_rules': platform_mapping_rules_formated
         })
+
+
+def monitor_sound(request, short_name, freesound_id):
+    dataset = get_object_or_404(Dataset, short_name=short_name)
+    sound = get_object_or_404(Sound, freesound_id=freesound_id)
+    sound_dataset = sound.sounddataset_set.filter(dataset=dataset).first()
+    candidate_annotations = sound_dataset.candidate_annotations.all().select_related('taxonomy_node') \
+                                                                     .prefetch_related('votes')
+    contribs = list(candidate_annotations.values_list('taxonomy_node__name', 
+                                                      'votes__vote', 
+                                                      'votes__created_by__username', 
+                                                      'votes__created_at',
+                                                      'votes__from_expert'))
+
+    # add alternate color per category
+    contribs[0] += ('g',)
+    for idx, contrib in enumerate(contribs):
+        if idx>0:
+            if contrib[0] == contribs[idx-1][0]:
+                contribs[idx] += (contribs[idx-1][5],)
+            else:
+                contribs[idx] += ('g',) if contribs[idx-1][5] == 'w' else ('w',)
+
+    ground_truth_annotations = sound_dataset.ground_truth_annotations.all().values_list('taxonomy_node__name', 
+                                                                                        'ground_truth', 
+                                                                                        'from_propagation')
+
+    return render(request, 'monitor/monitor_sound.html', {
+        'dataset': dataset,
+        'sound': sound,
+        'contribs': contribs,
+        'ground_truth_annotations': ground_truth_annotations
+    })
 
 
 def player(request, short_name, freesound_id):
