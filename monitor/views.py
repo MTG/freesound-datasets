@@ -289,6 +289,8 @@ def mapping_category(request, short_name, node_id):
 
 def monitor_sound(request, short_name, freesound_id):
     dataset = get_object_or_404(Dataset, short_name=short_name)
+    if not dataset.user_is_maintainer(request.user):
+        return HttpResponseRedirect(reverse('dataset', args=[dataset.short_name]))
     sound = get_object_or_404(Sound, freesound_id=freesound_id)
     sound_dataset = sound.sounddataset_set.filter(dataset=dataset).first()
     candidate_annotations = sound_dataset.candidate_annotations.all().select_related('taxonomy_node') \
