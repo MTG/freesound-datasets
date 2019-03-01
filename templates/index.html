@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
-{% block title %}Freesound Datasets - Index{% endblock title %}
+{% block title %}Freesound Annotator - Index{% endblock title %}
 
 {% block content_large %}
 
@@ -8,7 +8,7 @@
 {#<div class="ui secondary red inverted raised vertical padded center aligned segment">#}
 <div class="ui inverted raised vertical padded center aligned segment" style="background-image: url({% static 'img/17.png' %});background-size: cover;">
   <br><br><br><br>
-  <center><img class="ui center aligned image" style="width: 700px;" src="{% static "img/freesound_datasets_logo.svg" %}"></center>
+  <center><img class="ui center aligned image" style="width: 700px;" src="{% static "img/freesound_annotator_logo.svg" %}"></center>
   <h3>A platform for the collaborative creation of open audio collections labeled by humans and based on Freesound content</h3>
   <br>
   {% if num_categories_reached_goal %}
@@ -24,6 +24,13 @@
   <a href="{% url 'contribute' 'fsd' %}" class="ui big button right labeled icon">Get started with our annotation tasks! <i class="right arrow icon"></i></a>
   {% endif %}
   <br><br><br><br><br><br><br>
+</div>
+
+<div class="ui vertical segment center aligned">
+  <h2 class="header back_clear" style="color:#596876; margin-top: 45px; margin-bottom: 25px; text-align: center;" >
+    Looking for <span style="font-size: 30px;">Freesound Datasets</span> ?<br><br>
+    You are actually at the right place! Freesound Datasets is now called: <br><br><i class="quote left icon"></i><span style="font-size: 34px;">Freesound Annotator</span><i class="quote right icon"></i><br>
+  </h2>
 </div>
 
 <div class="ui vertical segment center aligned" style="background-color: #f8f6f3;">
@@ -88,7 +95,7 @@
             <p class="medium text blanched_yellow">We rely on the community to sustainably crowdsource high-quality<br>sound annotations and to improve our platform workflows</p>
           </div>
           <div class="item">
-            <div class="header back_clear"><h3>The Freesound Datasets platform</h3></div>
+            <div class="header back_clear"><h3>Freesound Annotator</h3></div>
             <p class="medium text blanched_yellow"> Builds and maintains datasets following the outlined principles of<br>transparency, openness, dynamic character, and sustainability</p>
           </div>
         </div>
