@@ -11,6 +11,7 @@ urlpatterns = [
     re_path(r'^(?P<short_name>[^\/]+)/download-script/$', download_script, name='download-script'),
     re_path(r'^(?P<short_name>[^\/]+)/discussion/', discussion, name='discussion'),
     re_path(r'^(?P<short_name>[^\/]+)/dataset-sounds/$', dataset_sounds, name='dataset-sounds'),
+    re_path(r'^(?P<short_name>[^\/]+)/downloads/$', downloads, name='downloads'),
     re_path(r'^(?P<short_name>[^\/]+)/check_release_progresses/$', check_release_progresses, name='check-release-progresses'),
     re_path(r'^(?P<short_name>[^\/]+)/release/(?P<release_tag>[^\/]+)/$', change_release_type, name='change-release-type'),
     re_path(r'^(?P<short_name>[^\/]+)/release/(?P<release_tag>[^\/]+)/download/$', download_release, name='download-release'),

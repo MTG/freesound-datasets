@@ -697,6 +697,11 @@ def get_node_info(request, short_name, node_name):
 ########################
 # DOWNLOAD DATASET VIEWS
 ########################
+def downloads(request, short_name):
+    dataset = get_object_or_404(Dataset, short_name=short_name)
+    return render(request, 'datasets/downloads.html', {'dataset': dataset})
+
+
 def get_access_token(request):
     code = request.GET.get('code', None)
     refresh_token = request.GET.get('refresh_token', None)
