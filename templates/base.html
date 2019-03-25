@@ -51,11 +51,7 @@
                     <a href="{% url 'dataset-explore' dataset.short_name %}" class="{% active_if_current 'dataset-explore' %}item">Explore</a>
                     <a href="{% url 'contribute' dataset.short_name %}" class="{% active_if_current 'contribute' %}item">Annotate</a>
                     <a href="{% url 'discussion' dataset.short_name %}" class="{% active_if_current 'discussion' %}item">Discussion</a>
-                    {% if dataset.last_release_tag %}
-                        <a href="{% url 'download-release' dataset.short_name dataset.last_release_tag %}" class="{% active_if_current 'download' %}item">Download</a>
-                    {% else %}
-                        <a href="#" class="item disabled">Download</a>
-                    {% endif %}
+                    <a href="{% url 'downloads' dataset.short_name %}" class="{% active_if_current 'download' %}item">Download</a>
                     {% if dataset.short_name == "fsd" %}
                         {% if request.user.profile.is_fsd_maintainer %}
                             <a href="{% url 'monitor' dataset.short_name %}" class="{% active_if_current 'monitor' %}item">Monitor</a>

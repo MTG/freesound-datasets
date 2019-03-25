@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<h1 class="ui header">Download {{ dataset.short_name|upper}} content</h1>
+
+<p>
+    Datasets created within the Freesound Annotator platform can be downloaded from the 
+    <a target="blank" href="https://zenodo.org/communities/freesound-datasets/">Freesound Datasets Zenodo community page</a>.
+</p>
+
+<div class="container" style="width:100%">
+    <table class="ui celled large table">
+        <tbody>
+            <tr>
+                <td>FSD</td>
+                <td>
+                    This is the main release of FSD which is still under development...
+                </td>
+                <td>
+                    <a target="blank" href="#">
+                        <button class="ui blue large button disabled">
+                            Download & more information here
+                        </button>
+                    </a>
+                </td>
+            </tr>
+
+            <tr>
+                <td>FSDKaggle2018</td>
+                <td>
+                    FSDKaggle2018 is an audio dataset containing 11,073 audio files annotated with 41 labels of the
+                    <a target="blank" href="https://research.google.com/audioset/ontology/index.html">AudioSet Ontology</a>.
+                    It has been used for the
+                    <a target="blank" href="http://dcase.community/challenge2018/task-general-purpose-audio-tagging">DCASE
+                        Challenge 2018 Task 2</a>,
+                    which was run as a Kaggle competition titled
+                    <a target="blank" href="https://www.kaggle.com/c/freesound-audio-tagging">Freesound General-Purpose
+                        Audio Tagging Challenge</a>.
+                </td>
+                <td>
+                    <a target="blank" href="https://zenodo.org/record/2552860#.XIpVoIU8twF">
+                        <button class="ui blue large button">
+                            Download & more information here
+                        </button>
+                    </a>
+                </td>
+            </tr>
+
+            <tr>
+                <td>FSDnoisy18k</td>
+                <td>
+                    FSDnoisy18k is an audio dataset collected with the aim of fostering the investigation of label
+                    noise in sound event classification.
+                    It contains 42.5 hours of audio across 20 sound classes, including a small amount of
+                    manually-labeled data and a larger quantity of
+                    real-world noisy data.
+                </td>
+                <td>
+                    <a target="blank" href="https://zenodo.org/record/2529934#.XIpVoIU8twF">
+                        <button class="ui blue large button">
+                            Download & more information here
+                        </button>
+                    </a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+
+
+{% endblock %}

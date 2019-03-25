@@ -292,3 +292,10 @@ class Basic200ResponseTest(TestCase):
                                                'node_id': self.node_with_candidates.url_id
                                            }))
         self.assertEquals(response.status_code, 200)
+    
+    def test_dataset_downloads(self):
+        response = self.client.get(reverse('downloads',
+                                           kwargs={
+                                               'short_name': 'fsd'
+                                           }))
+        self.assertEquals(response.status_code, 200)
