@@ -78,7 +78,7 @@ def dataset_explore(request, short_name):
 def dataset_taxonomy_tree(request, short_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
     taxonomy_tree = data_from_async_task(compute_taxonomy_tree, [], {},
-                                         FSD_TAXONOMY_TREE, 60)
+                                         FSD_TAXONOMY_TREE, refresh_time=3600)
     if not taxonomy_tree:
         taxonomy_tree = dataset.taxonomy.get_taxonomy_as_tree()
 
