@@ -20,9 +20,9 @@ from pygments import highlight
 from pygments.lexers import PythonLexer
 from pygments.formatters import HtmlFormatter
 from datasets.tasks import generate_release_index, compute_dataset_basic_stats, compute_dataset_taxonomy_stats, \
-    compute_annotators_ranking
+    compute_annotators_ranking, compute_taxonomy_tree
 from utils.redis_store import store, DATASET_BASIC_STATS_KEY_TEMPLATE, DATASET_TAXONOMY_STATS_KEY_TEMPLATE, \
-    DATASET_ANNOTATORS_RANKING_TEMPLATE
+    DATASET_ANNOTATORS_RANKING_TEMPLATE, FSD_TAXONOMY_TREE
 from utils.async_tasks import data_from_async_task
 import os
 import random
@@ -77,7 +77,11 @@ def dataset_explore(request, short_name):
 
 def dataset_taxonomy_tree(request, short_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
-    taxonomy_tree = dataset.taxonomy.get_taxonomy_as_tree()
+    taxonomy_tree = data_from_async_task(compute_taxonomy_tree, [], {},
+                                         FSD_TAXONOMY_TREE, refresh_time=3600)
+    if not taxonomy_tree:
+        taxonomy_tree = dataset.taxonomy.get_taxonomy_as_tree()
+
     return JsonResponse(taxonomy_tree)
 
 

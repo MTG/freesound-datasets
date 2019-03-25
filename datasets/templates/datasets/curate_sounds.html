@@ -18,7 +18,7 @@
     existing_candidate_annotations = {{ existing_candidate_annotations | safe }};
     $(function () {
         TT = new TaxonomyTree({
-            url: "{% static 'taxonomy-explorer/taxonomy_tree.json' %}",
+            url: "{% url 'taxonomy-tree' dataset.short_name %}",
             container: "#taxonomy-tree",
             skipCategories: ["Ontology"],
             generation_task: {{ generation_task }}
