@@ -96,6 +96,18 @@ def compute_dataset_basic_stats(store_key, dataset_id):
 
 
 @shared_task
+def compute_taxonomy_tree(store_key):
+    logger.info('Start computing data for {0}'.format(store_key))
+    try:
+        dataset = Dataset.objects.get(short_name='fsd')
+        taxonomy_tree = dataset.taxonomy.get_taxonomy_as_tree()
+        store.set(store_key, taxonomy_tree)
+        logger.info('Finished computing data for {0}'.format(store_key))
+    except Dataset.DoesNotExist:
+        pass
+    
+
+@shared_task
 def compute_dataset_taxonomy_stats(store_key, dataset_id):
     logger.info('Start computing data for {0}'.format(store_key))
     try:
