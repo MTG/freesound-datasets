@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block content %}
-<h1 class="ui header">Download {{ dataset.short_name|upper}} content</h1>
+<h1 class="ui header">Datasets related to FSD</h1>
 
 <p>
     Datasets created within the Freesound Annotator platform can be downloaded from the 
@@ -13,14 +13,14 @@
     <table class="ui celled large table">
         <tbody>
             <tr>
-                <td>FSD</td>
+                <td>Freesound Dataset (FSD)</td>
                 <td>
-                    This is the main release of FSD which is still under development...
+                    Main dataset that we are collecting. It is currently under development and we hope to make the first release in mid 2019. FSD will be a general-purpose dataset consisting of tens of thousands of audio clips from <a target="blank" href="https://freesound.org/">Freesound</a> organised using the <a target="blank" href="https://research.google.com/audioset/ontology/index.html">AudioSet Ontology</a>.
                 </td>
                 <td>
                     <a target="blank" href="#">
                         <button class="ui blue large button disabled">
-                            Download & more information here
+                            Download from Zenodo
                         </button>
                     </a>
                 </td>
@@ -29,19 +29,21 @@
             <tr>
                 <td>FSDKaggle2018</td>
                 <td>
-                    FSDKaggle2018 is an audio dataset containing 11,073 audio files annotated with 41 labels of the
+                    Dataset containing 11k audio clips and 18 hours of training data unequally distributed in 41 classes of the
                     <a target="blank" href="https://research.google.com/audioset/ontology/index.html">AudioSet Ontology</a>.
-                    It has been used for the
+                    It was collected for the
                     <a target="blank" href="http://dcase.community/challenge2018/task-general-purpose-audio-tagging">DCASE
                         Challenge 2018 Task 2</a>,
-                    which was run as a Kaggle competition titled
+                    which was run as the Kaggle competition
                     <a target="blank" href="https://www.kaggle.com/c/freesound-audio-tagging">Freesound General-Purpose
-                        Audio Tagging Challenge</a>.
+                        Audio Tagging Challenge</a>. 
+                    Described in our <a target="blank" href="http://dcase.community/documents/workshop2018/proceedings/DCASE2018Workshop_Fonseca_114.pdf">DCASE 2018 paper</a>.
+                        
                 </td>
                 <td>
                     <a target="blank" href="https://zenodo.org/record/2552860#.XIpVoIU8twF">
                         <button class="ui blue large button">
-                            Download & more information here
+                            Download from Zenodo
                         </button>
                     </a>
                 </td>
@@ -50,16 +52,17 @@
             <tr>
                 <td>FSDnoisy18k</td>
                 <td>
-                    FSDnoisy18k is an audio dataset collected with the aim of fostering the investigation of label
+                    Dataset collected with the aim of fostering the investigation of label
                     noise in sound event classification.
                     It contains 42.5 hours of audio across 20 sound classes, including a small amount of
                     manually-labeled data and a larger quantity of
                     real-world noisy data.
+                    Described in its <a target="blank" href="http://www.eduardofonseca.net/FSDnoisy18k/">companion site</a> and in our <a target="blank" href="https://arxiv.org/abs/1901.01189">ICASSP 2019 paper</a>.
                 </td>
                 <td>
                     <a target="blank" href="https://zenodo.org/record/2529934#.XIpVoIU8twF">
                         <button class="ui blue large button">
-                            Download & more information here
+                            Download from Zenodo
                         </button>
                     </a>
                 </td>
