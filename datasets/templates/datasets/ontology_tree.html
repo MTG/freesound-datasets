@@ -11,7 +11,7 @@
 
 
 function loadOntologyTree(){
-    $.ajax({url: "{% static 'taxonomy-explorer/taxonomy_tree.json' %}",
+    $.ajax({url: "{% url 'taxonomy-tree' dataset.short_name %}",
         type: "GET",
         success: function(result){
             show_ontology(result);
