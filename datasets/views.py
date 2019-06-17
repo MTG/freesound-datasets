@@ -613,7 +613,7 @@ def curate_sounds(request, short_name, sound_id):
     if not dataset.user_is_maintainer(request.user):
         raise HttpResponseNotAllowed
     taxonomy = dataset.taxonomy
-    sound = Sound.objects.get(freesound_id=sound_id)
+    sound = get_object_or_404(Sound, freesound_id=sound_id)
     existing_gt_annotations = sound.get_ground_truth_annotations(dataset)\
                                 .filter(from_propagation=False, taxonomy_node__omitted_curation_task=False)\
                                 .select_related('taxonomy_node')
