@@ -179,15 +179,15 @@ class DatasetReleaseTests(TestCase):
         create_candidate_annotations('fsd', 20)
         # create ground truth annotations
         for candidate_annotation in CandidateAnnotation.objects.all():
-            GroundTruthAnnotation.objects.get_or_create(
+            gt_annotation, created = GroundTruthAnnotation.objects.get_or_create(
                 start_time=candidate_annotation.start_time,
                 end_time=candidate_annotation.end_time,
                 ground_truth=candidate_annotation.ground_truth,
                 created_by=candidate_annotation.created_by,
                 sound_dataset=candidate_annotation.sound_dataset,
                 taxonomy_node=candidate_annotation.taxonomy_node,
-                from_candidate_annotation=candidate_annotation,
                 from_propagation=False)
+            gt_annotation.from_candidate_annotations.add(candidate_annotation)
 
         # add preview url for sounds
         sounds = Sound.objects.all()
@@ -465,9 +465,3 @@ class Basic200ResponseTest(TestCase):
                                            }))
         self.assertEquals(response.status_code, 200)
     
-    def test_dataset_downloads(self):
-        response = self.client.get(reverse('downloads',
-                                           kwargs={
-                                               'short_name': 'fsd'
-                                           }))
-        self.assertEquals(response.status_code, 200)
