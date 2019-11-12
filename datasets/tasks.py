@@ -3,6 +3,7 @@ from django.db.models import Count, Q
 from django.contrib.auth.models import User
 from django.db import transaction
 from celery import shared_task
+import pytz
 from django.utils import timezone
 from utils.redis_store import store
 from datasets.templatetags.dataset_templatetags import calculate_taxonomy_node_stats
@@ -190,8 +191,8 @@ def compute_annotators_ranking(store_key, dataset_id, N=10):
     logger.info('Start computing data for {0}'.format(store_key))
     try:
         dataset = Dataset.objects.get(id=dataset_id)
-        reference_date = datetime.datetime.today() - datetime.timedelta(days=7)
-        current_day_date = datetime.datetime.today().replace(hour=0, minute=0, second=0, microsecond=0)
+        reference_date = timezone.now() - datetime.timedelta(days=7)
+        current_day_date = timezone.now().replace(hour=0, minute=0, second=0, microsecond=0)
         ranking = list()
         ranking_last_week = list()
         ranking_today = list()
