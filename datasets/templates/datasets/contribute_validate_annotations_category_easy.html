@@ -4,7 +4,7 @@
 {% load general_templatetags %}
 {% block title %}Validate category {{ node.name }}{% endblock title %}
 {% block extra_head %}
-    {% raven_install %}
+    {% sentry_install %}
     {% load_sound_player_files %}
 {% endblock %}
 

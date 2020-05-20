@@ -83,14 +83,13 @@ def sound_player(dataset, freesound_sound_id, player_size, normalization=None):
 
 
 @register.simple_tag(takes_context=False)
-def raven_install():
-    sentry_full_dsn = settings.RAVEN_CONFIG['dsn']
-    if sentry_full_dsn:
-        sentry_dsn = ':'.join(sentry_full_dsn.split(':')[:2]) + '@' + sentry_full_dsn.split('@')[-1]
+def sentry_install():
+    sentry_dsn = settings.SENTRY_DSN
+    if sentry_dsn:
         return mark_safe('''
-            <script src="https://cdn.ravenjs.com/3.25.1/raven.min.js" crossorigin="anonymous"></script>
+            <script src="https://browser.sentry-cdn.com/5.15.5/bundle.min.js"></script>
             <script>
-                Raven.config('{}').install();
+                Sentry.init({{ dsn: '{}' }});
             </script>
                '''.format(sentry_dsn))
     else:
