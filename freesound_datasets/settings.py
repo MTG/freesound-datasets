@@ -178,7 +178,7 @@ USE_L10N = True
 
 USE_TZ = True
 
-SENTRY_DSN = os.getenv('SENTRY_DSN'),
+SENTRY_DSN = os.getenv('SENTRY_DSN')
 if SENTRY_DSN:
     sentry_sdk.init(
         dsn=SENTRY_DSN,
