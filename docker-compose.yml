@@ -1,7 +1,7 @@
 version: '2'
 volumes:
   dbvolume:
-  ipython:
+  roothome:
 services:
   db:
     image: postgres:9.6
@@ -24,7 +24,7 @@ services:
     volumes:
       - .:/code
       - /static/
-      - ipython:/root/.ipython
+      - roothome:/root
     command: dumb-init python manage.py runserver 0.0.0.0:8000
     depends_on:
       - db
