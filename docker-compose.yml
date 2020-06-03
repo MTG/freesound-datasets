@@ -13,6 +13,7 @@ services:
       - POSTGRES_HOST_AUTH_METHOD=trust
     volumes:
       - dbvolume:/var/lib/postgresql/data/
+    command: postgres -F
   redis:
     image: redis
   web:
