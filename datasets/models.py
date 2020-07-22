@@ -898,7 +898,13 @@ class GroundTruthAnnotation(models.Model):
                                                         related_name='generated_ground_truth_annotations')
     from_propagation = models.BooleanField(default=False)  # true when this annotation was generated only from propagation
     dataset_release = models.ManyToManyField(DatasetRelease, related_name='ground_truth_annotations')
-    
+
+    PARTITION_CHOICES = (
+        ('dev', 'Development'),
+        ('eval', 'Evaluation'),
+    )
+    partition = models.CharField(max_length=4, choices=PARTITION_CHOICES, null=True, blank=True)
+
     class Meta:
         unique_together = ('taxonomy_node', 'sound_dataset',)
 
@@ -986,12 +992,17 @@ class GroundTruthAnnotation(models.Model):
     # Update number of ground truth annotations per taxonomy node each time a ground truth annotations is generated
     # Update priority score of candidate annotations associated to the same sound (only for non propagated gt annotations)
     def save(self, *args, **kwargs):
+        if self.pk is None:
+            is_new = True
+        else:
+            is_new = False
         super(GroundTruthAnnotation, self).save(*args, **kwargs)
-        self.taxonomy_node.nb_ground_truth = self.taxonomy_node.num_ground_truth_annotations
-        self.taxonomy_node.save()
-        if not self.from_propagation:
-            for candidate_annotation in self.sound_dataset.candidate_annotations.all():
-                candidate_annotation.update_priority_score()
+        if is_new:
+            self.taxonomy_node.nb_ground_truth = self.taxonomy_node.num_ground_truth_annotations
+            self.taxonomy_node.save()
+            if not self.from_propagation:
+                for candidate_annotation in self.sound_dataset.candidate_annotations.all():
+                    candidate_annotation.update_priority_score()
 
 
 # choices for quality control test used in Vote and User Profile

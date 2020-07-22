@@ -814,7 +814,7 @@ def release_taxonomy_node(request, short_name, release_tag, node_id):
             user_reported=Count('errorreport',
                                 filter=Q(errorreport__created_by=request.user))
         ).values(
-            'num_reports', 'ground_truth_str', 'num_PP', 'num_PNP', 'num_U', 'num_NP',
+            'num_reports', 'ground_truth_str', 'num_PP', 'num_PNP', 'num_U', 'num_NP', 'partition',
             'user_reported', 'sound_dataset__sound__freesound_id', 'from_propagation', 'pk'
         ).order_by('pk')
 
