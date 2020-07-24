@@ -29,6 +29,7 @@ class Command(BaseCommand):
         ground_truth_annotation_ids = []
         num_existing_gt = 0
         num_created_gt = 0
+        num_created_candidates = 0
 
         print('\nProcessing annotations...\n')
         for idx, (node_id, fs_id, partition) in enumerate(ground_truth_in_file):
@@ -40,13 +41,21 @@ class Command(BaseCommand):
             except ObjectDoesNotExist:
                 taxonomy_node = TaxonomyNode.objects.get(node_id=node_id)
                 sound_dataset = SoundDataset.objects.get(sound__freesound_id=fs_id)
+                candidate, created = CandidateAnnotation.objects.get_or_create(
+                    taxonomy_node__node_id=node_id, sound_dataset__sound__freesound_id=fs_id
+                )
+                if created:
+                    num_created_candidates += 1
                 gt = GroundTruthAnnotation.objects.create(
                     taxonomy_node=taxonomy_node,
                     sound_dataset=sound_dataset,
                     partition=partition,
+                    ground_truth=candidate.ground_truth
                 )
+                gt.from_candidate_annotations.add(candidate)
+                gt.save()
                 num_created_gt += 1
-            sys.stdout.write('\r %i of %i' % (idx, len(ground_truth_in_file)))
+            sys.stdout.write('\r %i of %i' % (idx+1, len(ground_truth_in_file)))
             sys.stdout.flush()
             ground_truth_annotation_ids.append(gt.id)
 
@@ -58,6 +67,7 @@ class Command(BaseCommand):
             num_existing_gt,
             num_created_gt
         ))
+        print('\nNumber candidate annotations created: {}'.format(num_created_candidates))
 
         sounds_info = defaultdict(list)
         for result in ground_truth_annotations.values_list('sound_dataset__sound__freesound_id', 'taxonomy_node__node_id'):
