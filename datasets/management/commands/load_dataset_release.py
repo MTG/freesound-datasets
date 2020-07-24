@@ -103,7 +103,5 @@ class Command(BaseCommand):
         dataset_release.num_annotations = num_annotations
         dataset_release.num_sounds = num_sounds
         dataset_release.num_nodes = num_taxonomy_nodes
-        dataset_release.processing_progress = 100  # REMOVE
-        dataset_release.processing_last_updated = timezone.now()
-        dataset_release.is_processed = True  # REMOVE
+        dataset_release.is_processed = True
         dataset_release.save()

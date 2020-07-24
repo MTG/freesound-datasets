@@ -13,7 +13,7 @@
             $( "#dataset_releases_table_placeholder" ).load( "{% url 'release-table' dataset.short_name release.release_tag %}", function() {
                 {% if user_is_maintainer %}
                     if (enable_timer) {
-                        startUpdatingPercentages();
+                        // startUpdatingPercentages();
                     }
                 {% endif %}
             });
@@ -87,11 +87,8 @@
 
 <!--<div class="ui main text container">-->
 <h1 class="ui header">
-    Explore the {{ dataset.short_name|upper }} {{ release.release_tag }} release
+    Explore {{ release.release_tag }}
 </h1>
-<p>
-    The table shows some current basic stats of the {{ release.release_tag }} release of the {{ dataset.short_name|upper }} dataset.
-</p>
 <!--</div>-->
 <!--<h2>Current status &ndash; statistics:</h2>-->
 <div>

@@ -20,6 +20,10 @@ logger = logging.getLogger('tasks')
 
 @shared_task
 def generate_release_index(dataset_id, release_id, max_sounds=None):
+    """Deprecated. TODO: probably remove
+    This function is not used. We use a management command to load releases.
+    
+    """
     dataset = Dataset.objects.get(id=dataset_id)
     dataset_release = DatasetRelease.objects.get(id=release_id)
 

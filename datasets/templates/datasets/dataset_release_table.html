@@ -13,23 +13,20 @@
     </thead>
     <tbody>
         <tr id="release_row_{{ release.id }}" class="{% if not release.is_processed %}negative{% else %}{% if release.type == 'IN' %}warning{% else %}{% endif %}{% endif %}">
-            <td>{{ release.release_tag }}<br><span class="small_gray_text">{{ release.release_date | timesince  }} ago</span></td>
+            <td>{{ release.release_tag }}<br></td>
             <td>{{ release.num_nodes }}</td>
             <td>{{ release.num_sounds }}</td>
             <td>{{ release.num_annotations }}</td>
             <td>
                 {% if release.is_processed %}
-                    {% if release.type != 'IN' or user_is_maintainer %}
-                        <a href="{% url 'download-release' dataset.short_name release.release_tag %}" title="Download this dataset release"><i class="download icon"></i></a>
-                    {% endif %}
                     {% if user_is_maintainer %}
                         {% if release.type == 'IN' %}
                             <a href="{% url 'change-release-type' dataset.short_name release.release_tag %}?release-type=PU" title="Make this dataset public">
-                                <i class="unlock icon"></i>
+                                <i class="lock icon"></i>
                             </a>
                         {% else %}
                             <a href="{% url 'change-release-type' dataset.short_name release.release_tag %}?release-type=IN" title="Make this dataset internal">
-                                <i class="lock icon"></i>
+                                <i class="unlock icon"></i>
                             </a>
                         {% endif %}
                         <a onclick="$('#delete_release_modal_{{ release.id }}').modal('show');" href="javascript:void(0);" title="Delete this release">
@@ -51,17 +48,6 @@
                             </div>
                         </div>
                         <!-- end delete release modal -->
-                    {% endif %}
-                {% else %}
-                    {% if not release.last_processing_progress_is_old %}
-                        <div id="release_percentage_bar_placeholder_{{ release.id }}">
-                            <div id="release_percentage_bar_{{ release.id }}" class="ui indicating progress"><div class="bar"></div><div class="label"></div></div>
-                        </div>
-                    {% else %}
-                        Failed
-                        <a href="{% url 'delete-release' dataset.short_name release.release_tag %}" title="Delete this release">
-                            <i class="trash icon"></i>
-                        </a>
                     {% endif %}
                 {% endif %}
             </td>

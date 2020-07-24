@@ -748,9 +748,7 @@ class DatasetRelease(models.Model):
                 message='Please enter a valid release tag',
             ),
         ])
-    is_processed = models.BooleanField(default=False)  # Remove
-    processing_progress = models.IntegerField(default=0)  # Remove
-    processing_last_updated = models.DateTimeField(auto_now_add=True)  # Remove
+    is_processed = models.BooleanField(default=False)
     TYPE_CHOICES = (
         ('IN', 'Internal release only'),
         ('PU', 'Public release'),

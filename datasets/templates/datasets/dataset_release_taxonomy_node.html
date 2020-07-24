@@ -42,8 +42,6 @@
 {% block content %}
     <div class="ui breadcrumb">
         <h1 class="ui header" style="display: inline-block;">
-            <a href="{% url 'dataset' dataset.short_name %}">{{ dataset.short_name|upper }}</a>
-            <i class="caret right icon divider"></i>
             <a href="{% url 'dataset-release' dataset.short_name release.release_tag %}">{{ release.release_tag }}</a>
             <i class="right arrow icon divider"></i>
             {{ node.name }}</h1>
