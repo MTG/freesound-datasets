@@ -796,26 +796,11 @@ def release_taxonomy_node(request, short_name, release_tag, node_id):
     ground_truth_annotations = release.get_ground_truth_annotations_taxonomy_node(node_id)\
         .annotate(
             num_reports=Count('errorreport', distinct=True),
-            ground_truth_str=Case(
-                When(ground_truth=1.0, then=Value('PP')),
-                When(ground_truth=0.5, then=Value('PNP')),
-                When(ground_truth=0, then=Value('U')),
-                When(ground_truth=-1, then=Value('NP')),
-                output_field=CharField(),
-            ),
-            num_PP=Count('from_candidate_annotations__votes',
-                         filter=Q(from_candidate_annotations__votes__vote=1.0)),
-            num_PNP=Count('from_candidate_annotations__votes',
-                          filter=Q(from_candidate_annotations__votes__vote=0.5)),
-            num_U=Count('from_candidate_annotations__votes',
-                        filter=Q(from_candidate_annotations__votes__vote=0)),
-            num_NP=Count('from_candidate_annotations__votes',
-                         filter=Q(from_candidate_annotations__votes__vote=-1)),
             user_reported=Count('errorreport',
                                 filter=Q(errorreport__created_by=request.user))
         ).values(
-            'num_reports', 'ground_truth_str', 'num_PP', 'num_PNP', 'num_U', 'num_NP', 'partition',
-            'user_reported', 'sound_dataset__sound__freesound_id', 'from_propagation', 'pk'
+            'num_reports', 'partition', 'user_reported', 
+            'sound_dataset__sound__freesound_id', 'pk'
         ).order_by('pk')
 
     paginator = Paginator(ground_truth_annotations, 10)
