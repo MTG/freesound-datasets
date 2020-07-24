@@ -48,7 +48,10 @@
                     {% else %}
                         {{ dataset.name }}
                     {% endif %}
-                    <a href="{% url 'dataset-explore' dataset.short_name %}" class="{% active_if_current 'dataset-explore' %}item">Explore</a>
+                    {% if dataset.datasetrelease_set.first.type == 'PU' or request.user.profile.is_fsd_maintainer %}
+                        <a href="{% url 'dataset-release' dataset.short_name dataset.datasetrelease_set.first.release_tag %}" class="{% active_if_current 'dataset-release' %}item">{{dataset.datasetrelease_set.first.release_tag}}</a>
+                    {% endif %}
+                    <a href="{% url 'dataset-explore' dataset.short_name %}" class="{% active_if_current 'dataset-explore' %}item">State</a>
                     <a href="{% url 'contribute' dataset.short_name %}" class="{% active_if_current 'contribute' %}item">Annotate</a>
                     <a href="{% url 'discussion' dataset.short_name %}" class="{% active_if_current 'discussion' %}item">Discussion</a>
                     <a href="{% url 'downloads' dataset.short_name %}" class="{% active_if_current 'download' %}item">Download</a>

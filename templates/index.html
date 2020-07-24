@@ -11,17 +11,24 @@
   <center><img class="ui center aligned image" style="width: 700px;" src="{% static "img/freesound_annotator_logo.svg" %}"></center>
   <h3>A platform for the collaborative creation of open audio collections labeled by humans and based on Freesound content</h3>
   <br>
-  {% if num_categories_reached_goal %}
-  <div class="ui inverted small statistic">
-    <div class="label">
-      Completed categories
+  {% if release.type == 'PU' %}
+  <h2 class="big">Our first release is out!</h2>>
+    <a href="{% url 'dataset-release' release.dataset.short_name release.release_tag %}" 
+      class="ui big button right labeled icon" style="margin-top: 10px;">Explore {{release.release_tag}}<i class="right arrow icon"></i>
+    </a>
+  {% else %}
+    {% if num_categories_reached_goal %}
+    <div class="ui inverted small statistic">
+      <div class="label">
+        Completed categories
+      </div>
+      <div class="value">
+        {{ num_categories_reached_goal }} / {{ num_non_omitted_nodes }}
+      </div>
     </div>
-    <div class="value">
-      {{ num_categories_reached_goal }} / {{ num_non_omitted_nodes }}
-    </div>
-  </div>
-    <br>
-  <a href="{% url 'contribute' 'fsd' %}" class="ui big button right labeled icon">Get started with our annotation tasks! <i class="right arrow icon"></i></a>
+      <br>
+    <a href="{% url 'contribute' 'fsd' %}" class="ui big button right labeled icon">Get started with our annotation tasks! <i class="right arrow icon"></i></a>
+    {% endif %}
   {% endif %}
   <br><br><br><br><br><br><br>
 </div>

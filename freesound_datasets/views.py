@@ -19,6 +19,7 @@ def crash_me(request):
 def index(request):
     try:
         dataset = Dataset.objects.get(short_name='fsd')
+        release = dataset.datasetrelease_set.first()
         dataset_basic_stats = data_from_async_task(compute_dataset_basic_stats, [dataset.id], {},
                                                    DATASET_BASIC_STATS_KEY_TEMPLATE.format(dataset.id), 60)
         num_categories_reached_goal = dataset_basic_stats.get('num_categories_reached_goal', None)
@@ -29,7 +30,8 @@ def index(request):
     
     return render(request, 'index.html', {'home': True,
                                           'num_categories_reached_goal': num_categories_reached_goal,
-                                          'num_non_omitted_nodes': num_non_omitted_nodes})
+                                          'num_non_omitted_nodes': num_non_omitted_nodes,
+                                          'release': release})
 
 
 def faq(request):
