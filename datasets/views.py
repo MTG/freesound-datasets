@@ -774,7 +774,6 @@ def download_script(request, short_name):
     return response
 
 
-@login_required
 def release_explore(request, short_name, release_tag):
     dataset = get_object_or_404(Dataset, short_name=short_name)
     release = get_object_or_404(DatasetRelease, dataset=dataset, release_tag=release_tag)
@@ -787,21 +786,30 @@ def release_explore(request, short_name, release_tag):
     })
 
 
-@login_required
 def release_taxonomy_node(request, short_name, release_tag, node_id):
     dataset = get_object_or_404(Dataset, short_name=short_name)
     release = get_object_or_404(DatasetRelease, dataset=dataset, release_tag=release_tag)
+    user_connected = request.user.is_authenticated
     node_id = unquote(node_id)
     node = dataset.taxonomy.get_element_at_id(node_id)
-    ground_truth_annotations = release.get_ground_truth_annotations_taxonomy_node(node_id)\
-        .annotate(
-            num_reports=Count('errorreport', distinct=True),
-            user_reported=Count('errorreport',
-                                filter=Q(errorreport__created_by=request.user))
-        ).values(
-            'num_reports', 'partition', 'user_reported', 
-            'sound_dataset__sound__freesound_id', 'pk'
-        ).order_by('pk')
+
+    if user_connected:
+        ground_truth_annotations = release.get_ground_truth_annotations_taxonomy_node(node_id)\
+            .annotate(
+                num_reports=Count('errorreport', distinct=True),
+                user_reported=Count('errorreport',
+                                    filter=Q(errorreport__created_by=request.user))
+            ).values(
+                'num_reports', 'partition', 'user_reported', 
+                'sound_dataset__sound__freesound_id', 'pk'
+            ).order_by('pk')
+    else:
+        ground_truth_annotations = release.get_ground_truth_annotations_taxonomy_node(node_id)\
+            .annotate(
+                num_reports=Count('errorreport', distinct=True),
+            ).values(
+                'num_reports', 'partition', 'sound_dataset__sound__freesound_id', 'pk'
+            ).order_by('pk')
 
     paginator = Paginator(ground_truth_annotations, 10)
     page = request.GET.get('page')
@@ -818,7 +826,8 @@ def release_taxonomy_node(request, short_name, release_tag, node_id):
         'dataset': dataset,
         'node': node,
         'annotations': annotations,
-        'release': release
+        'release': release,
+        'user_connected': user_connected
     })
 
 
@@ -881,7 +890,6 @@ def check_release_progress(request, short_name, release_tag):
     return JsonResponse(release.processing_progress, safe=False)
 
 
-@login_required
 def dataset_release_table(request, short_name, release_tag):
     dataset = get_object_or_404(Dataset, short_name=short_name)
     release = get_object_or_404(DatasetRelease, dataset=dataset, release_tag=release_tag)
@@ -894,7 +902,6 @@ def dataset_release_table(request, short_name, release_tag):
     })
 
 
-@login_required
 def release_taxonomy_table(request, short_name, release_tag):
     dataset = get_object_or_404(Dataset, short_name=short_name)
     release = get_object_or_404(DatasetRelease, dataset=dataset, release_tag=release_tag)

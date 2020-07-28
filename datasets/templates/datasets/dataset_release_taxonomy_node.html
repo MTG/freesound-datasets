@@ -36,6 +36,9 @@
             });
         });
 
+        $('.my-popup').popup({
+            content: "Login to report errors"
+        });
     </script>
 {% endblock %}
 
@@ -75,13 +78,16 @@
                            src="{% static 'img/freesound_logo_color.png' %}"></a>
                     </td>
                     <td> {{ annotation.partition }} </td>
-                    <td><button annotation-id="{{ annotation.pk }}" class="circular inverted big ui icon button report-button
-                         {% if annotation.user_reported %}reported-annotation{% endif%}">
+                    <td>
+                        <div {% if not user_connected %}class="my-popup"{% endif %}><button annotation-id="{{ annotation.pk }}" class="circular inverted big ui icon button report-button
+                         {% if annotation.user_reported %}reported-annotation{% endif%}"
+                         {% if not user_connected %}disabled{% endif %}>
                         <i class="exclamation red triangle icon"></i></button>
                         <p class="small text">reported by
                             <span class="num-reported-container">{{ annotation.num_reports }}</span>
                             {% if annotation.num_reports > 1 %}users{% else %}user{% endif %}
                         </p>
+                        </div>
                     </td>
                 </tr>
             {% endfor %} 
