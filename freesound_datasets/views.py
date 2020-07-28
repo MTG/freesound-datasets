@@ -4,6 +4,7 @@ from django.contrib.auth import logout as auth_logout
 from django.conf import settings
 from django.http import HttpResponseRedirect
 from django.urls import reverse
+from urllib.parse import quote
 from datasets.models import Dataset
 from datasets.tasks import compute_dataset_basic_stats
 from utils.redis_store import DATASET_BASIC_STATS_KEY_TEMPLATE
@@ -47,7 +48,7 @@ def discussion(request, short_name=None):
 
 
 def login(request):
-    next_url = request.GET.get('next', '')
+    next_url = quote(request.GET.get('next', ''))
     show_freesound = bool(settings.SOCIAL_AUTH_FREESOUND_KEY)
 
     tvars = {'next': next_url,

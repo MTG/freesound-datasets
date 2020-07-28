@@ -68,7 +68,7 @@
                         <div class="item">{{ request.user.username }}</div>
                         <a class="item" href="{% url 'logout' %}"><i class="user icon"></i>Logout</a>
                     {% else %}
-                        <a class="item" href="{% url 'login' %}?next={{request.path}}"><i class="user icon"></i>Login</a>
+                        <a class="item" href="{% url 'login' %}?next={{request.get_full_path|urlencode}}"><i class="user icon"></i>Login</a>
                     {% endif %}
                     <a class="{% active_if_current 'index' %}item" href="{% url 'index' %}"><i class="home icon"></i>Home</a>
                     <div style="border-left:1px solid #C82727;height:60px"></div>
