@@ -4,7 +4,6 @@
 {% load general_templatetags %}
 {% block title %}Validate category {{ node.name }}{% endblock title %}
 {% block extra_head %}
-    {% raven_install %}
     {% load_sound_player_files %}
 {% endblock %}
 
@@ -13,7 +12,7 @@
         var num_submit_trials = 0;
         function submitForm(){
             num_submit_trials += 1;
-            document.getElementById("submitButton").disabled = true; 
+            document.getElementById("submitButton").disabled = true;
             $.ajax({
                 type: "POST",
                 url: "{% url 'save-contribute-validate-annotations-per-category' %}",
@@ -36,16 +35,6 @@
                     }
                 },
                 error: function(e) {
-                    Raven.captureMessage('Error AJAX POST request votes submission', {
-                        tags: {
-                            status: e.status,
-                            status_text: e.statusText,
-                            response_text: e.responseText
-                        },
-                        extra: {
-                            response_text: e.responseText
-                        }
-                    });
                     if (num_submit_trials < 3) {
                         setTimeout(function() {submitForm();}, 500);
                     } else if (num_submit_trials < 5) {
