@@ -6,7 +6,9 @@ from collections import defaultdict
 
 
 class Command(BaseCommand):
-    help = 'Create release for FSD. Use it as python manage.py load_dataset_release <release_tag> <annotation file>'
+    help = '''Create release for FSD. Use it as python manage.py load_dataset_release <release_tag> <annotation file>.
+        The annotation file corresponds to a json files containing a list of annotations expressed as a list of
+        category id (audioset id), freesound sound id, partition (dev or eval)'''
 
     def add_arguments(self, parser):
         parser.add_argument('release_tag', type=str)
@@ -42,7 +44,8 @@ class Command(BaseCommand):
                 taxonomy_node = TaxonomyNode.objects.get(node_id=node_id)
                 sound_dataset = SoundDataset.objects.get(sound__freesound_id=fs_id)
                 candidate, created = CandidateAnnotation.objects.get_or_create(
-                    taxonomy_node__node_id=node_id, sound_dataset__sound__freesound_id=fs_id
+                    taxonomy_node__node_id=node_id, sound_dataset__sound__freesound_id=fs_id,
+                    defaults={'ground_truth': 1, 'type': 'MA'},
                 )
                 if created:
                     num_created_candidates += 1
