@@ -5,7 +5,7 @@
 {% block page_js %}
     <script type="text/javascript">
         $(document).ready(function() {
-            loadDatasetReleasesTable();
+            loadDatasetStateTable();
             {% if dataset_release_form_errors %}
                 $('#make_release_modal').modal('show');
             {% endif %}
@@ -23,12 +23,8 @@
 			;
         });
 
-        function loadDatasetReleasesTable() {
-            $( "#dataset_releases_table_placeholder" ).load( "{% url 'releases-table' dataset.short_name %}", function() {
-                {% if user_is_maintainer %}
-                    startUpdatingPercentages();
-                {% endif %}
-            });
+        function loadDatasetStateTable() {
+            $( "#dataset_releases_table_placeholder" ).load( "{% url 'state-table' dataset.short_name %}");
         }
 
         function loadDatasetTaxonomyTable(){
@@ -47,9 +43,6 @@
             });
         }
 
-
-
-
     </script>
 {% endblock %}
 {% block content %}
@@ -62,31 +55,15 @@
 <p>The table shows some current basic stats of {{ dataset.short_name|upper }}. Hover your mouse over the headers for more info.</p>
 <!--</div>-->
 <!--<h2>Current status &ndash; statistics:</h2>-->
+<div>
 <p>
     <div id="dataset_releases_table_placeholder">
         <div class="ui active centered inline text loader">Loading data...</div>
     </div>
 </p>
-{% if user_is_maintainer %}
-    <button onclick="$('#make_release_modal').modal('show');" class="green ui button right labeled icon right floated">Make new release <i class="add icon"></i></button>
-    <!-- make release modal -->
-        <div id="make_release_modal" class="ui modal">
-            <div class="header">
-                Make a new release for {{ dataset.name }}
-            </div>
-            <div class="content">
-                <form id="make_release_form" class="ui form" method="post" action=".">{% csrf_token %}
-                    {{ dataset_release_form.as_p }}
-                    <p><button class="right floated ui green button" type="submit">OK</button><br></p>
-                </form>
-            </div>
-        </div>
-    <!-- end make release modal -->
-{% endif %}
-
+</div>
 
 <div class="ui message">
-  <p>Since the first FSD release is not out yet, <b>you can only explore the candidate annotations</b> (that express the potential presence of a sound category in an audio sample).</p>
   <p>Categories shaded in red are AudioSet categories that are not considered for the first release of {{ dataset.short_name|upper }}. See our
                     <a target="_blank" href="https://repositori.upf.edu/handle/10230/33299">
                         ISMIR2017 paper</a> for more details.</p>

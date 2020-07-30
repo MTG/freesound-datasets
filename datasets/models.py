@@ -482,7 +482,7 @@ class Dataset(models.Model):
 
     @property
     def ground_truth_annotations(self):
-        return GroundTruthAnnotation.objects.all()
+        return GroundTruthAnnotation.objects.filter(sound_dataset__dataset=self)
 
     @property
     def num_sounds(self):
@@ -749,13 +749,13 @@ class DatasetRelease(models.Model):
             ),
         ])
     is_processed = models.BooleanField(default=False)
-    processing_progress = models.IntegerField(default=0)
-    processing_last_updated = models.DateTimeField(auto_now_add=True)
     TYPE_CHOICES = (
         ('IN', 'Internal release only'),
         ('PU', 'Public release'),
     )
     type = models.CharField(max_length=2, choices=TYPE_CHOICES, default='IN')
+    release_data = JSONField(default={})
+    taxonomy_node_stats = JSONField(default=[])
 
     @property
     def avg_annotations_per_sound(self):
@@ -778,6 +778,9 @@ class DatasetRelease(models.Model):
         # Check processing_last_updated and if it is older than 5 minutes, that probably means there
         # have been errors with the computation and we can show it on screen
         return self.processing_last_updated < (timezone.now() - datetime.timedelta(minutes=2))
+
+    def get_ground_truth_annotations_taxonomy_node(self, node_id):
+        return self.ground_truth_annotations.filter(taxonomy_node__node_id=node_id)
 
 
 class SoundDataset(models.Model):
@@ -892,6 +895,13 @@ class GroundTruthAnnotation(models.Model):
     from_candidate_annotations = models.ManyToManyField(CandidateAnnotation,
                                                         related_name='generated_ground_truth_annotations')
     from_propagation = models.BooleanField(default=False)  # true when this annotation was generated only from propagation
+    dataset_release = models.ManyToManyField(DatasetRelease, related_name='ground_truth_annotations')
+
+    PARTITION_CHOICES = (
+        ('dev', 'Development'),
+        ('eval', 'Evaluation'),
+    )
+    partition = models.CharField(max_length=4, choices=PARTITION_CHOICES, null=True, blank=True)
 
     class Meta:
         unique_together = ('taxonomy_node', 'sound_dataset',)
@@ -980,12 +990,17 @@ class GroundTruthAnnotation(models.Model):
     # Update number of ground truth annotations per taxonomy node each time a ground truth annotations is generated
     # Update priority score of candidate annotations associated to the same sound (only for non propagated gt annotations)
     def save(self, *args, **kwargs):
+        if self.pk is None:
+            is_new = True
+        else:
+            is_new = False
         super(GroundTruthAnnotation, self).save(*args, **kwargs)
-        self.taxonomy_node.nb_ground_truth = self.taxonomy_node.num_ground_truth_annotations
-        self.taxonomy_node.save()
-        if not self.from_propagation:
-            for candidate_annotation in self.sound_dataset.candidate_annotations.all():
-                candidate_annotation.update_priority_score()
+        if is_new:
+            self.taxonomy_node.nb_ground_truth = self.taxonomy_node.num_ground_truth_annotations
+            self.taxonomy_node.save()
+            if not self.from_propagation:
+                for candidate_annotation in self.sound_dataset.candidate_annotations.all():
+                    candidate_annotation.update_priority_score()
 
 
 # choices for quality control test used in Vote and User Profile
@@ -1096,6 +1111,25 @@ class CategoryComment(models.Model):
     comment = models.TextField(blank=True)
     category_id = models.CharField(max_length=200)
     # NOTE: this should refer to the db object id.
+
+
+class ErrorReport(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
+    annotation = models.ForeignKey(GroundTruthAnnotation, on_delete=models.CASCADE)
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+    reviewed = models.CharField(
+        max_length=2,
+        choices=(
+            ('NR', 'Not Reviewed'),
+            ('V', 'Valid'),
+            ('NV', 'Not Valid'),
+        ),
+        default='NR',
+    )
+
+    class Meta:
+        unique_together = ('annotation', 'created_by')
 
 
 class Profile(models.Model):

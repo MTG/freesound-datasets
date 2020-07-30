@@ -8,11 +8,11 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector, TrigramSimilarity, TrigramDistance
 from django.conf import settings
 from django.urls import reverse
-from django.db.models import Count, F, Q
+from django.db.models import Count, Case, When, BooleanField, CharField, Value, F, Q
 from django.db import transaction, connection
 from django.forms import formset_factory
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from datasets.models import Dataset, DatasetRelease, CandidateAnnotation, Vote, TaxonomyNode, SoundDataset, Sound, User
+from datasets.models import Dataset, DatasetRelease, CandidateAnnotation, Vote, TaxonomyNode, SoundDataset, Sound, User, ErrorReport
 from datasets import utils
 from django.utils import timezone
 from datasets.forms import DatasetReleaseForm, PresentNotPresentUnsureForm, CategoryCommentForm
@@ -37,20 +37,6 @@ import datetime
 def dataset(request, short_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
     user_is_maintainer = dataset.user_is_maintainer(request.user)
-    form_errors = False
-    if request.method == 'POST':
-        form = DatasetReleaseForm(request.POST)
-        if form.is_valid():
-            dataset_release = form.save(commit=False)
-            dataset_release.dataset = dataset
-            dataset_release.save()
-            async_job = generate_release_index.delay(dataset.id, dataset_release.id, form.cleaned_data['max_number_of_sounds'])
-            form = DatasetReleaseForm()  # Reset form
-        else:
-            form_errors = True
-    else:
-        form = DatasetReleaseForm()
-
     random_taxonomy_nodes = dataset.get_random_taxonomy_node_with_examples()
 
     # Get previously stored dataset release stats
@@ -61,7 +47,6 @@ def dataset(request, short_name):
         'dataset': dataset,
         'dataset_page': True,
         'user_is_maintainer': user_is_maintainer,
-        'dataset_release_form': form, 'dataset_release_form_errors': form_errors,
         'random_nodes': random_taxonomy_nodes,
         'dataset_basic_stats': dataset_basic_stats,
     })
@@ -69,9 +54,28 @@ def dataset(request, short_name):
 
 def dataset_explore(request, short_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
-     
+    user_is_maintainer = dataset.user_is_maintainer(request.user)
+    form_errors = False
+    if request.method == 'POST':
+        form = DatasetReleaseForm(request.POST)
+        if form.is_valid():
+            dataset_release = form.save(commit=False)
+            dataset_release.dataset = dataset
+            dataset_release.save()
+            async_job = generate_release_index.delay(dataset.id, dataset_release.id,
+                                                     form.cleaned_data['max_number_of_sounds'])
+            return HttpResponseRedirect(reverse('dataset-release', args=[dataset.short_name,
+                                                                         dataset_release.release_tag]))
+        else:
+            form_errors = True
+    else:
+        form = DatasetReleaseForm()
+
     return render(request, 'datasets/dataset_explore.html', {
         'dataset': dataset,
+        'user_is_maintainer': user_is_maintainer,
+        'dataset_release_form': form,
+        'dataset_release_form_errors': form_errors,
     })
 
 
@@ -104,6 +108,7 @@ def dataset_taxonomy_table(request, short_name):
         'dataset_taxonomy_stats': dataset_taxonomy_stats})
 
 
+# old view, not used anymore
 def dataset_releases_table(request, short_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
     user_is_maintainer = dataset.user_is_maintainer(request.user)
@@ -116,11 +121,26 @@ def dataset_releases_table(request, short_name):
     dataset_basic_stats = data_from_async_task(compute_dataset_basic_stats, [dataset.id], {},
                                                DATASET_BASIC_STATS_KEY_TEMPLATE.format(dataset.id), 60)
 
-    return render(request, 'datasets/dataset_releases_table.html', {
+    return render(request, 'datasets/dataset_release_table.html', {
         'dataset': dataset,
         'dataset_basic_stats': dataset_basic_stats,
         'user_is_maintainer': user_is_maintainer,
         'dataset_releases_for_user': dataset_releases_for_user
+    })
+
+
+def dataset_state_table(request, short_name):
+    dataset = get_object_or_404(Dataset, short_name=short_name)
+    user_is_maintainer = dataset.user_is_maintainer(request.user)
+
+    # Get previously stored dataset release stats
+    dataset_basic_stats = data_from_async_task(compute_dataset_basic_stats, [dataset.id], {},
+                                               DATASET_BASIC_STATS_KEY_TEMPLATE.format(dataset.id), 60)
+
+    return render(request, 'datasets/dataset_state_table.html', {
+        'dataset': dataset,
+        'dataset_basic_stats': dataset_basic_stats,
+        'user_is_maintainer': user_is_maintainer,
     })
 
 
@@ -596,6 +616,7 @@ def get_mini_node_info(request, short_name, node_id):
     show_num_gt = int(request.GET.get('sgt', 0))
     show_hierarchy = int(request.GET.get('sh', 1))
     show_name_table_lines = int(request.GET.get('sn', 1))
+    release_tag = request.GET.get('release-tag', None)
     node_id = unquote(node_id)
     dataset = get_object_or_404(Dataset, short_name=short_name)
     node = dataset.taxonomy.get_element_at_id(node_id).as_dict()
@@ -604,7 +625,9 @@ def get_mini_node_info(request, short_name, node_id):
     return render(request, 'datasets/taxonomy_node_mini_info.html',
                   {'dataset': dataset, 'node': node, 'show_examples': show_examples,
                    'show_go_button': show_go_button, 'show_num_gt': show_num_gt,
-                   'show_hierarchy': show_hierarchy, 'show_name_table_lines': show_name_table_lines})
+                   'show_hierarchy': show_hierarchy, 'show_name_table_lines': show_name_table_lines,
+                   'release_tag': release_tag
+                   })
 
 
 @login_required
@@ -751,6 +774,63 @@ def download_script(request, short_name):
     return response
 
 
+def release_explore(request, short_name, release_tag):
+    dataset = get_object_or_404(Dataset, short_name=short_name)
+    release = get_object_or_404(DatasetRelease, dataset=dataset, release_tag=release_tag)
+    user_is_maintainer = dataset.user_is_maintainer(request.user)
+
+    return render(request, 'datasets/dataset_release_explore.html', {
+        'dataset': dataset,
+        'user_is_maintainer': user_is_maintainer,
+        'release': release
+    })
+
+
+def release_taxonomy_node(request, short_name, release_tag, node_id):
+    dataset = get_object_or_404(Dataset, short_name=short_name)
+    release = get_object_or_404(DatasetRelease, dataset=dataset, release_tag=release_tag)
+    user_connected = request.user.is_authenticated
+    node_id = unquote(node_id)
+    node = dataset.taxonomy.get_element_at_id(node_id)
+
+    if user_connected:
+        ground_truth_annotations = release.get_ground_truth_annotations_taxonomy_node(node_id)\
+            .annotate(
+                num_reports=Count('errorreport', distinct=True),
+                user_reported=Count('errorreport',
+                                    filter=Q(errorreport__created_by=request.user))
+            ).values(
+                'num_reports', 'partition', 'user_reported', 
+                'sound_dataset__sound__freesound_id', 'pk'
+            ).order_by('pk')
+    else:
+        ground_truth_annotations = release.get_ground_truth_annotations_taxonomy_node(node_id)\
+            .annotate(
+                num_reports=Count('errorreport', distinct=True),
+            ).values(
+                'num_reports', 'partition', 'sound_dataset__sound__freesound_id', 'pk'
+            ).order_by('pk')
+
+    paginator = Paginator(ground_truth_annotations, 10)
+    page = request.GET.get('page')
+    try:
+        annotations = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        annotations = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        annotations = paginator.page(paginator.num_pages)
+
+    return render(request, 'datasets/dataset_release_taxonomy_node.html', {
+        'dataset': dataset,
+        'node': node,
+        'annotations': annotations,
+        'release': release,
+        'user_connected': user_connected
+    })
+
+
 @login_required
 def download_release(request, short_name, release_tag):
     dataset = get_object_or_404(Dataset, short_name=short_name)
@@ -762,9 +842,9 @@ def download_release(request, short_name, release_tag):
     formatted_script = highlight(script, PythonLexer(), HtmlFormatter())
     highlighting_styles = HtmlFormatter().get_style_defs('.highlight')
     return render(request, 'datasets/download.html', {'dataset': dataset,
-                                             'release': release,
-                                             'formatted_script': formatted_script,
-                                             'highlighting_styles': highlighting_styles})
+                                                      'release': release,
+                                                      'formatted_script': formatted_script,
+                                                      'highlighting_styles': highlighting_styles})
 
 
 @login_required
@@ -780,7 +860,7 @@ def change_release_type(request, short_name, release_tag):
     release.type = release_type
     release.save()
 
-    return HttpResponseRedirect(reverse('dataset', args=[dataset.short_name]))
+    return HttpResponseRedirect(reverse('dataset-explore', args=[dataset.short_name]))
 
 
 @login_required
@@ -797,13 +877,70 @@ def delete_release(request, short_name, release_tag):
             pass
         release.delete()
 
-    return HttpResponseRedirect(reverse('dataset', args=[dataset.short_name]))
+    return HttpResponseRedirect(reverse('dataset-explore', args=[dataset.short_name]))
 
 
 @login_required
-def check_release_progresses(request, short_name):
+def check_release_progress(request, short_name, release_tag):
     dataset = get_object_or_404(Dataset, short_name=short_name)
+    release = get_object_or_404(DatasetRelease, dataset=dataset, release_tag=release_tag)
     if not dataset.user_is_maintainer(request.user):
         raise HttpResponseNotAllowed
 
-    return JsonResponse({release.id: release.processing_progress for release in dataset.releases})
+    return JsonResponse(release.processing_progress, safe=False)
+
+
+def dataset_release_table(request, short_name, release_tag):
+    dataset = get_object_or_404(Dataset, short_name=short_name)
+    release = get_object_or_404(DatasetRelease, dataset=dataset, release_tag=release_tag)
+    user_is_maintainer = dataset.user_is_maintainer(request.user)
+
+    return render(request, 'datasets/dataset_release_table.html', {
+        'dataset': dataset,
+        'user_is_maintainer': user_is_maintainer,
+        'release': release
+    })
+
+
+def release_taxonomy_table(request, short_name, release_tag):
+    dataset = get_object_or_404(Dataset, short_name=short_name)
+    release = get_object_or_404(DatasetRelease, dataset=dataset, release_tag=release_tag)
+
+    # Get previously stored dataset taxonomy stats
+    taxonomy_node_stats = release.taxonomy_node_stats
+
+    return render(request, 'datasets/dataset_release_taxonomy_table.html', {
+        'dataset': dataset,
+        'release': release,
+        'taxonomy_node_stats': taxonomy_node_stats,
+    })
+
+
+@login_required
+def report_ground_truth_annotation(request, short_name, release_tag):
+    created = False
+    undo = False
+    if request.method == 'POST':
+        dataset = get_object_or_404(Dataset, short_name=short_name)
+        release = get_object_or_404(DatasetRelease, dataset=dataset, release_tag=release_tag)
+        annotation_id = request.POST.get('annotation_id')
+        annotation = release.ground_truth_annotations.filter(pk=annotation_id).first()
+        report_or_undo = request.POST.get('report_or_undo')
+        if annotation:
+            if report_or_undo == 'report':
+                error_report, created = ErrorReport.objects.get_or_create(
+                    created_by=request.user,
+                    annotation=annotation
+                )
+            elif report_or_undo == 'undo':
+                error_report = ErrorReport.objects.filter(
+                    created_by=request.user,
+                    annotation=annotation
+                ).first()
+                if error_report:
+                    error_report.delete()
+                    undo = True
+    return JsonResponse({
+        'created': created,
+        'undo': undo
+    })

@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load humanize %}
+{% block title %}Explore{% endblock title %}
+{% block page_js %}
+    <script type="text/javascript">
+        $(document).ready(function() {
+            loadDatasetReleaseTable();
+            loadDatasetReleaseTaxonomyTable();
+        });
+
+        function loadDatasetReleaseTable(enable_timer = true) {
+            $( "#dataset_releases_table_placeholder" ).load( "{% url 'release-table' dataset.short_name release.release_tag %}", function() {
+                {% if user_is_maintainer %}
+                    if (enable_timer) {
+                        // startUpdatingPercentages();
+                    }
+                {% endif %}
+            });
+        }
+
+        function updateReleasePercentages() {
+            n_polling_checks += 1;
+            $.get( "{% url 'check-release-progresses' dataset.short_name release.release_tag %}", function( data ) {
+
+                // First check if release is complete
+                var complete = (data==100) ? true: false;
+
+                // If release is complete at first check, there is no progress to track, cancel timer
+                if (complete && n_polling_checks === 1){
+                    window.clearInterval(polling_timer);
+                    polling_timer = undefined;
+                    n_polling_checks = 0;
+                    loadDatasetReleaseTable(false);
+                    loadDatasetReleaseTaxonomyTable();
+                } else {
+                    if (complete && n_polling_checks > 1){
+                        // If all are complete and we checked more than once, this means that those which
+                        // were progressing have now finished
+                        loadDatasetReleaseTable(false);
+                        n_polling_checks = 0;
+                    }
+                    // If not all are complete or we're at later polling check, update progress bars
+                    if (data) {
+                        $('#release_percentage_bar_' + {{ release.id }}).progress({
+                            percent: data[key],
+                            text: {active: '{percent}%'}
+                        });
+                    }
+                }
+            });
+        }
+
+        var polling_timer = undefined;
+        var n_polling_checks = 0;
+        function startUpdatingPercentages(){
+            if (polling_timer === undefined) {
+                polling_timer = setInterval(function(){ updateReleasePercentages(); }, 1000);
+            }
+        }
+
+        function loadDatasetReleaseTaxonomyTable(){
+            $( "#dataset_taxonomy_table_placeholder" ).load( "{% url 'release-taxonomy-table' dataset.short_name release.release_tag%}",
+                function() {
+                $('#dataset_contents').DataTable({
+                    'paging': true,
+                    'info': true,
+                    'columns': [
+                        null,
+                        { "width": "70px" },
+                        { "width": "170px" },
+                    ]
+                });
+                $('#dataset_contents_paginate').parent().attr('style', 'width: 100% !important');
+            });
+        }
+
+
+
+
+    </script>
+{% endblock %}
+{% block content %}
+
+
+<!-- CONTENT -->
+
+<h1 class="ui header">
+    Explore {{ release.release_tag }}
+</h1>
+<p>
+    - 200 clases, 108 horas
+</p>
+<p>
+    - tipo de familias de audio que hay, que es CC, variable length, etc
+</p>
+<p>
+    - link a los papers, 
+</p>
+<p>
+    - link a Zenodo...
+</p>
+
+<div>
+<p>
+    <div id="dataset_releases_table_placeholder">
+        <div class="ui active centered inline text loader">Loading data...</div>
+    </div>
+</p>
+</div>
+<div class="ui segment">
+    <div id="dataset_taxonomy_table_placeholder">
+        <div class="ui active centered inline text loader">Loading data...</div>
+    </div>
+</div>
+{% endblock %}

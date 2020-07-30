@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load dataset_templatetags %}
+{% load general_templatetags %}
+{% block title %}{{ node.name }}{% endblock title %}
+{% block page_js %}
+    <script type="text/javascript">
+        $( document ).ready(function() {
+            $(".report-button").click(function (event) {
+                var button = $(this);
+                button.prop('disabled', true);
+                var annotation_id = button.attr('annotation-id');
+                var report_or_undo = button.hasClass("reported-annotation") ? 'undo' : 'report';
+                $.ajax({
+                  type: "POST",
+                  url: "{% url 'report-ground-truth-annotation' dataset.short_name release.release_tag %}",
+                  dataType: 'json',
+                  data: {
+                      "annotation_id": annotation_id,
+                      "report_or_undo": report_or_undo,
+                      csrfmiddlewaretoken: "{{ csrf_token }}"
+                  }
+                }).done(function(data) {
+                    var num_reported_container = button.parent().find(".num-reported-container");
+                    var num_reported = num_reported_container.text();
+                  if (data.created) {
+                    num_reported_container.text(parseInt(num_reported)+1);
+                    button.addClass("reported-annotation");
+                  } else if (data.undo) {
+                    num_reported_container.text(parseInt(num_reported)-1);
+                    button.removeClass("reported-annotation");
+                  }
+                  button.prop('disabled', false);
+                });
+                event.preventDefault();
+            });
+        });
+
+        $('.my-popup').popup({
+            content: "Login to report errors"
+        });
+    </script>
+{% endblock %}
+
+{% block content %}
+    <div class="ui breadcrumb">
+        <h1 class="ui header" style="display: inline-block;">
+            <a href="{% url 'dataset-release' dataset.short_name release.release_tag %}">{{ release.release_tag }}</a>
+            <i class="right arrow icon divider"></i>
+            {{ node.name }}</h1>
+        {% if user_is_maintainer %}
+            {% load admin_urls %}
+            &nbsp;<a title="Edit in administration page" href="{% url node|admin_urlname:'change' node.pk %}" target="_blank"><i class="edit icon"></i></a>
+        {% endif %}
+    </div>
+    {% display_release_taxonomy_node_info dataset release node.node_id %}
+    <br>
+    <h2>Audio samples from <div class="ui huge label">{{ node.name }}</div></h2>
+
+<div class="pagination">
+    <table id="node_sounds" class="ui very compact unstackable table" width="100%">
+        <thead>
+            <tr>
+                <th>Sound</th>
+                <th>Freesound URL</th>
+                <th>Partition</th>
+                <th>Report error</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for annotation in annotations %}
+                <tr>
+                    <td>
+                        {% sound_player dataset annotation.sound_dataset__sound__freesound_id "small" %}
+                    </td>
+                    <td><a href="http://freesound.org/s/{{ annotation.sound_dataset__sound__freesound_id }}" target="_blank">
+                        see in <img class="ui inline image" style="width:80px;"
+                           src="{% static 'img/freesound_logo_color.png' %}"></a>
+                    </td>
+                    <td> {{ annotation.partition }} </td>
+                    <td>
+                        <div {% if not user_connected %}class="my-popup"{% endif %}><button annotation-id="{{ annotation.pk }}" class="circular inverted big ui icon button report-button
+                         {% if annotation.user_reported %}reported-annotation{% endif%}"
+                         {% if not user_connected %}disabled{% endif %}>
+                        <i class="exclamation red triangle icon"></i></button>
+                        <p class="small text">reported by
+                            <span class="num-reported-container">{{ annotation.num_reports }}</span>
+                            {% if annotation.num_reports > 1 %}users{% else %}user{% endif %}
+                        </p>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %} 
+        </tbody>
+    </table>
+    <div class="ui pagination menu" style="float:right">
+        {% if annotations.has_previous %}
+            <a class="item" href="?page={{ sounds.previous_page_number }}"> Previous </a>
+        {% else %}
+            <a class="disabled item"> Previous </a>
+        {% endif %}
+        {% if annotations.has_previous %}
+            <a class="item" href="?page=1"> 1 </a>
+        {% endif %}
+        {% if annotations.number > 3 %}
+            <div class="disabled item">
+                ...
+            </div>
+        {% endif %}
+        {% if annotations.has_previous and annotations.previous_page_number != 1 %}
+            <a class="item" href="?page={{ annotations.previous_page_number }}"> {{ annotations.previous_page_number }} </a>
+        {% endif %}
+            <a class="active item"> {{ annotations.number }} </a>
+        {% if annotations.has_next and annotations.next_page_number != annotations.paginator.num_pages %}
+            <a class="item" href="?page={{ annotations.next_page_number }}"> {{ annotations.next_page_number }} </a>
+        {% endif %}
+        {% if annotations.number|add:1 < annotations.paginator.num_pages %}
+            <div class="disabled item">
+                ...
+            </div>
+        {% endif %}
+        {% if annotations.has_next %}
+            <a class="item" href="?page={{ annotations.paginator.num_pages }}"> {{ annotations.paginator.num_pages }} </a>
+        {% endif %}
+        {% if annotations.has_next %}
+            <a class="item" href="?page={{ annotations.next_page_number }}"> Next </a>
+        {% else %}
+            <a class="disabled item"> Next </a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

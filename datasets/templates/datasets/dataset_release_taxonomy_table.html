@@ -1,0 +1,23 @@
+{% load general_templatetags %}
+{% load dataset_templatetags %}
+<table id="dataset_contents" class="ui unstackable table" width="100%" style="margin-bottom:5px;">
+    <thead>
+        <tr>
+            <th>Category</th>
+            <th><div data-tooltip="Audio samples with candidate annotations for this category">
+                # audio samples</div></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for node in taxonomy_node_stats %}
+        <tr>
+            <td>{{ node.name }}</td>
+            <td>{{ node.num_sounds }}</td>
+            <td class="right aligned"><a href="{% url 'release-taxonomy-node' dataset.short_name release.release_tag node.url_id %}"
+                                         class="blue ui button right labeled icon">Explore
+                <i class="right arrow icon"></i></a></td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>

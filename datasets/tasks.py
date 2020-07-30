@@ -5,6 +5,7 @@ from django.db import transaction
 from celery import shared_task
 import pytz
 from django.utils import timezone
+from urllib.parse import quote
 from utils.redis_store import store
 from datasets.templatetags.dataset_templatetags import calculate_taxonomy_node_stats
 from datasets.utils import query_freesound_by_id, chunks
@@ -13,63 +14,60 @@ import json
 import math
 import logging
 import datetime
+from collections import defaultdict
 from datasets.utils import stem
 logger = logging.getLogger('tasks')
 
 
 @shared_task
 def generate_release_index(dataset_id, release_id, max_sounds=None):
+    """Deprecated. TODO: probably remove
+    This function is not used. We use a management command to load releases.
+    
+    """
     dataset = Dataset.objects.get(id=dataset_id)
     dataset_release = DatasetRelease.objects.get(id=release_id)
 
-    # Get sounds' info and annotations
-    sounds_info = list()
-    n_sounds = 0
-    n_annotations = 0
-    n_validated_annotations = 0
-    node_set = set()
-    sounds = dataset.sounds.all()[:max_sounds]
-    for count, sound in enumerate(sounds):
-        annotations = sound.get_candidate_annotations(dataset)
-        if annotations:
-            annotation_values = [item.value for item in annotations]
-            sounds_info.append((
-                sound.id, annotation_values
-            ))
-            node_set.update(annotation_values)
-            n_sounds += 1
-            n_annotations += annotations.count()
-            n_validated_annotations += annotations.annotate(num_votes=Count('votes')).filter(num_votes__lt=0).count()
-        if count % 50:
-            # Every 50 sounds, update progress
-            dataset_release.processing_progress = int(math.floor(count * 100.0 / len(sounds)))
-            dataset_release.processing_last_updated = timezone.now()
-            dataset_release.save()
+    ground_truth_annotations = dataset.ground_truth_annotations
+    dataset_release.ground_truth_annotations.add(*ground_truth_annotations)
+
+    sounds_info = defaultdict(list)
+    for result in ground_truth_annotations.values_list('sound_dataset__sound__freesound_id', 'taxonomy_node__node_id'):
+        sounds_info[result[0]].append(result[1])
+
+    # Calculate stats
+    num_sounds = len(sounds_info)
+    num_taxonomy_nodes = len(set([j for i in list(sounds_info.values()) for j in i]))
+    num_annotations = ground_truth_annotations.count()
 
     # Make data structure
     release_data = {
-       'meta': {
-           'dataset': dataset.name,
-           'release': dataset_release.release_tag,
-           'num_sounds': n_sounds,
-           'num_taxonomy_nodes': len(node_set),
-           'num_annotations': n_annotations,
-           'num_validated_annotations': n_validated_annotations
-       },
-       'sounds_info': sounds_info,
+        'meta': {
+            'dataset': dataset.name,
+            'release': dataset_release.release_tag,
+            'num_sounds': num_sounds,
+            'num_taxonomy_nodes': num_taxonomy_nodes,
+            'num_annotations': num_annotations,
+        },
+        'sounds_info': list(sounds_info.items())
     }
 
-    # Save release data to file
-    json.dump(release_data, open(dataset_release.index_file_path, 'w'))
+    # Calculate taxonomy stats (num sounds per taxonomy node). We could avoid a db query here by counting in python
+    taxonomy_node_stats = TaxonomyNode.objects.filter(ground_truth_annotations__dataset_release=dataset_release)\
+        .annotate(num_sounds=Count('ground_truth_annotations',
+                                   filter=Q(ground_truth_annotations__dataset_release=dataset_release)))\
+        .values('name', 'num_sounds', 'node_id')
+    for node in taxonomy_node_stats:
+        node['url_id'] = quote(node['node_id'], safe='')
 
-    # Update dataset_release object
-    dataset_release.num_validated_annotations = n_validated_annotations
-    dataset_release.num_annotations = n_annotations
-    dataset_release.num_sounds = n_sounds
-    dataset_release.num_nodes = len(node_set)
-    dataset_release.processing_progress = 100
+    dataset_release.release_data = release_data
+    dataset_release.taxonomy_node_stats = list(taxonomy_node_stats)
+    dataset_release.num_annotations = num_annotations
+    dataset_release.num_sounds = num_sounds
+    dataset_release.num_nodes = num_taxonomy_nodes
+    dataset_release.processing_progress = 100  # REMOVE
     dataset_release.processing_last_updated = timezone.now()
-    dataset_release.is_processed = True
+    dataset_release.is_processed = True  # REMOVE
     dataset_release.save()
 
 

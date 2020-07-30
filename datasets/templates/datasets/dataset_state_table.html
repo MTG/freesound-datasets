@@ -1,0 +1,26 @@
+{% load dataset_templatetags %}
+{% load general_templatetags %}
+<table class="ui definition unstackable table">
+    <thead>
+        <tr>
+            <th class="one wide"></th>
+            <th class="one wide"># categories</th>
+            <th class="one wide"># audio samples</th>
+            <th class="one wide"><div data-tooltip="Candidate annotations validated by more than one user, with majority agreement on the presence of a sound category in an audio sample">
+                # ground truth annotations</div></th>
+            <th class="one wide"> <div data-tooltip="Annotations that express the potential presence of a sound category in an audio sample"># candidate annotations</div></th>
+            <th class="one wide"> <div data-tooltip="Number of contributions or validations made by users">
+                # votes</div></th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>current state<br><span class="small_gray_text">{{ dataset_basic_stats.redis_timestamp | timestamp_to_datetime | timesince  }} ago</span></td>
+            <td>{{ dataset_basic_stats.num_taxonomy_nodes }}</td>
+            <td>{{ dataset_basic_stats.num_sounds }}</td>
+            <td>{{ dataset_basic_stats.num_ground_truth_annotations }}</td>
+            <td>{{ dataset_basic_stats.num_annotations }}</td>
+            <td>{{ dataset_basic_stats.num_user_contributions }}</td>
+        </tr>
+    </tbody>
+</table>
