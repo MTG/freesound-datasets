@@ -86,26 +86,48 @@
 <!-- CONTENT -->
 
 <h1 class="ui header">
-    Explore {{ release.release_tag }}
+    {{ release.release_tag }}
 </h1>
-<p>
-    - 200 clases, 108 horas
+
+<p style="font-size: 18px;">
+    Welcome to the companion site for the FSD50K dataset. Here you will find basic information and links to the download page and the paper describing the dataset. You can also explore the audio content of FSD50k.
 </p>
-<p>
-    - tipo de familias de audio que hay, que es CC, variable length, etc
-</p>
-<p>
-    - link a los papers, 
-</p>
-<p>
-    - link a Zenodo...
+<p style="font-size: 18px;">
+    FSD50k is an open dataset of human-labeled sound events. Here is summary of the main characteristics:
+    <div class="ui bulleted list" style="margin-left:100px; font-size: 17px; font-weight: 300;">
+        <div class="item" style="padding: 9px;">The dataset contains <b class="mybold">51,197 audio clips</b> from 
+            <a target="_blank" href="http://freesound.org/"><b class="mybold">Freesound</b></a> totalling over 100 hours of audio
+        </div>
+        <div class="item" style="padding: 9px;">The audio content is manually labeled using <b class="mybold">200 classes</b> 
+            drawn from the <a target="_blank" href="https://research.google.com/audioset/"><b class="mybold">AudioSet Ontology</b></a>
+        </div>
+        <div class="item" style="padding: 9px;">FSD50K is provided in two sets: development and evaluation</div>
+        <div class="item" style="padding: 9px;">The dataset includes additional Freesound metadata</div>
+        <div class="item" style="padding: 9px;">All the content is licensed under <b class="mybold">Creative Commons licenses</b></div>
+        <div class="item" style="padding: 9px;">FSD50K can be <a target="_blank" href=""><b class="mybold">downloaded from Zenodo</a></b> along with detailed information</div>
+    </div>
 </p>
 
+<div class="ui main center aligned container stackable" style="margin-top: 40px; margin-bottom: 10px;">
+    <p><i>If you use this dataset in your work please cite our paper or check it out for more information:</i><br><b>
+        <a target="_blank" href="">
+            FSD50K: An Open Dataset of Human-Labeled Sound Events.
+        </a></b><br>E. Fonseca, X. Favory, J. Pons, F. Font & X. Serra<br>
+        ArXiv, 2020<b>
+    </a></b></p>
+</div>
+
 <div>
-<p>
+<p style="font-size: 18px;">
+    <br>
+    You can explore FSD50k by audio category. 
+    Once inside a category, you can inspect the audio samples and report labelling errors 
+    that will be amended in future versions of the dataset.
+    <br>
     <div id="dataset_releases_table_placeholder">
         <div class="ui active centered inline text loader">Loading data...</div>
     </div>
+
 </p>
 </div>
 <div class="ui segment">
