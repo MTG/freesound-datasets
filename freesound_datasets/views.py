@@ -28,6 +28,7 @@ def index(request):
     except:
         num_categories_reached_goal = None
         num_non_omitted_nodes = None
+        release = None
     
     return render(request, 'index.html', {'home': True,
                                           'num_categories_reached_goal': num_categories_reached_goal,
