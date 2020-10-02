@@ -113,12 +113,16 @@ that express the potential presence of sound sources in audio clips.
               </span>
             {% endfor %}
           </div>
-          <div id="category-progress" class="ui red progress" style="width: 95%;" align="left">
+          <h2 class="big">New release out!</h2>
+          <a href="{% url 'dataset-release' 'fsd' 'FSD50K' %}" 
+            class="ui big button red right labeled icon" style="margin-top: 10px;"> Explore FSD50K<i class="right arrow icon"></i>
+          </a>
+          <!--<div id="category-progress" class="ui red progress" style="width: 95%;" align="left">
             <div class="bar"></div>
           </div>
           <h5 style="margin-top: -25px; text-align: center">
               {{ dataset_basic_stats.num_categories_reached_goal }}/{{ dataset_basic_stats.num_non_omitted_nodes }} categories have reached our first goal!
-          </h5>
+          </h5> -->
         </div>
         <div class="right floated left aligned nine wide column">
           <h3 class="ui header">Crowdsourcing annotations</h3>

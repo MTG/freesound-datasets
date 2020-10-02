@@ -48,8 +48,10 @@
                     {% else %}
                         {{ dataset.name }}
                     {% endif %}
-                    {% if dataset.datasetrelease_set.first.type == 'PU' or request.user.profile.is_fsd_maintainer %}
-                        <a href="{% url 'dataset-release' dataset.short_name dataset.datasetrelease_set.first.release_tag %}" class="{% active_if_current 'dataset-release' %}item">{{dataset.datasetrelease_set.first.release_tag}}</a>
+                    {% if dataset.datasetrelease_set.first %}
+                        {% if dataset.datasetrelease_set.first.type == 'PU' or request.user.profile.is_fsd_maintainer %}
+                            <a href="{% url 'dataset-release' dataset.short_name dataset.datasetrelease_set.first.release_tag %}" class="{% active_if_current 'dataset-release' %}item">{{dataset.datasetrelease_set.first.release_tag}}</a>
+                        {% endif %}
                     {% endif %}
                     <a href="{% url 'dataset-explore' dataset.short_name %}" class="{% active_if_current 'dataset-explore' %}item">Status</a>
                     <a href="{% url 'contribute' dataset.short_name %}" class="{% active_if_current 'contribute' %}item">Annotate</a>
