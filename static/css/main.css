@@ -67,6 +67,10 @@ p {
 	font-weight: 100;
 }
 
+b.mybold {
+    font-weight: 400!important;
+}
+
 ul {
 	list-style: none;
   margin-left: -40px;
