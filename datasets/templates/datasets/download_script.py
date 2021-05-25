@@ -6,7 +6,7 @@ import os
 import time
 
 dataset_url = '{{dataset_url}}'
-get_code_url = 'https://www.freesound.org/apiv2/oauth2/authorize/?response_type=code&client_id={{get_code_url}}'
+get_code_url = 'https://freesound.org/apiv2/oauth2/authorize/?response_type=code&client_id={{get_code_url}}'
 get_access_token_url = '{{access_token_url}}?'
 
 verbose = False
@@ -84,7 +84,7 @@ while expired:
     except urllib2.HTTPError:
             sys.stdout.write("Failed getting access_token, retrying...\n")
 
-sounds_dict = {sid: 'https://www.freesound.org/apiv2/sounds/%s/' % sid for sid in progress['sound_ids']}
+sounds_dict = {sid: 'https://freesound.org/apiv2/sounds/%s/' % sid for sid in progress['sound_ids']}
 
 # Now start download of sounds on sounds_dict
 sys.stdout.write("Starting download of %d sounds\n" % len(sounds_dict.keys()))

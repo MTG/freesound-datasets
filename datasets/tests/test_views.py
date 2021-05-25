@@ -70,7 +70,7 @@ class AdvancedContributeTest(TestCase):
                     freesound_id=fsid,
                     extra_data={
                         'duration': 0.3 + 5*random.random() if count < 12 else 10 + 10*random.random(),
-                        'previews': 'http://www.freesound.org/data/previews/188/188440_3399958-hq.ogg'
+                        'previews': 'https://freesound.org/data/previews/188/188440_3399958-hq.ogg'
                     }
                 )
                 sound_dataset = SoundDataset.objects.create(
@@ -193,7 +193,7 @@ class DatasetReleaseTests(TestCase):
         sounds = Sound.objects.all()
         with transaction.atomic():
             for sound in sounds:
-                sound.extra_data['previews'] = 'http://www.freesound.org/data/previews/188/188440_3399958-hq.ogg'
+                sound.extra_data['previews'] = 'https://freesound.org/data/previews/188/188440_3399958-hq.ogg'
                 sound.save()
 
         self.client.login(username='username_0', password='123456')
@@ -343,7 +343,7 @@ class Basic200ResponseTest(TestCase):
         sounds = Sound.objects.all()
         with transaction.atomic():
             for sound in sounds:
-                sound.extra_data['previews'] = 'http://www.freesound.org/data/previews/188/188440_3399958-hq.ogg'
+                sound.extra_data['previews'] = 'https://freesound.org/data/previews/188/188440_3399958-hq.ogg'
                 sound.save()
 
         self.node_with_candidates = CandidateAnnotation.objects.first().taxonomy_node

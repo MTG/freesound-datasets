@@ -141,19 +141,19 @@ def sounds_per_taxonomy_node(dataset, node_id, N):
 
 @register.filter()
 def fs_embed_small(value):
-    embed_code = '<iframe frameborder="0" scrolling="no" src="https://www.freesound.org/embed/sound/iframe/{0}/simple/small/" width="375" height="30"></iframe>'
+    embed_code = '<iframe frameborder="0" scrolling="no" src="https://freesound.org/embed/sound/iframe/{0}/simple/small/" width="375" height="30"></iframe>'
     return embed_code.format(str(value))
 
 
 @register.filter()
 def fs_embed(value):
-    embed_code = '<iframe frameborder="0" scrolling="no" src="https://www.freesound.org/embed/sound/iframe/{0}/simple/medium_no_info/?spec=1&td=1" width="130" height="80"></iframe>'
+    embed_code = '<iframe frameborder="0" scrolling="no" src="https://freesound.org/embed/sound/iframe/{0}/simple/medium_no_info/?spec=1&td=1" width="130" height="80"></iframe>'
     return embed_code.format(str(value))
 
 
 @register.filter()
 def fs_embed_large(value):
-    embed_code = '<iframe frameborder="0" scrolling="no" src="https://www.freesound.org/embed/sound/iframe/{0}/simple/large_no_info/?spec=1&td=1" width="920" height="245"></iframe>'
+    embed_code = '<iframe frameborder="0" scrolling="no" src="https://freesound.org/embed/sound/iframe/{0}/simple/large_no_info/?spec=1&td=1" width="920" height="245"></iframe>'
     return embed_code.format(str(value))
 
 

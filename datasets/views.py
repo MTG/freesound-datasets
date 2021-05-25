@@ -746,7 +746,7 @@ def get_access_token(request):
         data['refresh_token'] = refresh_token
         data['grant_type'] = 'refresh_token'
 
-    access_token_url = "https://www.freesound.org/apiv2/oauth2/access_token/"
+    access_token_url = "https://freesound.org/apiv2/oauth2/access_token/"
     data = urlencode(data).encode('ascii')
 
     try:
