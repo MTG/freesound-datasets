@@ -10,5 +10,5 @@ psycopg2==2.7.7 --no-binary psycopg2
 pygments==2.2.0
 sentry-sdk==0.14.4
 redis==3.2.0
-social-auth-app-django==3.1.0
+social-auth-app-django==4.0.0
 uwsgi==2.0.18
