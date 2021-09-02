@@ -41,14 +41,14 @@ class ContributeTest(TestCase):
         
         # check the response an that a vote is added in the database
         response = self.client.post(reverse('save-contribute-validate-annotations-per-category'), data=form_data) 
-        self.assertEquals(response.status_code, 200)
-        self.assertEquals(Vote.objects.filter(candidate_annotation_id=annotation_object_id).count(), 1)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Vote.objects.filter(candidate_annotation_id=annotation_object_id).count(), 1)
         
         # check that a second vote is not added, or modified
         form_data['form-0-vote'] = '-1'
         self.client.post(reverse('save-contribute-validate-annotations-per-category'), data=form_data)
-        self.assertEquals(Vote.objects.filter(candidate_annotation_id=annotation_object_id).count(), 1)
-        self.assertEquals(Vote.objects.get(candidate_annotation_id=annotation_object_id).vote, 1)
+        self.assertEqual(Vote.objects.filter(candidate_annotation_id=annotation_object_id).count(), 1)
+        self.assertEqual(Vote.objects.get(candidate_annotation_id=annotation_object_id).vote, 1)
 
 
 class AdvancedContributeTest(TestCase):
@@ -102,7 +102,7 @@ class AdvancedContributeTest(TestCase):
                                                'node_id': node_url,
                                                 'short_name': 'fsd'
                                            }))
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         selected_candidates = sorted([form[0].id for form in response.context['annotations_forms']])
         self.assertListEqual(expected_annotation_ids, selected_candidates)
 
@@ -120,7 +120,7 @@ class AdvancedContributeTest(TestCase):
                                                 'node_id': node_url,
                                                 'short_name': 'fsd'
                                            }))
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         selected_candidates = [form[0].id for form in response.context['annotations_forms']]
 
         # create form data with the 12 annotation vote forms
@@ -141,7 +141,7 @@ class AdvancedContributeTest(TestCase):
 
         # submit form
         response = self.client.post(reverse('save-contribute-validate-annotations-per-category'), data=form_data)
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
         # get the candidates second page
         response = self.client.get(reverse('contribute-validate-annotations-category',
@@ -149,7 +149,7 @@ class AdvancedContributeTest(TestCase):
                                                 'node_id': node_url,
                                                 'short_name': 'fsd'
                                            }))
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
         # check that the selected candidates correspond to the 12 sounds with duration > 10 sec
         expected_annotation_ids = sorted(CandidateAnnotation.objects
@@ -211,7 +211,7 @@ class DatasetReleaseTests(TestCase):
                                                 'short_name': 'fsd'
                                             }),
                                     data=form_data)
-        self.assertEquals(response.status_code, 302)  # http redirect
+        self.assertEqual(response.status_code, 302)  # http redirect
 
         # check that the release has been correctly created
         release = DatasetRelease.objects.first()
@@ -237,7 +237,7 @@ class DatasetReleaseTests(TestCase):
                                                'release_tag': 'test'
                                            }))
 
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['release'].release_tag, 'test')
 
     def test_download_release(self):
@@ -262,7 +262,7 @@ class DatasetReleaseTests(TestCase):
                                            }))
 
         self.assertEqual(list(DatasetRelease.objects.all()), [])
-        self.assertEquals(response.status_code, 302)  # http redirect
+        self.assertEqual(response.status_code, 302)  # http redirect
 
     def test_release_table(self):
         create_release()
@@ -354,35 +354,35 @@ class Basic200ResponseTest(TestCase):
                                            kwargs={
                                                'short_name': 'fsd'
                                            }))
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
     def test_dataset_explore(self):
         response = self.client.get(reverse('dataset-explore',
                                            kwargs={
                                                'short_name': 'fsd'
                                            }))
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
     def test_dataset_taxonomy_tree(self):
         response = self.client.get(reverse('taxonomy-tree',
                                            kwargs={
                                                'short_name': 'fsd'
                                            }))
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
     def test_dataset_taxonomy_table(self):
         response = self.client.get(reverse('taxonomy-table',
                                            kwargs={
                                                'short_name': 'fsd'
                                            }))
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
     def test_dataset_state_table(self):
         response = self.client.get(reverse('state-table',
                                            kwargs={
                                                'short_name': 'fsd'
                                            }))
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
     def test_taxonomy_node(self):
         response = self.client.get(reverse('dataset-explore-taxonomy-node',
@@ -390,14 +390,14 @@ class Basic200ResponseTest(TestCase):
                                                'short_name': 'fsd',
                                                'node_id': self.node_with_candidates.url_id
                                            }))
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
     def test_contribute(self):
         response = self.client.get(reverse('contribute',
                                            kwargs={
                                                'short_name': 'fsd'
                                            }))
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
     def test_contribute_validate_annotations(self):
         response = self.client.get(reverse('contribute-validate-annotations-category',
@@ -405,21 +405,21 @@ class Basic200ResponseTest(TestCase):
                                                'short_name': 'fsd',
                                                'node_id': self.node_with_candidates.url_id
                                            }))
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
     def test_contribute_validate_annotations_easy(self):
         response = self.client.get(reverse('contribute-validate-annotations-category-beginner',
                                            kwargs={
                                                'short_name': 'fsd'
                                            }))
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
     def test_contribute_validate_annotations_all(self):
         response = self.client.get(reverse('contribute-validate-annotations-all',
                                            kwargs={
                                                'short_name': 'fsd'
                                            }))
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
     def test_contribute_validate_annotations_category(self):
         response = self.client.get(reverse('contribute-validate-annotations-category',
@@ -427,35 +427,35 @@ class Basic200ResponseTest(TestCase):
                                                'short_name': 'fsd',
                                                'node_id': self.node_with_candidates.url_id
                                            }))
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
     def test_choose_category(self):
         response = self.client.get(reverse('choose_category',
                                            kwargs={
                                                'short_name': 'fsd'
                                            }))
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
     def test_dataset_taxonomy_table_choose(self):
         response = self.client.get(reverse('dataset_taxonomy_table_choose',
                                            kwargs={
                                                'short_name': 'fsd'
                                            }))
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
     def test_dataset_taxonomy_table_search(self):
         response = self.client.get(reverse('taxonomy-table-search',
                                            kwargs={
                                                'short_name': 'fsd'
                                            }))
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
     def test_dataset_taxonomy_table_search_all(self):
         response = self.client.get(reverse('taxonomy-table-search-all',
                                            kwargs={
                                                'short_name': 'fsd'
                                            }))
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
     def test_get_mini_node_info(self):
         response = self.client.get(reverse('get-mini-node-info',
@@ -463,5 +463,5 @@ class Basic200ResponseTest(TestCase):
                                                'short_name': 'fsd',
                                                'node_id': self.node_with_candidates.url_id
                                            }))
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
     
