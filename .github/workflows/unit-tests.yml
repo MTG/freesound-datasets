@@ -1,0 +1,38 @@
+name: Freesound Datasets Tests
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ '*' ]
+
+jobs:
+
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: update settings file
+      run: mv freesound_datasets/local_settings.example.py freesound_datasets/local_settings.py
+
+    - name: Login to Docker Hub
+      run: echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+      continue-on-error: true
+
+    - name: Pull docker images
+      run: docker-compose pull
+
+    - uses: satackey/action-docker-layer-caching@v0.0.11
+      continue-on-error: true
+
+    - name: Build images
+      run: docker-compose build web
+
+    - name: Run tests
+      run: docker-compose run --rm web dockerize -wait tcp://db:5432 python manage.py test
+
+
+
+
