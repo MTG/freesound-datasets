@@ -30,7 +30,7 @@ if os.getenv('DEPLOY_ENV', 'dev') == 'prod':
     if SECRET_KEY == 'default_secret_key':
         print("Please configure your secret key by setting DJANGO_SECRET_KEY environment variable")
     DEBUG = False
-    ALLOWED_HOSTS = ['localhost', 'asplab-web1', 'asplab-web1.s.upf.edu', 'datasets.freesound.org', 'annotator.freesound.org']
+    ALLOWED_HOSTS = ['localhost', 'asplab-web1', 'asplab-web1.s.upf.edu', 'datasets.freesound.org', 'annotator.freesound.org', 'fsdatasets.mtg.sb.upf.edu']
 else:
     DEBUG = True
     INTERNAL_IPS = ['127.0.0.1']
