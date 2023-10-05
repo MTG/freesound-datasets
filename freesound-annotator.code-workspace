@@ -1,0 +1,63 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../../asplab-configuration/freesound-annotator"
+		}
+	],
+	"tasks": {
+		"version": "2.0.0",
+		"tasks": [
+			{
+				"label": "Docker compose build",
+				"type": "shell",
+				"command": "docker-compose build",
+				"problemMatcher": []
+			},
+			{
+				"label": "Collect static",
+				"type": "shell",
+				"command": "python manage.py collectstatic --clear --noinput",
+				"problemMatcher": []
+			},
+			{
+				"label": "Run tests",
+				"type": "shell",
+				"command": "docker-compose run --rm web python manage.py test",
+				"problemMatcher": []
+			},
+			{
+				"label": "Run tests verbose with warnings",
+				"type": "shell",
+				"command": "docker-compose run --rm web python -Wa manage.py test -v3",
+				"problemMatcher": []
+			},
+			{
+				"label": "Migrate",
+				"type": "shell",
+				"command": "docker-compose run --rm web python manage.py migrate",
+				"problemMatcher": []
+			},
+			{
+				"label": "Make migrations",
+				"type": "shell",
+				"command": "docker-compose run --rm web python manage.py makemigrations",
+				"problemMatcher": []
+			},
+			{
+				"label": "Shell plus",
+				"type": "shell",
+				"command": "docker-compose run --rm web python manage.py shell_plus",
+				"problemMatcher": []
+			}
+		]
+	},
+	"settings": {
+		//"python.defaultInterpreterPath": ".venv/bin/python",
+		"files.associations": {
+			"*.html": "django-html"
+		}
+	}
+}
