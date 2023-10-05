@@ -29,11 +29,13 @@ def index(request):
         num_categories_reached_goal = None
         num_non_omitted_nodes = None
         release = None
+    datasets = Dataset.objects.all().order_by('created_at')
     
     return render(request, 'index.html', {'home': True,
                                           'num_categories_reached_goal': num_categories_reached_goal,
                                           'num_non_omitted_nodes': num_non_omitted_nodes,
-                                          'release': release})
+                                          'release': release,
+                                          'datasets': datasets})
 
 
 def faq(request):

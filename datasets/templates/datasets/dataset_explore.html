@@ -62,12 +62,13 @@
     </div>
 </p>
 </div>
-
+{% if dataset.short_name == "fsd" %}
 <div class="ui message">
   <p>Categories shaded in red are AudioSet categories that are not considered for the first release of {{ dataset.short_name|upper }}. See our
                     <a target="_blank" href="https://repositori.upf.edu/handle/10230/33299">
                         ISMIR2017 paper</a> for more details.</p>
 </div>
+{% endif %}
 <div class="ui two item top attached tabular menu">
   <a class="item active" data-tab="first">
       <i class="list layout icon"></i> Table

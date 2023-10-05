@@ -89,6 +89,7 @@
     {{ release.release_tag }}
 </h1>
 
+{% if dataset.short_name == "fsd" %}
 <p style="font-size: 18px;">
     Welcome to the companion site for the FSD50K dataset. 
     Here you will find basic information and links to the download page and the paper describing the dataset. 
@@ -112,17 +113,18 @@
 
 <div class="ui main center aligned container stackable" style="margin-top: 40px; margin-bottom: 10px;">
     <p><i>If you use this dataset in your work please cite our paper and check it out for more information:</i><br><b>
-        <a target="_blank" href="https://arxiv.org/pdf/2010.00475.pdf">
+        <a target="_blank" href="https://ieeexplore.ieee.org/document/9645159">
             FSD50K: An Open Dataset of Human-Labeled Sound Events.
         </a></b><br>E. Fonseca, X. Favory, J. Pons, F. Font & X. Serra<br>
-        arXiv:2010.00475, 2020<b>
+        in <i>IEEE/ACM Transactions on Audio, Speech, and Language Processing</i>, vol. 30, pp. 829-852, 2022, doi: 10.1109/TASLP.2021.3133208.<b>
     </a></b></p>
 </div>
+{% endif %}
 
 <div>
 <p style="font-size: 18px;">
     <br>
-    You can explore FSD50K by audio category. 
+    You can explore {{ release.release_tag }} by audio category. 
     Once inside a category, you can inspect the audio samples and report labelling errors 
     that will be amended in future versions of the dataset.
     <br>

@@ -94,3 +94,4 @@ fsdatasets_releases
 *.pkl
 *.pid
 *.sh
+new_taxonomy.json

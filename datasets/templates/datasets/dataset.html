@@ -64,6 +64,9 @@
 
 <center>
 
+
+{% if dataset.short_name == "fsd" %}
+
 <h2 style="color: black;">{{ dataset.short_name|upper }} is a large-scale, general-purpose audio dataset</h2>
         <p style="margin-top:0px">Thousands of audio samples from <a target="_blank" href="http://freesound.org/"><b>Freesound</b></a> organised following the <a target="_blank" href="https://research.google.com/audioset/"><b>AudioSet Ontology</b></a></p>
 
@@ -226,8 +229,25 @@ that express the potential presence of sound sources in audio clips.
 </div>
 
 <div class="ui main center aligned container stackable" style="margin-top: 40px; margin-bottom: -30px;">
-<p><i>If you use this dataset in your work please cite our paper or check it out for more information:</i><br><b><a target="_blank" href="https://repositori.upf.edu/handle/10230/33299">Freesound Datasets: A Platform for the Creation of Open Audio Datasets</a></b><br>E. Fonseca, J. Pons, X. Favory, F. Font, D. Bogdanov, A. Ferraro, S. Oramas, A. Porter & X. Serra<br>In Proceedings of the 18th International Society for Music Information Retrieval Conference, Suzhou, China, 2017<b>
-<a href="{% static 'bibtex/fonseca2017freesound.bib'%}">[BiB]</a></b></p>
+  <p><i>If you use this dataset in your work please cite our paper and check it out for more information:</i><br><b>
+    <a target="_blank" href="https://ieeexplore.ieee.org/document/9645159">
+        FSD50K: An Open Dataset of Human-Labeled Sound Events.
+    </a></b><br>E. Fonseca, X. Favory, J. Pons, F. Font & X. Serra<br>
+    in <i>IEEE/ACM Transactions on Audio, Speech, and Language Processing</i>, vol. 30, pp. 829-852, 2022, doi: 10.1109/TASLP.2021.3133208.<b>
+</a></b></p>
 </div>
 </center>
+{% else %}
+
+<h2 style="color: black;">{{ dataset.name|upper }}</h2>
+<br>
+<div class="ui container" style="width:90%;">
+  <div class="ui middle aligned stackable grid container">
+    <div class="row">
+      {{ dataset.description|safe }}
+    </div>
+  </div>
+</div>
+
+{% endif %}
 {% endblock %}

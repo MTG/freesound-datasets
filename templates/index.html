@@ -9,64 +9,57 @@
 <div class="ui inverted raised vertical padded center aligned segment" style="background-image: url({% static 'img/17.png' %});background-size: cover;">
   <br><br><br><br>
   <center><img class="ui center aligned image" style="width: 700px;" src="{% static "img/freesound_annotator_logo.svg" %}"></center>
-  <h3>A platform for the collaborative creation of open audio collections labeled by humans and based on Freesound content</h3>
+  <h3>A platform for the collaborative creation of open audio dataets based on Freesound sounds</h3>
   <br>
-  {% if release.type == 'PU' %}
-  <h2 class="big">New release out!</h2>
-    <a href="{% url 'dataset-release' release.dataset.short_name release.release_tag %}" 
-      class="ui big button right labeled icon" style="margin-top: 10px;">Explore {{release.release_tag}}<i class="right arrow icon"></i>
-    </a>
-  {% else %}
-    {% if num_categories_reached_goal %}
-    <div class="ui inverted small statistic">
-      <div class="label">
-        Completed categories
-      </div>
-      <div class="value">
-        {{ num_categories_reached_goal }} / {{ num_non_omitted_nodes }}
-      </div>
-    </div>
-      <br>
-    <a href="{% url 'contribute' 'fsd' %}" class="ui big button right labeled icon">Get started with our annotation tasks! <i class="right arrow icon"></i></a>
-    {% endif %}
-  {% endif %}
-  <br><br><br><br><br><br><br>
+  <br><br><br><br>
 </div>
 
-<div class="ui vertical segment center aligned">
+<!--div class="ui vertical segment center aligned">
   <h2 class="header back_clear" style="color:#596876; margin-top: 45px; margin-bottom: 25px; text-align: center;" >
     Looking for <span style="font-size: 30px;">Freesound Datasets</span> ?<br><br>
     You are actually at the right place! Freesound Datasets is now called: <br><br><i class="quote left icon"></i><span style="font-size: 34px;">Freesound Annotator</span><i class="quote right icon"></i><br>
   </h2>
-</div>
+</div-->
 
 <div class="ui vertical segment center aligned" style="background-color: #f8f6f3;">
-<h2 style="margin-top: 45px; margin-bottom: 25px; text-align: center;">Explore, download and contribute to our datasets</h2>
+<h2 style="margin-top: 45px; margin-bottom: 25px; text-align: center;">Explore, download and contribute to datasets</h2>
 <div class="ui main center aligned raised container" style="margin-top: 20px; margin-bottom: 20px; width:40%;  min-width:500px;">
   <div class="ui raised segment">
-    <div class="ui two column middle aligned compact stackable grid">
-      <div class="ten wide column">
-        <p class="medium text">The <b>FSD</b> is a large-scale, general-purpose dataset composed of
-        <b><a target="_blank" href="http://freesound.org/">Freesound</a></b> content organised by the
-        <b><a target="_blank" href="https://research.google.com/audioset/">AudioSet Ontology</a></b></p>
+    {% for dataset in datasets %}
+      {% if dataset.short_name == "fsd" %}
+        <div class="ui two column middle aligned compact stackable grid">
+          <div class="ten wide column">
+            <p class="medium text">The <b>FSD</b> is a large-scale, general-purpose dataset composed of
+            <b><a target="_blank" href="http://freesound.org/">Freesound</a></b> content organised by the
+            <b><a target="_blank" href="https://research.google.com/audioset/">AudioSet Ontology</a></b></p>
+          </div>
+          <div class="six wide column">
+            <a title="go to FreesoundDataset" class="fluid ui huge red button right labeled icon" href="{% url 'dataset' 'fsd' %}">
+            FSD &nbsp; &nbsp; &nbsp;<i class="right arrow icon"></i></a>
+          </div>
+        </div>
+    {% else %}
+      <div class="ui two column middle aligned compact stackable grid">
+        <div class="ten wide column">
+          <p class="medium text">{{ dataset.description|truncatewords:18 }}</p>
+        </div>
+        <div class="six wide column">
+          <a title="go to {{ dataset.name }}" class="fluid ui huge red button right labeled icon" href="{% url 'dataset' dataset.short_name %}">
+          {{ dataset.short_name|upper }} &nbsp; &nbsp; &nbsp;<i class="right arrow icon"></i></a>
+        </div>
       </div>
-      <div class="six wide column">
-        <a title="go to FreesoundDataset" class="fluid ui huge red button right labeled icon" href="{% url 'dataset' 'fsd' %}">
-        FSD &nbsp; &nbsp; &nbsp;<i class="right arrow icon"></i></a>
-      </div>
-    </div>
+    {% endif %}
+    {% endfor %}
   </div>
 </div>
-<p class="medium text" style="text-align:center;"><i>... more to come!</i></p>
 <br>
 </div>
 
-<div class="ui vertical secondary inverted segment center aligned" style="background-color: #52527a;">
+<!--div class="ui vertical secondary inverted segment center aligned" style="background-color: #52527a;">
 <br>
 <div class="ui vertical">
   <div class="ui equal width stackable internally celled grid">
     <div class="row">
-      <!--OUR VISION-->
       <div class="right aligned column very padded">
         <div class="ui list" style="margin-right: 35px;">
           <div class="item">
@@ -86,8 +79,6 @@
           </div>
         </div>
       </div>
-
-      <!--OUR PLAN-->
       <div class="left aligned column very padded" >
         <div class="ui list" style="margin-left: 35px;">
           <div class="item">
@@ -107,13 +98,12 @@
           </div>
         </div>
       </div>
-
     </div>
   </div>
 </div>
 <br>
+</div-->
 
-</div>
 <div class="ui vertical secondary red inverted segment center aligned">
 <h2 style="margin-top: 20px; margin-bottom: -20px; text-align: center;">What can I do in this platform?</h2>
 <div class="ui basic labels" style="margin-top:40px; text-align: center;">
@@ -151,7 +141,7 @@
 <div class="ui basic labels" style="margin-top:25px;border: 0px solid;">
   <a target="_blank" class="ui basic label" href="https://github.com/MTG/freesound-datasets/" style="min-width: 200px;
   background-color: transparent;border:transparent;border: 0px solid;">
-      <p class="small text">For nerds!</p>
+      <p class="small text">For devs</p>
       <center><i class="github icon huge"></i>
       <h3>GitHub</h3></center>
   </a>
@@ -166,6 +156,12 @@
       <p class="small text">Stay tuned!</p>
       <center><i class="bar icon huge"></i>
       <h3>GoogleGroup</h3></center>
+  </a>
+  <a target="_blank" class="ui basic label" href="https://repositori.upf.edu/handle/10230/33299" style="
+  background-color: transparent;border:transparent; min-width: 200px;border: 0px solid;">
+      <p class="small text">Want to know more?</p>
+      <center><i class="file alternate icon huge"></i>
+      <h3>Read the paper</h3></center>
   </a>
 </div>
 </center>
@@ -190,12 +186,6 @@
       </a>
     </div>
   </div>
-</div>
-
-<div class="ui vertical basic segment center aligned" style="margin-top: 20px; margin-bottom:-35px;">
-<p  style="margin-bottom: 0px;"> If you use this platform or any of the hosted datasets in your work please cite our paper: </p>
- E. Fonseca, J. Pons, X. Favory, F. Font, D. Bogdanov, A. Ferraro, S. Oramas, A. Porter & X. Serra. <a target="_blank" href="https://repositori.upf.edu/handle/10230/33299">Freesound Datasets: A Platform for the Creation of Open Audio Datasets</a>. <br>In Proceedings of the 18th International Society for Music Information Retrieval Conference, Suzhou, China, 2017 <b>
-<a href="{% static 'bibtex/fonseca2017freesound.bib'%}">[BiB]</a></b>
 </div>
 
 {% endblock %}

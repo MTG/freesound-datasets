@@ -15,12 +15,12 @@ class Command(BaseCommand):
 
         # loop for creating taxonomy node instances 
         for node_id, node in taxonomy.data.items():
-            abstract = 'abstract' in node['restrictions']
-            omitted = 'omittedTT' in node['restrictions']
+            abstract = 'abstract' in node.get('restrictions', [])
+            omitted = 'omittedTT' in node.get('restrictions', [])
             taxonomy_node =  TaxonomyNode.objects.create(node_id=node_id, 
                                                          name=node['name'], 
                                                          description=node['description'], 
-                                                         citation_uri=node['citation_uri'], 
+                                                         citation_uri=node.get('citation_uri', ''), 
                                                          abstract=abstract,
                                                          omitted=omitted, 
                                                          taxonomy=taxonomy)
