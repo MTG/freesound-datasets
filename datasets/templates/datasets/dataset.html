@@ -5,249 +5,171 @@
 {% load general_templatetags %}
 {% block title %}{{dataset.short_name|upper}}{% endblock title %}
 {% block extra_head %}
-    {% load_sound_player_files %}
+{% load_sound_player_files %}
 {% endblock %}
 
 {% block page_js %}
 
-    <script type="text/javascript">
-        $(document).ready(function() {
-            loadDatasetReleasesTable();
-            {% if dataset_release_form_errors %}
-                $('#make_release_modal').modal('show');
-            {% endif %}
-            $('.menu .item').tab();
-            start_auto_scroll();
-            $('#category-progress').progress({
-                percent: '{% widthratio dataset_basic_stats.num_categories_reached_goal dataset_basic_stats.num_non_omitted_nodes 100 %}'
-            });
+<script type="text/javascript">
+    $(document).ready(function() {
+        loadDatasetStateTable();
+        {% if dataset_release_form_errors %}
+        $('#make_release_modal').modal('show');
+        {% endif %}
+        loadDatasetTaxonomyTable();
+        loadOntologyTree();
+        $('.menu .item').tab();
+        
+        $('.message .close')
+        .on('click', function() {
+            $(this)
+            .closest('.message')
+            .transition('fade');
         });
-
-        function loadDatasetReleasesTable() {
-            $( "#dataset_releases_table_placeholder" ).load( "{% url 'releases-table' dataset.short_name %}");
-        }
-
-        function start_auto_scroll() {
-            var examples_container = $('#examples_container');
-            var categories = examples_container.children();
-            var translate_values = [];
-            categories.each(function(){
-                translate_values.push(-$( this ).position()['left']+3)
+    });
+    
+    function loadDatasetStateTable() {
+        $( "#dataset_releases_table_placeholder" ).load( "{% url 'state-table' dataset.short_name %}");
+    }
+    
+    function loadDatasetTaxonomyTable(){
+        $( "#dataset_taxonomy_table_placeholder" ).load( "{% url 'taxonomy-table' dataset.short_name %}", function() {
+            $('#dataset_contents').DataTable({
+                'paging': true,
+                'info': true,
+                'columns': [
+                null,
+                { "width": "70px" },
+                { "width": "170px" },
+                { "width": "100px" },
+                ]
             });
-            var counter = 1;
-            examples_container.css({"transform": "translateX("+ translate_values[0] +")"});
-            var paused = false;
-            $('#category_examples').on({
-                mouseenter: function () {
-                    paused = true;
-                },
-                mouseleave: function () {
-                    paused = false;
-                }
-            });
-            setInterval(function() {
-                if (!paused) {
-                    var translate_value = translate_values[counter];
-                    examples_container.css({"transform": "translateX(" + translate_value + "px)"});
-                    counter = (counter < 9) ? counter + 1 : 0;
-                    // stop currently playing sound
-                    if (window.activePlayer) {
-                        window.activePlayer.stop();
-                    }
-                }
-            }, 3000)
-
-        }
-    </script>
+            $('#dataset_contents_paginate').parent().attr('style', 'width: 100% !important');
+        });
+    }
+    
+</script>
 {% endblock %}
 {% block content %}
 
-<center>
-
-
 {% if dataset.short_name == "fsd" %}
+    <h1 style="color: black;">{{ dataset.short_name|upper }} is a large-scale, general-purpose audio dataset</h1>
+    <p style="margin-top:0px">Thousands of audio samples from <a target="_blank" href="http://freesound.org/"><b>Freesound</b></a> organised following the <a target="_blank" href="https://research.google.com/audioset/"><b>AudioSet Ontology</b></a></p>
 
-<h2 style="color: black;">{{ dataset.short_name|upper }} is a large-scale, general-purpose audio dataset</h2>
-        <p style="margin-top:0px">Thousands of audio samples from <a target="_blank" href="http://freesound.org/"><b>Freesound</b></a> organised following the <a target="_blank" href="https://research.google.com/audioset/"><b>AudioSet Ontology</b></a></p>
+    <br>
 
-<br>
-
-  <div class="ui container" style="width:90%;">
-    <div class="ui middle aligned stackable grid container">
-      <div class="row">
-        <div class="right floated left aligned nine wide column">
-          <h3 class="ui header">{{ dataset.short_name|upper }}: a dataset of everyday sounds</h3>
-          <p style="text-align:justify">The AudioSet Ontology is a hierarchical collection of over 600 sound classes and
-              we have filled them with {{ dataset_basic_stats.num_sounds|intcomma }} audio samples from Freesound.
-              This process generated {{ dataset_basic_stats.num_annotations|intcomma }} candidate annotations
-that express the potential presence of sound sources in audio clips.
-          {{ dataset.short_name|upper }}  includes a variety of everyday sounds, from human and animal sounds to music and sounds made by things,
-              all under Creative Commons licenses.
-          </p>
+    <div class="ui container" style="width:90%;">
+        <div class="ui middle aligned stackable grid container">
+            <div class="row">
+                <div class="right floated left aligned nine wide column">
+                    <h3 class="ui header">{{ dataset.short_name|upper }}: a dataset of everyday sounds</h3>
+                    <p style="text-align:justify">The AudioSet Ontology is a hierarchical collection of over 600 sound classes and
+                        we have filled them with {{ dataset_basic_stats.num_sounds|intcomma }} audio samples from Freesound.
+                        This process generated {{ dataset_basic_stats.num_annotations|intcomma }} candidate annotations
+                        that express the potential presence of sound sources in audio clips.
+                        {{ dataset.short_name|upper }}  includes a variety of everyday sounds, from human and animal sounds to music and sounds made by things,
+                        all under Creative Commons licenses.
+                    </p>
+                </div>
+                <div class="six wide right floated column">
+                    <div class="ui basic segment ">
+                        <img class="ui center aligned image" style="width: 270px;padding: 0px 20px 3px 20px;" src="{% static "img/freesound_logo_color.png" %}">
+                        <img class="ui center aligned image" style="width: 270px;padding: 10px 20px 10px 20px;" src="{% static "img/audioset_logo_blue.svg" %}">
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="six wide right floated column">
-              <div class="ui basic segment ">
-          <img class="ui center aligned image" style="width: 270px;padding: 0px 20px 3px 20px;" src="{% static "img/freesound_logo_color.png" %}">
-          <img class="ui center aligned image" style="width: 270px;padding: 10px 20px 10px 20px;" src="{% static "img/audioset_logo_blue.svg" %}">
-          </div>
+    </div>
+    <br><br>
+    <div class="ui container" style="width:90%;">
+        <div class="ui middle aligned stackable grid container">
+            <div class="row">
+                <div id="category_examples" class="six wide right floated column" style="overflow-x: hidden; overflow-y: hidden;">
+                    <div id="examples_container" style="width: 3000px; transition: transform 1s ease;">
+                        {% for node in random_nodes %}
+                        <span class="ui segment" id="node_{{ forloop.counter }}" style="display: inline-block; width:294px;">
+                            <a href="{% url 'dataset-explore-taxonomy-node' dataset.short_name node.url_id %}"><p><b>{{ node.name }}</b></p></a>
+                            <div>
+                                {% for sound in node.valid_examples|slice:"2" %}
+                                <span>
+                                    {% sound_player dataset sound "mini" %}
+                                    {#                    {{ sound| fs_embed | safe }}#}
+                                </span>
+                                {% endfor %}
+                            </div>
+                        </span>
+                        {% endfor %}
+                    </div>
+                    <h2 class="big">New release out!</h2>
+                    <a href="{% url 'dataset-release' 'fsd' 'FSD50K' %}" 
+                    class="ui big button red right labeled icon" style="margin-top: 10px;"> Explore FSD50K<i class="right arrow icon"></i>
+                </a>
+                <!--<div id="category-progress" class="ui red progress" style="width: 95%;" align="left">
+                    <div class="bar"></div>
+                </div>
+                <h5 style="margin-top: -25px; text-align: center">
+                    {{ dataset_basic_stats.num_categories_reached_goal }}/{{ dataset_basic_stats.num_non_omitted_nodes }} categories have reached our first goal!
+                </h5> -->
+            </div>
+            <div class="right floated left aligned nine wide column">
+                <h3 class="ui header">Crowdsourcing annotations</h3>
+                <!--<p style="text-align:justify">By creating this dataset, we hope to promote research to enable machines to hear-->
+                    <!--and interpret similarly to humans.-->
+                    <!--In order to make {{ dataset.short_name|upper}} reliable enough for research, we need to verify the generated annotations.-->
+                    <!--To do so, we are now crowdsourcing annotations to build the first {{ dataset.short_name|upper }} release. Wanna contribute? :)-->
+                    <!--</p>-->
+                    <p style="text-align:justify">By creating this dataset, we seek promoting research that will enable machines to hear
+                        and interpret sound similarly to humans. But to make {{ dataset.short_name|upper}} reliable enough for
+                        research, we need to verify the generated annotations.
+                        So we are now crowdsourcing annotations to build the first {{ dataset.short_name|upper }} release,
+                        which will include waveforms, audio features, ground truth and additional metadata.
+                        Our first goal is to gather at least 100 verified samples per category (whenever available).
+                        Wanna contribute?
+                    </p>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
-
-<br><br>
-
-  <div class="ui container" style="width:90%;">
-    <div class="ui middle aligned stackable grid container">
-      <div class="row">
-        <div id="category_examples" class="six wide right floated column" style="overflow-x: hidden; overflow-y: hidden;">
-          <div id="examples_container" style="width: 3000px; transition: transform 1s ease;">
-            {% for node in random_nodes %}
-              <span class="ui segment" id="node_{{ forloop.counter }}" style="display: inline-block; width:294px;">
-              <a href="{% url 'dataset-explore-taxonomy-node' dataset.short_name node.url_id %}"><p><b>{{ node.name }}</b></p></a>
-              <div>
-                {% for sound in node.valid_examples|slice:"2" %}
-                  <span>
-                    {% sound_player dataset sound "mini" %}
-{#                    {{ sound| fs_embed | safe }}#}
-                  </span>
-                {% endfor %}
-              </div>
-              </span>
-            {% endfor %}
-          </div>
-          <h2 class="big">New release out!</h2>
-          <a href="{% url 'dataset-release' 'fsd' 'FSD50K' %}" 
-            class="ui big button red right labeled icon" style="margin-top: 10px;"> Explore FSD50K<i class="right arrow icon"></i>
-          </a>
-          <!--<div id="category-progress" class="ui red progress" style="width: 95%;" align="left">
-            <div class="bar"></div>
-          </div>
-          <h5 style="margin-top: -25px; text-align: center">
-              {{ dataset_basic_stats.num_categories_reached_goal }}/{{ dataset_basic_stats.num_non_omitted_nodes }} categories have reached our first goal!
-          </h5> -->
-        </div>
-        <div class="right floated left aligned nine wide column">
-          <h3 class="ui header">Crowdsourcing annotations</h3>
-          <!--<p style="text-align:justify">By creating this dataset, we hope to promote research to enable machines to hear-->
-              <!--and interpret similarly to humans.-->
-          <!--In order to make {{ dataset.short_name|upper}} reliable enough for research, we need to verify the generated annotations.-->
-              <!--To do so, we are now crowdsourcing annotations to build the first {{ dataset.short_name|upper }} release. Wanna contribute? :)-->
-          <!--</p>-->
-          <p style="text-align:justify">By creating this dataset, we seek promoting research that will enable machines to hear
-              and interpret sound similarly to humans. But to make {{ dataset.short_name|upper}} reliable enough for
-              research, we need to verify the generated annotations.
-              So we are now crowdsourcing annotations to build the first {{ dataset.short_name|upper }} release,
-              which will include waveforms, audio features, ground truth and additional metadata.
-              Our first goal is to gather at least 100 verified samples per category (whenever available).
-              Wanna contribute?
-          </p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-
-<br><br>
-<div class="ui basic segment center aligned ">
-<h2> Get involved and start contributing!</h2>
-<center>
-<div class="ui basic labels" style="margin-top:25px;border: 0px solid;">
-
-  <a class="ui basic label" href="{% url 'dataset-explore' dataset.short_name %}" style="min-width: 200px;border: 0px solid;">
-      <center><h3>Explore</h3>
-      <i class="unhide icon huge"></i><br><br>
-      <p class="small text">Take a peek <br> inside {{ dataset.short_name|upper }}</p></center>
-    </a>
-
-  <a class="ui basic label" href="{% url 'contribute' dataset.short_name %}" style="min-width: 200px;border: 0px solid;">
-      <center><h3>Annotate</h3>
-      <i class="child icon huge"></i><br><br>
-      <p class="small text">Help us verify the<br> candidate annotations</p></center>
-    </a>
-
-  <a class="ui basic label" href="{% url 'discussion' dataset.short_name %}" style="min-width: 200px;border: 0px solid;">
-      <center><h3>Discuss</h3>
-      <i class="comments outline icon huge"></i><br><br>
-      <p class="small text">Share your comments<br>and suggestions</p></center>
-    </a>
-</div>
-</center>
-<br>
-</div>
-
-
-<br>
-<div class="ui center aligned ">
-
-<div class="ui grid">
-
-<div class="twelve wide column"><h2>Our long-term goals</h2>
- <br>
- <div class="ui three statistics">
-  <div class="ui blue statistic">
-    <div class="value">
-      +600k
-    </div>
-    <div class="label">
-      annotations
-    </div>
-  </div>
-  <div class="ui blue statistic">
-    <div class="label">
-      improving
-    </div>
-    <div class="text value">
-      quantity <br>& quality
-    </div>
-  </div>
-  <div class="ui blue statistic">
-    <div class="value">
-      +260k
-    </div>
-    <div class="label">
-      audio samples
-    </div>
-  </div>
- </div>
-</div>
-<div class="four wide column"><h2>Currently</h2>
- <br>
- <div class="ui one statistics">
-  <div class="ui blue statistic">
-    <div class="value">
-      {{ dataset_basic_stats.percentage_verified_annotations|floatformat:1 }}%
-    </div>
-    <div class="label">
-      annotations<br> verified
-    </div>
-  </div>
- </div>
-</div>
-
-</div>
-</div>
-
-<div class="ui main center aligned container stackable" style="margin-top: 40px; margin-bottom: -30px;">
-  <p><i>If you use this dataset in your work please cite our paper and check it out for more information:</i><br><b>
-    <a target="_blank" href="https://ieeexplore.ieee.org/document/9645159">
-        FSD50K: An Open Dataset of Human-Labeled Sound Events.
-    </a></b><br>E. Fonseca, X. Favory, J. Pons, F. Font & X. Serra<br>
-    in <i>IEEE/ACM Transactions on Audio, Speech, and Language Processing</i>, vol. 30, pp. 829-852, 2022, doi: 10.1109/TASLP.2021.3133208.<b>
-</a></b></p>
-</div>
-</center>
 {% else %}
-
-<h2 style="color: black;">{{ dataset.name|upper }}</h2>
-<br>
-<div class="ui container" style="width:90%;">
-  <div class="ui middle aligned stackable grid container">
+    <h1 style="color: black;">{{ dataset.name|upper }}</h1>
+    <br>
     <div class="row">
-      {{ dataset.description|safe }}
+        <p style="text-align:justify">{{ dataset.description|safe }}</p>
     </div>
-  </div>
+{% endif %}
+
+<br>
+<h2 class="ui header">Explore {{ dataset.short_name|upper }}</h2>
+<p>The table shows some current basic stats of {{ dataset.short_name|upper }}. Hover your mouse over the headers for more info.</p>
+<div>
+<p>
+    <div id="dataset_releases_table_placeholder">
+        <div class="ui active centered inline text loader">Loading data...</div>
+    </div>
+</p>
+</div>
+{% if dataset.short_name == "fsd" %}
+<div class="ui message">
+    <p>Categories shaded in red are AudioSet categories that are not considered for the first release of {{ dataset.short_name|upper }}. See our
+                    <a target="_blank" href="https://repositori.upf.edu/handle/10230/33299">
+                        ISMIR2017 paper</a> for more details.</p>
+</div>
+{% endif %}
+<div class="ui two item top attached tabular menu">
+    <a class="item active" data-tab="first">
+        <i class="list layout icon"></i> Table
+    </a>
+    <a class="item" data-tab="second">
+        <i class="tree icon"></i> Tree
+    </a>
+</div>
+<div class="ui bottom attached tab segment active" data-tab="first">
+    <div id="dataset_taxonomy_table_placeholder" class="tabcontent">
+        <div class="ui active centered inline text loader">Loading data...</div>
+    </div>
+</div>
+<div class="ui bottom attached tab segment" data-tab="second">
+    {% include "datasets/ontology_tree.html" %}
 </div>
 
-{% endif %}
 {% endblock %}

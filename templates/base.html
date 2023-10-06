@@ -46,16 +46,16 @@
                         <a href="{% url 'dataset' dataset.short_name %}" class="{% if dataset_page %} active {% else %} {% endif %}item">
                             <img style="padding: 5px;width: 120px;max-height:70px;" src="{% static "img/freesound_dataset_logo_b.svg" %}"></a>
                     {% else %}
-                        {{ dataset.name }}
+                        <a href="{% url 'dataset' dataset.short_name %}" class="{% if dataset_page %} active {% else %} {% endif %}item"><b>{{ dataset.short_name }}</b></a>
                     {% endif %}
                     {% if dataset.datasetrelease_set.first %}
                         {% if dataset.datasetrelease_set.first.type == 'PU' or request.user.profile.is_fsd_maintainer %}
                             <a href="{% url 'dataset-release' dataset.short_name dataset.datasetrelease_set.first.release_tag %}" class="{% active_if_current 'dataset-release' %}item">{{dataset.datasetrelease_set.first.release_tag}}</a>
                         {% endif %}
                     {% endif %}
-                    <a href="{% url 'dataset-explore' dataset.short_name %}" class="{% active_if_current 'dataset-explore' %}item">Status</a>
+                    <!--a href="{% url 'dataset-explore' dataset.short_name %}" class="{% active_if_current 'dataset-explore' %}item">Explore</a-->
                     <a href="{% url 'contribute' dataset.short_name %}" class="{% active_if_current 'contribute' %}item">Annotate</a>
-                    <a href="{% url 'discussion' dataset.short_name %}" class="{% active_if_current 'discussion' %}item">Discussion</a>
+                    <a href="{% url 'discussion' dataset.short_name %}" class="{% active_if_current 'discussion' %}item">Discuss</a>
                     <a href="{% url 'downloads' dataset.short_name %}" class="{% active_if_current 'download' %}item">Download</a>
                     {% if dataset.short_name == "fsd" %}
                         {% if request.user.profile.is_fsd_maintainer %}

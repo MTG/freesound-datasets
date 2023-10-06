@@ -64,7 +64,7 @@ class Command(BaseCommand):
                         sound=sound
                     )
 
-                    for node_id in sound_data['aso_ids']:
+                    for node_id in sound_data['category_ids']:
                         c = CandidateAnnotation.objects.create(
                             sound_dataset=sound_dataset,
                             type='AU',

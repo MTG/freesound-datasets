@@ -79,3 +79,84 @@ This will create 100 fake sounds, 5 fake users, 1000 fake annotations and 1000 f
 You can run this command again to generate more data.
 
 
+## Add a new dataset with a validation task
+
+1) Create dataset object from the admin
+
+2) Create a taxonomy.json file which looks like the example below and load using command (get the dataset ID from the admin): 
+
+```python manage.py load_taxonomy 'DATASET_ID PATH/TO/TAOXNOMY_FILE.json```
+
+```json
+{
+    "id1":{
+        "id":"id1",
+        "name":"Main class",
+        "child_ids":["id2"],
+        "description":"A description for this cateogry.",
+        "citation_uri":"http://en.wikipedia.org/wiki/Artillery",
+        "positive_examples_FS":[
+            253284,
+            85201
+        ]
+    },
+    "id2":{
+        "id":"id2",
+        "name":"Sub class",
+        "parent_ids":["id1"],
+        "description":"A description for this cateogry.",
+        "positive_examples_FS":[
+            1234,
+            1235
+        ]
+    }
+}
+```
+
+3) Create objects for the taxonomy nodes using command (get the taxonomy ID from the admin):
+
+```python manage.py create_taxonomy_node_instances TAXONOMY_ID```
+
+4) Load candidate sound annotations from a JSON file using the command (`algorithm_name` is ):
+
+```python manage.py load_sounds_for_dataset short_ds_name filepath.json algorithm_name```
+
+```json
+{
+    "366411":{
+      "username":"Rach_Capache",
+      "description":"Cat sniffing: sniffing microphone. Recorded with a ZOOM H6 recorder and X/Y capsule. The sound was post-processed to remove any background noise or room tone.",
+      "license":"http://creativecommons.org/licenses/by-nc/3.0/",
+      "tags":[
+         "close",
+         "sniffing",
+         "cat",
+         "kitty",
+         "pet",
+         "sniff",
+         "owi"
+      ],
+      "previews":"http://www.freesound.org/data/previews/366/366411_5959200-hq.ogg",
+      "duration":5.0,
+      "category_ids":[
+         "id1"
+      ],
+      "name":"Cat Sniffing.wav"
+   },
+   "38121":{
+      "username":"deprogram",
+      "description":"dog bark ",
+      "license":"http://creativecommons.org/licenses/by-nc/3.0/",
+      "tags":[
+         "bark",
+         "dog"
+      ],
+      "previews":"http://www.freesound.org/data/previews/38/38121_389218-hq.ogg",
+      "duration":2.9953968254,
+      "category_ids":[
+         "id2"
+      ],
+      "name":"bark.wav"
+   }
+}
+```

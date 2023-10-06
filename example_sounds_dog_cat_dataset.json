@@ -9,7 +9,7 @@
       ],
       "previews":"http://www.freesound.org/data/previews/98/98672_1658351-hq.ogg",
       "duration":1.04430839002,
-      "aso_ids":[
+      "category_ids":[
          "/m/01yrx"
       ],
       "name":"catlick.wav"
@@ -30,7 +30,7 @@
       ],
       "previews":"http://www.freesound.org/data/previews/365/365053_6586255-hq.ogg",
       "duration":12.6213,
-      "aso_ids":[
+      "category_ids":[
          "/m/0bt9lr"
       ],
       "name":"Dog Barking - Jack Russel"
@@ -46,7 +46,7 @@
       ],
       "previews":"http://www.freesound.org/data/previews/16/16363_53789-hq.ogg",
       "duration":11.1455782313,
-      "aso_ids":[
+      "category_ids":[
          "/m/0bt9lr"
       ],
       "name":"dog_drinking_frying.wav"
@@ -62,7 +62,7 @@
       ],
       "previews":"http://www.freesound.org/data/previews/210/210179_3685050-hq.ogg",
       "duration":4.01621,
-      "aso_ids":[
+      "category_ids":[
          "/m/01yrx"
       ],
       "name":"Walking.wav"
@@ -82,7 +82,7 @@
       ],
       "previews":"http://www.freesound.org/data/previews/366/366411_5959200-hq.ogg",
       "duration":5.0,
-      "aso_ids":[
+      "category_ids":[
          "/m/01yrx"
       ],
       "name":"Cat Sniffing.wav"
@@ -97,7 +97,7 @@
       ],
       "previews":"http://www.freesound.org/data/previews/38/38121_389218-hq.ogg",
       "duration":2.9953968254,
-      "aso_ids":[
+      "category_ids":[
          "/m/0bt9lr"
       ],
       "name":"bark.wav"

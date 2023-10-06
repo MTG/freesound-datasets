@@ -2,16 +2,12 @@
 {% load static %}
 
 {% block content %}
-<h1 class="ui header">Download datasets</h1>
-
-<p>
-    Datasets created within the Freesound Annotator platform can be downloaded from the 
-    <a target="blank" href="https://zenodo.org/communities/freesound-datasets/">Freesound Datasets Zenodo community page</a>.
-</p>
-
+<h1 class="ui header">Download dataset</h1>
+<br>
 <div class="container" style="width:100%">
     <table class="ui celled large table">
         <tbody>
+            {% if dataset.short_name == "fsd" %}
             <tr>
                 <td>FSD50K</td>
                 <td>
@@ -70,6 +66,11 @@
                     </a>
                 </td>
             </tr>
+            {% else %}
+            <tr>
+               <td><p>Currently there are no releases of the {{ dataset.short_name }} dataset available for downloading. Stay tuned!</p></td>
+            </tr>
+            {% endif %}
         </tbody>
     </table>
 </div>

@@ -21,8 +21,8 @@ class Command(BaseCommand):
 
         prepared_data = {}
         parents = collections.defaultdict(list)
-        for d in data:
-            for cid in d['child_ids']:
+        for d in data.values():
+            for cid in d.get('child_ids', []):
                 parents[cid].append(d['id'])
             prepared_data[d['id']] = d
         for childid, parentids in parents.items():

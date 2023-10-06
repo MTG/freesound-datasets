@@ -13,11 +13,9 @@
                     <div class="ui raised segment">
                         <div class="ui two column middle aligned very relaxed stackable grid">
                             <div class="eleven wide column">
-                                <p class="medium text"><b>Validate category annotations:</b> this task consists
-                                of validating (automatically generated) annotations that express the potential presence of a sound
-                                category in an audio sample.
-                                <br><i>Beginners task assigns you random categories among a few simpler ones.<br>
-                                Advanced task allows you to choose your category among a lot of them.</i>
+                                <p class="medium text"><b>Validate category annotations:</b> this task consists of validating the adequacy of specific sound categories for given audio samples.
+                                You'll be shown a number of audio samples and you'll be asked to validate the presence of a sound category in each of them.
+                                The beginner's task includes sound categories which are easier to validate, while the advanced task contains harder sound categories.
 
 <!--<div data-tooltip="Annotations that denote the potential presence of a sound category in an audio clip">Beginners task</div>-->
                                 </p>
@@ -48,7 +46,7 @@
         </tbody>
     </table>
 
-    {% if user_is_maintainer %}
+    {% if user_is_maintainer and dataset.short_name == "fsd" %}
         <div class="ui raised segment">
             <div class="ui two column middle aligned very relaxed stackable grid">
                 <div class="eleven wide column"><p class="medium text"><b>Validate category annotations (maintainer):</b>
@@ -82,12 +80,13 @@
         Some statistics
     </h4>
 
+    {% if dataset.short_name == "fsd" %}
     <div class="ui center aligned huge header">
         <div class="content">
             We are already&nbsp; <span class="ui blue statistic" style="margin-bottom: 20px;"><span class="value" id="contributors">{{ n_contributors }}</span></span>&nbsp; contributors...
-            <div class="ui sub header">Join us!</div>
         </div>
     </div>
+    {% endif %}
 
     <br>
 
@@ -247,6 +246,9 @@
         });
 
         function animateValue(elem, end, duration) {
+            if (end == 0){
+                return;
+            }
             var start = 0;
             var current = start;
             var increment = end > start? 1 : -1;

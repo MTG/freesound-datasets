@@ -19,7 +19,7 @@ class Command(BaseCommand):
             omitted = 'omittedTT' in node.get('restrictions', [])
             taxonomy_node =  TaxonomyNode.objects.create(node_id=node_id, 
                                                          name=node['name'], 
-                                                         description=node['description'], 
+                                                         description=node.get('description', ''), 
                                                          citation_uri=node.get('citation_uri', ''), 
                                                          abstract=abstract,
                                                          omitted=omitted, 

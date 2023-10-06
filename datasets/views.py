@@ -22,7 +22,7 @@ from pygments.formatters import HtmlFormatter
 from datasets.tasks import generate_release_index, compute_dataset_basic_stats, compute_dataset_taxonomy_stats, \
     compute_annotators_ranking, compute_taxonomy_tree
 from utils.redis_store import store, DATASET_BASIC_STATS_KEY_TEMPLATE, DATASET_TAXONOMY_STATS_KEY_TEMPLATE, \
-    DATASET_ANNOTATORS_RANKING_TEMPLATE, FSD_TAXONOMY_TREE
+    DATASET_ANNOTATORS_RANKING_TEMPLATE
 from utils.async_tasks import data_from_async_task
 import os
 import random
@@ -42,19 +42,8 @@ def dataset(request, short_name):
     # Get previously stored dataset release stats
     dataset_basic_stats = data_from_async_task(compute_dataset_basic_stats, [dataset.id], {},
                                                DATASET_BASIC_STATS_KEY_TEMPLATE.format(dataset.id), 60)
-
-    return render(request, 'datasets/dataset.html', {
-        'dataset': dataset,
-        'dataset_page': True,
-        'user_is_maintainer': user_is_maintainer,
-        'random_nodes': random_taxonomy_nodes,
-        'dataset_basic_stats': dataset_basic_stats,
-    })
-
-
-def dataset_explore(request, short_name):
-    dataset = get_object_or_404(Dataset, short_name=short_name)
-    user_is_maintainer = dataset.user_is_maintainer(request.user)
+    
+    # Form logic for creating releases (not sure if this is actually used at all)
     form_errors = False
     if request.method == 'POST':
         form = DatasetReleaseForm(request.POST)
@@ -71,18 +60,25 @@ def dataset_explore(request, short_name):
     else:
         form = DatasetReleaseForm()
 
-    return render(request, 'datasets/dataset_explore.html', {
+    return render(request, 'datasets/dataset.html', {
         'dataset': dataset,
+        'dataset_page': True,
         'user_is_maintainer': user_is_maintainer,
+        'random_nodes': random_taxonomy_nodes,
+        'dataset_basic_stats': dataset_basic_stats,
         'dataset_release_form': form,
         'dataset_release_form_errors': form_errors,
     })
 
 
+def dataset_explore(request, short_name):
+    return HttpResponseRedirect(reverse('dataset', args=[short_name]))
+
+
 def dataset_taxonomy_tree(request, short_name):
     dataset = get_object_or_404(Dataset, short_name=short_name)
-    taxonomy_tree = data_from_async_task(compute_taxonomy_tree, [], {},
-                                         FSD_TAXONOMY_TREE, refresh_time=3600)
+    taxonomy_tree = data_from_async_task(compute_taxonomy_tree, [dataset.id], {},
+                                         '{}_taxonomy_tree'.format(dataset.short_name), refresh_time=3600)
     if not taxonomy_tree:
         taxonomy_tree = dataset.taxonomy.get_taxonomy_as_tree()
 
@@ -212,9 +208,7 @@ def search_taxonomy_node(request, short_name):
 
 def contribute(request, short_name, beginner_task_finished=False):
     dataset = get_object_or_404(Dataset, short_name=short_name)
-
-    n_contributors = User.objects.annotate(num_votes=Count('votes')).filter(num_votes__gt=0).count()
-
+    n_contributors = Vote.objects.filter(candidate_annotation__sound_dataset__dataset=dataset).distinct('created_by_id').count()
     user_is_maintainer = dataset.user_is_maintainer(request.user)
 
     # Get previously stored annotators ranking
